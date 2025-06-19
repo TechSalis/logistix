@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/constants/styling.dart';
 
 class BottomsheetContainer extends StatelessWidget {
   const BottomsheetContainer({
@@ -13,15 +14,8 @@ class BottomsheetContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: context.boxDecorationWithShadow.copyWith(
         borderRadius: borderRadius,
-        color: Theme.of(context).bottomSheetTheme.backgroundColor,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: Theme.of(context).bottomSheetTheme.elevation!,
-            color: Theme.of(context).bottomSheetTheme.shadowColor!,
-          ),
-        ],
       ),
       child: Column(children: [SizedBox(height: 24), Flexible(child: child)]),
     );

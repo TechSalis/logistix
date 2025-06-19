@@ -8,9 +8,10 @@ class MyTheme {
     scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.light(
       primary: AppColors.primarySwatch,
-      secondary: AppColors.blueGrey,
+      secondary: AppColors.blueGrey[900]!,
       surface: Colors.white,
     ),
+    dividerTheme: DividerThemeData(color: Colors.grey[300]),
     // cardColor: Colors.white,
     chipTheme: ChipThemeData(selectedColor: AppColors.primarySwatch),
     // appBarTheme: AppBarTheme(
@@ -27,7 +28,7 @@ class MyTheme {
       fillColor: Colors.grey[100],
       prefixIconColor: AppColors.blueGrey,
       hintStyle: TextStyle(color: Colors.grey),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: BorderSide(color: Colors.grey[300]!),
@@ -61,17 +62,17 @@ class MyTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         backgroundColor: AppColors.blueGrey[900],
         foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     ),
-    cardTheme: CardTheme(color: Colors.grey[200]),
+    cardTheme: CardTheme(color: Colors.grey[50]),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.grey[200],
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     ),
     bottomSheetTheme: BottomSheetThemeData(
@@ -86,11 +87,10 @@ class MyTheme {
     primarySwatch: AppColors.primarySwatch,
     scaffoldBackgroundColor: Colors.grey[900],
     colorScheme: ColorScheme.dark(
-      primary: AppColors.primarySwatch,
-      secondary: AppColors.blueGrey,
+      primary: AppColors.blueGrey[900]!,
+      secondary: AppColors.primarySwatch,
       surface: Colors.black,
     ),
-    chipTheme: ChipThemeData(selectedColor: AppColors.primarySwatch),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.grey[850],
@@ -130,19 +130,21 @@ class MyTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         backgroundColor: AppColors.blueGrey[900],
         foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     ),
+    dividerTheme: DividerThemeData(color: Colors.grey[800]),
+    chipTheme: ChipThemeData(selectedColor: AppColors.primarySwatch),
+    cardTheme: CardTheme(color: Colors.black87, shadowColor: Colors.white),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Colors.grey[900],
     ),
-    cardTheme: CardTheme(color: Colors.grey[900]),
     bottomSheetTheme: BottomSheetThemeData(
       elevation: 8,
       backgroundColor: Colors.black,

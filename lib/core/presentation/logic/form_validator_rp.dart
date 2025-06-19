@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final shouldValidateProvider = AutoDisposeStateProvider.family<bool, Object>(
+final shouldValidateProvider = StateProvider.autoDispose.family<bool, Object>(
   (ref, key) => false,
 );
 
-class FormValidatorNotifier
+final class FormValidatorNotifier
     extends AutoDisposeFamilyNotifier<String?, TextEditingController> {
   final String? Function(String value) validator;
 
@@ -20,21 +20,21 @@ class FormValidatorNotifier
   }
 }
 
-class FormValidators {
+abstract class FormValidators {
   static String? required(String value) {
     if (value.isEmpty) return 'This field is required';
     return null;
   }
 }
 
-class FormValidationData {
+final class FormValidationData {
   final TextEditingController controller;
   final ProviderListenable<String?> provider;
 
   FormValidationData(this.controller, this.provider);
 }
 
-class FormValidatorGroup {
+final class FormValidatorGroup {
   final WidgetRef ref;
   final List<FormValidationData> fields;
 
