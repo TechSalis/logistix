@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logistix/core/constants/colors.dart';
+import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/logic/form_validator_rp.dart';
 import 'package:logistix/core/presentation/widgets/page_indicator/effects/jumping_dot_effect.dart';
 import 'package:logistix/core/presentation/widgets/page_indicator/smooth_page_indicator.dart';
-import 'package:logistix/features/quick_actions/presentation/logic/food_dialog_validator.dart';
+import 'package:logistix/features/quick_actions/presentation/logic/textfield_validators.dart';
+import 'package:logistix/features/quick_actions/presentation/widgets/form_card.dart';
+import 'package:logistix/features/quick_actions/presentation/widgets/order_fare_widget.dart';
+import 'package:logistix/core/presentation/widgets/price_selector_widget.dart';
 import 'package:logistix/features/quick_actions/presentation/quick_actions_enum.dart';
-import 'package:logistix/features/quick_actions/presentation/widgets/location_text_field.dart';
-import 'package:logistix/features/quick_actions/presentation/widgets/price_selector_widget.dart';
+import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
 
 class FoodQASection extends ConsumerStatefulWidget {
   const FoodQASection({super.key});
@@ -19,103 +20,195 @@ class FoodQASection extends ConsumerStatefulWidget {
 }
 
 class _FoodQASectionState extends ConsumerState<FoodQASection> {
-  final pickUpTEC = TextEditingController();
-  final dropoffTEC = TextEditingController();
-  final descriptionTEC = TextEditingController();
+  final pageController = PageController();
 
-  int page = 0;
+  final descriptionTEC = TextEditingController();
+  final priceTEC = TextEditingController();
+  final dropoffTEC = TextEditingController();
+  final pickupTEC = TextEditingController();
 
   @override
   void dispose() {
-    pickUpTEC.dispose();
-    dropoffTEC.dispose();
+    pageController.dispose();
     descriptionTEC.dispose();
+    priceTEC.dispose();
+    dropoffTEC.dispose();
+    pickupTEC.dispose();
     super.dispose();
+  }
+
+  void nextPage() {
+    final group = FormValidatorGroup(ref, [
+      FormValidationData(
+        descriptionTEC,
+        textfieldValidatorProvider(descriptionTEC),
+      ),
+      FormValidationData(priceTEC, textfieldValidatorProvider(priceTEC)),
+    ]);
+
+    if (group.validateAndCheck()) {
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void previousPage() {
+    pageController.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void onConfirm() {
+    final group = FormValidatorGroup(ref, [
+      FormValidationData(dropoffTEC, textfieldValidatorProvider(dropoffTEC)),
+    ]);
+
+    if (group.validateAndCheck()) {
+      //TODO: submit food
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 20,
-          right: 20,
-        ),
+        padding: EdgeInsets.only(bottom: bottom),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                children: [
-                  BackButton(
-                    onPressed: () {
-                      if (page > 0) {
-                        setState(() => page--);
-                      } else {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                  ),
-                  SizedBox(width: 16),
-                  Text(
-                    'Order Food',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: QuickAction.food.color,
+              QuickActionIcon(action: QuickAction.food, size: 64),
+              const SizedBox(height: 8),
+              Text(
+                'Buy Food',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 360,
+                child: PageView(
+                  controller: pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _errorTECFornCardProviderBuilder(
+                            tec: descriptionTEC,
+                            title: "What's the order? *",
+                            child: TextField(
+                              controller: descriptionTEC,
+                              minLines: 3,
+                              maxLines: 3,
+                              maxLengthEnforcement:
+                                  MaxLengthEnforcement.enforced,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(255),
+                              ],
+                              onTapOutside: (event) {
+                                FocusScope.of(context).unfocus();
+                              },
+                              decoration: const InputDecoration(
+                                hintText:
+                                    'e.g. 2x chicken suya and 1 malt.\n'
+                                    'You can leave a note for the rider.',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _errorTECFornCardProviderBuilder(
+                            tec: priceTEC,
+                            title: "Budget (₦) *",
+                            child: PriceSelectorField(controller: priceTEC),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              IndexedStack(
-                index: page,
-                alignment: Alignment.topCenter,
-                children: [
-                  _P1DescriptionWidget(descriptionTEC: descriptionTEC),
-                  _P2LocationWidget(
-                    dropoffTEC: dropoffTEC,
-                    pickUpTEC: pickUpTEC,
-                  ),
-                ],
-              ),
-              SizedBox(height: 40),
-              AnimatedSmoothIndicator(
-                activeIndex: page,
-                count: 2,
-                effect: JumpingDotEffect(
-                  dotWidth: 8,
-                  dotHeight: 8,
-                  activeDotColor: QuickAction.food.color,
-                  // activeDotColor: Theme.of(context).colorScheme.primary,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _errorTECFornCardProviderBuilder(
+                            tec: dropoffTEC,
+                            title: "Dropoff Location *",
+                            child: LocationTextField(
+                              controller: dropoffTEC,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 12 Lekki Phase 1',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _errorTECFornCardProviderBuilder(
+                            tec: null,
+                            title: "Restaurant/Pickup",
+                            child: LocationTextField(
+                              controller: pickupTEC,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. Chicken Republic',
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          OrderFareWidget(
+                            farePrice: r'N5.3k - N20k',
+                            eta: '20-30min',
+                            color: QuickAction.food.color.withAlpha(40),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 16),
-              IndexedStack(
-                index: page,
-                alignment: Alignment.topCenter,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _onContiunue,
-                      child: Text('Continue'),
+              ListenableBuilder(
+                listenable: pageController,
+                builder: (context, child) {
+                  return AnimatedSmoothIndicator(
+                    activeIndex: pageController.page?.round() ?? 0,
+                    count: 2,
+                    effect: JumpingDotEffect(
+                      dotWidth: 8,
+                      dotHeight: 8,
+                      activeDotColor: Theme.of(context).colorScheme.secondary,
                     ),
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      label: Text('Confirm'),
-                      icon: Icon(Icons.check_circle_outline),
-                      onPressed: _onConfirm,
-                    ),
-                  ),
-                ],
+                  );
+                },
               ),
-
-              SizedBox(height: 16.h),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ListenableBuilder(
+                  listenable: pageController,
+                  builder: (context, child) {
+                    final index = pageController.page?.round() ?? 0;
+                    return Row(
+                      children: [
+                        BackButton(onPressed: index > 0 ? previousPage : null),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: index == 0 ? nextPage : onConfirm,
+                            child: Text(index == 0 ? 'Next' : 'Confirm Order'),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -123,174 +216,21 @@ class _FoodQASectionState extends ConsumerState<FoodQASection> {
     );
   }
 
-  _onContiunue() {
-    final group = FormValidatorGroup(ref, [
-      FormValidationData(
-        descriptionTEC,
-        descriptionValidatorProvider(descriptionTEC),
-      ),
-    ]);
-    if (group.validateAndCheck()) {
-      setState(() => page = 1);
-    }
-  }
-
-  _onConfirm() {
-    final group = FormValidatorGroup(ref, [
-      FormValidationData(dropoffTEC, dropoffValidatorProvider(dropoffTEC)),
-    ]);
-    if (group.validateAndCheck()) {
-      // setState(() => page = 1);
-    }
-  }
-}
-
-class _P2LocationWidget extends StatelessWidget {
-  const _P2LocationWidget({required this.dropoffTEC, required this.pickUpTEC});
-
-  final TextEditingController dropoffTEC;
-  final TextEditingController pickUpTEC;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        _TextFieldSectionBuilder(
-          provider: dropoffValidatorProvider(dropoffTEC),
-          title: 'Dropoff Location*',
-          textfieldWidget: LocationTextField(
-            controller: dropoffTEC,
-            decoration: InputDecoration(
-              hintText: 'Where is the food going?',
-              prefixIcon: Icon(Icons.other_houses_outlined),
-            ),
-          ),
-        ),
-        _TextFieldSectionBuilder(
-          title: 'Restaurant/Pickup Location',
-          textfieldWidget: LocationTextField(
-            controller: pickUpTEC,
-            decoration: InputDecoration(
-              hintText: 'Restaurant name or address',
-              prefixIcon: Icon(QuickAction.food.icon),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _P1DescriptionWidget extends StatelessWidget {
-  const _P1DescriptionWidget({required this.descriptionTEC});
-
-  final TextEditingController descriptionTEC;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _TextFieldSectionBuilder(
-          provider: descriptionValidatorProvider(descriptionTEC),
-          title: 'Description*',
-          textfieldWidget: TextFormField(
-            minLines: 3,
-            maxLines: 3,
-            controller: descriptionTEC,
-            onTapOutside: (event) => FocusScope.of(context).unfocus(),
-            maxLengthEnforcement: MaxLengthEnforcement.enforced,
-            inputFormatters: [LengthLimitingTextInputFormatter(255)],
-            decoration: InputDecoration(
-              hintText:
-                  'What are you ordering?\nLeave a message for the rider.',
-            ),
-          ),
-        ),
-        PriceSelectorField(onChanged: (value) {}),
-      ],
-    );
-  }
-}
-
-class OrderFareWidget extends StatelessWidget {
-  const OrderFareWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: QuickActionColors.food[100],
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
-      child: Column(
-        children: [
-          DefaultTextStyle(
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium!.copyWith(fontWeight: FontWeight.bold),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('Estimated Fare'), Text(r'N5300 - N20000')],
-            ),
-          ),
-          SizedBox(height: 8),
-          DefaultTextStyle(
-            style: Theme.of(context).textTheme.titleSmall!,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Based on distance and time'),
-                Text(r'15-25 min'),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TextFieldSectionBuilder extends ConsumerWidget {
-  const _TextFieldSectionBuilder({
-    required this.title,
-    required this.textfieldWidget,
-    this.provider,
-  });
-
-  final String title;
-  final Widget textfieldWidget;
-  final ProviderListenable<String?>? provider;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final error = provider == null ? null : ref.watch(provider!);
-
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: 4),
-          textfieldWidget,
-          Padding(
-            padding: EdgeInsets.only(top: 4.h),
-            child: Text(
-              error ?? '',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ),
-        ],
-      ),
+  Widget _errorTECFornCardProviderBuilder({
+    required TextEditingController? tec,
+    required Widget child,
+    required String title,
+  }) {
+    return Consumer(
+      builder: (context, ref, child) {
+        return FormCard(
+          title: title,
+          error:
+              tec != null ? ref.watch(textfieldValidatorProvider(tec)) : null,
+          child: child!,
+        );
+      },
+      child: child,
     );
   }
 }
