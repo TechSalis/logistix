@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  static const locationPin = Colors.redAccent;
+  static const redAccent = Colors.redAccent;
   static const blueGrey = Colors.blueGrey;
 
   static const primarySwatch = MaterialColor(

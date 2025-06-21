@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/map/domain/entities/address.dart';
+import 'package:logistix/core/domain/entities/address.dart';
+import 'package:logistix/features/map/presentation/logic/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/pages/location_picker_page.dart';
 import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
@@ -9,45 +10,91 @@ import 'package:logistix/features/permission/presentation/widgets/permission_dia
 class LocationTextField extends ConsumerWidget {
   const LocationTextField({
     super.key,
-    required this.decoration,
     required this.controller,
+    required this.decoration,
+    this.onAddressPicked,
+    this.onChanged,
     this.showLocationPicker = true,
+    this.showUseYourLocationButton = false,
   });
 
   final TextEditingController controller;
   final InputDecoration decoration;
   final bool showLocationPicker;
+  final bool showUseYourLocationButton;
+
+  final void Function(Address address)? onAddressPicked;
+  final void Function(String value)? onChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tf = TextFormField(
+    Future<void> openLocationPicker() async {
+      final result = await Navigator.of(context).push<Address>(
+        MaterialPageRoute(builder: (_) => const LocationPickerPage()),
+      );
+
+      if (result != null) {
+        controller.text = result.formatted;
+        onAddressPicked?.call(result);
+      }
+    }
+
+    Future<void> useCurrentLocation() async {
+      final result = await ref.read(locationProvider.notifier).getUserAddress();
+      if (result != null) {
+        controller.text = result.formatted;
+        onAddressPicked?.call(result);
+      }
+    }
+
+    final permissionState = ref.watch(
+      permissionProvider(PermissionData.location),
+    );
+    final permissionGranted = permissionState.value?.isGranted ?? true;
+
+    Widget textField = TextFormField(
       controller: controller,
       decoration: decoration,
-      onTapOutside: (event) => FocusScope.of(context).unfocus(),
+      onChanged: onChanged,
       inputFormatters: [LengthLimitingTextInputFormatter(255)],
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
     );
-    if (showLocationPicker &&
-        (ref
-                .watch(permissionProvider(PermissionData.location))
-                .value
-                ?.isGranted ??
-            true)) {
-      return Row(
+
+    if (showLocationPicker && permissionGranted) {
+      textField = Row(
         children: [
-          Expanded(child: tf),
-          SizedBox(width: 4),
+          Expanded(child: textField),
+          const SizedBox(width: 4),
           IconButton(
-            onPressed: () async {
-              final result = await Navigator.of(context).push<Address>(
-                MaterialPageRoute(builder: (context) => LocationPickerPage()),
-              );
-              if (result != null) controller.text = result.formatted;
-            },
-            icon: Icon(Icons.add_location_alt),
+            onPressed: openLocationPicker,
+            icon: const Icon(Icons.add_location_alt),
+            tooltip: 'Pick location from map',
           ),
         ],
       );
     }
-    return tf;
+    final permission =
+        ref.watch(permissionProvider(PermissionData.location)).value!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        textField,
+        if (showUseYourLocationButton && permission.isGranted)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: SizedBox(
+              height: 28,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  foregroundColor: Theme.of(context).colorScheme.tertiary,
+                ),
+                onPressed: useCurrentLocation,
+                child: const Text('Use your location'),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

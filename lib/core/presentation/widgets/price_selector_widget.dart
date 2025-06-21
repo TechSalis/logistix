@@ -1,28 +1,34 @@
-import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
+import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 import 'package:logistix/core/constants/colors.dart';
 import 'package:logistix/core/utils/extensions/context_extension.dart';
 import 'dart:core';
 
 class PriceSelectorField extends StatelessWidget {
   final TextEditingController controller;
+  final String hintText;
 
-  const PriceSelectorField({super.key, required this.controller});
+  const PriceSelectorField({
+    super.key,
+    required this.controller,
+    this.hintText = 'How much does it cost?',
+  });
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TextField(
       controller: controller,
       keyboardType: TextInputType.number,
       inputFormatters: [
-        CurrencyTextInputFormatter.simpleCurrency(
-          enableNegative: false,
-          inputDirection: InputDirection.left,
+        CurrencyInputFormatter(
+          thousandSeparator: ThousandSeparator.Comma,
+          mantissaLength: 0,
         ),
       ],
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(
-        hintText: 'How much does it cost?',
+        hintText: hintText,
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 16, right: 12),
           child: Text(
