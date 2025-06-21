@@ -19,6 +19,9 @@ class FormCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       elevation: isRequired ? 2 : .5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

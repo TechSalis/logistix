@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/logic/form_validator_rp.dart';
+import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
 import 'package:logistix/core/presentation/logic/textfield_validators.dart';
 import 'package:logistix/features/quick_actions/presentation/pages/quick_action_base_dialog.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 import 'package:logistix/core/presentation/widgets/price_selector_widget.dart';
-import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
 
 class SubmitFoodQAData extends QADialogData {
   final String description;
@@ -58,8 +58,7 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
   void pageOne() {
     final group = FormValidatorGroup(ref, [
       requiredValidatorProvider(descriptionTEC),
-      requiredValidatorProvider(dropoffTEC),
-      requiredValidatorProvider(pickupTEC),
+      requiredValidatorProvider(priceTEC),
     ]);
 
     if (group.validateAndCheck()) {
@@ -72,7 +71,7 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
 
   void pageTwo() {
     final group = FormValidatorGroup(ref, [
-      requiredValidatorProvider(priceTEC),
+      requiredValidatorProvider(dropoffTEC),
     ]);
 
     if (group.validateAndCheck()) {
@@ -99,39 +98,23 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
                 title: "What's the order? *",
                 child: TextField(
                   controller: descriptionTEC,
-                  minLines: 2,
-                  maxLines: 2,
+                  minLines: 3,
+                  maxLines: 3,
                   maxLengthEnforcement: MaxLengthEnforcement.enforced,
                   inputFormatters: [LengthLimitingTextInputFormatter(255)],
                   onTapOutside: (event) => FocusScope.of(context).unfocus(),
                   decoration: const InputDecoration(
                     hintText:
-                        '2x chicken suya and 1 malt.\n'
+                        'e.g. 2x chicken suya and 1 malt.\n'
                         'You can leave a note for the rider.',
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               textValidatorProviderFornCardBuilder(
-                validatorProvider: requiredValidatorProvider(pickupTEC),
-                title: "Restaurant/Pickup *",
-                child: LocationTextField(
-                  controller: pickupTEC,
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. Chicken Republic',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              textValidatorProviderFornCardBuilder(
-                validatorProvider: requiredValidatorProvider(dropoffTEC),
-                title: "Dropoff Location *",
-                child: LocationTextField(
-                  controller: dropoffTEC,
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. 12 Lekki Phase 1',
-                  ),
-                ),
+                validatorProvider: requiredValidatorProvider(priceTEC),
+                title: "Budget (₦) *",
+                child: PriceSelectorField(controller: priceTEC),
               ),
             ],
           ),
@@ -142,11 +125,27 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               textValidatorProviderFornCardBuilder(
-                validatorProvider: requiredValidatorProvider(priceTEC),
-                title: "Budget (₦) *",
-                child: PriceSelectorField(controller: priceTEC),
+                validatorProvider: requiredValidatorProvider(dropoffTEC),
+                title: "Dropoff Location *",
+                child: LocationTextField(
+                  controller: dropoffTEC,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. 12 Lekki Phase 1',
+                  ),
+                ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              textValidatorProviderFornCardBuilder(
+                validatorProvider: null,
+                title: "Restaurant/Pickup",
+                child: LocationTextField(
+                  controller: pickupTEC,
+                  decoration: const InputDecoration(
+                    hintText: 'e.g. Chicken Republic',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
               OrderFareWidget(
                 farePrice: r'N5.3k - N20k',
                 eta: '20-30min',

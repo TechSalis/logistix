@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/colors.dart';
 
-class QuickAction {
+interface class QuickAction {
   final String name;
   final IconData icon;
   final Color color;

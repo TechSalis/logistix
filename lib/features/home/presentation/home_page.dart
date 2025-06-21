@@ -1,11 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logistix/core/constants/colors.dart';
 import 'package:logistix/core/presentation/widgets/bottomsheet_container.dart';
+import 'package:logistix/features/delivery/presentation/pages/new_delivery_page.dart';
+import 'package:logistix/features/notifications/presentation/widgets/notification_widget.dart';
+import 'package:logistix/features/rider/find_rider/logic/find_rider_rp.dart';
+import 'package:logistix/features/rider/find_rider/widgets/find_rider_dialog.dart';
 import 'package:logistix/features/quick_actions/presentation/pages/food_dialog.dart';
-import 'package:logistix/features/home/presentation/widgets/map_section.dart';
+import 'package:logistix/features/map/presentation/widgets/map_view.dart';
 import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_enum.dart';
+import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -21,7 +27,7 @@ class HomePage extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  Expanded(flex: 3, child: MapSection()),
+                  Expanded(flex: 3, child: MapView()),
                   Container(
                     height: 210.h - 34,
                     color:
@@ -34,12 +40,11 @@ class HomePage extends StatelessWidget {
               SizedBox(
                 height: 210.h,
                 child: BottomsheetContainer(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                  borderRadius: BorderRadius.circular(24),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: [
-                        SizedBox(height: 4),
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -48,8 +53,8 @@ class HomePage extends StatelessWidget {
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        SizedBox(height: 12.h),
-                        SizedBox(height: 68.h, child: const _QuickActions()),
+                        SizedBox(height: 16),
+                        SizedBox(height: 64.h, child: const _QuickActions()),
                         Spacer(),
                         const _DeliveryButtons(),
                         SizedBox(height: 16.h),
@@ -58,6 +63,20 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
               ),
+              if (kDebugMode)
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showOverlayNotification((context) {
+                        return MessageNotification();
+                      });
+                      showOverlayNotification((context) {
+                        return CustomAppBarNotificationButton();
+                      }, duration: Duration.zero);
+                    },
+                    child: Text('Debug Button'),
+                  ),
+                ),
             ],
           );
         },
@@ -109,7 +128,7 @@ class _QuickActions extends StatelessWidget {
                       context: context,
                       showDragHandle: true,
                       isScrollControlled: true,
-                      builder: (context) => FoodQASection(),
+                      builder: (context) => SubmitFoodQADialog(),
                     );
                   },
                 ),
@@ -126,27 +145,43 @@ class _QuickActions extends StatelessWidget {
   }
 }
 
-class _DeliveryButtons extends StatelessWidget {
+class _DeliveryButtons extends ConsumerWidget {
   const _DeliveryButtons();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () async {
+              final confirmed = await showDialog(
+                context: context,
+                builder: (_) => FindRiderDialog(),
+              );
+
+              if (confirmed != null) {
+                Future.delayed(Durations.medium3, () {
+                  ref.invalidate(findRiderProvider);
+                });
+                // Start rider tracking, next UI page, etc.
+              }
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.locationPin,
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
             ),
             label: Text('Find Rider'),
-            icon: Icon(Icons.add_call),
+            icon: const Icon(Icons.motorcycle),
           ),
         ),
         SizedBox(width: 12.w),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => NewDeliveryPage()),
+              );
+            },
             label: Text('New Delivery'),
             icon: Icon(Icons.library_add),
           ),

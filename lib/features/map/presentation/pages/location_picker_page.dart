@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/map/domain/entities/coordinate.dart';
-import 'package:logistix/features/map/presentation/logic/location_rp.dart';
-import 'package:logistix/features/map/presentation/widgets/address_suggestions_list.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logistix/core/constants/styling.dart';
+import 'package:logistix/core/utils/extensions/coordinates.dart';
+import 'package:logistix/features/map/presentation/widgets/map_view.dart';
+import 'package:logistix/core/domain/entities/coordinate.dart';
+import 'package:logistix/features/map/presentation/logic/location_picker_rp.dart';
+import 'package:logistix/features/map/presentation/logic/location_search_rp.dart';
+import 'package:logistix/features/map/presentation/widgets/addresses_list.dart';
 import 'package:logistix/features/map/presentation/widgets/location_pin.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
+import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
-extension PointToCoord on Point {
-  Coordinates toCoordinate() {
-    return Coordinates(coordinates.lat, coordinates.lng);
-  }
-}
+enum _ExpandedState { none, search }
 
 class LocationPickerPage extends ConsumerStatefulWidget {
   const LocationPickerPage({super.key});
@@ -21,96 +22,230 @@ class LocationPickerPage extends ConsumerStatefulWidget {
 }
 
 class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
-  MapboxMap? _map;
+  _ExpandedState _expandedState = _ExpandedState.none;
 
-  void _onMapCreated(MapboxMap mapboxMap) => _map = mapboxMap;
-
-  void _onCameraIdle(MapIdleEventData data) async {
-    final screen = MediaQuery.of(context).size;
-    final screenCenter = ScreenCoordinate(
-      x: screen.width * .5,
-      y: screen.height * .5,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar:
+          _expandedState == _ExpandedState.search
+              ? null
+              : AppBar(
+                centerTitle: true,
+                titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                title: Text(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  'Drag to position marker',
+                ),
+                actions: [
+                  Consumer(
+                    builder: (context, ref, child) {
+                      return IconButton.filled(
+                        onPressed:
+                            ref.watch(locationPickerProvider).value?.address !=
+                                    null
+                                ? () {
+                                  Navigator.of(context).pop(
+                                    ref
+                                        .read(locationPickerProvider)
+                                        .value!
+                                        .address,
+                                  );
+                                  ref.invalidate(locationPickerProvider);
+                                }
+                                : null,
+                        icon: Icon(Icons.check),
+                        style: IconButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _MapSection(
+              isLocationGranted:
+                  ref
+                      .watch(permissionProvider(PermissionData.location))
+                      .value!
+                      .isGranted,
+            ),
+          ),
+          Expanded(
+            flex: _expandedState == _ExpandedState.search ? 3 : 1,
+            child: _SearchSection(
+              onSearchState: (value) {
+                setState(() {
+                  _expandedState =
+                      value ? _ExpandedState.search : _ExpandedState.none;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
     );
-    final center =
-        (await _map!.coordinateForPixel(screenCenter)).toCoordinate();
-    ref.read(locationPickerProvider.notifier).getAddress(center);
+  }
+}
+
+class _MapSection extends ConsumerStatefulWidget {
+  const _MapSection({required this.isLocationGranted});
+  final bool isLocationGranted;
+
+  @override
+  ConsumerState<_MapSection> createState() => _MapSectionState();
+}
+
+class _MapSectionState extends ConsumerState<_MapSection> {
+  GoogleMapController? map;
+
+  void onMapCreated(GoogleMapController map) async {
+    this.map = map;
+  }
+
+  Future<Coordinates> getCenter(GoogleMapController map) async {
+    final bounds = await map.getVisibleRegion();
+    final centerLatLng = LatLng(
+      (bounds.northeast.latitude + bounds.southwest.latitude) * .5,
+      (bounds.northeast.longitude + bounds.southwest.longitude) * .5,
+    );
+
+    return centerLatLng.toCoordinates();
   }
 
   @override
+  Widget build(BuildContext context) {
+    ref.listen(locationSearchProvider, (p, n) {
+      if (n.value?.place?.address.coordinates != null) {
+        ref
+            .read(locationPickerProvider.notifier)
+            .setAddress(n.requireValue.place!.address);
+        map?.animateCamera(
+          CameraUpdate.newLatLng(
+            n.requireValue.place!.address.coordinates!.toPoint(),
+          ),
+        );
+      }
+    });
+    if (!widget.isLocationGranted) return MapView(onMapCreated: onMapCreated);
+    return Stack(
+      children: [
+        MapView(onMapCreated: onMapCreated),
+        Center(
+          child: Transform.translate(
+            offset: Offset(0, -15),
+            child: const LocationPin(size: 40),
+          ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 4,
+          child: Builder(
+            builder: (context) {
+              if (ref.watch(locationPickerProvider).value?.address != null) {
+                return InputChip(
+                  side: BorderSide.none,
+                  onDeleted: () => ref.invalidate(locationPickerProvider),
+                  label: Text(
+                    ref.watch(locationPickerProvider).value!.address!.formatted,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                );
+              }
+              if (ref.watch(locationPickerProvider).isLoading) {
+                return InputChip(
+                  side: BorderSide.none,
+                  label: Text('Loading...'),
+                );
+              }
+              return ActionChip.elevated(
+                label: Text('Select'),
+                onPressed: () async {
+                  final position = await getCenter(map!);
+                  ref
+                      .read(locationPickerProvider.notifier)
+                      .onMapMoved(position);
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SearchSection extends StatefulWidget {
+  const _SearchSection({required this.onSearchState});
+  final Function(bool) onSearchState;
+
+  @override
+  State<_SearchSection> createState() => _SearchSectionState();
+}
+
+class _SearchSectionState extends State<_SearchSection> {
+  final controller = TextEditingController();
+
+  @override
   void dispose() {
-    _map?.dispose();
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final address = ref.watch(locationPickerProvider).address;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
+    return DecoratedBox(
+      decoration: context.boxDecorationWithShadow,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            children: [
-              Expanded(
-                flex: 3,
-                child: Stack(
-                  children: [
-                    MapWidget(
-                      key: const ValueKey('location-picker-map'),
-                      onMapCreated: _onMapCreated,
-                      onMapIdleListener: _onCameraIdle,
-                      styleUri: MapboxStyles.LIGHT,
-                      onTapListener: (_) => FocusScope.of(context).unfocus(),
-                      viewport: CameraViewportState(zoom: 15.6, pitch: 30),
-                    ),
-                    const LocationPin(),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  padding: EdgeInsets.all(16.r),
-                  child: Column(
-                    children: [
-                      if (address != null)
-                        Text(
-                          address.formatted,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      SizedBox(height: 8.h),
-                      const AddressSuggestionsList(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+          SizedBox(height: 12),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.r),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  BackButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: TextField(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: ListenableBuilder(
+              listenable: controller,
+              builder: (context, child) {
+                return Consumer(
+                  builder: (context, ref, child) {
+                    return TextField(
+                      controller: controller,
+                      textInputAction: TextInputAction.search,
                       decoration: InputDecoration(
                         hintText: 'Search for a place',
                         prefixIcon: Icon(Icons.search),
+                        suffixIcon:
+                            controller.text.isEmpty
+                                ? null
+                                : GestureDetector(
+                                  onTap: controller.clear,
+                                  child: Icon(Icons.clear),
+                                ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
+                      onChanged:
+                          ref.read(locationSearchProvider.notifier).onInput,
+                      onSubmitted: (value) => widget.onSearchState(false),
+                      onTap: () => widget.onSearchState(true),
+                      onTapOutside: (_) {
+                        FocusScope.of(context).unfocus();
+                        widget.onSearchState(false);
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
+          SizedBox(height: 12),
+          Divider(height: 1),
+          const Flexible(child: AddressSuggestionsSection()),
         ],
       ),
     );

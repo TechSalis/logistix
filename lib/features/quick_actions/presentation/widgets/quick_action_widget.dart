@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_enum.dart';
+import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
 
 class QuickActionIcon extends StatelessWidget {
   const QuickActionIcon({super.key, required this.action, required this.size});
@@ -35,6 +35,7 @@ class QuickActionWidget extends StatelessWidget {
     return Card(
       elevation: 1,
       clipBehavior: Clip.hardEdge,
+      margin: EdgeInsets.symmetric(horizontal: 4.h),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
@@ -45,13 +46,15 @@ class QuickActionWidget extends StatelessWidget {
           child: Column(
             children: [
               Expanded(child: QuickActionIcon(action: action, size: 50.r)),
-              SizedBox(height: 4.h),
+              SizedBox(height: 6.h),
               Text(
                 action.name,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),

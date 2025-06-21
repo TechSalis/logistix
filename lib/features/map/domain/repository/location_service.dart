@@ -1,5 +1,6 @@
-import 'package:logistix/features/map/domain/entities/coordinate.dart';
+import 'package:logistix/core/domain/entities/coordinate.dart';
 
-abstract class LocationService {
-  Future<Coordinates> getCoordinates();
+abstract class GeoLocationService {
+  Future<Coordinates> getUserCoordinates();
+  Stream<Coordinates> getUserCoordinatesStream();
 }

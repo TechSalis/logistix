@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/data/repository/dialog_repo_impl.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 final _dialogHiveRepository = Provider.family.autoDispose(
   (ref, String key) => DialogHiveRepositoryImpl(key: key),
