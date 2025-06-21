@@ -1,6 +1,6 @@
 
-import 'package:logistix/features/map/data/dto/google_map_response_dtos.dart';
-import 'package:logistix/core/domain/entities/address.dart';
+import 'package:logistix/features/map/domain/entities/place.dart';
+import 'package:logistix/core/entities/address.dart';
 
 abstract class SearchLocationService {
   Future<List<Address>> search(String text);

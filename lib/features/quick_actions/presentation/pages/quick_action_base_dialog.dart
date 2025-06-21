@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:logistix/core/presentation/widgets/async_state_widget.dart';
 import 'package:logistix/core/presentation/widgets/text_validator_provider_forncard.dart';
-import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
 
 abstract class QADialogData {}

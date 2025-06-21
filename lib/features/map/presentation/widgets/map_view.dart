@@ -6,9 +6,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/utils/extensions/colors.dart';
 import 'package:logistix/core/utils/extensions/context_extension.dart';
 import 'package:logistix/core/utils/extensions/coordinates.dart';
-import 'package:logistix/features/map/presentation/logic/user_location_rp.dart';
+import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
-import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -79,7 +79,7 @@ class _MapSectionState extends ConsumerState<MapView> {
                     onCameraIdle: () => widget.onCameraIdle?.call(map!),
                   ),
                   Positioned(
-                    right: 16,
+                    right: 8,
                     bottom: 48,
                     child: IconButton(
                       onPressed: () => centerUser(map!),

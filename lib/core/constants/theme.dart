@@ -11,6 +11,7 @@ class MyTheme {
       secondary: AppColors.blueGrey[900]!,
       tertiary: AppColors.redAccent,
       surface: Colors.white,
+      primaryContainer: Colors.blueGrey[900],
     ),
     dividerTheme: DividerThemeData(color: Colors.grey[300]),
     // cardColor: Colors.white,
@@ -102,6 +103,7 @@ class MyTheme {
       secondary: AppColors.primarySwatch,
       tertiary: AppColors.redAccent,
       surface: Colors.black,
+      primaryContainer: Colors.grey,
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,

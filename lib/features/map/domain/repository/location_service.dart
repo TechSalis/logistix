@@ -1,4 +1,4 @@
-import 'package:logistix/core/domain/entities/coordinate.dart';
+import 'package:logistix/core/entities/coordinate.dart';
 
 abstract class GeoLocationService {
   Future<Coordinates> getUserCoordinates();

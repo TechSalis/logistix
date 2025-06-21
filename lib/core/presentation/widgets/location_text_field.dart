@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/domain/entities/address.dart';
-import 'package:logistix/features/map/presentation/logic/user_location_rp.dart';
+import 'package:logistix/core/entities/address.dart';
+import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/pages/location_picker_page.dart';
-import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
 class LocationTextField extends ConsumerWidget {

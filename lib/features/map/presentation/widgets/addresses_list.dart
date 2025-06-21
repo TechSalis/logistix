@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/domain/entities/address.dart';
-import 'package:logistix/features/map/presentation/logic/location_search_rp.dart';
+import 'package:logistix/core/entities/address.dart';
+import 'package:logistix/features/map/application/location_search_rp.dart';
 
 class AddressSuggestionsSection extends ConsumerWidget {
   const AddressSuggestionsSection({super.key});

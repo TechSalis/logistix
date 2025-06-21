@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
-import 'package:logistix/core/presentation/logic/form_validator_rp.dart';
+import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
 import 'package:logistix/core/presentation/widgets/text_validator_provider_forncard.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/core/domain/entities/address.dart';
-import 'package:logistix/core/presentation/logic/textfield_validators.dart';
+import 'package:logistix/core/entities/address.dart';
+import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 
 class NewDeliveryPage extends ConsumerStatefulWidget {

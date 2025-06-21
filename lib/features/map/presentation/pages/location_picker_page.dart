@@ -4,12 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/constants/styling.dart';
 import 'package:logistix/core/utils/extensions/coordinates.dart';
 import 'package:logistix/features/map/presentation/widgets/map_view.dart';
-import 'package:logistix/core/domain/entities/coordinate.dart';
-import 'package:logistix/features/map/presentation/logic/location_picker_rp.dart';
-import 'package:logistix/features/map/presentation/logic/location_search_rp.dart';
+import 'package:logistix/core/entities/coordinate.dart';
+import 'package:logistix/features/map/application/location_picker_rp.dart';
+import 'package:logistix/features/map/application/location_search_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/addresses_list.dart';
 import 'package:logistix/features/map/presentation/widgets/location_pin.dart';
-import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
 enum _ExpandedState { none, search }
@@ -33,6 +33,7 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
               : AppBar(
                 centerTitle: true,
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
+                actionsPadding: EdgeInsets.all(8),
                 title: Text(
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

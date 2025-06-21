@@ -1,36 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/notifications/presentation/widgets/notification_icon_button.dart';
+import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
+import 'package:logistix/features/rider/domain/entities/rider.dart';
 
-class CustomAppBarNotificationButton extends StatelessWidget {
-  const CustomAppBarNotificationButton({super.key});
+class QARiderNotificationWidget extends StatelessWidget {
+  const QARiderNotificationWidget({
+    super.key,
+    required this.action,
+    required this.rider,
+    required this.onMore,
+    required this.onCancel,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 16, 0),
-          child: NotificationIconButton(),
-        ),
-      ),
-    );
-  }
-}
-
-class MessageNotification extends StatelessWidget {
-  const MessageNotification({super.key});
+  final Rider rider;
+  final QuickAction action;
+  final VoidCallback onMore;
+  final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
+    TextField;
     return SafeArea(
       child: Card(
-        margin: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+        margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
         child: ListTile(
-          contentPadding: EdgeInsets.only(left: 16, right: 8),
-          leading: Icon(Icons.person),
-          title: Text('Lily MacDonald'),
-          subtitle: Text('Do you want to see a movie?'),
+          titleTextStyle: Theme.of(context).textTheme.titleMedium,
+          contentPadding: EdgeInsets.only(left: 12, right: 4),
+          leading: QuickActionIcon(action: action),
+          title: Text(
+            rider.name +
+                (rider.company == null ? '' : '  •  ${rider.company!}'),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          subtitle: Text("📍 Rider is on their way!"),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                onPressed: onMore,
+                icon: Badge.count(count: 1, child: Icon(Icons.info_outline)),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                onPressed: onCancel,
+                icon: Icon(Icons.close),
+              ),
+            ],
+          ),
         ),
       ),
     );

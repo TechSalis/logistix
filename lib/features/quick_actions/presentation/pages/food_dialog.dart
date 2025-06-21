@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/core/presentation/logic/form_validator_rp.dart';
-import 'package:logistix/core/presentation/logic/textfield_validators.dart';
+import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
+import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/quick_actions/presentation/pages/quick_action_base_dialog.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 import 'package:logistix/core/presentation/widgets/price_selector_widget.dart';
-import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 
 class SubmitFoodQAData extends QADialogData {
   final String description;

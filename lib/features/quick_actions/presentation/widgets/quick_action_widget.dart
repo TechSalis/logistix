@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logistix/features/quick_actions/presentation/logic/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 
 class QuickActionIcon extends StatelessWidget {
-  const QuickActionIcon({super.key, required this.action, required this.size});
+  const QuickActionIcon({super.key, required this.action, this.size});
 
-  final double size;
+  final double? size;
   final QuickAction action;
 
   @override
   Widget build(BuildContext context) {
+    // ignore: no_leading_underscores_for_local_identifiers
+    final _size = size != null ? size! * .5 : null;
     return CircleAvatar(
-      radius: size * .5,
+      radius: _size,
       backgroundColor: action.color.withAlpha(40),
       child: FittedBox(
-        child: Icon(action.icon, size: size * .5, color: action.color),
+        child: Icon(action.icon, size: _size, color: action.color),
       ),
     );
   }

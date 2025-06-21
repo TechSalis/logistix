@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:logistix/features/permission/presentation/logic/permission_rp.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
 
 class PermissionData {
   final PermissionWithService permission;
