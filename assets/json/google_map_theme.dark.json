@@ -1,46 +1,58 @@
 [
   {
     "elementType": "geometry",
-    "stylers": [{"color": "#1d2c4d"}]
+    "stylers": [{ "color": "#1d1d1d" }]
+  },
+  {
+    "elementType": "labels.icon",
+    "stylers": [{ "visibility": "on" }, { "saturation": -100 }, { "lightness": 20 }, { "weight": 0.5 }]
   },
   {
     "elementType": "labels.text.fill",
-    "stylers": [{"color": "#8ec3b9"}]
+    "stylers": [{ "color": "#cfcfcf" }]
   },
   {
     "elementType": "labels.text.stroke",
-    "stylers": [{"color": "#1a3646"}]
+    "stylers": [{ "color": "#000000" }, { "weight": 3 }]
   },
   {
-    "featureType": "administrative.country",
-    "stylers": [{"visibility": "on"}]
-  },
-  {
-    "featureType": "administrative.locality",
-    "stylers": [{"visibility": "on"}]
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [{ "visibility": "on" }, { "color": "#2a2a2a" }]
   },
   {
     "featureType": "poi",
-    "stylers": [{"visibility": "off"}]
+    "elementType": "geometry",
+    "stylers": [{ "color": "#2a2a2a" }]
+  },
+  {
+    "featureType": "poi.business",
+    "stylers": [{ "visibility": "on" }]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [{ "color": "#263c3f" }]
   },
   {
     "featureType": "road",
-    "stylers": [{"color": "#2c3e50"}]
+    "elementType": "geometry",
+    "stylers": [{ "color": "#383838" }]
   },
   {
     "featureType": "road.arterial",
-    "stylers": [{"color": "#30415d"}]
+    "stylers": [{ "color": "#444444" }]
   },
   {
     "featureType": "road.highway",
-    "stylers": [{"color": "#1f2835"}]
+    "stylers": [{ "color": "#3c3c3c" }]
   },
   {
-    "featureType": "transit",
-    "stylers": [{"visibility": "off"}]
+    "featureType": "transit.line",
+    "stylers": [{ "color": "#555555" }]
   },
   {
     "featureType": "water",
-    "stylers": [{"color": "#0e1626"}]
+    "stylers": [{ "color": "#121f2a" }]
   }
 ]

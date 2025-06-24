@@ -39,7 +39,7 @@ class PriceSelectorField extends StatelessWidget {
             ),
           ),
         ),
-        prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+        prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
       ),
     );
   }

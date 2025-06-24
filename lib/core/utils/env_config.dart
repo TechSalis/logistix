@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+///Ensure the [EnvConfig.extract] function is called before the class is used
 class EnvConfig {
   final String apiUrl;
   final String ENV;
@@ -28,6 +29,7 @@ class EnvConfig {
 
   bool get isDev => kDebugMode || ENV == 'DEV';
 
+  ///Ensure this function is called before the class is used
   static void extract(Map<String, String> variables) {
     _instance = EnvConfig._internal(
       ENV: variables['ENV'] ?? 'DEV',

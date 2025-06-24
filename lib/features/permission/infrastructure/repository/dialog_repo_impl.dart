@@ -2,10 +2,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logistix/features/permission/domain/repository/dialog_repo.dart';
 
 class DialogHiveRepositoryImpl implements DialogRepository {
+  DialogHiveRepositoryImpl({required this.key});
+  
   @override
   final String key;
-
-  DialogHiveRepositoryImpl({required this.key});
 
   Future<Box> get box => Hive.openBox('dialogs');
 

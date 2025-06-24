@@ -24,26 +24,28 @@ class PermissionData {
 
 class PermissionDisclosureDialog extends ConsumerWidget {
   final PermissionData data;
-
-  const PermissionDisclosureDialog({super.key, required this.data});
+  final VoidCallback? openSettingsCallback;
+  const PermissionDisclosureDialog({
+    super.key,
+    required this.data,
+    this.openSettingsCallback,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(permissionProvider(data), (previous, next) {
-      switch (next.value?.status) {
+    ref.listen(permissionProvider(data), (p, n) {
+      switch (ref.watch(permissionProvider(data)).value?.status) {
         case PermissionStatus.granted:
-          ref
-              .read(permissionProvider(PermissionData.location).notifier)
-              .setHasGranted();
+          ref.read(permissionProvider(data).notifier).setHasGranted();
         case PermissionStatus.permanentlyDenied:
-          openAppSettings();
+          openSettingsCallback?.call();
         default:
       }
-      Navigator.of(context).pop();
+      if (n.value != null) Navigator.of(context).pop();
     });
     final theme = Theme.of(context);
     return Dialog(
-      elevation: 8,
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),

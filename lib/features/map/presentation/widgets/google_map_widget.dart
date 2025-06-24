@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapViewWidget extends StatefulWidget {
-  const MapViewWidget({super.key, this.onMapCreated, this.onCameraIdle, required this.markers});
+  const MapViewWidget({
+    super.key,
+    this.onMapCreated,
+    this.onCameraIdle,
+    this.markers = const {},
+  });
 
   final Set<Marker> markers;
   final void Function(GoogleMapController map)? onMapCreated;
@@ -13,9 +19,9 @@ class MapViewWidget extends StatefulWidget {
 }
 
 class _MapViewWidgetState extends State<MapViewWidget> {
-  static const _kGooglePlex = CameraPosition(
+  static const initialPosition = CameraPosition(
     target: LatLng(6.5244, 3.3792),
-    zoom: 15,
+    zoom: 16.5,
   );
 
   String mapTheme = '';
@@ -23,11 +29,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _getMapTheme();
-  }
-
-  _getMapTheme() {
-    DefaultAssetBundle.of(context)
+    rootBundle
         .loadString(
           'assets/json/google_map_theme.${Theme.of(context).brightness.name}.json',
         )
@@ -38,19 +40,27 @@ class _MapViewWidgetState extends State<MapViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      compassEnabled: false,
-      mapToolbarEnabled: false,
-      zoomControlsEnabled: false,
-      zoomGesturesEnabled: false,
-      tiltGesturesEnabled: false,
-      myLocationEnabled: false,
-      myLocationButtonEnabled: false,
-      markers: widget.markers,
-      initialCameraPosition: _kGooglePlex,
-      onMapCreated: widget.onMapCreated,
-      onCameraIdle: widget.onCameraIdle,
-      style: mapTheme,
+    return LayoutBuilder(
+      builder: (context, consts) {
+        return ClipRect(
+          clipBehavior: Clip.hardEdge,
+          child: OverflowBox(
+            maxHeight: consts.maxHeight + 60,
+            child: GoogleMap(
+              compassEnabled: false,
+              mapToolbarEnabled: false,
+              zoomControlsEnabled: false,
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              initialCameraPosition: initialPosition,
+              onMapCreated: widget.onMapCreated,
+              onCameraIdle: widget.onCameraIdle,
+              markers: widget.markers,
+              style: mapTheme,
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:uuid/uuid.dart';
 
-final uuid = Uuid();
+const uuid = Uuid();
 
 final dioCacheOptions = CacheOptions(
   store: MemCacheStore(),

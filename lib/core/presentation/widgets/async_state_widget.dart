@@ -66,17 +66,21 @@ class LoadingStatusView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      key: const ValueKey('loading'),
+      key: const Key('loading'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           SpinKitRipple(
             size: 100,
-            duration: Duration(milliseconds: 1500),
+            // duration: Duration(milliseconds: 1500),
             color: Theme.of(context).progressIndicatorTheme.color,
           ),
           const SizedBox(height: 24),
-          Text(message, style: Theme.of(context).textTheme.bodyLarge, textAlign: TextAlign.center,),
+          Text(
+            message,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -90,13 +94,21 @@ class _SuccessState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      key: const ValueKey('success'),
+      key: const Key('success'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.check_circle_rounded, color: Colors.green, size: 100),
+          const Icon(
+            Icons.check_circle_rounded,
+            color: Colors.green,
+            size: 100,
+          ),
           const SizedBox(height: 24),
-          Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
         ],
       ),
     );
@@ -111,13 +123,17 @@ class _ErrorState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      key: const ValueKey('error'),
+      key: const Key('error'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.error_outline_rounded, color: Colors.red, size: 100),
+          const Icon(Icons.error_outline_rounded, color: Colors.red, size: 100),
           const SizedBox(height: 24),
-          Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyLarge),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
           if (onRetry != null) ...[
             const SizedBox(height: 24),
             OutlinedButton.icon(

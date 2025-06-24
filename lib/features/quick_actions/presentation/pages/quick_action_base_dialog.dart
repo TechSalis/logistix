@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:logistix/core/presentation/widgets/async_state_widget.dart';
-import 'package:logistix/core/presentation/widgets/text_validator_provider_forncard.dart';
+import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
 import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
 
@@ -42,7 +42,7 @@ class QADialogBase extends StatefulWidget {
     required this.footerBuilder,
   });
 
-  final QuickAction action;
+  final QuickActionType action;
   final List<Widget> pages;
   final PageController? pageController;
   final Future Function() onSubmit;
@@ -54,7 +54,7 @@ class QADialogBase extends StatefulWidget {
 
 class _FoodQASectionState extends State<QADialogBase> {
   late final PageController pageController;
-  AsyncSnapshot snapshot = AsyncSnapshot.nothing();
+  AsyncSnapshot snapshot = const AsyncSnapshot.nothing();
 
   @override
   void initState() {
@@ -63,7 +63,7 @@ class _FoodQASectionState extends State<QADialogBase> {
   }
 
   Future computation() {
-    snapshot = AsyncSnapshot.waiting();
+    snapshot = const AsyncSnapshot.waiting();
     return widget.onSubmit().then(
       (data) {
         if (mounted) {
@@ -97,26 +97,27 @@ class _FoodQASectionState extends State<QADialogBase> {
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
     return SafeArea(
       top: false,
       child: Padding(
-        padding: EdgeInsets.only(bottom: bottom),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              QuickActionIcon(action: widget.action, size: 64),
+              ActionIcon(action: widget.action, size: 64),
               const SizedBox(height: 8),
               Text(
-                widget.action.name,
+                widget.action.label,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
               SizedBox(
-                height: 390,
+                height: 420,
                 child: PageView(
                   controller: pageController,
                   physics: const NeverScrollableScrollPhysics(),
@@ -130,7 +131,7 @@ class _FoodQASectionState extends State<QADialogBase> {
                   ],
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ListenableBuilder(
                 listenable: pageController,
                 builder: (context, child) {
@@ -140,7 +141,7 @@ class _FoodQASectionState extends State<QADialogBase> {
                     effect: JumpingDotEffect(
                       dotWidth: 8,
                       dotHeight: 8,
-                      activeDotColor: Theme.of(context).colorScheme.secondary,
+                      activeDotColor: Theme.of(context).colorScheme.primary,
                     ),
                   );
                 },
@@ -158,7 +159,7 @@ class _FoodQASectionState extends State<QADialogBase> {
                           BackButton(
                             onPressed: pageIndex > 0 ? previousPage : null,
                           ),
-                        SizedBox(width: 2),
+                        const SizedBox(width: 2),
                         Expanded(
                           child: widget.footerBuilder(pageIndex, snapshot),
                         ),

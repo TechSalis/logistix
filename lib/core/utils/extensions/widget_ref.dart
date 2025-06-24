@@ -14,7 +14,7 @@ extension ContextExtension on Ref {
     }
 
     onDispose(() {
-      dio.close();
+      dio.close(force: true);
     });
     return dio;
   }

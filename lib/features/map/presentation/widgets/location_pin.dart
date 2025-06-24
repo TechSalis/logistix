@@ -9,7 +9,7 @@ class LocationPin extends StatelessWidget {
     return Icon(
       Icons.location_on,
       size: size,
-      color: Theme.of(context).colorScheme.secondary,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }

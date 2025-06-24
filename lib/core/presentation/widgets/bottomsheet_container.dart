@@ -17,7 +17,9 @@ class BottomsheetContainer extends StatelessWidget {
       decoration: context.boxDecorationWithShadow.copyWith(
         borderRadius: borderRadius,
       ),
-      child: Column(children: [SizedBox(height: 20), Flexible(child: child)]),
+      child: Column(
+        children: [const SizedBox(height: 20), Flexible(child: child)],
+      ),
     );
   }
 }

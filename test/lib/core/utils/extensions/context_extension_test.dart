@@ -10,7 +10,7 @@ void main() {
         themeMode: themeMode,
         theme: MyTheme.light,
         darkTheme: MyTheme.dark,
-        home: Material(),
+        home: const Material(),
       ),
     );
   }

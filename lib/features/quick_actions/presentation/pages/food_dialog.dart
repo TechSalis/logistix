@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logistix/core/presentation/widgets/location_text_field.dart';
+import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
 import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/quick_actions/presentation/pages/quick_action_base_dialog.dart';
@@ -86,8 +86,8 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
   @override
   Widget build(BuildContext context) {
     return QADialogBase(
+      action: QuickActionType.food,
       pageController: pageController,
-      action: QuickAction.food,
       pages: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -128,6 +128,7 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
                 title: "Dropoff Location *",
                 child: LocationTextField(
                   controller: dropoffTEC,
+                  showUseYourLocationButton: true,
                   decoration: const InputDecoration(
                     hintText: 'e.g. 12 Lekki Phase 1',
                   ),
@@ -150,7 +151,7 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
               OrderFareWidget(
                 farePrice: r'N5.3k - N20k',
                 eta: '20-30min',
-                color: QuickAction.food.color.withAlpha(40),
+                color: QuickActionType.food.color.withAlpha(40),
               ),
             ],
           ),

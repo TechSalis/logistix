@@ -6,10 +6,8 @@ class FormCard extends StatelessWidget {
     required this.title,
     required this.child,
     this.error,
-    this.isRequired = true,
   });
 
-  final bool isRequired;
   final Widget child;
   final String title;
   final String? error;
@@ -18,8 +16,7 @@ class FormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      elevation: isRequired ? 2 : .5,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
       child: Padding(
@@ -32,10 +29,10 @@ class FormCard extends StatelessWidget {
                 Text(
                   title,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: isRequired ? FontWeight.w600 : FontWeight.w400,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 if (error != null)
                   Text(
                     error!,

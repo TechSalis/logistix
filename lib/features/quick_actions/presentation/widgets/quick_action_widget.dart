@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logistix/features/notifications/presentation/widgets/notification_profile_icon.dart';
 import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 
-class QuickActionIcon extends StatelessWidget {
-  const QuickActionIcon({super.key, required this.action, this.size});
-
+class ActionIcon extends StatelessWidget {
+  const ActionIcon({super.key, required this.action, this.size});
+  final ActionType action;
   final double? size;
-  final QuickAction action;
 
   @override
   Widget build(BuildContext context) {
-    // ignore: no_leading_underscores_for_local_identifiers
-    final _size = size != null ? size! * .5 : null;
-    return CircleAvatar(
-      radius: _size,
-      backgroundColor: action.color.withAlpha(40),
-      child: FittedBox(
-        child: Icon(action.icon, size: _size, color: action.color),
+    return SizedBox.square(
+      dimension: size,
+      child: NotificationIcon(
+        backgroundColor: action.color.withAlpha(20),
+        icon: Icon(
+          action.icon,
+          color: action.color,
+          size: size != null ? (size! * .6) : null,
+        ),
       ),
     );
   }
@@ -29,28 +31,29 @@ class QuickActionWidget extends StatelessWidget {
     required this.onTap,
   });
 
-  final QuickAction action;
+  final QuickActionType action;
   final GestureTapCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      clipBehavior: Clip.hardEdge,
+    return Container(
       margin: EdgeInsets.symmetric(horizontal: 4.h),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
+      decoration: BoxDecoration(
+        color: action.color.withAlpha(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: action.color.withAlpha(90)),
       ),
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.h),
           child: Column(
             children: [
-              Expanded(child: QuickActionIcon(action: action, size: 50.r)),
+              Expanded(child: ActionIcon(action: action)),
               SizedBox(height: 6.h),
               Text(
-                action.name,
+                action.label,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

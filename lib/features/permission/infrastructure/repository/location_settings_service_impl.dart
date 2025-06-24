@@ -3,7 +3,5 @@ import 'package:logistix/features/permission/domain/repository/settings_service.
 
 class LocationSettingsImpl extends SettingsService {
   @override
-  Future<bool> openSettings() {
-    return Geolocator.openLocationSettings();
-  }
+  Future<bool> openSettings() => Geolocator.openLocationSettings();
 }

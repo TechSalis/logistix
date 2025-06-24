@@ -24,9 +24,7 @@ final class FormValidatorNotifier
   @override
   String? build(TextEditingController controller) => null;
 
-  void validate() {
-    state = validator(arg.text);
-  }
+  void validate() => state = validator(arg.text);
 }
 
 final class FormValidatorGroup {

@@ -16,7 +16,7 @@ class OrderFareWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: color ?? Theme.of(context).highlightColor,
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
           DefaultTextStyle(
@@ -25,7 +25,7 @@ class OrderFareWidget extends StatelessWidget {
             ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('Estimated Fare'), Text(farePrice)],
+              children: [const Text('Estimated Fare'), Text(farePrice)],
             ),
           ),
           if (eta != null)
@@ -35,7 +35,10 @@ class OrderFareWidget extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium!,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Text('Based on distance and time'), Text(eta!)],
+                  children: [
+                    const Text('Based on distance and time'),
+                    Text(eta!),
+                  ],
                 ),
               ),
             ),

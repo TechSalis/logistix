@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
-import 'package:logistix/core/presentation/widgets/text_validator_provider_forncard.dart';
-import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/core/entities/address.dart';
+import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
+import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
+import 'package:logistix/features/location/domain/entities/address.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 
@@ -30,6 +30,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
     pickupController.dispose();
     dropoffController.dispose();
     noteController.dispose();
+    roundedLoadingButtonController.dispose();
     super.dispose();
   }
 
@@ -41,8 +42,8 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
     ]);
 
     if (validator.validateAndCheck()) {
-      pickup ??= Address(formatted: pickupController.text, coordinates: null);
-      dropoff ??= Address(formatted: dropoffController.text, coordinates: null);
+      pickup ??= Address(pickupController.text, coordinates: null);
+      dropoff ??= Address(dropoffController.text, coordinates: null);
       roundedLoadingButtonController.start();
       // showDialog(
       //   context: context,
@@ -92,19 +93,22 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
             const SizedBox(height: 24),
             textValidatorProviderFornCardBuilder(
               validatorProvider: requiredValidatorProvider(noteController),
-              title: "Note to Rider *",
+              title: "Description of Item *",
               child: TextFormField(
                 controller: noteController,
                 minLines: 3,
                 maxLines: 4,
                 maxLength: 255,
                 decoration: const InputDecoration(
-                  hintText: "e.g. Handle with care, call when close",
+                  hintText: "e.g. 2 brand new Macbook laptops",
                 ),
               ),
             ),
             const SizedBox(height: 32),
-            OrderFareWidget(farePrice: 'Not available', eta: 'Not calculated'),
+            const OrderFareWidget(
+              farePrice: 'Not available',
+              eta: 'Not calculated',
+            ),
 
             // const SizedBox(height: 24),
             // FormCard(

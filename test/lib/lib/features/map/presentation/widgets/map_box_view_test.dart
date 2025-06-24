@@ -1,14 +1,15 @@
+import 'dart:collection';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:logistix/features/map/presentation/widgets/map_box_view.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
+import 'package:logistix/features/map/presentation/widgets/__map_box_widget.dart';
 
 import '../../../../../../test_helpers.dart';
 
 void main() {
   testWidgets('tests MapViewWidget', (tester) async {
-    await tester.pumpWidget(materialAppWrapper(child: MapViewWidget()));
+    await tester.pumpWidget(materialAppWrapper(child: const MapViewWidget()));
 
     expect(find.byType(MapViewWidget), findsOneWidget);
-    expect(find.byType(MapWidget), findsOneWidget);
+    expect(find.byType(MapView), findsOneWidget);
   });
 }

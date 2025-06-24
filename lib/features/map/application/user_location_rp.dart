@@ -1,45 +1,53 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/entities/address.dart';
-import 'package:logistix/core/entities/coordinate.dart';
-import 'package:logistix/features/map/application/location_picker_rp.dart';
-import 'package:logistix/features/map/infrastructure/repository/location_service_impl.dart';
-import 'package:logistix/features/map/domain/repository/location_service.dart';
-import 'package:logistix/features/permission/infrastructure/repository/location_settings_service_impl.dart';
-import 'package:logistix/features/permission/domain/repository/settings_service.dart';
+import 'dart:async';
 
-final _locationServiceProvider = Provider.autoDispose<GeoLocationService>(
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
+import 'package:logistix/features/location/infrastructure/repository/location_service_impl.dart';
+import 'package:logistix/features/location/domain/repository/location_service.dart';
+
+final locationServiceProvider = Provider.autoDispose<GeoLocationService>(
   (ref) => LocalGeoLocationServiceImpl(),
-);
-final _locationSettingsProvider = Provider.autoDispose<SettingsService>(
-  (ref) => LocationSettingsImpl(),
 );
 
 class UserLocationNotifier extends AutoDisposeNotifier<Address?> {
-  @override
-  Address? build() => null;
+  late final GeoLocationService _locationService;
+  StreamSubscription? _getUserCoordinatesStream;
 
-  Future<Coordinates> getUserCoordinates() async {
-    final service = ref.read(_locationServiceProvider);
-    final coordinates = await service.getUserCoordinates();
-    state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
-    return state!.coordinates!;
+  @override
+  Address? build() {
+    ref.onDispose(() => _getUserCoordinatesStream?.cancel());
+    _locationService = ref.watch(locationServiceProvider);
+    return null;
   }
 
-  Stream<Coordinates> trackUserCoordinates() {
-    final data = ref.watch(_locationServiceProvider).getUserCoordinatesStream();
-    return data..forEach((coordinates) {
-      state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
-    });
+  Future<Coordinates> getUserCoordinates() async {
+    final coordinates = await _locationService.getUserCoordinates();
+    state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
+    return coordinates;
+  }
+
+  void trackUserCoordinates() {
+    _getUserCoordinatesStream?.cancel();
+    _getUserCoordinatesStream = _locationService
+        .getUserCoordinatesStream()
+        .listen((coordinates) {
+          state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
+        });
   }
 
   Future<Address?> getUserAddress() async {
     final coordinates = await getUserCoordinates();
-    state = await ref.watch(addressFromCoordinatesProvider(coordinates).future);
-    return state;
+    final address = await ref.watch(
+      addressFromCoordinatesProvider(coordinates).future,
+    );
+    state = address;
+    return address;
   }
-
-  void openSettings() => ref.read(_locationSettingsProvider).openSettings();
 }
 
-// State Manager
-final locationProvider = AutoDisposeNotifierProvider(UserLocationNotifier.new);
+final locationProvider =
+    NotifierProvider.autoDispose<UserLocationNotifier, Address?>(
+      UserLocationNotifier.new,
+    );

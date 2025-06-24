@@ -17,7 +17,7 @@ class ElevatedLoadingButton extends StatelessWidget {
     required Widget label,
   }) : child = Row(
          mainAxisSize: MainAxisSize.min,
-         children: [icon, SizedBox(width: 8), label],
+         children: [icon, const SizedBox(width: 8), label],
        );
 
   final void Function()? onPressed;

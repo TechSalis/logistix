@@ -4,7 +4,7 @@ abstract class AppColors {
   static const redAccent = Colors.redAccent;
   static const blueGrey = Colors.blueGrey;
 
-  static const primarySwatch = MaterialColor(
+  static const orange = MaterialColor(
     0xFFF97316,
     <int, Color>{
       50: Color(0xFFFFF7ED),
@@ -22,7 +22,7 @@ abstract class AppColors {
 }
 
 class QuickActionColors {
-  static const food = AppColors.primarySwatch;
+  static const food = Color(0xffba2f2f);
   static const groceries = Color(0xFF22C55E);
   static const errands = Color(0xFF6366F1);
   static const lastDelivery = Color(0xFF64748B);
