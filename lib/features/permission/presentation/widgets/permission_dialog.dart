@@ -25,6 +25,7 @@ class PermissionData {
 class PermissionDisclosureDialog extends ConsumerWidget {
   final PermissionData data;
   final VoidCallback? openSettingsCallback;
+
   const PermissionDisclosureDialog({
     super.key,
     required this.data,
@@ -34,7 +35,7 @@ class PermissionDisclosureDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(permissionProvider(data), (p, n) {
-      switch (ref.watch(permissionProvider(data)).value?.status) {
+      switch (n.value?.status) {
         case PermissionStatus.granted:
           ref.read(permissionProvider(data).notifier).setHasGranted();
         case PermissionStatus.permanentlyDenied:

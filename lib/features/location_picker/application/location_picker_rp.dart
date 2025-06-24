@@ -26,8 +26,8 @@ final _remoteGeocodingProvider = Provider.autoDispose<GeocodingService>((ref) {
   return GoogleGeocodingServiceImpl(ref.watch(mapsApi));
 });
 
-final addressFromCoordinatesProvider = FutureProvider.family
-    .autoDispose<Address?, Coordinates>((ref, Coordinates arg) async {
+final addressFromCoordinatesProvider = FutureProvider.autoDispose
+    .family<Address?, Coordinates>((ref, Coordinates arg) async {
       Address? address;
       try {
         // throw PlatformException(code: 'code');

@@ -5,6 +5,6 @@ import 'package:logistix/features/rider/infrastructure/repository/mock_rider_rep
 
 final _riderRepoProvider = Provider<RiderRepo>((ref) => RandomRiderRepoImpl());
 
-final trackRiderProvider = StreamProvider.family.autoDispose((ref, Rider arg) {
+final trackRiderProvider = StreamProvider.autoDispose.family((ref, Rider arg) {
   return ref.read(_riderRepoProvider).listenToRiderCoordinates(arg);
 });

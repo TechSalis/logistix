@@ -6,12 +6,16 @@ import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 
 class RandomRiderRepoImpl extends RiderRepo {
   @override
-  Stream<Coordinates> listenToRiderCoordinates(Rider rider) {
+  Stream<Coordinates> listenToRiderCoordinates(Rider rider) async* {
     double lat = 6.5244, long = 3.3792;
-    return Stream.periodic(const Duration(seconds: 2), (computationCount) {
+    yield Coordinates(
+      lat += (Random().nextInt(10) - 5) / 10000,
+      long += (Random().nextInt(10) - 5) / 10000,
+    );
+    yield* Stream.periodic(const Duration(seconds: 5), (computationCount) {
       return Coordinates(
-        lat + (Random().nextInt(10) - 5) / 10000,
-        long + (Random().nextInt(10) - 5) / 10000,
+        lat += (Random().nextInt(10) - 5) / 10000,
+        long += (Random().nextInt(10) - 5) / 10000,
       );
     });
   }

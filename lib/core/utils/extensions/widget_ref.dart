@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/env_config.dart';
-import 'package:logistix/core/utils/helpers/global_instances.dart';
+import 'package:logistix/core/constants/global_instances.dart';
 
 extension ContextExtension on Ref {
   Dio autoDisposeDio() {

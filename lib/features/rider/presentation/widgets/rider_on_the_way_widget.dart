@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
+import 'package:logistix/features/rider/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 
 class RiderOnTheWayCard extends StatelessWidget {
-  const RiderOnTheWayCard({
-    super.key,
-    required this.rider,
-    required this.eta,
-  });
+  const RiderOnTheWayCard({super.key, required this.rider, required this.eta});
 
   final Rider rider;
   final String eta;
@@ -80,15 +78,17 @@ class RiderOnTheWayCard extends StatelessWidget {
 }
 
 // ignore: must_be_immutable
-class _RiderTrackerMapWidget extends StatefulWidget {
+class _RiderTrackerMapWidget extends ConsumerStatefulWidget {
   const _RiderTrackerMapWidget({required this.rider});
   final Rider rider;
 
   @override
-  State<_RiderTrackerMapWidget> createState() => _RiderTrackerMapWidgetState();
+  ConsumerState<_RiderTrackerMapWidget> createState() =>
+      _RiderTrackerMapWidgetState();
 }
 
-class _RiderTrackerMapWidgetState extends State<_RiderTrackerMapWidget> {
+class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
+    with SingleTickerProviderStateMixin {
   GoogleMapController? map;
 
   @override
@@ -103,32 +103,47 @@ class _RiderTrackerMapWidgetState extends State<_RiderTrackerMapWidget> {
       },
       child: SizedBox(
         height: 140,
-        child: AbsorbPointer(
-          child: Consumer(
-            builder: (context, ref, child) {
-              ref.listen(trackRiderProvider(widget.rider), (p, n) {
-                if (n.hasValue) {
-                  map?.animateCamera(
-                    CameraUpdate.newLatLng(n.requireValue.toPoint()),
-                  );
-                }
-              });
-              return MapViewWidget(
-                onMapCreated: (m) => map = m,
-                markers: {
-                  if (ref.watch(trackRiderProvider(widget.rider)).hasValue)
-                    Marker(
-                      markerId: const MarkerId('find_rider'),
-                      position:
+        child: Consumer(
+          builder: (context, ref, _) {
+            ref.listen(trackRiderProvider(widget.rider), (p, n) {
+              map?.animateCamera(
+                CameraUpdate.newLatLng(n.requireValue.toPoint()),
+                duration: kMapStreamPeriodDuration,
+              );
+            });
+            final animator = ref.watch(
+              markerAnimatorProvider(
+                MarkerAnimatorParams(
+                  vsync: this,
+                  duration: kMapStreamPeriodDuration,
+                  stream: trackRiderProvider(widget.rider),
+                ),
+              ),
+            );
+            return AbsorbPointer(
+              child: MapViewWidget(
+                onMapCreated: (m) {
+                  map = m;
+                   map?.animateCamera(
+                        CameraUpdate.newLatLng(
                           ref
-                              .watch(trackRiderProvider(widget.rider))
-                              .value!
+                              .read(trackRiderProvider(widget.rider))
+                              .requireValue
                               .toPoint(),
+                        ),
+                        duration: kMapStreamPeriodDuration,
+                      );
+                },
+                markers: {
+                  if (animator != null)
+                    Marker(
+                      markerId: MarkerId(widget.rider.id),
+                      position: animator.toPoint(),
                     ),
                 },
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

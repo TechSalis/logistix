@@ -19,18 +19,16 @@ class UserMapView extends ConsumerStatefulWidget {
   final void Function(GoogleMapController map)? onMapCreated;
 
   @override
-  ConsumerState<UserMapView> createState() => _MapSectionState();
+  ConsumerState<UserMapView> createState() => _UserMapViewState();
 }
 
-class _MapSectionState extends ConsumerState<UserMapView> {
+class _UserMapViewState extends ConsumerState<UserMapView> {
   GoogleMapController? map;
 
   @override
   Widget build(BuildContext context) {
-    // Fetch location permission state and show friendly permission
-    // request dialog for user to accept or cancel
-    ref.listen(permissionProvider(PermissionData.location), (previous, next) {
-      if (next.hasValue && !next.value!.isGranted) {
+    ref.listen(permissionProvider(PermissionData.location), (p, n) {
+      if (n.hasValue && !n.value!.isGranted) {
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -45,102 +43,107 @@ class _MapSectionState extends ConsumerState<UserMapView> {
         );
       }
     });
-    return ref
-        .watch(permissionProvider(PermissionData.location))
-        .maybeWhen(
-          orElse: SizedBox.new,
-          data: (permission) {
-            if (permission.isGranted) {
-              return Stack(
-                children: [
-                  MapViewWidget(
-                    markers: {
-                      if (ref.watch(locationProvider)?.coordinates != null)
-                        Marker(
-                          markerId: const MarkerId('user_location'),
-                          position:
-                              ref
-                                  .watch(locationProvider)!
-                                  .coordinates!
-                                  .toPoint(),
-                          icon: BitmapDescriptor.defaultMarkerWithHue(
-                            Theme.of(context).colorScheme.tertiary.toHue(),
-                          ),
-                        ),
-                    },
-                    onMapCreated: (m) async {
-                      final provider = ref.read(locationProvider.notifier);
-                      centerUserHelperFunction(map = m, provider);
-                      provider.trackUserCoordinates();
-                      widget.onMapCreated?.call(m);
-                    },
-                    onCameraIdle: () => widget.onCameraIdle?.call(map!),
-                  ),
-                ],
-              );
-            }
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                    child: Image.asset(
-                      'assets/images/map_thumbnail.jpeg',
-                      fit: BoxFit.cover,
-                      color: context.isDarkTheme ? Colors.black54 : null,
-                      colorBlendMode: BlendMode.multiply,
-                    ),
-                  ),
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Access to your Location is required.',
-                      style: Theme.of(context).textTheme.titleMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
+    final permission = ref.watch(permissionProvider(PermissionData.location));
+    return permission.maybeWhen(
+      data: (status) {
+        return status.isGranted
+            ? _buildMap(context)
+            : const _PermissionDeniedOverlay();
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
+  }
 
-                    if (permission.status?.isPermanentlyDenied ?? false)
-                      TextButton(
-                        onPressed:
-                            ref.read(locationSettingsProvider).openSettings,
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 18),
-                        ),
-                        child: const Text('Open Settings'),
-                      )
-                    else
-                      TextButton(
-                        onPressed:
-                            ref
-                                .read(
-                                  permissionProvider(
-                                    PermissionData.location,
-                                  ).notifier,
-                                )
-                                .requestPermission,
-                        style: TextButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 18),
-                        ),
-                        child: const Text('Allow'),
-                      ),
-                  ],
-                ),
-              ],
-            );
-          },
-        );
+  Widget _buildMap(BuildContext context) {
+    final userCoordinates = ref.watch(locationProvider)?.coordinates;
+    return MapViewWidget(
+      markers: {
+        if (userCoordinates != null)
+          Marker(
+            markerId: const MarkerId('user_location'),
+            position: userCoordinates.toPoint(),
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              Theme.of(context).colorScheme.tertiary.toHue(),
+            ),
+          ),
+      },
+      onMapCreated: (controller) async {
+        map = controller;
+        final locationNotifier = ref.read(locationProvider.notifier);
+        await centerUserHelperFunction(controller, locationNotifier);
+        locationNotifier.trackUserCoordinates();
+        widget.onMapCreated?.call(controller);
+      },
+      onCameraIdle: () => widget.onCameraIdle?.call(map!),
+    );
   }
 }
 
-Future<UserLocationNotifier> centerUserHelperFunction(
+class _PermissionDeniedOverlay extends ConsumerWidget {
+  const _PermissionDeniedOverlay();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isPermanentlyDenied =
+        ref
+            .watch(permissionProvider(PermissionData.location))
+            .value
+            ?.status
+            ?.isPermanentlyDenied ??
+        false;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: Image.asset(
+              'assets/images/map_thumbnail.jpeg',
+              fit: BoxFit.cover,
+              color: context.isDarkTheme ? Colors.black54 : null,
+              colorBlendMode: BlendMode.multiply,
+            ),
+          ),
+        ),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Access to your location is required.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed:
+                    isPermanentlyDenied
+                        ? ref.read(locationSettingsProvider).openSettings
+                        : ref
+                            .read(
+                              permissionProvider(
+                                PermissionData.location,
+                              ).notifier,
+                            )
+                            .requestPermission,
+                style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 18),
+                ),
+                child: Text(isPermanentlyDenied ? 'Open Settings' : 'Allow'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<void> centerUserHelperFunction(
   GoogleMapController map,
   UserLocationNotifier provider,
 ) async {
   final pos = await provider.getUserCoordinates();
   map.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
-  return provider;
 }

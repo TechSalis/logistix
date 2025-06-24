@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
+import 'package:logistix/features/location/domain/entities/coordinate.dart';
 
 class MapViewWidget extends StatefulWidget {
   const MapViewWidget({
     super.key,
+    this.initialPosition,
     this.onMapCreated,
     this.onCameraIdle,
     this.markers = const {},
   });
 
   final Set<Marker> markers;
+  final Coordinates? initialPosition;
   final void Function(GoogleMapController map)? onMapCreated;
   final void Function()? onCameraIdle;
 
@@ -19,7 +23,7 @@ class MapViewWidget extends StatefulWidget {
 }
 
 class _MapViewWidgetState extends State<MapViewWidget> {
-  static const initialPosition = CameraPosition(
+  static const _kInitialPosition = CameraPosition(
     target: LatLng(6.5244, 3.3792),
     zoom: 16.5,
   );
@@ -52,7 +56,12 @@ class _MapViewWidgetState extends State<MapViewWidget> {
               zoomControlsEnabled: false,
               myLocationEnabled: false,
               myLocationButtonEnabled: false,
-              initialCameraPosition: initialPosition,
+              initialCameraPosition: CameraPosition(
+                target:
+                    widget.initialPosition?.toPoint() ??
+                    _kInitialPosition.target,
+                zoom: _kInitialPosition.zoom,
+              ),
               onMapCreated: widget.onMapCreated,
               onCameraIdle: widget.onCameraIdle,
               markers: widget.markers,

@@ -8,7 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/infrastructure/repository/dialog_repo_impl.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
-final _dialogHiveRepository = Provider.family.autoDispose(
+final _dialogHiveRepository = Provider.autoDispose.family(
   (ref, String key) => DialogHiveRepositoryImpl(key: key),
 );
 
@@ -60,6 +60,6 @@ class PermissionNotifier
   }
 }
 
-final permissionProvider = AsyncNotifierProvider.family.autoDispose(
+final permissionProvider = AsyncNotifierProvider.autoDispose.family(
   PermissionNotifier.new,
 );

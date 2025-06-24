@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
+import 'package:logistix/features/map/presentation/widgets/user_pan_away_refocus_widget.dart';
+import 'package:logistix/features/rider/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 
-class RiderTrackerPage extends StatefulWidget {
+class RiderTrackerPage extends ConsumerStatefulWidget {
   const RiderTrackerPage({super.key, required this.rider});
   final Rider rider;
 
   @override
-  State<RiderTrackerPage> createState() => _RiderTrackerPageState();
+  ConsumerState<RiderTrackerPage> createState() => _RiderTrackerPageState();
 }
 
-class _RiderTrackerPageState extends State<RiderTrackerPage> {
+class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage>
+    with SingleTickerProviderStateMixin {
   GoogleMapController? map;
-  bool? followMarkerState = true;
-  Offset? tapDownPosition;
-
-  void _trackUser(Coordinates? val) {
-    if (val != null) map?.animateCamera(CameraUpdate.newLatLng(val.toPoint()));
-  }
+  bool followMarkerState = true;
 
   @override
   Widget build(BuildContext context) {
@@ -41,40 +39,41 @@ class _RiderTrackerPageState extends State<RiderTrackerPage> {
             child: Consumer(
               builder: (context, ref, child) {
                 ref.listen(trackRiderProvider(widget.rider), (p, n) {
-                  if (followMarkerState == true) _trackUser(n.value);
+                  map?.animateCamera(
+                    CameraUpdate.newLatLng(n.requireValue.toPoint()),
+                    duration: kMapStreamPeriodDuration,
+                  );
                 });
-                return Listener(
-                  onPointerDown: (event) {
-                    tapDownPosition = event.position;
-                    //Dont update UI yet to show track location hutton
-                    if (followMarkerState == true) {
-                      followMarkerState = false;
-                    } else {
-                      followMarkerState = null;
-                    }
-                  },
-                  onPointerUp: (event) {
-                    // if (followMarkerState) return;
-                    final dx = (tapDownPosition!.dx - event.position.dx).abs();
-                    final dy = (tapDownPosition!.dy - event.position.dy).abs();
-
-                    //Now we can update UI to show track location hutton
-                    if ((dx < 40 || dy < 40) && followMarkerState == false) {
-                      followMarkerState = true;
-                    }
-                    setState(() {});
+                final coordinates = ref.watch(
+                  markerAnimatorProvider(
+                    MarkerAnimatorParams(
+                      vsync: this,
+                      stream: trackRiderProvider(widget.rider),
+                    ),
+                  ),
+                );
+                return MapPanUnfocusListener(
+                  shouldFollowMarker: (followMarker) {
+                    setState(() => followMarkerState = followMarker);
                   },
                   child: MapViewWidget(
-                    onMapCreated: (m) => map = m,
+                    onMapCreated: (m) {
+                      map = m;
+                      map?.animateCamera(
+                        CameraUpdate.newLatLng(
+                          ref
+                              .read(trackRiderProvider(widget.rider))
+                              .requireValue
+                              .toPoint(),
+                        ),
+                        duration: kMapStreamPeriodDuration,
+                      );
+                    },
                     markers: {
-                      if (ref.watch(trackRiderProvider(widget.rider)).hasValue)
+                      if (coordinates != null)
                         Marker(
-                          markerId: const MarkerId('find_rider'),
-                          position:
-                              ref
-                                  .watch(trackRiderProvider(widget.rider))
-                                  .value!
-                                  .toPoint(),
+                          markerId: MarkerId(widget.rider.id),
+                          position: coordinates.toPoint(),
                         ),
                     },
                   ),
@@ -82,7 +81,7 @@ class _RiderTrackerPageState extends State<RiderTrackerPage> {
               },
             ),
           ),
-          if (followMarkerState != true)
+          if (!followMarkerState)
             Positioned(
               right: 16,
               bottom: 140,
@@ -91,8 +90,13 @@ class _RiderTrackerPageState extends State<RiderTrackerPage> {
                   return IconButton(
                     onPressed: () {
                       setState(() => followMarkerState = true);
-                      _trackUser(
-                        ref.read(trackRiderProvider(widget.rider)).value,
+                      map?.animateCamera(
+                        CameraUpdate.newLatLng(
+                          ref
+                              .read(trackRiderProvider(widget.rider))
+                              .requireValue
+                              .toPoint(),
+                        ),
                       );
                     },
                     style: IconButton.styleFrom(
