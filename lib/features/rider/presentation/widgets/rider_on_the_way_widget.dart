@@ -102,6 +102,12 @@ class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
         RouteAware,
         TrackRiderControllerMixin<_RiderTrackerMapWidget> {
   @override
+  bool followMarkerState = true;
+
+  @override
+  late Rider rider;
+  
+  @override
   void initState() {
     super.initState();
     rider = widget.rider;

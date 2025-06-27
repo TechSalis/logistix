@@ -12,10 +12,11 @@ import 'package:logistix/features/rider/domain/entities/rider.dart';
 mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
     on ConsumerState<T>, SingleTickerProviderStateMixin<T>, RouteAware {
   late MarkerAnimator animator;
-  late Rider rider;
   GoogleMapController? map;
-  bool followMarkerState = true;
   bool isRouteActive = true;
+  
+  bool get followMarkerState;
+  Rider get rider;
 
   @protected
   RouteObserver<PageRoute<dynamic>> get observer => routeObserver;
