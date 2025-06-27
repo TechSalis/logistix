@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
-import 'package:logistix/features/location/domain/entities/address.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/core/utils/app_error.dart';
-import 'package:logistix/features/location/domain/repository/geocoding_service.dart';
+import 'package:logistix/features/location_core/domain/repository/geocoding_service.dart';
 
 class LocalGeocodingServiceImpl implements GeocodingService {
   LocalGeocodingServiceImpl();

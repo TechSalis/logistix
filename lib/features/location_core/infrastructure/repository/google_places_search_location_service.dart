@@ -1,9 +1,9 @@
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/core/utils/app_error.dart';
-import 'package:logistix/features/location/domain/entities/place.dart';
-import 'package:logistix/features/location/domain/repository/location_service.dart';
-import 'package:logistix/features/location/domain/repository/search_location_service.dart';
-import 'package:logistix/features/location/infrastructure/datasources/google_places_datasource.dart';
+import 'package:logistix/features/location_core/domain/entities/place.dart';
+import 'package:logistix/features/location_core/domain/repository/location_service.dart';
+import 'package:logistix/features/location_core/domain/repository/search_location_service.dart';
+import 'package:logistix/features/location_core/infrastructure/datasources/google_places_datasource.dart';
 
 class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
   GooglePlacesSearchLocationServiceImpl(this._api, this._locationApi);

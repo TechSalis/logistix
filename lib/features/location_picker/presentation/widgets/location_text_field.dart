@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
@@ -40,7 +40,8 @@ class LocationTextField extends ConsumerWidget {
     }
 
     Future<void> useCurrentLocation() async {
-      final result = await ref.watch(locationProvider.notifier).getUserAddress();
+      final result =
+          await ref.watch(locationProvider.notifier).getUserAddress();
       if (result != null) {
         controller.text = result.formatted;
         onAddressPicked?.call(result);
@@ -73,24 +74,29 @@ class LocationTextField extends ConsumerWidget {
         ],
       );
     }
-    final permission =
-        ref.watch(permissionProvider(PermissionData.location)).value!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         textField,
-        if (showUseYourLocationButton && permission.isGranted)
+        if (showUseYourLocationButton &&
+            ref
+                .watch(permissionProvider(PermissionData.location))
+                .value!
+                .isGranted)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 12),
             child: SizedBox(
-              height: 24,
-              child: TextButton(
+              height: 20,
+              child: TextButton.icon(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  foregroundColor: Theme.of(context).colorScheme.tertiary,
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.tertiary.withAlpha(200),
                 ),
                 onPressed: useCurrentLocation,
-                child: const Text('Use your location'),
+                icon: const Icon(Icons.my_location),
+                label: const Text('Use my location'),
               ),
             ),
           ),

@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:logistix/core/utils/env_config.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
-import 'package:logistix/features/location/domain/entities/place.dart';
-import 'package:logistix/features/location/infrastructure/dtos/google_map_response_dtos.dart';
-import 'package:logistix/features/location/infrastructure/dtos/address_coordinates_model.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/place.dart';
+import 'package:logistix/features/location_core/infrastructure/dtos/google_map_response_dtos.dart';
+import 'package:logistix/features/location_core/infrastructure/dtos/address_coordinates_model.dart';
 
 class GooglePlacesDatasource {
   final Dio _dio;

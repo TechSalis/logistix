@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 part 'address_coordinates_model.g.dart';
 

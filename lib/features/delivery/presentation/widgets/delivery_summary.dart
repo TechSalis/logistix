@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 
 class DeliverySummaryDialog extends StatelessWidget {
   final Address pickup;

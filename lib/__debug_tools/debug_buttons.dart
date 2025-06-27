@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:leak_tracker/leak_tracker.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
 import 'package:logistix/features/notifications/presentation/notifications/qa_rider_notification_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';

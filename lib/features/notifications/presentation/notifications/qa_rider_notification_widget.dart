@@ -34,6 +34,19 @@ class QARiderNotificationWidget extends ConsumerWidget {
     final theme = Theme.of(context);
     final title =
         '${data.rider.name}  •  ${data.rider.company ?? "Independent"}';
+    openOrdersTab() async {
+      ref.read(navBarIndexProvider.notifier).state = 1;
+      await Future.delayed(Durations.medium4);
+      AppNotifications.dismiss(data: data);
+      if (context.mounted) {
+        showModalBottomSheet(
+          context: context,
+          showDragHandle: true,
+          isScrollControlled: true,
+          builder: (_) => OrderDetailsSheet(order: data.order),
+        );
+      }
+    }
 
     return SafeArea(
       child: Padding(
@@ -45,19 +58,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () async {
-              ref.read(navBarIndexProvider.notifier).state = 1;
-              await Future.delayed(Durations.medium4);
-              AppNotifications.dismiss(data: data);
-              if (context.mounted) {
-                showModalBottomSheet(
-                  context: context,
-                  showDragHandle: true,
-                  isScrollControlled: true,
-                  builder: (_) => OrderDetailsSheet(order: data.order),
-                );
-              }
-            },
+            onTap: openOrdersTab,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
               child: Row(
@@ -100,10 +101,8 @@ class QARiderNotificationWidget extends ConsumerWidget {
                       side: BorderSide.none,
                       elevation: 0,
                     ),
-                    onPressed: () {
-                      AppNotifications.dismiss(data: data);
-                    },
-                    icon: const Icon(Icons.close),
+                    onPressed: openOrdersTab,
+                    icon: const Icon(Icons.info_outline),
                   ),
                 ],
               ),

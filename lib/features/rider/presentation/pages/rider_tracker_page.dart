@@ -5,7 +5,7 @@ import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 import 'package:logistix/features/map/presentation/widgets/user_pan_away_refocus_widget.dart';
-import 'package:logistix/features/rider/application/marker_animator_rp.dart';
+import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
@@ -20,8 +20,30 @@ class RiderTrackerPage extends ConsumerStatefulWidget {
 
 class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage>
     with SingleTickerProviderStateMixin {
+  late MarkerAnimator animator;
   GoogleMapController? map;
+
   bool followMarkerState = true;
+
+  @override
+  void didChangeDependencies() {
+    animator = ref.read(
+      markerAnimatorProvider(
+        MarkerAnimatorParams(
+          vsync: this,
+          initialPosition: ref.read(trackRiderProvider(widget.rider)).value,
+        ),
+      ).notifier,
+    );
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    animator.dispose();
+    map = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,19 +60,17 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage>
           Positioned.fill(
             child: Consumer(
               builder: (context, ref, child) {
-                ref.listen(trackRiderProvider(widget.rider), (p, n) {
-                  map?.animateCamera(
-                    CameraUpdate.newLatLng(n.requireValue.toPoint()),
-                    duration: kMapStreamPeriodDuration,
-                  );
-                });
+                if (followMarkerState) {
+                  ref.listen(trackRiderProvider(widget.rider), (p, n) {
+                    animator.updatePosition(n.requireValue);
+                    map?.animateCamera(
+                      CameraUpdate.newLatLng(n.requireValue.toPoint()),
+                      duration: kMapStreamPeriodDuration,
+                    );
+                  });
+                }
                 final coordinates = ref.watch(
-                  markerAnimatorProvider(
-                    MarkerAnimatorParams(
-                      vsync: this,
-                      stream: trackRiderProvider(widget.rider),
-                    ),
-                  ),
+                  markerAnimatorProvider(animator.arg),
                 );
                 return MapPanUnfocusListener(
                   shouldFollowMarker: (followMarker) {
@@ -59,14 +79,13 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage>
                   child: MapViewWidget(
                     onMapCreated: (m) {
                       map = m;
-                      map?.animateCamera(
+                      m.moveCamera(
                         CameraUpdate.newLatLng(
                           ref
                               .read(trackRiderProvider(widget.rider))
                               .requireValue
                               .toPoint(),
                         ),
-                        duration: kMapStreamPeriodDuration,
                       );
                     },
                     markers: {

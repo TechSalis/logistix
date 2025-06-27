@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 abstract class AppColors {
   static const redAccent = Colors.redAccent;
-  static const blueGrey = Colors.blueGrey;
+  static const blueGreyMaterial = Colors.blueGrey;
+  static const blueGrey = Color(0xFF263238);
+  static const grey100 = Color(0xFFF5F5F5);
+  static const grey200 = Color(0xFFBDBDBD);
+  static const grey800 = Color(0xFF424242);
+  static const grey900 = Color(0xFF151515);
 
   static const orange = MaterialColor(
     0xFFF97316,

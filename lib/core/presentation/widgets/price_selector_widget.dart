@@ -35,7 +35,8 @@ class PriceSelectorField extends StatelessWidget {
             "₦",
             style: TextStyle(
               fontSize: 20,
-              color: context.isDarkTheme ? AppColors.blueGrey[200] : null,
+              color:
+                  context.isDarkTheme ? AppColors.blueGreyMaterial[200] : null,
             ),
           ),
         ),

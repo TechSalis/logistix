@@ -31,13 +31,11 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
       if (n.hasValue && !n.value!.isGranted) {
         showDialog(
           context: context,
-          barrierDismissible: false,
           builder: (_) {
             return PermissionDisclosureDialog(
               data: PermissionData.location,
-              openSettingsCallback: () {
-                ref.read(locationSettingsProvider).openSettings();
-              },
+              openSettingsCallback:
+                  ref.read(locationSettingsProvider).openSettings,
             );
           },
         );
@@ -69,9 +67,10 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
       },
       onMapCreated: (controller) async {
         map = controller;
-        final locationNotifier = ref.read(locationProvider.notifier);
-        await centerUserHelperFunction(controller, locationNotifier);
-        locationNotifier.trackUserCoordinates();
+        final locationNotifier = ref.read(locationProvider.notifier)
+          ..trackUserCoordinates();
+        final pos = await locationNotifier.getUserCoordinates();
+        controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
         widget.onMapCreated?.call(controller);
       },
       onCameraIdle: () => widget.onCameraIdle?.call(map!),
@@ -106,7 +105,8 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
             ),
           ),
         ),
-        Center(
+        Align(
+          alignment: const Alignment(0, -.25),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

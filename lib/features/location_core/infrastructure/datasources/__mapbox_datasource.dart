@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:logistix/core/utils/env_config.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/features/location/infrastructure/dtos/__mapbox_response_dtos.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/infrastructure/dtos/__mapbox_response_dtos.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 class MapBoxDatasource {
   final Dio _dio;

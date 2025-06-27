@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/async_state_widget.dart';
 import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
-import 'package:logistix/features/rider/presentation/widgets/rider_card.dart';
+import 'package:logistix/features/rider/presentation/widgets/rider_card_summary.dart';
 
 class FindRiderDialog extends ConsumerWidget {
   const FindRiderDialog({super.key});
@@ -54,12 +54,41 @@ class _RiderNotFoundWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 200,
-      child: Center(
-        child: Text(
-          "Sorry, we couldn't find a rider right now.",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
+      height: 330,
+      child: Column(
+        children: [
+          Center(
+            child: Text(
+              "Sorry, we couldn't find a rider right now.",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Consumer(
+            builder: (context, ref, _) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      onPressed: () {},
+                      child: const Text("Cancel"),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: const Text("Retry"),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -71,7 +100,7 @@ class _RiderFoundWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 320,
+      height: 330,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -91,25 +120,29 @@ class _RiderFoundWidget extends StatelessWidget {
                   builder: (context, ref, child) {
                     final state =
                         ref.watch(findRiderProvider) as RiderFoundState;
-                    return RiderCard(rider: state.rider, eta: state.eta);
+                    return RiderSummaryCard(rider: state.rider, eta: state.eta);
                   },
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             Consumer(
               builder: (context, ref, _) {
                 return Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor:
+                              Theme.of(context).colorScheme.tertiary,
+                        ),
                         onPressed: () {
                           ref.invalidate(findRiderProvider);
                         },
                         child: const Text("Cancel"),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
                         onPressed:
@@ -134,7 +167,7 @@ class _ContactingRiderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
-      height: 320,
+      height: 330,
       child: LoadingStatusView(message: 'Connecting to rider...'),
     );
   }
@@ -146,7 +179,7 @@ class _FindingRiderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
-      height: 320,
+      height: 330,
       child: LoadingStatusView(message: 'Looking for a nearby rider...'),
     );
   }
@@ -174,7 +207,7 @@ class _FindRiderInitialWidgetState
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 320,
+      height: 330,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -183,33 +216,45 @@ class _FindRiderInitialWidgetState
           children: [
             const SizedBox(height: 8),
             Text(
-              "Confirm Pickup Location",
-              style: Theme.of(context).textTheme.titleLarge,
+              "Confirm Location",
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 24),
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(locationController),
-              title: "Where is the rider coming to?",
-              child: LocationTextField(
-                controller: locationController,
-                showUseYourLocationButton: true,
-                decoration: const InputDecoration(hintText: 'Enter a location'),
-                onChanged: (value) {
-                  ref
-                      .read(findRiderProvider.notifier)
-                      .setLocation(
-                        Address(locationController.text, coordinates: null),
-                      );
-                },
-                onAddressPicked: (address) {
-                  ref.read(findRiderProvider.notifier).setLocation(address);
-                },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: textValidatorProviderFornCardBuilder(
+                validatorProvider: requiredValidatorProvider(
+                  locationController,
+                ),
+                title: "Where is the rider coming to?",
+                child: LocationTextField(
+                  controller: locationController,
+                  showUseYourLocationButton: true,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter a location',
+                  ),
+                  onChanged: (value) {
+                    ref
+                        .read(findRiderProvider.notifier)
+                        .setLocation(
+                          Address(locationController.text, coordinates: null),
+                        );
+                  },
+                  onAddressPicked: (address) {
+                    ref.read(findRiderProvider.notifier).setLocation(address);
+                  },
+                ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.tertiary,
+                ),
                 onPressed: () {
                   ref.read(findRiderProvider.notifier).findRider();
                 },

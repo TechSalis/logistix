@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/extensions/widget_ref.dart';
-import 'package:logistix/features/location/infrastructure/repository/google_map_geocoding_service_impl.dart';
-import 'package:logistix/features/location/infrastructure/repository/local_geocoding_service_impl.dart';
-import 'package:logistix/features/location/infrastructure/datasources/google_maps_datasource.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
-import 'package:logistix/features/location/domain/repository/geocoding_service.dart';
+import 'package:logistix/features/location_core/infrastructure/repository/google_map_geocoding_service_impl.dart';
+import 'package:logistix/features/location_core/infrastructure/repository/local_geocoding_service_impl.dart';
+import 'package:logistix/features/location_core/infrastructure/datasources/google_maps_datasource.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/repository/geocoding_service.dart';
 
 // Dependency Injection
 

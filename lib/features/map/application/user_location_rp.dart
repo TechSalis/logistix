@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
-import 'package:logistix/features/location/infrastructure/repository/location_service_impl.dart';
-import 'package:logistix/features/location/domain/repository/location_service.dart';
+import 'package:logistix/features/location_core/infrastructure/repository/location_service_impl.dart';
+import 'package:logistix/features/location_core/domain/repository/location_service.dart';
 
 final locationServiceProvider = Provider.autoDispose<GeoLocationService>(
   (ref) => LocalGeoLocationServiceImpl(),

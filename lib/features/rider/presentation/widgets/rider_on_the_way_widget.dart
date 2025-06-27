@@ -4,7 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
-import 'package:logistix/features/rider/application/marker_animator_rp.dart';
+import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
@@ -27,8 +27,8 @@ class RiderOnTheWayCard extends StatelessWidget {
             children: [
               _RiderTrackerMapWidget(rider: rider),
               Positioned(
-                top: 12,
-                left: 12,
+                top: 8,
+                left: 8,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black.withAlpha(100),
@@ -56,21 +56,28 @@ class RiderOnTheWayCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                bottom: 8,
-                right: 16,
-                child: IgnorePointer(
-                  child: Text(
-                    'Tap to view',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   bottom: 0,
+              //   right: 0,
+              //   child: TextButton(
+              //     onPressed: () {},
+              //     child: Text(
+              //       'Open',
+              //       // style: TextStyle(
+              //       //   color: Theme.of(context).colorScheme.onSurface,
+              //       // ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
-          RiderCardSmall(rider: rider, eta: eta),
+          RiderCardSmall(
+            rider: rider,
+            eta: eta,
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(16),
+            ),
+          ),
         ],
       ),
     );
@@ -90,6 +97,27 @@ class _RiderTrackerMapWidget extends ConsumerStatefulWidget {
 class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
     with SingleTickerProviderStateMixin {
   GoogleMapController? map;
+  late MarkerAnimator animator;
+
+  @override
+  void didChangeDependencies() {
+    animator = ref.read(
+      markerAnimatorProvider(
+        MarkerAnimatorParams(
+          vsync: this,
+          initialPosition: ref.read(trackRiderProvider(widget.rider)).value,
+        ),
+      ).notifier,
+    );
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    animator.dispose();
+    map = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,47 +131,41 @@ class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
       },
       child: SizedBox(
         height: 140,
-        child: Consumer(
-          builder: (context, ref, _) {
-            ref.listen(trackRiderProvider(widget.rider), (p, n) {
-              map?.animateCamera(
-                CameraUpdate.newLatLng(n.requireValue.toPoint()),
-                duration: kMapStreamPeriodDuration,
-              );
-            });
-            final animator = ref.watch(
-              markerAnimatorProvider(
-                MarkerAnimatorParams(
-                  vsync: this,
+        child: AbsorbPointer(
+          child: Consumer(
+            builder: (context, ref, child) {
+              ref.listen(trackRiderProvider(widget.rider), (p, n) {
+                animator.updatePosition(n.requireValue);
+                map?.animateCamera(
+                  CameraUpdate.newLatLng(n.requireValue.toPoint()),
                   duration: kMapStreamPeriodDuration,
-                  stream: trackRiderProvider(widget.rider),
-                ),
-              ),
-            );
-            return AbsorbPointer(
-              child: MapViewWidget(
+                );
+              });
+              final coordinates = ref.watch(
+                markerAnimatorProvider(animator.arg),
+              );
+              return MapViewWidget(
                 onMapCreated: (m) {
                   map = m;
-                   map?.animateCamera(
-                        CameraUpdate.newLatLng(
-                          ref
-                              .read(trackRiderProvider(widget.rider))
-                              .requireValue
-                              .toPoint(),
-                        ),
-                        duration: kMapStreamPeriodDuration,
-                      );
+                  m.moveCamera(
+                    CameraUpdate.newLatLng(
+                      ref
+                          .read(trackRiderProvider(widget.rider))
+                          .requireValue
+                          .toPoint(),
+                    ),
+                  );
                 },
                 markers: {
-                  if (animator != null)
+                  if (coordinates != null)
                     Marker(
                       markerId: MarkerId(widget.rider.id),
-                      position: animator.toPoint(),
+                      position: coordinates.toPoint(),
                     ),
                 },
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

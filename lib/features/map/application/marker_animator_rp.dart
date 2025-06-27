@@ -3,29 +3,24 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/presentation/coordinate_tween.dart';
 
 class MarkerAnimator
     extends AutoDisposeFamilyNotifier<Coordinates?, MarkerAnimatorParams> {
-  MarkerAnimator();
-
   late final AnimationController _controller;
   Animation<Coordinates>? _animation;
-  Coordinates? _previous;
-
-  Coordinates? get animatedValue => _animation?.value;
 
   @override
   Coordinates? build(MarkerAnimatorParams param) {
-    ref.listen(arg.stream, (p, n) {
-      if (n.hasValue) updatePosition(n.value!);
-    });
-
     _controller = AnimationController(vsync: arg.vsync, duration: arg.duration);
     ref.onDispose(_controller.dispose);
-    return null;
+
+    return state = param.initialPosition;
   }
+
+  void _updateAnimationListener() => state = _animation!.value;
 
   void updatePosition(Coordinates newPosition) {
     if (state == null) {
@@ -33,15 +28,16 @@ class MarkerAnimator
       return;
     }
 
-    _previous = state;
-    final tween = CoordinateTween(begin: _previous!, end: newPosition);
-
-    _animation = tween.animate(
-      CurvedAnimation(parent: _controller, curve: Curves.linear),
-    )..addListener(() => state = _animation!.value);
+    _animation = CoordinateTween(
+      begin: state!,
+      end: newPosition,
+    ).animate(_controller)..addListener(_updateAnimationListener);
+    ref.onDispose(() => _animation!.removeListener(_updateAnimationListener));
 
     _controller.forward(from: 0);
   }
+
+  void dispose() => ref.invalidateSelf();
 }
 
 final markerAnimatorProvider = NotifierProvider.autoDispose.family(
@@ -49,14 +45,14 @@ final markerAnimatorProvider = NotifierProvider.autoDispose.family(
 );
 
 class MarkerAnimatorParams extends Equatable {
-  final Duration duration;
   final TickerProvider vsync;
-  final ProviderListenable<AsyncValue<Coordinates>> stream;
+  final Coordinates? initialPosition;
+  final Duration duration;
 
   const MarkerAnimatorParams({
     required this.vsync,
-    required this.stream,
-    this.duration = const Duration(seconds: 5),
+    this.duration = kMapStreamPeriodDuration,
+    this.initialPosition,
   });
 
   @override

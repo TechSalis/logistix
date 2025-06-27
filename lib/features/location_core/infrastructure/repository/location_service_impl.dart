@@ -1,6 +1,6 @@
 import 'package:geolocator/geolocator.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
-import 'package:logistix/features/location/domain/repository/location_service.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/repository/location_service.dart';
 
 class LocalGeoLocationServiceImpl extends GeoLocationService {
   @override

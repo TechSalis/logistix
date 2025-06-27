@@ -77,13 +77,18 @@ class PermissionDisclosureDialog extends ConsumerWidget {
             const SizedBox(height: 24),
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 12),
+                // Expanded(
+                //   child: OutlinedButton(
+                //     onPressed: () {
+                //       ref
+                //           .read(permissionProvider(data).notifier)
+                //           .setHasGranted();
+                //       Navigator.of(context).pop();
+                //     },
+                //     child: const Text('Cancel'),
+                //   ),
+                // ),
+                // const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {

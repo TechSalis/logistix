@@ -75,7 +75,7 @@ class LoadingStatusView extends StatelessWidget {
             // duration: Duration(milliseconds: 1500),
             color: Theme.of(context).progressIndicatorTheme.color,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Text(
             message,
             style: Theme.of(context).textTheme.titleMedium,
@@ -103,7 +103,7 @@ class _SuccessState extends StatelessWidget {
             color: Colors.green,
             size: 100,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Text(
             message,
             textAlign: TextAlign.center,
@@ -128,7 +128,7 @@ class _ErrorState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.error_outline_rounded, color: Colors.red, size: 100),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           Text(
             message,
             textAlign: TextAlign.center,

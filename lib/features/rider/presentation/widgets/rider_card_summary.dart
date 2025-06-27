@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
-class RiderCard extends StatelessWidget {
-  const RiderCard({super.key, required this.rider, this.eta});
+class RiderSummaryCard extends StatelessWidget {
+  const RiderSummaryCard({super.key, required this.rider, this.eta});
 
   final Rider rider;
   final String? eta;
@@ -10,20 +11,9 @@ class RiderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Row(
       children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: theme.colorScheme.primary.withAlpha(26),
-          child: Text(
-            rider.name[0].toUpperCase(),
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ),
+        UserAvatar(user: rider, size: 28),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -38,9 +28,7 @@ class RiderCard extends StatelessWidget {
               if (rider.company != null)
                 Text(
                   rider.company!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.hintColor,
-                  ),
+                  style: theme.textTheme.bodySmall
                 ),
               const SizedBox(height: 6),
               Row(

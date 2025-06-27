@@ -1,8 +1,8 @@
-import 'package:logistix/features/location/domain/entities/address.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/core/utils/app_error.dart';
-import 'package:logistix/features/location/domain/repository/geocoding_service.dart';
-import 'package:logistix/features/location/infrastructure/datasources/google_maps_datasource.dart';
+import 'package:logistix/features/location_core/domain/repository/geocoding_service.dart';
+import 'package:logistix/features/location_core/infrastructure/datasources/google_maps_datasource.dart';
 
 class GoogleGeocodingServiceImpl implements GeocodingService {
   final GoogleMapsDatasource _api;

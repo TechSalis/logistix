@@ -1,6 +1,6 @@
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 extension PointToCoord on LatLng {
   Coordinates toCoordinates() {

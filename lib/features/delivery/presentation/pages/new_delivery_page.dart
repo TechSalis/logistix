@@ -5,7 +5,7 @@ import 'package:logistix/features/form_validator/application/form_validator_rp.d
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
 import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 
@@ -30,7 +30,6 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
     pickupController.dispose();
     dropoffController.dispose();
     noteController.dispose();
-    roundedLoadingButtonController.dispose();
     super.dispose();
   }
 

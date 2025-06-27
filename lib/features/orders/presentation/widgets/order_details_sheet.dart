@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderDetailsSheet extends StatelessWidget {
@@ -59,19 +60,12 @@ class OrderDetailsSheet extends StatelessWidget {
                 ),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    backgroundColor: Theme.of(context).highlightColor,
-                    child: Text(
-                      order.rider!.name[0].toUpperCase(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
+                  leading: UserAvatar(user: order.rider!),
+
                   title: Text(order.rider!.name),
                   subtitle: Text(order.rider!.company ?? 'Independent'),
-                  trailing: Wrap(
-                    spacing: 4,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.location_on_outlined),
@@ -79,10 +73,6 @@ class OrderDetailsSheet extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.chat_bubble_outline),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.call_outlined),
                         onPressed: () {},
                       ),
                     ],

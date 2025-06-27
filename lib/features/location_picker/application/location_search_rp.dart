@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/debouncer.dart';
 import 'package:logistix/core/utils/extensions/widget_ref.dart';
-import 'package:logistix/features/location/domain/entities/place.dart';
-import 'package:logistix/features/location/infrastructure/repository/google_places_search_location_service.dart';
-import 'package:logistix/features/location/domain/repository/search_location_service.dart';
-import 'package:logistix/features/location/infrastructure/datasources/google_places_datasource.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/place.dart';
+import 'package:logistix/features/location_core/infrastructure/repository/google_places_search_location_service.dart';
+import 'package:logistix/features/location_core/domain/repository/search_location_service.dart';
+import 'package:logistix/features/location_core/infrastructure/datasources/google_places_datasource.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 
 final placesApi = Provider.autoDispose<GooglePlacesDatasource>(

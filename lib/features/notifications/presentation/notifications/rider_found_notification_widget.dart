@@ -28,6 +28,11 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
     final theme = Theme.of(context);
     final title =
         '${data.rider.name}  •  ${data.rider.company ?? "Independent"}';
+    openOrdersTab() async {
+      ref.read(navBarIndexProvider.notifier).state = 1;
+      await Future.delayed(Durations.medium4);
+      AppNotifications.dismiss(data: data);
+    }
 
     return SafeArea(
       child: Padding(
@@ -39,11 +44,7 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () async {
-              ref.read(navBarIndexProvider.notifier).state = 1;
-              await Future.delayed(Durations.medium4);
-              AppNotifications.dismiss(data: data);
-            },
+            onTap: openOrdersTab,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
@@ -85,10 +86,8 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
                           side: BorderSide.none,
                           elevation: 0,
                         ),
-                        onPressed: () async {
-                          AppNotifications.dismiss(data: data);
-                        },
-                        icon: const Icon(Icons.close),
+                        onPressed: openOrdersTab,
+                        icon: const Icon(Icons.info_outline),
                       );
                     },
                   ),

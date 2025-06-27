@@ -3,7 +3,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/colors.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 

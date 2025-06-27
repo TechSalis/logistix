@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 class Address extends Equatable {
   final String formatted;

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 abstract class RiderRepo {

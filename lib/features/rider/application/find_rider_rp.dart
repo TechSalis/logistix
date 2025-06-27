@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/app_error.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 sealed class FindRiderState {
@@ -55,7 +55,7 @@ class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
       company: "Swift Logistics",
       id: '',
     );
-    state = const RiderFoundState(eta: '4 mins', rider: rider);
+    state = const RiderFoundState(eta: '40 min', rider: rider);
   }
 
   Future contactRider() async {

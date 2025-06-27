@@ -1,14 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:logistix/core/entities/user_base.dart';
 
-class Rider extends Equatable {
-  final String id;
-  final String name;
+class Rider extends UserBase with EquatableMixin {
   final String? company;
   final double rating;
 
   const Rider({
-    required this.id,
-    required this.name,
+    required super.id,
+    required super.name,
     required this.company,
     required this.rating,
   });

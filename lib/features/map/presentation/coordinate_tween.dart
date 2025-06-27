@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 class CoordinateTween extends Tween<Coordinates> {
   CoordinateTween({required Coordinates begin, required Coordinates end})

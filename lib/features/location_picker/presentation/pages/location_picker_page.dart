@@ -6,7 +6,7 @@ import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/application/usecases/map_moved_usecase.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/user_map_view.dart';
-import 'package:logistix/features/location/domain/entities/coordinate.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
 import 'package:logistix/features/location_picker/presentation/widgets/addresses_list.dart';

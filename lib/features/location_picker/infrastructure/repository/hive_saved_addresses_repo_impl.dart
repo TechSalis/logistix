@@ -1,7 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logistix/features/location/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_picker/domain/repository/saved_addresses_repo.dart';
-import 'package:logistix/features/location/infrastructure/dtos/address_coordinates_model.dart';
+import 'package:logistix/features/location_core/infrastructure/dtos/address_coordinates_model.dart';
 
 class HiveSavedAddressesRepoImpl extends SavedAddressesRepo {
   HiveSavedAddressesRepoImpl({this.maxLimit = 10});

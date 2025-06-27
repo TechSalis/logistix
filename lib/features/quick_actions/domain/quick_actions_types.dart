@@ -46,7 +46,7 @@ interface class ActionType extends Equatable {
 
   static const delivery = ActionType._(
     label: 'Delivery',
-    color: AppColors.blueGrey,
+    color: AppColors.blueGreyMaterial,
     icon: Icons.motorcycle,
   );
 

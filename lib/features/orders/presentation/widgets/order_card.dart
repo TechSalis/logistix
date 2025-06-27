@@ -10,19 +10,18 @@ class OrderCard extends StatelessWidget {
   final Order order;
   final String? eta;
 
-  void _showDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (_) => OrderDetailsSheet(order: order),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final rider = order.rider;
+    void showDetails() {
+      showModalBottomSheet(
+        context: context,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (_) => OrderDetailsSheet(order: order),
+      );
+    }
 
     return DecoratedBox(
       decoration: ShapeDecoration(
@@ -34,7 +33,7 @@ class OrderCard extends StatelessWidget {
       child: Column(
         children: [
           InkWell(
-            onTap: () => _showDetails(context),
+            onTap: showDetails,
             borderRadius: const BorderRadius.all(Radius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -53,10 +52,9 @@ class OrderCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 order.dropOff.formatted,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.titleMedium,
+                                overflow: TextOverflow.clip,
+                                maxLines: 1,
                               ),
                             ),
                             // const SizedBox(width: 12),
@@ -68,8 +66,23 @@ class OrderCard extends StatelessWidget {
                             // ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        if (order.description != null &&
+                            order.description!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              order.description!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.textTheme.bodySmall!.color!
+                                    .withAlpha(200),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        const SizedBox(height: 12),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Container(
                               width: 10,
@@ -82,25 +95,10 @@ class OrderCard extends StatelessWidget {
                             ),
                             Text(
                               order.status.label,
-                              style: theme.textTheme.labelMedium,
+                              style: theme.textTheme.bodySmall,
                             ),
                           ],
                         ),
-                        if (order.description != null &&
-                            order.description!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Text(
-                              order.description!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withAlpha(
-                                  150,
-                                ),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
                       ],
                     ),
                   ),
