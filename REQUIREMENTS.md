@@ -1,0 +1,11 @@
+## Features
+- Rider tracking*
+- Rider chat*
+- Real-time location
+- Customized delivery flows; Food*, Groceries* and Errands* (* denotes WIP)
+- Find Rider* (near your location*)
+- New Delivery* (with optional Rider preference*)
+- Contact Delivery Company
+- Contact Logistix
+- View/Edit Orders (status, Rider ETA & Location)
+- Notifications and Realtime Updates
