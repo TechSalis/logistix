@@ -13,9 +13,8 @@ import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
 class UserMapView extends ConsumerStatefulWidget {
-  const UserMapView({super.key, this.onCameraIdle, this.onMapCreated});
+  const UserMapView({super.key, this.onMapCreated});
 
-  final void Function(GoogleMapController map)? onCameraIdle;
   final void Function(GoogleMapController map)? onMapCreated;
 
   @override
@@ -73,7 +72,6 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
         controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
         widget.onMapCreated?.call(controller);
       },
-      onCameraIdle: () => widget.onCameraIdle?.call(map!),
     );
   }
 }

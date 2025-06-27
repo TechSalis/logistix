@@ -31,11 +31,6 @@ class _HomeTabState extends ConsumerState<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen(locationProvider, (p, n) {
-    //   if (n?.coordinates != null) {
-    //     map?.animateCamera(CameraUpdate.newLatLng(n!.coordinates!.toPoint()));
-    //   }
-    // });
     return Scaffold(
       body: Stack(
         children: [
