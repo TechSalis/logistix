@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,7 +33,12 @@ class _HomeTabState extends ConsumerState<HomeTab> {
       body: Stack(
         children: [
           Positioned.fill(child: UserMapView(onMapCreated: (m) => map = m)),
-          const _BottomPanel(),
+          const Positioned(
+            left: 12,
+            right: 12,
+            bottom: 16,
+            child: _BottomPanel(),
+          ),
           Positioned(
             right: 16,
             bottom: 280,
@@ -45,8 +48,8 @@ class _HomeTabState extends ConsumerState<HomeTab> {
                 await centerUserHelperFunction(map!, provider);
               },
               style: IconButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
+                foregroundColor: Theme.of(context).colorScheme.surface,
+                backgroundColor: Theme.of(context).colorScheme.onSurface,
               ),
               icon: const Icon(Icons.my_location),
             ),
@@ -64,31 +67,20 @@ class _BottomPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: 12,
-      right: 12,
-      bottom: 16,
-      child: ClipRRect(
-        clipBehavior: Clip.hardEdge,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.isDarkTheme ? Colors.black87 : Colors.white70,
         borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-            decoration: BoxDecoration(
-              color: (context.isDarkTheme ? Colors.black : Colors.white)
-                  .withAlpha(120),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _QuickActionsRow(), // horizontal scroll
-                SizedBox(height: 20),
-                _DeliveryActionCard(), // buttons row
-              ],
-            ),
-          ),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _QuickActionsRow(), // horizontal scroll
+            SizedBox(height: 20),
+            _DeliveryActionCard(), // buttons row
+          ],
         ),
       ),
     );
@@ -109,7 +101,7 @@ class QuickActionCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
-          elevation: 6,
+          elevation: 4,
           color: Colors.white,
           shadowColor: Colors.black12,
           shape: const CircleBorder(),

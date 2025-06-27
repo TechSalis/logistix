@@ -64,6 +64,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: ListView(
+          addAutomaticKeepAlives: false,
           children: [
             textValidatorProviderFornCardBuilder(
               validatorProvider: requiredValidatorProvider(pickupController),

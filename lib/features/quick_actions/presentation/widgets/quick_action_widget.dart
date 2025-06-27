@@ -36,32 +36,34 @@ class QuickActionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 4.h),
-      decoration: BoxDecoration(
-        color: action.color.withAlpha(10),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: action.color.withAlpha(90)),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.h),
-          child: Column(
-            children: [
-              Expanded(child: ActionIcon(action: action)),
-              SizedBox(height: 6.h),
-              Text(
-                action.label,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-              ),
-            ],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 4.h),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: action.color.withAlpha(10),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: action.color.withAlpha(90)),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.h),
+            child: Column(
+              children: [
+                Expanded(child: ActionIcon(action: action)),
+                SizedBox(height: 6.h),
+                Text(
+                  action.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
           ),
         ),
       ),

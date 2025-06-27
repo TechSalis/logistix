@@ -13,7 +13,7 @@ class BottomsheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: context.boxDecorationWithShadow.copyWith(
         borderRadius: borderRadius,
       ),

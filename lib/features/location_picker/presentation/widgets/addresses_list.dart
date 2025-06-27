@@ -18,7 +18,7 @@ class AddressSuggestionsSection extends ConsumerWidget {
           data: (data) {
             return Material(
               child: ListView.builder(
-                shrinkWrap: true,
+                addAutomaticKeepAlives: false,
                 padding: EdgeInsets.zero,
                 itemCount: data.addresses?.length ?? 0,
                 itemBuilder: (context, index) {

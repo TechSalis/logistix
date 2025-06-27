@@ -110,7 +110,7 @@ class MyTheme {
     primarySwatch: AppColors.orange,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.orange,
-      onPrimary: AppColors.grey200,
+      onPrimary: AppColors.grey100,
       secondary: AppColors.blueGrey,
       onSecondary: AppColors.grey200,
       tertiary: AppColors.redAccent,
@@ -140,13 +140,6 @@ class MyTheme {
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
-    // iconButtonTheme: IconButtonThemeData(
-    //   style: IconButton.styleFrom(
-    //     elevation: 2,
-    //     backgroundColor: AppColors.blueGrey,
-    //     padding: EdgeInsets.zero,
-    //   ),
-    // ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
@@ -170,14 +163,10 @@ class MyTheme {
     dividerTheme: const DividerThemeData(color: AppColors.grey800),
     chipTheme: const ChipThemeData(selectedColor: AppColors.orange),
     cardTheme: const CardThemeData(
+      margin: EdgeInsets.zero,
       color: Colors.black87,
       shadowColor: AppColors.grey200,
-      margin: EdgeInsets.zero,
     ),
-    // dialogTheme: const DialogThemeData(
-    //   // backgroundColor: AppColors.grey900,
-    //   // barrierColor: Colors.white10,
-    // ),
     appBarTheme: const AppBarTheme(
       color: AppColors.grey900,
       surfaceTintColor: AppColors.grey900,

@@ -31,7 +31,6 @@ abstract class QAConsumerState<T extends ConsumerStatefulWidget>
   }
 }
 
-
 class QADialogBase extends StatefulWidget {
   const QADialogBase({
     super.key,
@@ -103,74 +102,73 @@ class _FoodQASectionState extends State<QADialogBase> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ActionIcon(action: widget.action, size: 64),
-              const SizedBox(height: 8),
-              Text(
-                widget.action.label,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        child: SliverList.list(
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          children: [
+            ActionIcon(action: widget.action, size: 64),
+            const SizedBox(height: 8),
+            Text(
+              widget.action.label,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 420,
+              child: PageView(
+                controller: pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  ...widget.pages,
+                  AsyncStatusView(
+                    computation: computation,
+                    onRetry: computation,
+                    successMessage: 'Your order has been placed!',
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 420,
-                child: PageView(
-                  controller: pageController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    ...widget.pages,
-                    AsyncStatusView(
-                      computation: computation,
-                      onRetry: computation,
-                      successMessage: 'Your order has been placed!',
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListenableBuilder(
+            ),
+            const SizedBox(height: 16),
+            ListenableBuilder(
+              listenable: pageController,
+              builder: (context, child) {
+                return AnimatedSmoothIndicator(
+                  count: widget.pages.length,
+                  activeIndex: pageController.page?.round().clamp(0, 1) ?? 0,
+                  effect: JumpingDotEffect(
+                    dotWidth: 8,
+                    dotHeight: 8,
+                    activeDotColor: Theme.of(context).colorScheme.primary,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ListenableBuilder(
                 listenable: pageController,
                 builder: (context, child) {
-                  return AnimatedSmoothIndicator(
-                    count: widget.pages.length,
-                    activeIndex: pageController.page?.round().clamp(0, 1) ?? 0,
-                    effect: JumpingDotEffect(
-                      dotWidth: 8,
-                      dotHeight: 8,
-                      activeDotColor: Theme.of(context).colorScheme.primary,
-                    ),
+                  final pageIndex = pageController.page?.round() ?? 0;
+                  return Row(
+                    children: [
+                      if (pageIndex < widget.pages.length)
+                        BackButton(
+                          onPressed: pageIndex > 0 ? previousPage : null,
+                        ),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: widget.footerBuilder(pageIndex, snapshot),
+                      ),
+                    ],
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ListenableBuilder(
-                  listenable: pageController,
-                  builder: (context, child) {
-                    final pageIndex = pageController.page?.round() ?? 0;
-                    return Row(
-                      children: [
-                        if (pageIndex < widget.pages.length)
-                          BackButton(
-                            onPressed: pageIndex > 0 ? previousPage : null,
-                          ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: widget.footerBuilder(pageIndex, snapshot),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );

@@ -20,53 +20,52 @@ class DeliverySummaryDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.check_circle, size: 52, color: Colors.green),
-              const SizedBox(height: 16),
-              Text(
-                "Delivery Summary",
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+        child: SliverList.list(
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          children: [
+            const Icon(Icons.check_circle, size: 52, color: Colors.green),
+            const SizedBox(height: 16),
+            Text(
+              "Delivery Summary",
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 24),
+
+            // Pickup Map + Info
+            _MapLocationCard(
+              label: "Pickup",
+              address: pickup.formatted,
+              // coordinates: pickup.coordinates,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Drop-off Map + Info
+            _MapLocationCard(
+              label: "Drop-off",
+              address: dropoff.formatted,
+              // coordinates: dropoff.coordinates,
+            ),
+
+            const SizedBox(height: 16),
+            _SummaryRow(label: "Note", value: note),
+            const SizedBox(height: 12),
+
+            // _SummaryRow(label: "ETA", value: eta),
+            // _SummaryRow(label: "Estimated Price", value: price),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: Navigator.of(context).pop,
+                icon: const Icon(Icons.motorcycle),
+                label: const Text("Call Rider"),
               ),
-              const SizedBox(height: 24),
-
-              // Pickup Map + Info
-              _MapLocationCard(
-                label: "Pickup",
-                address: pickup.formatted,
-                // coordinates: pickup.coordinates,
-              ),
-
-              const SizedBox(height: 16),
-
-              // Drop-off Map + Info
-              _MapLocationCard(
-                label: "Drop-off",
-                address: dropoff.formatted,
-                // coordinates: dropoff.coordinates,
-              ),
-
-              const SizedBox(height: 16),
-              _SummaryRow(label: "Note", value: note),
-              const SizedBox(height: 12),
-              // _SummaryRow(label: "ETA", value: eta),
-              // _SummaryRow(label: "Estimated Price", value: price),
-
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: Navigator.of(context).pop,
-                  icon: const Icon(Icons.motorcycle),
-                  label: const Text("Call Rider"),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -93,18 +92,15 @@ class _SummaryRow extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+            child: Text(value, style: Theme.of(context).textTheme.bodyMedium),
           ),
         ),
       ],
@@ -116,10 +112,7 @@ class _MapLocationCard extends StatelessWidget {
   final String label;
   final String address;
 
-  const _MapLocationCard({
-    required this.label,
-    required this.address,
-  });
+  const _MapLocationCard({required this.label, required this.address});
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +142,7 @@ class _MapLocationCard extends StatelessWidget {
           //     ),
           //   ),
           Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: _SummaryRow(label: label, value: address),
           ),
         ],

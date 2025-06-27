@@ -26,7 +26,9 @@ class _AsyncStatusViewState<T> extends State<AsyncStatusView<T>> {
 
   @override
   void initState() {
-    future = widget.computation();
+    Future.microtask(() {
+      if (context.mounted) future = widget.computation();
+    });
     super.initState();
   }
 

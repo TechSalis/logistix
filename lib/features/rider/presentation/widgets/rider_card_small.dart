@@ -19,7 +19,7 @@ class RiderCardSmall extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius:
@@ -29,51 +29,55 @@ class RiderCardSmall extends StatelessWidget {
           BoxShadow(blurRadius: 2, color: Colors.black12, offset: Offset(0, 1)),
         ],
       ),
+      child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
-        children: [
-          UserAvatar(user: rider, size: 18),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  rider.name,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+        child: Row(
+          children: [
+            UserAvatar(user: rider, size: 18),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    rider.name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  rider.company ?? 'Independent',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.hintColor,
+                  Text(
+                    rider.company ?? 'Independent',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.hintColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (eta != null) ...[ETAWidget(eta: eta!), const SizedBox(width: 8)],
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => ChatPage(data: ChatParameters(user: rider)),
-                ),
-              );
-            },
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.chat_bubble_outline, size: 20),
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            onPressed: () {},
-            visualDensity: VisualDensity.compact,
-            icon: const Icon(Icons.help_outline, size: 20),
-          ),
-        ],
+            if (eta != null) ...[
+              ETAWidget(eta: eta!),
+              const SizedBox(width: 8),
+            ],
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => ChatPage(data: ChatParameters(user: rider)),
+                  ),
+                );
+              },
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.chat_bubble_outline, size: 20),
+            ),
+            IconButton(
+              onPressed: () {},
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.help_outline, size: 20),
+            ),
+          ],
+        ),
       ),
     );
   }

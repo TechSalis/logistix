@@ -22,9 +22,9 @@ class QuickActionCard extends StatelessWidget {
           border: Border.all(color: action.color.withAlpha(80), width: 1),
           boxShadow: const [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 6,
-              offset: Offset(0, 3),
+              color: Colors.black26,
+              blurRadius: 4,
+              offset: Offset(0, 2),
             ),
           ],
         ),

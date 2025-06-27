@@ -76,6 +76,8 @@ class OrdersTab extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
             sliver: SliverList.builder(
               itemCount: mockOrders.length,
+              addAutomaticKeepAlives: false,
+              addRepaintBoundaries: true,
               itemBuilder: (_, index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),

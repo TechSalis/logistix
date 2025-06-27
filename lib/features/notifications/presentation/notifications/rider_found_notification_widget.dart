@@ -38,7 +38,7 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Material(
-          elevation: 8,
+          elevation: 4,
           shadowColor: Colors.black38,
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),

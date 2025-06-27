@@ -37,12 +37,14 @@ class _FoodQASectionState extends QAConsumerState<SubmitFoodQADialog> {
 
   @override
   void initState() {
-    if (widget.initialData != null) {
-      descriptionTEC.text = widget.initialData!.description;
-      priceTEC.text = widget.initialData!.price;
-      dropoffTEC.text = widget.initialData!.dropoff;
-      pickupTEC.text = widget.initialData!.pickup;
-    }
+    Future.microtask(() {
+      if (widget.initialData != null) {
+        descriptionTEC.text = widget.initialData!.description;
+        priceTEC.text = widget.initialData!.price;
+        dropoffTEC.text = widget.initialData!.dropoff;
+        pickupTEC.text = widget.initialData!.pickup;
+      }
+    });
     super.initState();
   }
 

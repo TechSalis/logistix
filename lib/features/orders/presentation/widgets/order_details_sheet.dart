@@ -11,20 +11,21 @@ class OrderDetailsSheet extends StatelessWidget {
     final theme = Theme.of(context);
     return SafeArea(
       top: false,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          left: 20,
-          right: 20,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 20,
+            right: 20,
+          ),
+          child: SliverList.list(
+            addAutomaticKeepAlives: false,
+            addRepaintBoundaries: true,
             children: [
               Text(
                 'Order Summary',

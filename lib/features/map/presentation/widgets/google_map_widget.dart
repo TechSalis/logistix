@@ -11,8 +11,10 @@ class MapViewWidget extends StatefulWidget {
     this.onMapCreated,
     this.onCameraIdle,
     this.markers = const {},
+    this.liteModeEnabled = false,
   });
 
+  final bool liteModeEnabled;
   final Set<Marker> markers;
   final Coordinates? initialPosition;
   final void Function(GoogleMapController map)? onMapCreated;
@@ -44,33 +46,44 @@ class _MapViewWidgetState extends State<MapViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, consts) {
-        return ClipRect(
-          clipBehavior: Clip.hardEdge,
-          child: OverflowBox(
-            maxHeight: consts.maxHeight + 60,
-            child: GoogleMap(
-              compassEnabled: false,
-              mapToolbarEnabled: false,
-              zoomControlsEnabled: false,
-              myLocationEnabled: false,
-              myLocationButtonEnabled: false,
-              initialCameraPosition: CameraPosition(
-                target:
-                    widget.initialPosition?.toPoint() ??
-                    _kInitialPosition.target,
-                zoom: _kInitialPosition.zoom,
-                tilt: 30
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, consts) {
+          return ClipRect(
+            clipBehavior: Clip.hardEdge,
+            child: OverflowBox(
+              maxHeight: consts.maxHeight + 60,
+              child: GoogleMap(
+                compassEnabled: false,
+                mapToolbarEnabled: false,
+                zoomControlsEnabled: false,
+                myLocationEnabled: false,
+                myLocationButtonEnabled: false,
+                liteModeEnabled: widget.liteModeEnabled,
+                initialCameraPosition: CameraPosition(
+                  target:
+                      widget.initialPosition?.toPoint() ??
+                      _kInitialPosition.target,
+                  zoom: _kInitialPosition.zoom,
+                  tilt: 30,
+                ),
+                onMapCreated: widget.onMapCreated,
+                onCameraIdle: widget.onCameraIdle,
+                markers: widget.markers,
+                style: mapTheme,
               ),
-              onMapCreated: widget.onMapCreated,
-              onCameraIdle: widget.onCameraIdle,
-              markers: widget.markers,
-              style: mapTheme,
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
+}
+
+Future precacheMapData() {
+  return Future.wait([
+    rootBundle.loadString('assets/json/google_map_theme.dark.json'),
+    rootBundle.loadString('assets/json/google_map_theme.light.json'),
+  ]);
+  // MapboxOptions.setAccessToken(EnvConfig.instance.mapboxToken);
 }

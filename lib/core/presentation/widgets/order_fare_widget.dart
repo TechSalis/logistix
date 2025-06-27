@@ -14,35 +14,37 @@ class OrderFareWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ColoredBox(
       color: color ?? Theme.of(context).highlightColor,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: [
-          DefaultTextStyle(
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [const Text('Estimated Fare'), Text(farePrice)],
-            ),
-          ),
-          if (eta != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.bodyMedium!,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Based on distance and time'),
-                    Text(eta!),
-                  ],
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            DefaultTextStyle(
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall!.copyWith(fontWeight: FontWeight.bold),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [const Text('Estimated Fare'), Text(farePrice)],
               ),
             ),
-        ],
+            if (eta != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: DefaultTextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Based on distance and time'),
+                      Text(eta!),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
