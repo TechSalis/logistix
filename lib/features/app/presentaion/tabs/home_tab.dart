@@ -5,10 +5,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/__debug_tools/debug_buttons.dart';
 import 'package:logistix/core/utils/extensions/context_extension.dart';
 import 'package:logistix/features/delivery/presentation/pages/new_delivery_page.dart';
-import 'package:logistix/features/map/application/user_location_rp.dart';
+import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
 import 'package:logistix/features/quick_actions/presentation/pages/food_dialog.dart';
 import 'package:logistix/features/rider/presentation/widgets/find_rider_dialog.dart';
-import 'package:logistix/features/map/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/app/presentaion/widgets/user_map_view.dart';
 import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
@@ -20,12 +20,6 @@ class HomeTab extends ConsumerStatefulWidget {
 
 class _HomeTabState extends ConsumerState<HomeTab> {
   GoogleMapController? map;
-
-  @override
-  void dispose() {
-    map = null;
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,44 +35,16 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: IconButton(
-                    onPressed: () async {
-                      final provider = ref.read(locationProvider.notifier);
-                      await centerUserHelperFunction(map!, provider);
-                    },
-                    style: IconButton.styleFrom(
-                      foregroundColor: Theme.of(context).colorScheme.surface,
-                      backgroundColor: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    icon: const Icon(Icons.my_location),
+                  padding: const EdgeInsets.only(bottom: 32),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: CenterUserOnMapButton(map: map),
                   ),
                 ),
                 const _BottomPanel(),
               ],
             ),
           ),
-          // const Positioned(
-          //   left: 12,
-          //   right: 12,
-          //   bottom: 16,
-          //   child: _BottomPanel(),
-          // ),
-          // Positioned(
-          //   right: 16,
-          //   bottom: 280,
-          //   child: IconButton(
-          //     onPressed: () async {
-          //       final provider = ref.read(locationProvider.notifier);
-          //       await centerUserHelperFunction(map!, provider);
-          //     },
-          //     style: IconButton.styleFrom(
-          //       foregroundColor: Theme.of(context).colorScheme.surface,
-          //       backgroundColor: Theme.of(context).colorScheme.onSurface,
-          //     ),
-          //     icon: const Icon(Icons.my_location),
-          //   ),
-          // ),
           if (kDebugMode)
             const Positioned(bottom: 280, left: 16, child: DebugFloatingIcon()),
         ],
@@ -102,9 +68,9 @@ class _BottomPanel extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _QuickActionsRow(), // horizontal scroll
+            _QuickActionsRow(),
             SizedBox(height: 20),
-            _DeliveryActionCard(), // buttons row
+            _DeliveryActionCard(),
           ],
         ),
       ),

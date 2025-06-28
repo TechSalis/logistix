@@ -53,7 +53,7 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
 
   Widget _buildMap(BuildContext context) {
     final userCoordinates = ref.watch(locationProvider)?.coordinates;
-    return MapViewWidget(
+    return MapViewWidget( 
       markers: {
         if (userCoordinates != null)
           Marker(

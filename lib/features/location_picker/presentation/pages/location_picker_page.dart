@@ -4,12 +4,12 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/constants/styling.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/application/usecases/map_moved_usecase.dart';
-import 'package:logistix/features/map/application/user_location_rp.dart';
-import 'package:logistix/features/map/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/app/presentaion/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
 import 'package:logistix/features/location_picker/presentation/widgets/addresses_list.dart';
+import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
 import 'package:logistix/features/map/presentation/widgets/location_pin.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
@@ -95,13 +95,13 @@ class _MapSection extends ConsumerStatefulWidget {
 class _MapSectionState extends ConsumerState<_MapSection> {
   GoogleMapController? map;
 
-  Future<Coordinates> getCenter(GoogleMapController map) async {
+  Future<Coordinates> getMapCoordinates(GoogleMapController map) async {
     final bounds = await map.getVisibleRegion();
-    final centerLatLng = LatLng(
+    final center = Coordinates(
       (bounds.northeast.latitude + bounds.southwest.latitude) * .5,
       (bounds.northeast.longitude + bounds.southwest.longitude) * .5,
     );
-    return centerLatLng.toCoordinates();
+    return center;
   }
 
   @override
@@ -138,17 +138,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: IconButton(
-                  onPressed: () async {
-                    final provider = ref.read(locationProvider.notifier);
-                    await centerUserHelperFunction(map!, provider);
-                  },
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                  ),
-                  icon: const Icon(Icons.my_location),
-                ),
+                child: CenterUserOnMapButton(map: map),
               ),
               const SizedBox(height: 8),
               //
@@ -173,7 +163,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   onPressed: () async {
                     MapMovedUsecase(
-                      newCoordinates: await getCenter(map!),
+                      newCoordinates: await getMapCoordinates(map!),
                       provider: ref.read(locationPickerProvider.notifier),
                       address: ref.read(locationPickerProvider).value?.address,
                     ).call();

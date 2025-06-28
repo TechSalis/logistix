@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
-import 'package:logistix/features/map/application/marker_animator_rp.dart';
-import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
-import 'package:logistix/features/rider/presentation/mixins/track_rider_mixin.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
+import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
 class RiderOnTheWayCard extends StatelessWidget {
   const RiderOnTheWayCard({super.key, required this.rider, required this.eta});
@@ -27,7 +21,20 @@ class RiderOnTheWayCard extends StatelessWidget {
             children: [
               SizedBox(
                 height: 140,
-                child: _RiderTrackerMapWidget(rider: rider),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return RiderTrackerPage(rider: rider);
+                        },
+                      ),
+                    );
+                  },
+                  child: AbsorbPointer(
+                    child: RiderTrackerMapWidget(rider: rider),
+                  ),
+                ),
               ),
               Positioned(
                 top: 8,
@@ -84,71 +91,6 @@ class RiderOnTheWayCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ignore: must_be_immutable
-class _RiderTrackerMapWidget extends ConsumerStatefulWidget {
-  const _RiderTrackerMapWidget({required this.rider});
-  final Rider rider;
-
-  @override
-  ConsumerState<_RiderTrackerMapWidget> createState() =>
-      _RiderTrackerMapWidgetState();
-}
-
-class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
-    with
-        SingleTickerProviderStateMixin,
-        RouteAware,
-        TrackRiderControllerMixin<_RiderTrackerMapWidget> {
-  @override
-  bool followMarkerState = true;
-
-  @override
-  late Rider rider;
-
-  @override
-  void initState() {
-    super.initState();
-    rider = widget.rider;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    listenToRiderTracking(ref);
-    final coordinates = ref.watch(markerAnimatorProvider(animator.arg));
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => RiderTrackerPage(rider: widget.rider),
-          ),
-        );
-      },
-      child: AbsorbPointer(
-        child: MapViewWidget(
-          onMapCreated: (m) {
-            map = m;
-            m.moveCamera(
-              CameraUpdate.newLatLng(
-                ref
-                    .read(trackRiderProvider(widget.rider))
-                    .requireValue
-                    .toPoint(),
-              ),
-            );
-          },
-          markers: {
-            if (coordinates != null)
-              Marker(
-                markerId: MarkerId(widget.rider.id),
-                position: coordinates.toPoint(),
-              ),
-          },
-        ),
       ),
     );
   }
