@@ -130,28 +130,30 @@ class _MapSectionState extends ConsumerState<_MapSection> {
           ),
         ),
         Positioned(
-          right: 8,
-          bottom: 64,
-          child: IconButton(
-            onPressed: () async {
-              final provider = ref.read(locationProvider.notifier);
-              await centerUserHelperFunction(map!, provider);
-            },
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-            ),
-            icon: const Icon(Icons.my_location),
-          ),
-        ),
-        Positioned(
           left: 0,
           right: 0,
           bottom: 8,
-          child: Builder(
-            builder: (context) {
-              if (ref.watch(locationPickerProvider).value?.address != null) {
-                return InputChip(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  onPressed: () async {
+                    final provider = ref.read(locationProvider.notifier);
+                    await centerUserHelperFunction(map!, provider);
+                  },
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                  ),
+                  icon: const Icon(Icons.my_location),
+                ),
+              ),
+              const SizedBox(height: 8),
+              //
+              if (ref.watch(locationPickerProvider).value?.address != null)
+                InputChip(
                   side: BorderSide.none,
                   onDeleted: () => ref.invalidate(locationPickerProvider),
                   label: Text(
@@ -159,28 +161,79 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
-                );
-              }
-              if (ref.watch(locationPickerProvider).isLoading) {
-                return const InputChip(
+                )
+              else if (ref.watch(locationPickerProvider).isLoading)
+                const InputChip(
                   side: BorderSide.none,
                   label: Text('Loading...'),
-                );
-              }
-              return ActionChip.elevated(
-                label: const Text('Select'),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                onPressed: () async {
-                  MapMovedUsecase(
-                    newCoordinates: await getCenter(map!),
-                    provider: ref.read(locationPickerProvider.notifier),
-                    address: ref.read(locationPickerProvider).value?.address,
-                  ).call();
-                },
-              );
-            },
+                )
+              else
+                ActionChip.elevated(
+                  label: const Text('Select'),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  onPressed: () async {
+                    MapMovedUsecase(
+                      newCoordinates: await getCenter(map!),
+                      provider: ref.read(locationPickerProvider.notifier),
+                      address: ref.read(locationPickerProvider).value?.address,
+                    ).call();
+                  },
+                ),
+            ],
           ),
         ),
+        // Positioned(
+        //   right: 8,
+        //   bottom: 64,
+        //   child: IconButton(
+        //     onPressed: () async {
+        //       final provider = ref.read(locationProvider.notifier);
+        //       await centerUserHelperFunction(map!, provider);
+        //     },
+        //     style: IconButton.styleFrom(
+        //       backgroundColor: Colors.black,
+        //       foregroundColor: Colors.white,
+        //     ),
+        //     icon: const Icon(Icons.my_location),
+        //   ),
+        // ),
+        // Positioned(
+        //   left: 0,
+        //   right: 0,
+        //   bottom: 8,
+        //   child: Builder(
+        //     builder: (context) {
+        //       if (ref.watch(locationPickerProvider).value?.address != null) {
+        //         return InputChip(
+        //           side: BorderSide.none,
+        //           onDeleted: () => ref.invalidate(locationPickerProvider),
+        //           label: Text(
+        //             ref.watch(locationPickerProvider).value!.address!.formatted,
+        //             overflow: TextOverflow.ellipsis,
+        //             maxLines: 2,
+        //           ),
+        //         );
+        //       }
+        //       if (ref.watch(locationPickerProvider).isLoading) {
+        //         return const InputChip(
+        //           side: BorderSide.none,
+        //           label: Text('Loading...'),
+        //         );
+        //       }
+        //       return ActionChip.elevated(
+        //         label: const Text('Select'),
+        //         backgroundColor: Theme.of(context).colorScheme.primary,
+        //         onPressed: () async {
+        //           MapMovedUsecase(
+        //             newCoordinates: await getCenter(map!),
+        //             provider: ref.read(locationPickerProvider.notifier),
+        //             address: ref.read(locationPickerProvider).value?.address,
+        //           ).call();
+        //         },
+        //       );
+        //     },
+        //   ),
+        // ),
       ],
     );
   }

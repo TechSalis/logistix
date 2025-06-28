@@ -33,27 +33,52 @@ class _HomeTabState extends ConsumerState<HomeTab> {
       body: Stack(
         children: [
           Positioned.fill(child: UserMapView(onMapCreated: (m) => map = m)),
-          const Positioned(
+          Positioned(
             left: 12,
             right: 12,
             bottom: 16,
-            child: _BottomPanel(),
-          ),
-          Positioned(
-            right: 16,
-            bottom: 280,
-            child: IconButton(
-              onPressed: () async {
-                final provider = ref.read(locationProvider.notifier);
-                await centerUserHelperFunction(map!, provider);
-              },
-              style: IconButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.surface,
-                backgroundColor: Theme.of(context).colorScheme.onSurface,
-              ),
-              icon: const Icon(Icons.my_location),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: IconButton(
+                    onPressed: () async {
+                      final provider = ref.read(locationProvider.notifier);
+                      await centerUserHelperFunction(map!, provider);
+                    },
+                    style: IconButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.surface,
+                      backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    icon: const Icon(Icons.my_location),
+                  ),
+                ),
+                const _BottomPanel(),
+              ],
             ),
           ),
+          // const Positioned(
+          //   left: 12,
+          //   right: 12,
+          //   bottom: 16,
+          //   child: _BottomPanel(),
+          // ),
+          // Positioned(
+          //   right: 16,
+          //   bottom: 280,
+          //   child: IconButton(
+          //     onPressed: () async {
+          //       final provider = ref.read(locationProvider.notifier);
+          //       await centerUserHelperFunction(map!, provider);
+          //     },
+          //     style: IconButton.styleFrom(
+          //       foregroundColor: Theme.of(context).colorScheme.surface,
+          //       backgroundColor: Theme.of(context).colorScheme.onSurface,
+          //     ),
+          //     icon: const Icon(Icons.my_location),
+          //   ),
+          // ),
           if (kDebugMode)
             const Positioned(bottom: 280, left: 16, child: DebugFloatingIcon()),
         ],

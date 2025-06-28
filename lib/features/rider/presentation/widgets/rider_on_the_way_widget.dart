@@ -25,7 +25,10 @@ class RiderOnTheWayCard extends StatelessWidget {
         children: [
           Stack(
             children: [
-              _RiderTrackerMapWidget(rider: rider),
+              SizedBox(
+                height: 140,
+                child: _RiderTrackerMapWidget(rider: rider),
+              ),
               Positioned(
                 top: 8,
                 left: 8,
@@ -106,7 +109,7 @@ class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
 
   @override
   late Rider rider;
-  
+
   @override
   void initState() {
     super.initState();
@@ -125,29 +128,26 @@ class _RiderTrackerMapWidgetState extends ConsumerState<_RiderTrackerMapWidget>
           ),
         );
       },
-      child: SizedBox(
-        height: 140,
-        child: AbsorbPointer(
-          child: MapViewWidget(
-            onMapCreated: (m) {
-              map = m;
-              m.moveCamera(
-                CameraUpdate.newLatLng(
-                  ref
-                      .read(trackRiderProvider(widget.rider))
-                      .requireValue
-                      .toPoint(),
-                ),
-              );
-            },
-            markers: {
-              if (coordinates != null)
-                Marker(
-                  markerId: MarkerId(widget.rider.id),
-                  position: coordinates.toPoint(),
-                ),
-            },
-          ),
+      child: AbsorbPointer(
+        child: MapViewWidget(
+          onMapCreated: (m) {
+            map = m;
+            m.moveCamera(
+              CameraUpdate.newLatLng(
+                ref
+                    .read(trackRiderProvider(widget.rider))
+                    .requireValue
+                    .toPoint(),
+              ),
+            );
+          },
+          markers: {
+            if (coordinates != null)
+              Marker(
+                markerId: MarkerId(widget.rider.id),
+                position: coordinates.toPoint(),
+              ),
+          },
         ),
       ),
     );
