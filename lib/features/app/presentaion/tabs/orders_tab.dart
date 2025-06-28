@@ -57,9 +57,9 @@ class OrdersTab extends StatelessWidget {
             padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
           ),
           // Rider on the way card
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            sliver: SliverToBoxAdapter(
               child: RiderOnTheWayCard(
                 rider: mockOrders[0].rider!,
                 eta: '20 min',

@@ -20,9 +20,8 @@ class DeliverySummaryDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: SliverList.list(
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.check_circle, size: 52, color: Colors.green),
             const SizedBox(height: 16),

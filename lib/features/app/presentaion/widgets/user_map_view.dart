@@ -12,20 +12,13 @@ import 'package:logistix/features/map/presentation/widgets/google_map_widget.dar
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
-class UserMapView extends ConsumerStatefulWidget {
+class UserMapView extends ConsumerWidget {
   const UserMapView({super.key, this.onMapCreated});
 
   final void Function(GoogleMapController map)? onMapCreated;
 
   @override
-  ConsumerState<UserMapView> createState() => _UserMapViewState();
-}
-
-class _UserMapViewState extends ConsumerState<UserMapView> {
-  GoogleMapController? map;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(permissionProvider(PermissionData.location), (p, n) {
       if (n.hasValue && !n.value!.isGranted) {
         showDialog(
@@ -44,16 +37,16 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
     return permission.maybeWhen(
       data: (status) {
         return status.isGranted
-            ? _buildMap(context)
+            ? _buildMap(context, ref)
             : const _PermissionDeniedOverlay();
       },
       orElse: () => const SizedBox.shrink(),
     );
   }
 
-  Widget _buildMap(BuildContext context) {
+  Widget _buildMap(BuildContext context, WidgetRef ref) {
     final userCoordinates = ref.watch(locationProvider)?.coordinates;
-    return MapViewWidget( 
+    return MapViewWidget(
       markers: {
         if (userCoordinates != null)
           Marker(
@@ -65,12 +58,12 @@ class _UserMapViewState extends ConsumerState<UserMapView> {
           ),
       },
       onMapCreated: (controller) async {
-        map = controller;
         final locationNotifier = ref.read(locationProvider.notifier)
           ..trackUserCoordinates();
         final pos = await locationNotifier.getUserCoordinates();
         controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
-        widget.onMapCreated?.call(controller);
+        
+        onMapCreated?.call(controller);
       },
     );
   }

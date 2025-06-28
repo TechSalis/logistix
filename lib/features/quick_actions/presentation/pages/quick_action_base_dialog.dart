@@ -102,7 +102,8 @@ class _FoodQASectionState extends State<QADialogBase> {
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
-        child: SliverList.list(
+        child: ListView(
+          shrinkWrap: true,
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
           children: [
@@ -110,6 +111,7 @@ class _FoodQASectionState extends State<QADialogBase> {
             const SizedBox(height: 8),
             Text(
               widget.action.label,
+              textAlign: TextAlign.center,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -131,19 +133,21 @@ class _FoodQASectionState extends State<QADialogBase> {
               ),
             ),
             const SizedBox(height: 16),
-            ListenableBuilder(
-              listenable: pageController,
-              builder: (context, child) {
-                return AnimatedSmoothIndicator(
-                  count: widget.pages.length,
-                  activeIndex: pageController.page?.round().clamp(0, 1) ?? 0,
-                  effect: JumpingDotEffect(
-                    dotWidth: 8,
-                    dotHeight: 8,
-                    activeDotColor: Theme.of(context).colorScheme.primary,
-                  ),
-                );
-              },
+            Center(
+              child: ListenableBuilder(
+                listenable: pageController,
+                builder: (context, child) {
+                  return AnimatedSmoothIndicator(
+                    count: widget.pages.length,
+                    activeIndex: pageController.page?.round().clamp(0, 1) ?? 0,
+                    effect: JumpingDotEffect(
+                      dotWidth: 8,
+                      dotHeight: 8,
+                      activeDotColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 16),
             Padding(

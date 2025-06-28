@@ -26,7 +26,9 @@ class _HomeTabState extends ConsumerState<HomeTab> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(child: UserMapView(onMapCreated: (m) => map = m)),
+          Positioned.fill(
+            child: UserMapView(onMapCreated: (m) => setState(() => map = m)),
+          ),
           Positioned(
             left: 12,
             right: 12,
@@ -34,13 +36,14 @@ class _HomeTabState extends ConsumerState<HomeTab> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: CenterUserOnMapButton(map: map),
+                if (map != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 32),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: CenterUserOnMapButton(map: map),
+                    ),
                   ),
-                ),
                 const _BottomPanel(),
               ],
             ),

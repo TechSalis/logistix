@@ -122,7 +122,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
     }
     return Stack(
       children: [
-        UserMapView(onMapCreated: (m) => map = m),
+        UserMapView(onMapCreated: (m) => setState(() => map = m)),
         Center(
           child: Transform.translate(
             offset: const Offset(0, -17),
@@ -136,12 +136,12 @@ class _MapSectionState extends ConsumerState<_MapSection> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: CenterUserOnMapButton(map: map),
-              ),
+              if (map != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: CenterUserOnMapButton(map: map),
+                ),
               const SizedBox(height: 8),
-              //
               if (ref.watch(locationPickerProvider).value?.address != null)
                 InputChip(
                   side: BorderSide.none,

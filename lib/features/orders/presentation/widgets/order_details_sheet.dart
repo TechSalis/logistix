@@ -23,9 +23,9 @@ class OrderDetailsSheet extends StatelessWidget {
             left: 20,
             right: 20,
           ),
-          child: SliverList.list(
-            addAutomaticKeepAlives: false,
-            addRepaintBoundaries: true,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Order Summary',
