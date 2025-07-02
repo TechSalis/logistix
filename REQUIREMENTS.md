@@ -1,5 +1,6 @@
 ## Features
-- Rider tracking*
+- Rider/Delivery tracking*
+- Share Tracking ID/URL
 - Rider chat*
 - Real-time location
 - Customized delivery flows; Food*, Groceries* and Errands* (* denotes WIP)
