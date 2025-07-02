@@ -40,7 +40,7 @@ class OrderCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ActionIcon(size: 44, action: order.type),
+                  QuickActionIcon(size: 44, action: order.type),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(

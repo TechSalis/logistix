@@ -5,7 +5,7 @@ import 'package:logistix/features/location_core/domain/entities/coordinate.dart'
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_on_the_way_widget.dart';
 

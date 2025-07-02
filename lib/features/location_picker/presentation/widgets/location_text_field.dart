@@ -92,7 +92,7 @@ class LocationTextField extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   foregroundColor: Theme.of(
                     context,
-                  ).colorScheme.tertiary.withAlpha(200),
+                  ).colorScheme.tertiary.withAlpha(150),
                 ),
                 onPressed: useCurrentLocation,
                 icon: const Icon(Icons.my_location),

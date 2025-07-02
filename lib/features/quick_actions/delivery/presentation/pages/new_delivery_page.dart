@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
@@ -9,14 +10,14 @@ import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 
-class NewDeliveryPage extends ConsumerStatefulWidget {
-  const NewDeliveryPage({super.key});
+class NewDeliveryQAForm extends ConsumerStatefulWidget {
+  const NewDeliveryQAForm({super.key});
 
   @override
-  ConsumerState<NewDeliveryPage> createState() => _NewDeliveryPageState();
+  ConsumerState<NewDeliveryQAForm> createState() => _NewDeliveryQAPageState();
 }
 
-class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
+class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
     with TextValidatorProviderFornCardBuilder {
   final pickupController = TextEditingController();
   final dropoffController = TextEditingController();
@@ -119,8 +120,8 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
             ElevatedLoadingButton.icon(
               onPressed: _onSubmit,
               controller: roundedLoadingButtonController,
-              icon: const Icon(Icons.library_add),
-              label: const Text("Confirm Delivery"),
+              icon: Icon(QuickActionType.delivery.icon),
+              label: const Text("Confirm"),
             ),
           ],
         ),

@@ -4,7 +4,7 @@ import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
 import 'package:logistix/features/notifications/presentation/notifications/qa_rider_notification_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 class DebugFloatingIcon extends StatelessWidget {
@@ -33,7 +33,7 @@ class DebugFloatingIcon extends StatelessWidget {
             //     ),
             //     order: Order(
             //       id: 'id',
-            //       type: ActionType.delivery,
+            //       type: QuickActionType.delivery,
             //       pickUp: Address('pickUp'),
             //       dropOff: Address('dropOff'),
             //       price: 5000.03,
@@ -59,7 +59,7 @@ class DebugFloatingIcon extends StatelessWidget {
                 ),
                 order: Order(
                   id: 'id',
-                  type: ActionType.delivery,
+                  type: QuickActionType.delivery,
                   pickUp: Address('pickUp'),
                   dropOff: Address('dropOff'),
                   price: 5000.03,

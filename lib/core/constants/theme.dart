@@ -121,7 +121,7 @@ class MyTheme {
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: Color(0xFF212121),
-      hintStyle: TextStyle(color: Colors.grey),
+      hintStyle: TextStyle(color: AppColors.grey700),
       prefixIconColor: Color(0xFFB0BEC5),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       enabledBorder: OutlineInputBorder(

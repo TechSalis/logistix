@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/colors.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 class Order extends Equatable {
@@ -12,7 +12,7 @@ class Order extends Equatable {
   final Address pickUp;
   final Address dropOff;
   final double price;
-  final ActionType type;
+  final QuickActionType type;
   final OrderStatus status;
   final String? description;
   final Rider? rider;

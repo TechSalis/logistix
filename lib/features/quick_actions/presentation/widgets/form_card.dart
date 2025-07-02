@@ -32,12 +32,15 @@ class FormCard extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-                const Spacer(),
                 if (error != null)
-                  Text(
-                    error!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.error,
+                  Expanded(
+                    child: Text(
+                      error!,
+                      maxLines: 1,
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
               ],

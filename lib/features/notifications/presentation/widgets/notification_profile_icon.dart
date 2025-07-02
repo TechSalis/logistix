@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NotificationIcon extends StatelessWidget {
-  const NotificationIcon({
+class AvatarIcon extends StatelessWidget {
+  const AvatarIcon({
     super.key,
     required this.backgroundColor,
     required this.icon,

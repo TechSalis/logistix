@@ -65,7 +65,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
                 children: [
                   const SizedBox(width: 8),
                   // Icon
-                  ActionIcon(action: data.order.type, size: 42),
+                  QuickActionIcon(action: data.order.type, size: 42),
                   const SizedBox(width: 16),
 
                   // Textual content

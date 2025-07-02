@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/__debug_tools/debug_buttons.dart';
 import 'package:logistix/core/utils/extensions/context_extension.dart';
-import 'package:logistix/features/delivery/presentation/pages/new_delivery_page.dart';
+import 'package:logistix/features/quick_actions/delivery/presentation/pages/new_delivery_page.dart';
 import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
-import 'package:logistix/features/quick_actions/presentation/pages/food_dialog.dart';
+import 'package:logistix/features/quick_actions/food/presentation/pages/food_qa_page.dart';
 import 'package:logistix/features/rider/presentation/widgets/find_rider_dialog.dart';
-import 'package:logistix/features/app/presentaion/widgets/user_map_view.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
@@ -134,45 +134,42 @@ class _DeliveryActionCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
 
-    return Material(
-      elevation: 4,
-      borderRadius: BorderRadius.circular(16),
-      color: theme.colorScheme.surface.withAlpha(230),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => const FindRiderDialog(),
-                  );
-                },
-                icon: const Icon(Icons.motorcycle),
-                label: const Text("Find Rider"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.tertiaryContainer,
-                  foregroundColor: Colors.white,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const FindRiderDialog(),
+                );
+              },
+              icon: const Icon(Icons.motorcycle),
+              label: const Text("Find Rider"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                foregroundColor: Colors.white,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const NewDeliveryPage()),
-                  );
-                },
-                icon: const Icon(Icons.library_add),
-                label: const Text("New Delivery"),
-              ),
-            ),
-          ],
-        ),
+          ),
+          // const SizedBox(width: 12),
+          // Expanded(
+          //   child: ElevatedButton.icon(
+          //     onPressed: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (_) => const NewDeliveryQAPage(),
+          //         ),
+          //       );
+          //     },
+          //     icon: const Icon(Icons.library_add),
+          //     label: const Text("New Delivery"),
+          //   ),
+          // ),
+        ],
       ),
     );
   }
@@ -191,17 +188,29 @@ class _QuickActionsRow extends StatelessWidget {
           QuickActionCard(
             action: QuickActionType.food,
             onTap: () {
-              showModalBottomSheet(
-                context: context,
-                showDragHandle: true,
-                isScrollControlled: true,
-                builder: (_) => const SubmitFoodQADialog(),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FoodQAForm()),
               );
+              // showModalBottomSheet(
+              //   context: context,
+              //   showDragHandle: true,
+              //   isScrollControlled: true,
+              //   builder: (_) => const FoodQAForm(),
+              // );
             },
           ),
           QuickActionCard(action: QuickActionType.groceries, onTap: () {}),
           QuickActionCard(action: QuickActionType.errands, onTap: () {}),
-          QuickActionCard(action: QuickActionType.repeatOrder, onTap: () {}),
+          QuickActionCard(
+            action: QuickActionType.delivery,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NewDeliveryQAForm()),
+              );
+            },
+          ),
         ],
       ),
     );

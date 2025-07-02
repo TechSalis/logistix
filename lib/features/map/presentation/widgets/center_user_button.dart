@@ -25,7 +25,7 @@ class CenterUserOnMapButton extends ConsumerWidget {
       },
       style: IconButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.surface,
-        backgroundColor: Theme.of(context).colorScheme.onSurface,
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
       icon: const Icon(Icons.my_location),
     );

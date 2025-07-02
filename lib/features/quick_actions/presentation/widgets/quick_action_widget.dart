@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/features/notifications/presentation/widgets/notification_profile_icon.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 
-class ActionIcon extends StatelessWidget {
-  const ActionIcon({super.key, required this.action, this.size});
-  final ActionType action;
+class QuickActionIcon extends StatelessWidget {
+  const QuickActionIcon({super.key, required this.action, this.size});
+  final QuickActionType action;
   final double? size;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
-      child: NotificationIcon(
+      child: AvatarIcon(
         backgroundColor: action.color.withAlpha(20),
         icon: Icon(
           action.icon,
@@ -51,7 +51,7 @@ class QuickActionWidget extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 6.h),
             child: Column(
               children: [
-                Expanded(child: ActionIcon(action: action)),
+                Expanded(child: QuickActionIcon(action: action)),
                 SizedBox(height: 6.h),
                 Text(
                   action.label,

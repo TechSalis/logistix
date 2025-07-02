@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/app/application/navigation_bar_rp.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
-import 'package:logistix/features/quick_actions/domain/quick_actions_types.dart';
+import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
@@ -50,7 +50,10 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
               child: Row(
                 children: [
                   // Icon
-                  const ActionIcon(action: ActionType.delivery, size: 42),
+                  const QuickActionIcon(
+                    action: QuickActionType.delivery,
+                    size: 42,
+                  ),
                   const SizedBox(width: 16),
 
                   // Textual content
