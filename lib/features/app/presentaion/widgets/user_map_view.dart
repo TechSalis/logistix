@@ -62,8 +62,7 @@ class UserMapView extends ConsumerWidget {
           ..trackUserCoordinates();
         final pos = await locationNotifier.getUserCoordinates();
         controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
-        
-        onMapCreated?.call(controller);
+        if (context.mounted) onMapCreated?.call(controller);
       },
     );
   }
