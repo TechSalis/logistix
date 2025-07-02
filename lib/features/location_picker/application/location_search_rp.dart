@@ -10,13 +10,13 @@ import 'package:logistix/features/location_core/infrastructure/datasources/googl
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 
-final placesApi = Provider.autoDispose<GooglePlacesDatasource>(
+final _placesApi = Provider.autoDispose<GooglePlacesDatasource>(
   (ref) => GooglePlacesDatasource(ref.autoDisposeDio()),
 );
 
 final _searchLocationProvider = Provider.autoDispose<SearchLocationService>(
   (ref) => GooglePlacesSearchLocationServiceImpl(
-    ref.watch(placesApi),
+    ref.watch(_placesApi),
     ref.watch(locationServiceProvider),
   ),
 );

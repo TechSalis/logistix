@@ -14,7 +14,7 @@ import 'package:logistix/features/location_core/domain/repository/geocoding_serv
 
 // Dependency Injection
 
-final mapsApi = Provider.autoDispose<GoogleMapsDatasource>(
+final _mapsApi = Provider.autoDispose<GoogleMapsDatasource>(
   (ref) => GoogleMapsDatasource(ref.autoDisposeDio()),
 );
 
@@ -23,7 +23,7 @@ final _localGeocodingProvider = Provider.autoDispose<GeocodingService>((ref) {
 });
 
 final _remoteGeocodingProvider = Provider.autoDispose<GeocodingService>((ref) {
-  return GoogleGeocodingServiceImpl(ref.watch(mapsApi));
+  return GoogleGeocodingServiceImpl(ref.watch(_mapsApi));
 });
 
 final addressFromCoordinatesProvider = FutureProvider.autoDispose
@@ -47,7 +47,7 @@ class LocationPickerNotifier
     extends AutoDisposeAsyncNotifier<LocationPickerState> {
   @override
   LocationPickerState build() {
-    ref.watch(mapsApi);
+    ref.watch(_mapsApi);
     return LocationPickerState.initial();
   }
 
