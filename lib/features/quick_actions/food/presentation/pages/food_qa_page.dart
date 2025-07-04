@@ -66,7 +66,7 @@ class _FoodQASectionState extends ConsumerState<FoodQAForm>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Food")),
+      appBar: AppBar(title: const Text("Order Food")),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: ListView(
@@ -91,6 +91,12 @@ class _FoodQASectionState extends ConsumerState<FoodQAForm>
             ),
             const SizedBox(height: 24),
             textValidatorProviderFornCardBuilder(
+              validatorProvider: requiredValidatorProvider(priceTEC),
+              title: "Budget (₦) *",
+              child: PriceSelectorField(controller: priceTEC),
+            ),
+            const SizedBox(height: 24),
+            textValidatorProviderFornCardBuilder(
               validatorProvider: requiredValidatorProvider(pickupTEC),
               title: "Restaurant/Pickup *",
               child: LocationTextField(
@@ -112,13 +118,8 @@ class _FoodQASectionState extends ConsumerState<FoodQAForm>
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(priceTEC),
-              title: "Budget (₦) *",
-              child: PriceSelectorField(controller: priceTEC),
-            ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 32),
             OrderFareWidget(
               farePrice: r'N5.3k - N20k',
               eta: '20-30min',

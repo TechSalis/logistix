@@ -25,7 +25,7 @@ class OrderCard extends StatelessWidget {
 
     return DecoratedBox(
       decoration: ShapeDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).cardTheme.color,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
@@ -52,7 +52,9 @@ class OrderCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 order.dropOff.formatted,
-                                style: theme.textTheme.titleMedium,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
                                 overflow: TextOverflow.clip,
                                 maxLines: 1,
                               ),
@@ -77,10 +79,10 @@ class OrderCard extends StatelessWidget {
                                     .withAlpha(200),
                               ),
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                              maxLines: 2,
                             ),
                           ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [

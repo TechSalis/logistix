@@ -21,7 +21,7 @@ class RiderCardSmall extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: theme.cardColor,
+        color: theme.cardTheme.color,
         borderRadius:
             borderRadius ?? const BorderRadius.all(Radius.circular(16)),
         border: Border.all(color: theme.dividerColor.withAlpha(26)),
@@ -30,7 +30,7 @@ class RiderCardSmall extends StatelessWidget {
         ],
       ),
       child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
             UserAvatar(user: rider, size: 18),

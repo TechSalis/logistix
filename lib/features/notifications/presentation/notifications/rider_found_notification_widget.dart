@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/app/application/navigation_bar_rp.dart';
+import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
 import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';

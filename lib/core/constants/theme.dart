@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:logistix/core/constants/colors.dart';
 
 class MyTheme {
   static ThemeData get light => ThemeData(
+    useMaterial3: true,
     brightness: Brightness.light,
     primarySwatch: AppColors.orange,
     scaffoldBackgroundColor: AppColors.grey100,
@@ -13,20 +15,22 @@ class MyTheme {
     colorScheme: const ColorScheme.light(
       primary: AppColors.orange,
       secondary: AppColors.blueGrey,
-      onSecondary: Colors.white,
       tertiary: AppColors.redAccent,
-      primaryContainer: AppColors.blueGrey,
       surface: Colors.white,
+      onPrimary: AppColors.grey900,
+      onSecondary: AppColors.grey900,
+      onSurface: AppColors.grey900,
+      primaryContainer: AppColors.blueGrey,
     ),
     dividerTheme: const DividerThemeData(color: AppColors.grey200),
     chipTheme: const ChipThemeData(selectedColor: AppColors.orange),
-    textTheme: Typography.blackCupertino.apply(
+    textTheme: GoogleFonts.interTextTheme().apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black87,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: Color(0xFFEEEEEE),
+      fillColor: AppColors.grey100,
       prefixIconColor: AppColors.blueGreyMaterial,
       hintStyle: TextStyle(color: Colors.grey),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -46,18 +50,6 @@ class MyTheme {
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
-    // iconButtonTheme: IconButtonThemeData(
-    //   style: IconButton.styleFrom(
-    //     elevation: 2,
-    //     backgroundColor: Colors.white,
-    //     padding: EdgeInsets.zero,
-    //     // shadowColor: Colors.black54,
-    //     // shape: const RoundedRectangleBorder(
-    //     //   borderRadius: BorderRadius.all(Radius.circular(10)),
-    //     //   side: BorderSide(color: Colors.black38),
-    //     // ),
-    //   ),
-    // ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
@@ -69,7 +61,7 @@ class MyTheme {
       ),
     ),
     cardTheme: const CardThemeData(
-      color: Color(0xFFFAFAFA),
+      color: Colors.white,
       margin: EdgeInsets.zero,
       shadowColor: Colors.black87,
     ),
@@ -79,7 +71,6 @@ class MyTheme {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: Color(0xFF9E9E9E)),
-        // foregroundColor: AppColors.redAccent,
         foregroundColor: AppColors.blueGrey,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: const RoundedRectangleBorder(
@@ -106,21 +97,22 @@ class MyTheme {
   );
 
   static ThemeData get dark => ThemeData(
+    useMaterial3: true,
     brightness: Brightness.dark,
     primarySwatch: AppColors.orange,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.orange,
-      onPrimary: AppColors.grey100,
       secondary: AppColors.blueGrey,
-      onSecondary: AppColors.grey200,
       tertiary: AppColors.redAccent,
-      primaryContainer: Colors.blueGrey,
       surface: Colors.black,
+      onPrimary: AppColors.grey100,
+      onSecondary: AppColors.grey200,
       onSurface: AppColors.grey200,
+      primaryContainer: Colors.blueGrey,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: Color(0xFF212121),
+      fillColor: AppColors.grey850,
       hintStyle: TextStyle(color: AppColors.grey700),
       prefixIconColor: Color(0xFFB0BEC5),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -164,23 +156,23 @@ class MyTheme {
     chipTheme: const ChipThemeData(selectedColor: AppColors.orange),
     cardTheme: const CardThemeData(
       margin: EdgeInsets.zero,
-      color: Colors.black87,
-      shadowColor: AppColors.grey200,
+      color: AppColors.grey900,
+      shadowColor: AppColors.grey100,
     ),
     appBarTheme: const AppBarTheme(
-      color: AppColors.grey900,
+      color: Colors.black,
       surfaceTintColor: AppColors.grey900,
     ),
-    scaffoldBackgroundColor: AppColors.grey900,
+    scaffoldBackgroundColor: Colors.black,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color(0xFF191919),
+      backgroundColor: Colors.black,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
       elevation: 4,
       backgroundColor: Colors.black,
       shadowColor: Colors.black54,
     ),
-    textTheme: Typography.whiteCupertino.apply(
+    textTheme: GoogleFonts.interTextTheme().apply(
       bodyColor: AppColors.grey200,
       displayColor: AppColors.grey200,
     ),

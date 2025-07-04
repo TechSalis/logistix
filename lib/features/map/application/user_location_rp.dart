@@ -28,6 +28,14 @@ class UserLocationNotifier extends AutoDisposeNotifier<Address?> {
     return coordinates;
   }
 
+  Future<Address?> getUserAddress() async {
+    final coordinates = await getUserCoordinates();
+    final address = await ref.watch(
+      addressFromCoordinatesProvider(coordinates).future,
+    );
+    return state = address;
+  }
+
   void trackUserCoordinates() {
     _getUserCoordinatesStream?.cancel();
     _getUserCoordinatesStream = _locationService
@@ -35,15 +43,6 @@ class UserLocationNotifier extends AutoDisposeNotifier<Address?> {
         .listen((coordinates) {
           state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
         });
-  }
-
-  Future<Address?> getUserAddress() async {
-    final coordinates = await getUserCoordinates();
-    final address = await ref.watch(
-      addressFromCoordinatesProvider(coordinates).future,
-    );
-    state = address;
-    return address;
   }
 }
 

@@ -68,6 +68,20 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
           addAutomaticKeepAlives: false,
           children: [
             textValidatorProviderFornCardBuilder(
+              validatorProvider: requiredValidatorProvider(noteController),
+              title: "Description of Item(s) *",
+              child: TextFormField(
+                controller: noteController,
+                minLines: 3,
+                maxLines: 4,
+                maxLength: 255,
+                decoration: const InputDecoration(
+                  hintText: "e.g. 2 brand new Macbook laptops",
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            textValidatorProviderFornCardBuilder(
               validatorProvider: requiredValidatorProvider(pickupController),
               title: 'Pickup Location *',
               child: LocationTextField(
@@ -91,20 +105,7 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
               ),
             ),
 
-            const SizedBox(height: 24),
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(noteController),
-              title: "Description of Item *",
-              child: TextFormField(
-                controller: noteController,
-                minLines: 3,
-                maxLines: 4,
-                maxLength: 255,
-                decoration: const InputDecoration(
-                  hintText: "e.g. 2 brand new Macbook laptops",
-                ),
-              ),
-            ),
+            
             const SizedBox(height: 32),
             const OrderFareWidget(
               farePrice: 'Not available',

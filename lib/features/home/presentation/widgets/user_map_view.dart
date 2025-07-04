@@ -58,11 +58,12 @@ class UserMapView extends ConsumerWidget {
           ),
       },
       onMapCreated: (controller) async {
-        final locationNotifier = ref.read(locationProvider.notifier)
-          ..trackUserCoordinates();
-        final pos = await locationNotifier.getUserCoordinates();
-        controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
         if (context.mounted) onMapCreated?.call(controller);
+        final provider = ref.read(locationProvider.notifier)
+          ..trackUserCoordinates();
+
+        final pos = await provider.getUserCoordinates();
+        controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
       },
     );
   }
@@ -128,12 +129,4 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
       ],
     );
   }
-}
-
-Future<void> centerUserHelperFunction(
-  GoogleMapController map,
-  UserLocationNotifier provider,
-) async {
-  final pos = await provider.getUserCoordinates();
-  map.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
 }

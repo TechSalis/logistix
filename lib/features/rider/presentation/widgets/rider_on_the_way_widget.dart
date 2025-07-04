@@ -61,7 +61,10 @@ class RiderOnTheWayCard extends StatelessWidget {
                           'Tracking Rider',
                           style: Theme.of(
                             context,
-                          ).textTheme.labelSmall?.copyWith(color: Colors.white),
+                          ).textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ],
                     ),

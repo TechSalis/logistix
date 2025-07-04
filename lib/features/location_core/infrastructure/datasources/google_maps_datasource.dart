@@ -9,7 +9,7 @@ import 'package:logistix/features/location_core/domain/entities/coordinate.dart'
 class GoogleMapsDatasource {
   final Dio _dio;
   GoogleMapsDatasource(this._dio) {
-    // sessionToken = uuid.v4();
+    // TODO: sessionToken = uuid.v4();
 
     _dio.interceptors.addAll([
       dioCacheInterceptor,

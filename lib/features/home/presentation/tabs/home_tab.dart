@@ -8,7 +8,7 @@ import 'package:logistix/features/quick_actions/delivery/presentation/pages/new_
 import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
 import 'package:logistix/features/quick_actions/food/presentation/pages/food_qa_page.dart';
 import 'package:logistix/features/rider/presentation/widgets/find_rider_dialog.dart';
-import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 
 class HomeTab extends ConsumerStatefulWidget {
@@ -38,10 +38,10 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               children: [
                 if (map != null)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 32),
+                    padding: const EdgeInsets.only(bottom: 24),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: CenterUserOnMapButton(map: map),
+                      child: CenterUserOnMapButton(map: map!),
                     ),
                   ),
                 const _BottomPanel(),
@@ -63,7 +63,9 @@ class _BottomPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: context.isDarkTheme ? Colors.black87 : Colors.white70,
+        color: (context.isDarkTheme ? Colors.black : Colors.white).withAlpha(
+          200,
+        ),
         borderRadius: BorderRadius.circular(24),
       ),
       child: const Padding(
@@ -97,7 +99,7 @@ class QuickActionCard extends StatelessWidget {
         Material(
           elevation: 4,
           color: Colors.white,
-          shadowColor: Colors.black12,
+          shadowColor: Colors.black26,
           shape: const CircleBorder(),
           child: InkWell(
             onTap: onTap,
@@ -136,40 +138,22 @@ class _DeliveryActionCard extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => const FindRiderDialog(),
-                );
-              },
-              icon: const Icon(Icons.motorcycle),
-              label: const Text("Find Rider"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                foregroundColor: Colors.white,
-              ),
-            ),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => const FindRiderDialog(),
+            );
+          },
+          icon: const Icon(Icons.motorcycle),
+          label: const Text("Find Rider"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.tertiaryContainer,
+            foregroundColor: Colors.white,
           ),
-          // const SizedBox(width: 12),
-          // Expanded(
-          //   child: ElevatedButton.icon(
-          //     onPressed: () {
-          //       Navigator.push(
-          //         context,
-          //         MaterialPageRoute(
-          //           builder: (_) => const NewDeliveryQAPage(),
-          //         ),
-          //       );
-          //     },
-          //     icon: const Icon(Icons.library_add),
-          //     label: const Text("New Delivery"),
-          //   ),
-          // ),
-        ],
+        ),
       ),
     );
   }

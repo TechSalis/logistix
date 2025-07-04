@@ -1,3 +1,5 @@
+// File: app_colors.dart
+
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
@@ -8,7 +10,8 @@ abstract class AppColors {
   static const grey200 = Color(0xFFBDBDBD);
   static const grey700 = Color(0xFF616161);
   static const grey800 = Color(0xFF424242);
-  static const grey900 = Color(0xFF151515);
+  static const grey850 = Color(0xFF303030);
+  static const grey900 = Color(0xFF212121);
 
   static const orange = MaterialColor(
     0xFFF97316,

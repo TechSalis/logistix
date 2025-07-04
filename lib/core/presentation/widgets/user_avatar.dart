@@ -22,7 +22,7 @@ class UserAvatar extends StatelessWidget {
         user.name[0].toUpperCase(),
         style: theme.textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.bold,
-          color: theme.colorScheme.onSecondary,
+          color: theme.colorScheme.onPrimary,
           fontSize: size,
         ),
       ),

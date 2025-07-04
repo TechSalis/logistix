@@ -62,7 +62,6 @@ class _MapViewWidgetState extends State<MapViewWidget> {
                       widget.initialPosition?.toPoint() ??
                       _kInitialPosition.target,
                   zoom: _kInitialPosition.zoom,
-                  tilt: 30,
                 ),
                 onMapCreated: widget.onMapCreated,
                 onCameraIdle: widget.onCameraIdle,

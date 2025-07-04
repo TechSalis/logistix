@@ -20,7 +20,7 @@ class MainApp extends StatelessWidget {
               routerConfig: router,
               theme: MyTheme.light,
               darkTheme: MyTheme.dark,
-              themeMode: ThemeMode.dark,
+              // themeMode: ThemeMode.dark,
             ),
           ),
         ),

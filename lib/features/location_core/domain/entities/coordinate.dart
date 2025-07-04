@@ -13,5 +13,8 @@ class Coordinates extends Equatable {
     return Coordinates(map['latitude'] as double, map['longitude'] as double);
   }
 
-  
+  @override
+  String toString() {
+    return 'Coordinates($latitude, $longitude)';
+  }
 }

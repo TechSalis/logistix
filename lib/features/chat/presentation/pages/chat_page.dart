@@ -78,7 +78,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         theme: ChatTheme.fromThemeData(Theme.of(context)).copyWith(
           colors: ChatColors.fromThemeData(Theme.of(context)).copyWith(
             primary: Theme.of(context).colorScheme.secondary,
-            onPrimary: Theme.of(context).colorScheme.onSecondary,
+            onPrimary: Colors.white,
             surface: Theme.of(context).scaffoldBackgroundColor,
           ),
         ),

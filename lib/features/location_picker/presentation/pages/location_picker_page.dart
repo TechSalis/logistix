@@ -3,18 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/constants/styling.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/features/map/application/usecases/map_moved_usecase.dart';
-import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
 import 'package:logistix/features/location_picker/presentation/widgets/addresses_list.dart';
-import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
 import 'package:logistix/features/map/presentation/widgets/location_pin.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
-
-enum _ExpandedState { none, search }
 
 class LocationPickerPage extends StatefulWidget {
   const LocationPickerPage({super.key});
@@ -24,13 +20,13 @@ class LocationPickerPage extends StatefulWidget {
 }
 
 class _LocationPickerPageState extends State<LocationPickerPage> {
-  _ExpandedState _expandedState = _ExpandedState.none;
+  bool _expandedState = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-          _expandedState == _ExpandedState.search
+          _expandedState
               ? null
               : AppBar(
                 centerTitle: true,
@@ -49,10 +45,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                       return IconButton.filled(
                         onPressed:
                             address != null
-                                ? () {
-                                  Navigator.of(context).pop(address);
-                                  ref.invalidate(locationPickerProvider);
-                                }
+                                ? () => Navigator.of(context).pop(address)
                                 : null,
                         icon: const Icon(Icons.check),
                         style: IconButton.styleFrom(
@@ -69,14 +62,9 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
         children: [
           const Expanded(child: _MapSection()),
           Expanded(
-            flex: _expandedState == _ExpandedState.search ? 3 : 1,
+            flex: _expandedState ? 3 : 1,
             child: _SearchSection(
-              onSearchState: (value) {
-                setState(() {
-                  _expandedState =
-                      value ? _ExpandedState.search : _ExpandedState.none;
-                });
-              },
+              onSearchState: (value) => setState(() => _expandedState = value),
             ),
           ),
         ],
@@ -110,16 +98,17 @@ class _MapSectionState extends ConsumerState<_MapSection> {
       final address = n.value?.place?.address;
       if (address?.coordinates != null) {
         ref.read(locationPickerProvider.notifier).setAddress(address!);
-        map?.animateCamera(
-          CameraUpdate.newLatLng(address.coordinates!.toPoint()),
-        );
+      }
+    });
+    ref.listen(locationPickerProvider, (p, n) {
+      final coordinates = n.value?.address?.coordinates;
+      if (coordinates != null) {
+        map?.animateCamera(CameraUpdate.newLatLng(coordinates.toPoint()));
       }
     });
     final permission =
         ref.watch(permissionProvider(PermissionData.location)).value;
-    if (permission == null || !permission.isGranted) {
-      return UserMapView(onMapCreated: (m) => map = m);
-    }
+    if (permission == null || !permission.isGranted) return const UserMapView();
     return Stack(
       children: [
         UserMapView(onMapCreated: (m) => setState(() => map = m)),
@@ -133,17 +122,10 @@ class _MapSectionState extends ConsumerState<_MapSection> {
           left: 0,
           right: 0,
           bottom: 8,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (map != null)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: CenterUserOnMapButton(map: map),
-                ),
-              const SizedBox(height: 8),
-              if (ref.watch(locationPickerProvider).value?.address != null)
-                InputChip(
+          child: Builder(
+            builder: (context) {
+              if (ref.watch(locationPickerProvider).value?.address != null) {
+                return InputChip(
                   side: BorderSide.none,
                   onDeleted: () => ref.invalidate(locationPickerProvider),
                   label: Text(
@@ -151,25 +133,31 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
-                )
-              else if (ref.watch(locationPickerProvider).isLoading)
-                const InputChip(
+                );
+              }
+              if (ref.watch(locationPickerProvider).isLoading) {
+                return const InputChip(
                   side: BorderSide.none,
                   label: Text('Loading...'),
-                )
-              else
-                ActionChip.elevated(
-                  label: const Text('Select'),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  onPressed: () async {
-                    MapMovedUsecase(
-                      newCoordinates: await getMapCoordinates(map!),
-                      provider: ref.read(locationPickerProvider.notifier),
-                      address: ref.read(locationPickerProvider).value?.address,
-                    ).call();
-                  },
+                );
+              }
+              return ActionChip.elevated(
+                label: Text(
+                  'Select',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
-            ],
+
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                onPressed: () async {
+                  final coordinates = await getMapCoordinates(map!);
+                  ref
+                      .read(locationPickerProvider.notifier)
+                      .setCoordinates(coordinates);
+                },
+              );
+            },
           ),
         ),
         // Positioned(
