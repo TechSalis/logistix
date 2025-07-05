@@ -62,7 +62,8 @@ class RiderCardSmall extends StatelessWidget {
             ],
             IconButton(
               onPressed: () {
-                Navigator.of(context).push(
+                Navigator.push(
+                  context,
                   MaterialPageRoute(
                     builder: (_) => ChatPage(data: ChatParameters(user: rider)),
                   ),

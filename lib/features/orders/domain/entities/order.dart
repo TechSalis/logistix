@@ -4,27 +4,26 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/colors.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 class Order extends Equatable {
   final String id;
-  final Address pickUp;
-  final Address dropOff;
+  final Address? pickUp, dropOff;
   final double price;
-  final QuickActionType type;
+  final OrderType type;
   final OrderStatus status;
-  final String? description;
+  final String description, summary;
   final Rider? rider;
 
   const Order({
     required this.id,
     required this.type,
-    required this.pickUp,
-    required this.dropOff,
     required this.price,
     required this.status,
-    this.description,
+    this.pickUp,
+    this.dropOff,
+    required this.description,
+    required this.summary,
     this.rider,
   });
 
@@ -35,6 +34,7 @@ class Order extends Equatable {
     pickUp,
     dropOff,
     description,
+    summary,
     price,
     status,
     rider,
@@ -57,10 +57,38 @@ enum OrderStatus {
   };
 
   Color get color => switch (this) {
-    OrderStatus.pending => Colors.grey.shade500,
-    OrderStatus.confirmed => AppColors.orange.withAlpha(200),
-    OrderStatus.enRoute => AppColors.orange,
-    OrderStatus.delivered => Colors.green,
-    OrderStatus.cancelled => Colors.red,
+    pending => Colors.grey.shade500,
+    confirmed => AppColors.orange.withAlpha(200),
+    enRoute => AppColors.orange,
+    delivered => Colors.green,
+    cancelled => Colors.red,
+  };
+}
+
+enum OrderType {
+  food,
+  grocery,
+  errands,
+  delivery;
+
+  String get label => switch (this) {
+    delivery => 'Delivery',
+    food => 'Food',
+    grocery => 'Grocery',
+    errands => 'Errands',
+  };
+
+  IconData get icon => switch (this) {
+    delivery => Icons.moped,
+    food => Icons.fastfood_outlined,
+    grocery => Icons.shopping_cart,
+    errands => Icons.list_alt,
+  };
+
+  Color get color => switch (this) {
+    delivery => AppColors.blueGreyMaterial,
+    food => QuickActionColors.food,
+    grocery => QuickActionColors.groceries,
+    errands => QuickActionColors.errands,
   };
 }

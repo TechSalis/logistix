@@ -42,7 +42,7 @@ class PermissionDisclosureDialog extends ConsumerWidget {
           openSettingsCallback?.call();
         default:
       }
-      if (n.value != null) Navigator.of(context).pop();
+      if (n.value != null) Navigator.pop(context);
     });
     final theme = Theme.of(context);
     return Dialog(

@@ -1,0 +1,211 @@
+import 'package:flutter/material.dart';
+import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
+import 'package:logistix/core/presentation/widgets/location_text_field.dart';
+import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
+import 'package:logistix/features/form_validator/application/textfield_validators.dart';
+import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
+
+class NewDeliveryPage extends StatefulWidget {
+  const NewDeliveryPage({super.key});
+
+  @override
+  State<NewDeliveryPage> createState() => _NewDeliveryPageState();
+}
+
+class _NewDeliveryPageState extends State<NewDeliveryPage> {
+  final descriptionController = TextEditingController();
+  final dropoffController = TextEditingController();
+  final pickupController = TextEditingController();
+  final roundedLoadingButtonController = RoundedLoadingButtonController();
+
+  final validatorKey = GlobalKey<FormValidatorGroupState>();
+
+  List<String> imageUrls = [];
+
+  @override
+  void dispose() {
+    descriptionController.dispose();
+    dropoffController.dispose();
+    pickupController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(title: const Text("New Delivery")),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: FormValidatorGroupWidget(
+          key: validatorKey,
+          child: ListView(
+            children: [
+              const SizedBox(height: 8),
+              Card(
+                elevation: 2,
+                color: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  child: Column(
+                    children: [
+                      TextFieldLabelAndErrorDisplayWidget(
+                        controller: descriptionController,
+                        validatorProvider: RequiredValidatorProvider,
+                        label: const Text("What do you need delivered?"),
+                        child: TextField(
+                          controller: descriptionController,
+                          decoration: const InputDecoration(
+                            hintText: "e.g. A package, envelope, documents",
+                          ),
+                          maxLines: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFieldLabelAndErrorDisplayWidget(
+                        controller: descriptionController,
+                        validatorProvider: RequiredValidatorProvider,
+                        label: const Text("Pickup Location"),
+                        child: LocationTextField(
+                          controller: pickupController,
+                          decoration: const InputDecoration(
+                            hintText: "Choose pickup location",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFieldLabelAndErrorDisplayWidget(
+                        controller: descriptionController,
+                        validatorProvider: RequiredValidatorProvider,
+                        label: const Text("Dropoff Location"),
+                        child: LocationTextField(
+                          controller: dropoffController,
+                          decoration: const InputDecoration(
+                            hintText: "Choose dropoff location",
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text("Add Images (Optional)", style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 80,
+                child: ListView.separated(
+                  itemCount: imageUrls.length + 1,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    if (index < imageUrls.length) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          imageUrls[index],
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }
+                    return GestureDetector(
+                      onTap: () {
+                        // TODO: Open image picker
+                      },
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: theme.colorScheme.primary.withAlpha(13),
+                          border: Border.all(color: theme.colorScheme.primary),
+                        ),
+                        child: const Icon(Icons.add_a_photo),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                ),
+              ),
+              const SizedBox(height: 24),
+              const _DeliveryFareWidget(),
+              const SizedBox(height: 32),
+              ElevatedLoadingButton(
+                controller: roundedLoadingButtonController,
+                onPressed: () {
+                  if (!validatorKey.currentState!.validateAndCheck()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Some fields are required."),
+                      ),
+                    );
+                  } else {
+                    roundedLoadingButtonController.start();
+                  }
+                },
+                child: const Text("Request Delivery"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DeliveryFareWidget extends StatelessWidget {
+  const _DeliveryFareWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    String? estimateTime = "20-30 min";
+    String? estimateFare = "₦1,500 - ₦2,500";
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withAlpha(13),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Estimated Fare",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(estimateFare, style: theme.textTheme.bodyMedium),
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                "ETA",
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(estimateTime, style: theme.textTheme.bodyMedium),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

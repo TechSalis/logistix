@@ -30,7 +30,6 @@ final _remoteGeocodingProvider = Provider.autoDispose<GeocodingService>((ref) {
 
 final addressFromCoordinatesProvider = FutureProvider.autoDispose
     .family<Address?, Coordinates>((ref, Coordinates arg) async {
-      ref.onDispose(() => print('addressFromCoordinatesProvider: Disposed'));
       Address? address;
       try {
         // throw PlatformException(code: 'code');
@@ -97,7 +96,7 @@ class LocationPickerNotifier
 
   Future<void> getUserCoordinates() async {
     setCoordinates(
-      await ref.watch(locationProvider.notifier).getUserCoordinates(),
+      await ref.watch(locationProvider.notifier).getUserCoordinatesUsecase(),
       distanceDeltaFromCurrentCoordinates: null,
     );
   }

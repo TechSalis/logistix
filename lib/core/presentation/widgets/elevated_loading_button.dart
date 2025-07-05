@@ -20,9 +20,9 @@ class ElevatedLoadingButton extends StatelessWidget {
          children: [icon, const SizedBox(width: 8), label],
        );
 
-  final void Function()? onPressed;
-  final RoundedLoadingButtonController controller;
   final Widget child;
+  final RoundedLoadingButtonController controller;
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,9 @@ class ElevatedLoadingButton extends StatelessWidget {
           height: 42,
           width: consts.maxWidth,
           borderRadius: 8,
+          animateOnTap: false,
           onPressed: onPressed,
           controller: controller,
-          animateOnTap: false,
           color: Theme.of(context).elevatedButtonTheme.style?.foregroundColor
               ?.resolve({WidgetState.selected}),
           child: child,

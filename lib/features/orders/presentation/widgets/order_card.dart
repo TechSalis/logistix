@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
-import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
+import 'package:logistix/features/new_order/widgets/order_icon.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 
 class OrderCard extends StatelessWidget {
@@ -40,40 +40,26 @@ class OrderCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  QuickActionIcon(size: 44, action: order.type),
+                  OrderIcon(size: 44, action: order.type),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                order.dropOff.formatted,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                overflow: TextOverflow.clip,
-                                maxLines: 1,
-                              ),
+                        if (order.dropOff != null)
+                          Text(
+                            order.dropOff!.formatted,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
                             ),
-                            // const SizedBox(width: 12),
-                            // Text(
-                            //   '₦${order.price.toStringAsFixed(0)}',
-                            //   style: theme.textTheme.titleMedium?.copyWith(
-                            //     // fontWeight: FontWeight.bold,
-                            //   ),
-                            // ),
-                          ],
-                        ),
-                        if (order.description != null &&
-                            order.description!.isNotEmpty)
+                            overflow: TextOverflow.clip,
+                            maxLines: 1,
+                          ),
+                        if (order.description.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
-                              order.description!,
+                              order.description,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.textTheme.bodySmall!.color!
                                     .withAlpha(200),

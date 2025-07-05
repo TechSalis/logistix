@@ -25,7 +25,7 @@ class MapViewWidget extends StatefulWidget {
 class _MapViewWidgetState extends State<MapViewWidget> {
   static const _kInitialPosition = CameraPosition(
     target: LatLng(6.5244, 3.3792),
-    zoom: 16.5,
+    zoom: 16,
   );
 
   String mapTheme = '';
@@ -74,12 +74,4 @@ class _MapViewWidgetState extends State<MapViewWidget> {
       ),
     );
   }
-}
-
-Future precacheMapData() {
-  return Future.wait([
-    rootBundle.loadString('assets/json/google_map_theme.dark.json'),
-    rootBundle.loadString('assets/json/google_map_theme.light.json'),
-  ]);
-  // MapboxOptions.setAccessToken(EnvConfig.instance.mapboxToken);
 }

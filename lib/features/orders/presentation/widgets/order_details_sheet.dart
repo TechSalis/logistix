@@ -34,21 +34,23 @@ class OrderDetailsSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              _InfoSection(
-                icon: Icons.location_pin,
-                label: 'From',
-                value: order.pickUp.formatted,
-              ),
-              _InfoSection(
-                icon: Icons.flag,
-                label: 'To',
-                value: order.dropOff.formatted,
-              ),
-              if (order.description != null && order.description!.isNotEmpty)
+              if (order.pickUp != null)
+                _InfoSection(
+                  icon: Icons.location_pin,
+                  label: 'From',
+                  value: order.pickUp!.formatted,
+                ),
+              if (order.dropOff != null)
+                _InfoSection(
+                  icon: Icons.flag,
+                  label: 'To',
+                  value: order.dropOff!.formatted,
+                ),
+              if (order.description.isNotEmpty)
                 _InfoSection(
                   icon: Icons.notes,
                   label: 'Description',
-                  value: order.description!,
+                  value: order.description,
                 ),
               const SizedBox(height: 20),
               if (order.rider != null) ...[

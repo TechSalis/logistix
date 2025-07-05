@@ -62,7 +62,7 @@ class UserMapView extends ConsumerWidget {
         final provider = ref.read(locationProvider.notifier)
           ..trackUserCoordinates();
 
-        final pos = await provider.getUserCoordinates();
+        final pos = await provider.getUserCoordinatesUsecase();
         controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
       },
     );

@@ -23,11 +23,10 @@ class RiderOnTheWayCard extends StatelessWidget {
                 height: 140,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).push(
+                    Navigator.push(
+                      context,
                       MaterialPageRoute(
-                        builder: (context) {
-                          return RiderTrackerPage(rider: rider);
-                        },
+                        builder: (context) => RiderTrackerPage(rider: rider),
                       ),
                     );
                   },

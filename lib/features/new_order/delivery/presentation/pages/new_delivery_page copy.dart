@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
+import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:logistix/features/form_validator/application/form_validator_rp.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
-import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
-import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
+import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
-import 'package:logistix/core/presentation/widgets/order_fare_widget.dart';
 
 class NewDeliveryQAForm extends ConsumerStatefulWidget {
   const NewDeliveryQAForm({super.key});
@@ -17,8 +16,7 @@ class NewDeliveryQAForm extends ConsumerStatefulWidget {
   ConsumerState<NewDeliveryQAForm> createState() => _NewDeliveryQAPageState();
 }
 
-class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
-    with TextValidatorProviderFornCardBuilder {
+class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm> {
   final pickupController = TextEditingController();
   final dropoffController = TextEditingController();
   final noteController = TextEditingController();
@@ -35,10 +33,10 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
   }
 
   void _onSubmit() {
-    final validator = FormValidatorGroup(ref, [
-      requiredValidatorProvider(pickupController),
-      requiredValidatorProvider(dropoffController),
-      requiredValidatorProvider(noteController),
+    final validator = FormValidatorGroupWidget(ref, [
+      RequiredValidatorProvider(pickupController),
+      RequiredValidatorProvider(dropoffController),
+      RequiredValidatorProvider(noteController),
     ]);
 
     if (validator.validateAndCheck()) {
@@ -67,8 +65,8 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
         child: ListView(
           addAutomaticKeepAlives: false,
           children: [
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(noteController),
+            TextValidatorProviderFornCard(
+              validatorProvider: RequiredValidatorProvider(noteController),
               title: "Description of Item(s) *",
               child: TextFormField(
                 controller: noteController,
@@ -81,8 +79,8 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
               ),
             ),
             const SizedBox(height: 24),
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(pickupController),
+            TextValidatorProviderFornCard(
+              validatorProvider: RequiredValidatorProvider(pickupController),
               title: 'Pickup Location *',
               child: LocationTextField(
                 controller: pickupController,
@@ -93,8 +91,8 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
               ),
             ),
             const SizedBox(height: 24),
-            textValidatorProviderFornCardBuilder(
-              validatorProvider: requiredValidatorProvider(dropoffController),
+            TextValidatorProviderFornCard(
+              validatorProvider: RequiredValidatorProvider(dropoffController),
               title: "Drop-off Location *",
               child: LocationTextField(
                 controller: dropoffController,
@@ -105,7 +103,6 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
               ),
             ),
 
-            
             const SizedBox(height: 32),
             const OrderFareWidget(
               farePrice: 'Not available',
@@ -121,7 +118,7 @@ class _NewDeliveryQAPageState extends ConsumerState<NewDeliveryQAForm>
             ElevatedLoadingButton.icon(
               onPressed: _onSubmit,
               controller: roundedLoadingButtonController,
-              icon: Icon(QuickActionType.delivery.icon),
+              icon: Icon(OrderType.delivery.icon),
               label: const Text("Confirm"),
             ),
           ],

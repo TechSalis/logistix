@@ -1,11 +1,8 @@
-// lib/features/orders/presentation/pages/orders_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_on_the_way_widget.dart';
 
@@ -17,7 +14,7 @@ class OrdersTab extends StatelessWidget {
     const mockOrders = [
       Order(
         id: '1',
-        type: QuickActionType.food,
+        type: OrderType.food,
         pickUp: Address(
           'Burger Place. Hilltop, Burger Place. Hilltop',
           coordinates: Coordinates(6.52, 3.37),
@@ -27,13 +24,14 @@ class OrdersTab extends StatelessWidget {
           coordinates: Coordinates(6.51, 3.36),
         ),
         description: 'Burger + fries + drink combo',
+        summary: 'Burger + fries + drink combo',
         status: OrderStatus.confirmed,
         price: 2500,
         rider: Rider(id: '1', name: 'John Doe', rating: 4.7, company: 'RiderX'),
       ),
       Order(
         id: '2',
-        type: QuickActionType.errands,
+        type: OrderType.errands,
         pickUp: Address(
           'Chicken Republic, Behind Tanker Clode. After BigHouse. Maryland',
           coordinates: Coordinates(6.53, 3.35),
@@ -43,6 +41,7 @@ class OrdersTab extends StatelessWidget {
           coordinates: Coordinates(6.50, 3.34),
         ),
         description: 'Pick up cleaned suits ',
+        summary: 'Pick up cleaned suits ',
         status: OrderStatus.pending,
         price: 1500,
         rider: null,

@@ -27,11 +27,9 @@ final class FormValidatorNotifier
   void validate() => state = validator(arg.text);
 }
 
-final class FormValidatorGroup {
-  final WidgetRef ref;
-  final List<FormValidatorProvider> fields;
-
-  FormValidatorGroup(this.ref, this.fields);
+mixin FormValidatorGroupLogic {
+  Set<FormValidatorProvider> get fields;
+  WidgetRef get ref;
 
   void validateAll() {
     for (final f in fields) {
@@ -39,10 +37,10 @@ final class FormValidatorGroup {
     }
   }
 
-  bool get isValid => fields.every((f) => ref.read(f) == null);
+  bool get currentValidationState => fields.every((f) => ref.read(f) == null);
 
   bool validateAndCheck() {
     validateAll();
-    return isValid;
+    return currentValidationState;
   }
 }

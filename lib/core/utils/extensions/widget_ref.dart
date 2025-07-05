@@ -13,9 +13,7 @@ extension ContextExtension on Ref {
       debugPrint('autoDispose Dio id: ${dio.options.extra['debug-id']}');
     }
 
-    onDispose(() {
-      dio.close(force: true);
-    });
+    onDispose(() => dio.close(force: true));
     return dio;
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
+import 'package:logistix/features/new_order/widgets/order_icon.dart';
 import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 
 import '../../../../../test_helpers.dart';
@@ -11,18 +11,18 @@ void main() {
       await tester.pumpWidget(
         materialAppWrapper(
           child: QuickActionWidget(
-            action: QuickActionType.groceries,
+            action: OrderType.groceries,
             onTap: () {},
           ),
         ),
       );
 
-      expect(find.byIcon(QuickActionType.groceries.icon), findsOneWidget);
-      expect(find.text(QuickActionType.groceries.label), findsOneWidget);
+      expect(find.byIcon(OrderType.groceries.icon), findsOneWidget);
+      expect(find.text(OrderType.groceries.label), findsOneWidget);
       expect(find.byType(InkWell), findsOneWidget);
       expect(
         tester.widget<CircleAvatar>(find.byType(CircleAvatar)).backgroundColor,
-        QuickActionType.groceries.color,
+        OrderType.groceries.color,
       );
     });
     testWidgets('verifies onTap functions properly', (tester) async {
@@ -30,7 +30,7 @@ void main() {
       await tester.pumpWidget(
         materialAppWrapper(
           child: QuickActionWidget(
-            action: QuickActionType.errands,
+            action: OrderType.errands,
             onTap: () => isTapped = true,
           ),
         ),

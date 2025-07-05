@@ -12,7 +12,7 @@ class AddressSuggestionsSection extends ConsumerWidget {
     return Material(
       child: CustomScrollView(
         slivers: [
-          const SliverPadding(padding: EdgeInsets.only(top: 12)),
+          const SliverPadding(padding: EdgeInsets.only(top: 8)),
           SliverToBoxAdapter(
             child: ListTile(
               leading: const Icon(Icons.my_location),
@@ -25,7 +25,7 @@ class AddressSuggestionsSection extends ConsumerWidget {
           ...?ref.watch(locationSearchProvider).value?.addresses?.map((e) {
             return SliverToBoxAdapter(child: AddressTileWidget(address: e));
           }),
-          const SliverPadding(padding: EdgeInsets.only(top: 12)),
+          const SliverPadding(padding: EdgeInsets.only(top: 8)),
         ],
       ),
     );

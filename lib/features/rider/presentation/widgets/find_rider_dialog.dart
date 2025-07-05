@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/async_state_widget.dart';
-import 'package:logistix/features/location_picker/presentation/widgets/location_text_field.dart';
+import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/form_validator/widgets/text_validator_provider_forncard.dart';
+import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_summary.dart';
@@ -14,7 +14,7 @@ class FindRiderDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(findRiderProvider, (previous, next) {
-      if (next is RiderContactedState) Navigator.of(context).pop();
+      if (next is RiderContactedState) Navigator.pop(context);
     });
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
@@ -194,8 +194,7 @@ class _FindRiderInitialWidget extends ConsumerStatefulWidget {
 }
 
 class _FindRiderInitialWidgetState
-    extends ConsumerState<_FindRiderInitialWidget>
-    with TextValidatorProviderFornCardBuilder {
+    extends ConsumerState<_FindRiderInitialWidget> {
   final locationController = TextEditingController();
 
   @override
@@ -224,14 +223,13 @@ class _FindRiderInitialWidgetState
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: textValidatorProviderFornCardBuilder(
-                validatorProvider: requiredValidatorProvider(
+              child: TextValidatorProviderFornCard(
+                validatorProvider: RequiredValidatorProvider(
                   locationController,
                 ),
                 title: "Where is the rider coming to?",
                 child: LocationTextField(
                   controller: locationController,
-                  showUseYourLocationButton: true,
                   decoration: const InputDecoration(
                     hintText: 'Enter a location',
                   ),

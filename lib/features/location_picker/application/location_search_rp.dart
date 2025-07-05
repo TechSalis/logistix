@@ -45,35 +45,39 @@ class LocationSearchState extends Equatable {
 }
 
 class LocationSearchNotifier
-    extends AutoDisposeStreamNotifier<LocationSearchState> {
+    extends AutoDisposeAsyncNotifier<LocationSearchState> {
   final debouncer = Debouncer();
 
   @override
-  Stream<LocationSearchState> build() {
+  Future<LocationSearchState> build() async {
     ref.onDispose(debouncer.cancel);
-    return const Stream.empty();
+    return const LocationSearchState();
   }
 
   void onInput(String text) async {
     if (text.length > 2) {
       debouncer.debounce(
         duration: Durations.medium3,
-        onDebounce: () async {
-          final result = await ref.watch(_searchLocationProvider).search(text);
-          state = AsyncValue.data(
-            LocationSearchState(addresses: result, input: text),
-          );
-        },
+        onDebounce: () => getAddress(text),
       );
     }
   }
 
+  Future<void> getAddress(String text) async {
+    state = const AsyncValue.loading();
+    final result = await ref.watch(_searchLocationProvider).search(text);
+    state = AsyncValue.data(
+      LocationSearchState(addresses: result, input: text),
+    );
+  }
+
   Future<void> getPlaceData(Address address) async {
+    state = const AsyncValue.loading();
     final place = await ref.watch(_searchLocationProvider).place(address);
     state = AsyncData(state.requireValue.copyWith(place: place));
   }
 }
 
-final locationSearchProvider = StreamNotifierProvider.autoDispose(
+final locationSearchProvider = AsyncNotifierProvider.autoDispose(
   LocationSearchNotifier.new,
 );

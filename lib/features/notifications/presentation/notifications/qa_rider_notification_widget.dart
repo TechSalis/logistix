@@ -5,7 +5,7 @@ import 'package:logistix/features/notifications/domain/entities/notification_dat
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
-import 'package:logistix/features/quick_actions/presentation/widgets/quick_action_widget.dart';
+import 'package:logistix/features/new_order/widgets/order_icon.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 class QARiderNotification extends AppNotificationData {
@@ -65,7 +65,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
                 children: [
                   const SizedBox(width: 8),
                   // Icon
-                  QuickActionIcon(action: data.order.type, size: 42),
+                  OrderIcon(action: data.order.type, size: 42),
                   const SizedBox(width: 16),
 
                   // Textual content

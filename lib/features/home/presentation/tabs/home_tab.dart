@@ -1,81 +1,58 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/__debug_tools/debug_buttons.dart';
-import 'package:logistix/core/utils/extensions/context_extension.dart';
-import 'package:logistix/features/quick_actions/delivery/presentation/pages/new_delivery_page.dart';
-import 'package:logistix/features/map/presentation/widgets/center_user_button.dart';
-import 'package:logistix/features/quick_actions/food/presentation/pages/food_qa_page.dart';
-import 'package:logistix/features/rider/presentation/widgets/find_rider_dialog.dart';
 import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
-import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
+import 'package:logistix/features/new_order/widgets/order_icon.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/new_order/delivery/presentation/pages/new_delivery_page.dart';
+import 'package:logistix/features/new_order/food/presentation/pages/food_order_page.dart';
+import 'package:logistix/features/rider/domain/entities/rider.dart';
 
-class HomeTab extends ConsumerStatefulWidget {
+class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
   @override
-  ConsumerState<HomeTab> createState() => _HomeTabState();
-}
-
-class _HomeTabState extends ConsumerState<HomeTab> {
-  GoogleMapController? map;
-
-  @override
   Widget build(BuildContext context) {
+    const Order? order = Order(
+      id: '13276',
+      type: OrderType.delivery,
+      price: 1200,
+      status: OrderStatus.enRoute,
+      summary: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
+      description: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
+      rider: Rider(id: 'id', name: 'name', company: 'company', rating: 4),
+    );
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: UserMapView(onMapCreated: (m) => setState(() => map = m)),
-          ),
-          Positioned(
-            left: 12,
-            right: 12,
-            bottom: 16,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (map != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: CenterUserOnMapButton(map: map!),
-                    ),
-                  ),
-                const _BottomPanel(),
-              ],
-            ),
-          ),
-          if (kDebugMode)
-            const Positioned(bottom: 280, left: 16, child: DebugFloatingIcon()),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        title: const Text("Welcome, Eric 👋"),
+        actions: [
+          IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
         ],
       ),
-    );
-  }
-}
-
-class _BottomPanel extends StatelessWidget {
-  const _BottomPanel();
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: (context.isDarkTheme ? Colors.black : Colors.white).withAlpha(
-          200,
-        ),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, 20),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _QuickActionsRow(),
-            SizedBox(height: 20),
-            _DeliveryActionCard(),
+            const _SearchBar(),
+            const SizedBox(height: 24),
+            const Expanded(child: _MiniMapWidget()),
+            const SizedBox(height: 12),
+            const _CallHelperCTA(),
+            const SizedBox(height: 32),
+            Text("Order Now", style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+            const _QuickActionGrid(),
+            const SizedBox(height: 24),
+            if (order == null)
+              const _EmptyOrderPrompt()
+            else
+              _LastOrderCard(
+                order: order,
+                eta: "6 mins",
+                onReorder: () {},
+                onTrack: order.rider == null ? null : () {},
+              ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -83,120 +60,256 @@ class _BottomPanel extends StatelessWidget {
   }
 }
 
-class QuickActionCard extends StatelessWidget {
-  const QuickActionCard({super.key, required this.action, required this.onTap});
-
-  final QuickActionType action;
-  final VoidCallback onTap;
+class _SearchBar extends StatelessWidget {
+  const _SearchBar();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Material(
-          elevation: 4,
-          color: Colors.white,
-          shadowColor: Colors.black26,
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: onTap,
-            customBorder: const CircleBorder(),
-            child: SizedBox(
-              width: 64,
-              height: 64,
-              child: Icon(action.icon, color: action.color, size: 28),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: 72,
-          child: Text(
-            action.label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-      ],
+    return TextField(
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+      decoration: InputDecoration(
+        hintText: 'Track an order (Link or #ID)',
+        prefixIcon: const Icon(Icons.search),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
     );
   }
 }
 
-class _DeliveryActionCard extends ConsumerWidget {
-  const _DeliveryActionCard();
+class _QuickActionGrid extends StatelessWidget {
+  const _QuickActionGrid();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      child: SizedBox(
-        width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (_) => const FindRiderDialog(),
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children:
+          OrderType.values.map((action) {
+            return GestureDetector(
+              onTap: switch (action) {
+                OrderType.delivery => () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const NewDeliveryPage()),
+                  );
+                },
+                OrderType.food => () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FoodOrderPage()),
+                  );
+                },
+                OrderType.grocery => () {},
+                OrderType.errands => () {},
+              },
+              child: Column(
+                children: [
+                  OrderIcon(
+                    action: action,
+                    size: 52,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    action.label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             );
-          },
-          icon: const Icon(Icons.motorcycle),
-          label: const Text("Find Rider"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.tertiaryContainer,
-            foregroundColor: Colors.white,
-          ),
+          }).toList(),
+    );
+  }
+}
+
+class _LastOrderCard extends StatelessWidget {
+  final Order order;
+  final String eta;
+  final VoidCallback onReorder;
+  final VoidCallback? onTrack;
+
+  const _LastOrderCard({
+    required this.order,
+    required this.eta,
+    required this.onReorder,
+    this.onTrack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "🕓 Last Order: #${order.id}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              order.summary,
+              style: Theme.of(context).textTheme.bodySmall,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text.rich(
+                  TextSpan(
+                    text: "Status: ",
+                    children: [
+                      TextSpan(
+                        text: order.status.label,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: order.status.color,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text.rich(
+                  TextSpan(
+                    text: "ETA: ",
+                    children: [
+                      TextSpan(
+                        text: eta,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.green),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ElevatedButtonTheme(
+              data: ElevatedButtonThemeData(
+                style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
+                  iconSize: const WidgetStatePropertyAll(16),
+                  minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+                  textStyle: WidgetStatePropertyAll(
+                    Theme.of(context).textTheme.bodySmall,
+                  ),
+                  padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(horizontal: 12),
+                  ),
+                ),
+              ),
+              child: OutlinedButtonTheme(
+                data: OutlinedButtonThemeData(
+                  style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
+                    minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+                    textStyle: WidgetStatePropertyAll(
+                      Theme.of(context).textTheme.bodySmall,
+                    ),
+                    padding: const WidgetStatePropertyAll(
+                      EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (onTrack != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ElevatedButton.icon(
+                          onPressed: onTrack,
+                          icon: const Icon(Icons.location_pin),
+                          label: const Text("Track"),
+                        ),
+                      ),
+                    OutlinedButton(
+                      onPressed: onReorder,
+                      child: const Text("Reorder"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _QuickActionsRow extends StatelessWidget {
-  const _QuickActionsRow();
+class _EmptyOrderPrompt extends StatelessWidget {
+  const _EmptyOrderPrompt();
 
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(
+              Icons.local_shipping,
+              size: 48,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "No active orders",
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "You can create a new order above.",
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CallHelperCTA extends StatelessWidget {
+  const _CallHelperCTA();
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 110,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          QuickActionCard(
-            action: QuickActionType.food,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FoodQAForm()),
-              );
-              // showModalBottomSheet(
-              //   context: context,
-              //   showDragHandle: true,
-              //   isScrollControlled: true,
-              //   builder: (_) => const FoodQAForm(),
-              // );
-            },
-          ),
-          QuickActionCard(action: QuickActionType.groceries, onTap: () {}),
-          QuickActionCard(action: QuickActionType.errands, onTap: () {}),
-          QuickActionCard(
-            action: QuickActionType.delivery,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const NewDeliveryQAForm()),
-              );
-            },
-          ),
-        ],
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.flash_on),
+        label: const Text("Find a Rider"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
+        ),
       ),
+    );
+  }
+}
+
+class _MiniMapWidget extends StatelessWidget {
+  const _MiniMapWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      clipBehavior: Clip.hardEdge,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      child: const AbsorbPointer(child: UserMapView()),
     );
   }
 }

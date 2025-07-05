@@ -20,23 +20,18 @@ class LocationPickerPage extends StatefulWidget {
 }
 
 class _LocationPickerPageState extends State<LocationPickerPage> {
-  bool _expandedState = false;
+  bool _searchState = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-          _expandedState
+          _searchState
               ? null
               : AppBar(
                 centerTitle: true,
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
-                actionsPadding: const EdgeInsets.all(8),
-                title: const Text(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  'Drag to position marker',
-                ),
+                title: const Text('Drag to position marker'),
                 actions: [
                   Consumer(
                     builder: (context, ref, child) {
@@ -45,7 +40,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                       return IconButton.filled(
                         onPressed:
                             address != null
-                                ? () => Navigator.of(context).pop(address)
+                                ? () => Navigator.pop(context, address)
                                 : null,
                         icon: const Icon(Icons.check),
                         style: IconButton.styleFrom(
@@ -60,11 +55,20 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ),
       body: Column(
         children: [
-          const Expanded(child: _MapSection()),
           Expanded(
-            flex: _expandedState ? 3 : 1,
+            flex: _searchState ? 1 : 3,
+            child: Listener(
+              onPointerDown: (event) {
+                setState(() => _searchState = false);
+                FocusScope.of(context).unfocus();
+              },
+              child: const _MapSection(),
+            ),
+          ),
+          Expanded(
+            flex: _searchState ? 3 : 1,
             child: _SearchSection(
-              onSearchState: (value) => setState(() => _expandedState = value),
+              onSearchTapped: () => setState(() => _searchState = true),
             ),
           ),
         ],
@@ -138,17 +142,14 @@ class _MapSectionState extends ConsumerState<_MapSection> {
               if (ref.watch(locationPickerProvider).isLoading) {
                 return const InputChip(
                   side: BorderSide.none,
-                  label: Text('Loading...'),
+                  label: Text('Loading'),
                 );
               }
               return ActionChip.elevated(
-                label: Text(
+                label: const Text(
                   'Select',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
-
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 onPressed: () async {
                   final coordinates = await getMapCoordinates(map!);
@@ -160,66 +161,14 @@ class _MapSectionState extends ConsumerState<_MapSection> {
             },
           ),
         ),
-        // Positioned(
-        //   right: 8,
-        //   bottom: 64,
-        //   child: IconButton(
-        //     onPressed: () async {
-        //       final provider = ref.read(locationProvider.notifier);
-        //       await centerUserHelperFunction(map!, provider);
-        //     },
-        //     style: IconButton.styleFrom(
-        //       backgroundColor: Colors.black,
-        //       foregroundColor: Colors.white,
-        //     ),
-        //     icon: const Icon(Icons.my_location),
-        //   ),
-        // ),
-        // Positioned(
-        //   left: 0,
-        //   right: 0,
-        //   bottom: 8,
-        //   child: Builder(
-        //     builder: (context) {
-        //       if (ref.watch(locationPickerProvider).value?.address != null) {
-        //         return InputChip(
-        //           side: BorderSide.none,
-        //           onDeleted: () => ref.invalidate(locationPickerProvider),
-        //           label: Text(
-        //             ref.watch(locationPickerProvider).value!.address!.formatted,
-        //             overflow: TextOverflow.ellipsis,
-        //             maxLines: 2,
-        //           ),
-        //         );
-        //       }
-        //       if (ref.watch(locationPickerProvider).isLoading) {
-        //         return const InputChip(
-        //           side: BorderSide.none,
-        //           label: Text('Loading...'),
-        //         );
-        //       }
-        //       return ActionChip.elevated(
-        //         label: const Text('Select'),
-        //         backgroundColor: Theme.of(context).colorScheme.primary,
-        //         onPressed: () async {
-        //           MapMovedUsecase(
-        //             newCoordinates: await getCenter(map!),
-        //             provider: ref.read(locationPickerProvider.notifier),
-        //             address: ref.read(locationPickerProvider).value?.address,
-        //           ).call();
-        //         },
-        //       );
-        //     },
-        //   ),
-        // ),
       ],
     );
   }
 }
 
 class _SearchSection extends StatefulWidget {
-  const _SearchSection({required this.onSearchState});
-  final Function(bool) onSearchState;
+  const _SearchSection({required this.onSearchTapped});
+  final VoidCallback onSearchTapped;
 
   @override
   State<_SearchSection> createState() => _SearchSectionState();
@@ -265,20 +214,13 @@ class _SearchSectionState extends State<_SearchSection> {
                       ),
                       onChanged:
                           ref.read(locationSearchProvider.notifier).onInput,
-                      onSubmitted: (value) => widget.onSearchState(false),
-                      onTap: () => widget.onSearchState(true),
-                      onTapOutside: (_) {
-                        FocusScope.of(context).unfocus();
-                        widget.onSearchState(false);
-                      },
+                      onTap: widget.onSearchTapped,
                     );
                   },
                 );
               },
             ),
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
           const Flexible(child: AddressSuggestionsSection()),
         ],
       ),
