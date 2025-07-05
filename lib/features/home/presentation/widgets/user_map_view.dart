@@ -26,8 +26,9 @@ class UserMapView extends ConsumerWidget {
           builder: (_) {
             return PermissionDisclosureDialog(
               data: PermissionData.location,
-              openSettingsCallback:
-                  ref.read(locationSettingsProvider).openSettings,
+              openSettingsCallback: () {
+                ref.read(locationSettingsProvider).openSettings();
+              },
             );
           },
         );
@@ -108,16 +109,17 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               TextButton(
-                onPressed:
-                    isPermanentlyDenied
-                        ? ref.read(locationSettingsProvider).openSettings
-                        : ref
-                            .read(
-                              permissionProvider(
-                                PermissionData.location,
-                              ).notifier,
-                            )
-                            .requestPermission,
+                onPressed: () {
+                  if (isPermanentlyDenied) {
+                    ref.read(locationSettingsProvider).openSettings();
+                  } else {
+                    ref
+                        .read(
+                          permissionProvider(PermissionData.location).notifier,
+                        )
+                        .requestPermission();
+                  }
+                },
                 style: TextButton.styleFrom(
                   textStyle: const TextStyle(fontSize: 18),
                 ),

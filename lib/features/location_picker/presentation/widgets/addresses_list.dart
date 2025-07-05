@@ -18,8 +18,9 @@ class AddressSuggestionsSection extends ConsumerWidget {
               leading: const Icon(Icons.my_location),
               title: const Text('Use my location'),
               visualDensity: VisualDensity.compact,
-              onTap:
-                  ref.read(locationPickerProvider.notifier).getUserCoordinates,
+              onTap: () {
+                ref.read(locationPickerProvider.notifier).getUserCoordinates();
+              },
             ),
           ),
           ...?ref.watch(locationSearchProvider).value?.addresses?.map((e) {

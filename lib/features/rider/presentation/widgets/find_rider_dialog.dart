@@ -145,8 +145,9 @@ class _RiderFoundWidget extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed:
-                            ref.read(findRiderProvider.notifier).contactRider,
+                        onPressed: () {
+                          ref.read(findRiderProvider.notifier).contactRider();
+                        },
                         child: const Text("Contact Rider"),
                       ),
                     ),

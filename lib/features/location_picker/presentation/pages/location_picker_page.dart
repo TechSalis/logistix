@@ -212,8 +212,11 @@ class _SearchSectionState extends State<_SearchSection> {
                                   child: const Icon(Icons.clear),
                                 ),
                       ),
-                      onChanged:
-                          ref.read(locationSearchProvider.notifier).onInput,
+                      onChanged: (value) {
+                        ref
+                            .read(locationSearchProvider.notifier)
+                            .onInput(value);
+                      },
                       onTap: widget.onSearchTapped,
                     );
                   },
