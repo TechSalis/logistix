@@ -71,3 +71,4 @@ flutter:
     - .env.dev
     - assets/images/
     - assets/json/
+    - assets/google_fonts/Inter

@@ -11,6 +11,7 @@ class MyTheme {
     appBarTheme: const AppBarTheme(
       surfaceTintColor: AppColors.blueGrey,
       color: AppColors.grey100,
+      centerTitle: false
     ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.orange,
@@ -30,23 +31,23 @@ class MyTheme {
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.grey100,
+      fillColor: Colors.white,
       prefixIconColor: AppColors.blueGreyMaterial,
       hintStyle: TextStyle(color: Colors.grey),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: AppColors.orange),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
@@ -112,23 +113,23 @@ class MyTheme {
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.grey850,
+      fillColor: AppColors.grey900,
       hintStyle: TextStyle(color: AppColors.grey700),
       prefixIconColor: Color(0xFFB0BEC5),
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: AppColors.grey800),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: AppColors.orange),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
@@ -162,6 +163,7 @@ class MyTheme {
     appBarTheme: const AppBarTheme(
       color: Colors.black,
       surfaceTintColor: AppColors.grey900,
+      centerTitle: false
     ),
     scaffoldBackgroundColor: Colors.black,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(

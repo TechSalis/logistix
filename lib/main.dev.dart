@@ -4,15 +4,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logistix/__debug_tools/leak_tracker.dart';
 import 'package:logistix/app.dart';
 import 'package:logistix/core/utils/env_config.dart';
-import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 
 void main() async {
+  setupLicenses();
   await Future.wait([
     dotenv
         .load(fileName: '.env.dev')
         .then((_) => EnvConfig.extract(dotenv.env)),
     Hive.initFlutter(),
-    precacheMapData(),
+    precacheData(),
   ]);
   trackLeaks();
   runApp(const MainApp());
