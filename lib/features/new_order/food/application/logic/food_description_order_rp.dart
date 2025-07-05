@@ -21,8 +21,8 @@ final foodRecommendationsProvider = Provider((ref) {
   ];
 });
 
-class FoodOrderNotifier extends AutoDisposeNotifier<String> {
-  FoodOrderNotifier();
+class FoodDescriptionOrderNotifier extends AutoDisposeNotifier<String> {
+  FoodDescriptionOrderNotifier();
 
   @override
   String build() => '';
@@ -42,7 +42,7 @@ class FoodOrderNotifier extends AutoDisposeNotifier<String> {
   void updateOrder(String value) => state = value;
 }
 
-final foodOrderProvider =
-    NotifierProvider.autoDispose<FoodOrderNotifier, String>(
-      FoodOrderNotifier.new,
+final foodDescriptionOrderProvider =
+    NotifierProvider.autoDispose<FoodDescriptionOrderNotifier, String>(
+      FoodDescriptionOrderNotifier.new,
     );

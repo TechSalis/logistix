@@ -5,7 +5,7 @@ import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
-import 'package:logistix/features/new_order/food/application/logic/food_order_rp.dart';
+import 'package:logistix/features/new_order/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
   const FoodOrderPage({super.key});
@@ -24,10 +24,7 @@ class FoodOrderPage extends StatelessWidget {
               const SizedBox(height: 8),
               const _CustomOrderHero(),
               const SizedBox(height: 32),
-              Text(
-                "Popular",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text("Popular", style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 12),
               Expanded(
                 child: Consumer(
@@ -48,7 +45,7 @@ class FoodOrderPage extends StatelessWidget {
                           item: items[index],
                           onItemAdded: () {
                             ref
-                                .watch(foodOrderProvider.notifier)
+                                .watch(foodDescriptionOrderProvider.notifier)
                                 .addItem(items[index]);
                           },
                         );
@@ -113,7 +110,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
               label: const Text("What do you want to eat?"),
               child: Consumer(
                 builder: (context, ref, child) {
-                  ref.listen(foodOrderProvider, (p, n) {
+                  ref.listen(foodDescriptionOrderProvider, (p, n) {
                     customOrderController.text = n;
                   });
                   return TextField(
@@ -123,7 +120,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
                       hintText: "e.g. 2x catfish pepper soup, 1 chilled malt",
                       prefixIcon: Icon(Icons.edit_note),
                     ),
-                    onChanged: ref.read(foodOrderProvider.notifier).updateOrder,
+                    onChanged: (value) {
+                      ref
+                          .read(foodDescriptionOrderProvider.notifier)
+                          .updateOrder(value);
+                    },
                   );
                 },
               ),

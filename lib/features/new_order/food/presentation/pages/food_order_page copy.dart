@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/buttons.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/features/new_order/food/application/logic/food_order_rp.dart';
+import 'package:logistix/features/new_order/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
   const FoodOrderPage({super.key});
@@ -44,7 +44,7 @@ class FoodOrderPage extends StatelessWidget {
                       item: items[index],
                       onItemAdded: () {
                         ref
-                            .watch(foodOrderProvider.notifier)
+                            .watch(foodDescriptionOrderProvider.notifier)
                             .addItem(items[index]);
                       },
                     );
@@ -109,7 +109,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
             const SizedBox(height: 12),
             Consumer(
               builder: (context, ref, child) {
-                ref.listen(foodOrderProvider, (p, n) {
+                ref.listen(foodDescriptionOrderProvider, (p, n) {
                   customOrderController.text = n;
                 });
                 return TextField(
@@ -119,7 +119,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
                     hintText: "e.g. 2x catfish pepper soup, 1 chilled malt",
                     prefixIcon: Icon(Icons.edit_note),
                   ),
-                  onChanged: ref.read(foodOrderProvider.notifier).updateOrder,
+                  onChanged: (value) {
+                    ref
+                        .read(foodDescriptionOrderProvider.notifier)
+                        .updateOrder(value);
+                  },
                 );
               },
             ),
