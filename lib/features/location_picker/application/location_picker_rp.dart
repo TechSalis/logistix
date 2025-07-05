@@ -80,13 +80,8 @@ class LocationPickerNotifier
         addressFromCoordinatesProvider(coordinates).future,
       );
       state = AsyncData(state.value!.copyWith(address: address));
-    } on AppError catch (e, s) {
-      state = AsyncError(state.value!.copyWith(error: e), s);
     } catch (e, s) {
-      state = AsyncError(
-        state.value!.copyWith(error: AppError(error: e.toString())),
-        s,
-      );
+      state = AsyncError(e, s);
     }
   }
 
@@ -104,21 +99,17 @@ class LocationPickerNotifier
 
 // UI State
 class LocationPickerState extends Equatable {
-  const LocationPickerState({required this.address, this.error});
+  const LocationPickerState({required this.address});
 
   factory LocationPickerState.initial() =>
       const LocationPickerState(address: null);
 
   final Address? address;
-  final AppError? error;
 
   LocationPickerState copyWith({Address? address, AppError? error}) {
-    return LocationPickerState(
-      address: address ?? this.address,
-      error: error ?? this.error,
-    );
+    return LocationPickerState(address: address ?? this.address);
   }
 
   @override
-  List<Object?> get props => [address, error];
+  List<Object?> get props => [address];
 }
