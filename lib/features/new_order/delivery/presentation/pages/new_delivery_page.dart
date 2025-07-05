@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
+import 'package:logistix/features/new_order/delivery/application/logic/delivery_order_rp.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 class NewDeliveryPage extends StatefulWidget {
@@ -17,11 +21,11 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
   final descriptionController = TextEditingController();
   final dropoffController = TextEditingController();
   final pickupController = TextEditingController();
-  final roundedLoadingButtonController = RoundedLoadingButtonController();
 
+  final roundedLoadingButtonController = RoundedLoadingButtonController();
   final validatorKey = GlobalKey<FormValidatorGroupState>();
 
-  List<String> imageUrls = [];
+  DeliveryRequestData? data;
 
   @override
   void dispose() {
@@ -97,61 +101,100 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              Text("Add Images (Optional)", style: theme.textTheme.bodyMedium),
+              Text("Add Images (optional)", style: theme.textTheme.bodyMedium),
               const SizedBox(height: 8),
               SizedBox(
                 height: 80,
-                child: ListView.separated(
-                  itemCount: imageUrls.length + 1,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    if (index < imageUrls.length) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          imageUrls[index],
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        ),
-                      );
-                    }
-                    return GestureDetector(
-                      onTap: () {
-                        // TODO: Open image picker
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final imagePaths = ref.watch(deliveryOrderImagesProvider);
+                    return ListView.separated(
+                      itemCount: imagePaths.length + 1,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        if (index < imagePaths.length) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(imagePaths[index]),
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        }
+                        return GestureDetector(
+                          onTap: () {
+                            ref
+                                .read(deliveryOrderImagesProvider.notifier)
+                                .pickImage();
+                          },
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: theme.colorScheme.primary.withAlpha(13),
+                              border: Border.all(
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                            child: const Icon(Icons.add_a_photo),
+                          ),
+                        );
                       },
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: theme.colorScheme.primary.withAlpha(13),
-                          border: Border.all(color: theme.colorScheme.primary),
-                        ),
-                        child: const Icon(Icons.add_a_photo),
-                      ),
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
                     );
                   },
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
                 ),
               ),
               const SizedBox(height: 24),
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
-              ElevatedLoadingButton(
-                controller: roundedLoadingButtonController,
-                onPressed: () {
-                  if (!validatorKey.currentState!.validateAndCheck()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Some fields are required."),
-                      ),
-                    );
-                  } else {
-                    roundedLoadingButtonController.start();
+              Consumer(
+                builder: (context, ref, child) {
+                  if (data != null &&
+                      ref.exists(requestDeliveryProvider(data!))) {
+                    ref.listen(requestDeliveryProvider(data!), (p, n) {
+                      switch (n) {
+                        case AsyncLoading():
+                          roundedLoadingButtonController.start();
+                          break;
+                        case AsyncData():
+                          roundedLoadingButtonController.success();
+                          break;
+                        case AsyncError():
+                          roundedLoadingButtonController.error();
+                          break;
+                        default:
+                      }
+                    });
                   }
+                  return ElevatedLoadingButton(
+                    controller: roundedLoadingButtonController,
+                    onPressed: () {
+                      if (!validatorKey.currentState!.validateAndCheck()) {
+                        setState(() => data = null);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please fill all required fields."),
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          data = DeliveryRequestData(
+                            description: descriptionController.text,
+                            pickup: pickupController.text,
+                            dropoff: dropoffController.text,
+                            imagePaths: ref.read(deliveryOrderImagesProvider),
+                          );
+                        });
+                        ref.read(requestDeliveryProvider(data!));
+                      }
+                    },
+                    child: const Text("Request Delivery"),
+                  );
                 },
-                child: const Text("Request Delivery"),
               ),
             ],
           ),
