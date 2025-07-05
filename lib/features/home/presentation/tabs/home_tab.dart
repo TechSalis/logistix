@@ -43,15 +43,19 @@ class HomeTab extends StatelessWidget {
             const SizedBox(height: 12),
             const _QuickActionGrid(),
             const SizedBox(height: 24),
-            if (order == null)
-              const _EmptyOrderPrompt()
-            else
-              _LastOrderCard(
-                order: order,
-                eta: "6 mins",
-                onReorder: () {},
-                onTrack: order.rider == null ? null : () {},
-              ),
+            if (order != null)
+              SizedBox(
+                height: 160,
+                child: _LastOrderCard(
+                  order: order,
+                  eta: "6 mins",
+                  onReorder: () {},
+                  onTrack: order.rider == null ? null : () {},
+                ),
+              )
+            else //TODO: if (find rider != null)
+              // _FindRiderWidget(rider: rider)
+              const SizedBox(height: 160, child: _EmptyOrderPrompt()),
             const SizedBox(height: 24),
           ],
         ),
@@ -143,22 +147,23 @@ class _LastOrderCard extends StatelessWidget {
     return Card(
       elevation: 1,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 8),
             Text(
               "🕓 Last Order: #${order.id}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               order.summary,
               style: Theme.of(context).textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
