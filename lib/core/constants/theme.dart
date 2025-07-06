@@ -11,7 +11,7 @@ class MyTheme {
     appBarTheme: const AppBarTheme(
       surfaceTintColor: AppColors.blueGrey,
       color: AppColors.grey100,
-      centerTitle: false
+      centerTitle: false,
     ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.orange,
@@ -163,7 +163,7 @@ class MyTheme {
     appBarTheme: const AppBarTheme(
       color: Colors.black,
       surfaceTintColor: AppColors.grey900,
-      centerTitle: false
+      centerTitle: false,
     ),
     scaffoldBackgroundColor: Colors.black,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(

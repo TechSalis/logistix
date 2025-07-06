@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/presentation/widgets/user_avatar.dart';
+import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
@@ -62,12 +63,7 @@ class RiderCardSmall extends StatelessWidget {
             ],
             IconButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ChatPage(data: ChatParameters(user: rider)),
-                  ),
-                );
+                ChatPageRoute(ChatParameters(user: rider)).go(context);
               },
               visualDensity: VisualDensity.compact,
               icon: const Icon(Icons.chat_bubble_outline, size: 20),

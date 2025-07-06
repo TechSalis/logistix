@@ -19,6 +19,7 @@ class MainApp extends StatelessWidget {
         child: OverlaySupport.global(
           child: ProviderAppNotificationsListener(
             child: MaterialApp.router(
+              restorationScopeId: 'app',
               // showPerformanceOverlay: kDebugMode || kProfileMode,
               routerConfig: router,
               theme: MyTheme.light,

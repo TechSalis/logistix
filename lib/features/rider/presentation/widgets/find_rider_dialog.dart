@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/async_state_widget.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_summary.dart';

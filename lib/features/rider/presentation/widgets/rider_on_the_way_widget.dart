@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
-import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
@@ -23,12 +23,7 @@ class RiderOnTheWayCard extends StatelessWidget {
                 height: 140,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RiderTrackerPage(rider: rider),
-                      ),
-                    );
+                    RiderTrackerPageRoute(rider).go(context);
                   },
                   child: AbsorbPointer(
                     child: RiderTrackerMapWidget(rider: rider),

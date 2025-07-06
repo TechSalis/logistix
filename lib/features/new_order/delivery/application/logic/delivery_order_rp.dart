@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/usecases/pick_image.dart';
 
 final class DeliveryRequestData extends Equatable {
   final String description, pickup, dropoff;
@@ -32,11 +33,11 @@ class DeliveryOrderImagesNotifier extends AutoDisposeNotifier<List<String>> {
   List<String> build() => [];
 
   Future pickImage() async {
-    // final file = await PickImageUsecase().call();
-    // if (file != null && !state.contains(file.path)) {
-    //   state.add(file.path);
-    // }
+    final file = await PickImageUsecase().call();
+    if (file != null && !state.contains(file.path)) {
+      state = List.from(state)..add(file.path);
+    }
   }
 
-  void removeImage(int index) => state.removeAt(index);
+  void removeImage(int index) => state = List.from(state)..removeAt(index);
 }

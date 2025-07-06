@@ -6,7 +6,7 @@ part of 'address_coordinates_model.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class SavedAddressAdapter extends TypeAdapter<AddressModel> {
+class AddressModelAdapter extends TypeAdapter<AddressModel> {
   @override
   final int typeId = 0;
 
@@ -38,12 +38,12 @@ class SavedAddressAdapter extends TypeAdapter<AddressModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SavedAddressAdapter &&
+      other is AddressModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
 
-class SavedCoordinatesAdapter extends TypeAdapter<CoordinatesModel> {
+class CoordinatesModelAdapter extends TypeAdapter<CoordinatesModel> {
   @override
   final int typeId = 1;
 
@@ -53,7 +53,10 @@ class SavedCoordinatesAdapter extends TypeAdapter<CoordinatesModel> {
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return CoordinatesModel(fields[0] as double, fields[1] as double);
+    return CoordinatesModel(
+      fields[0] as double,
+      fields[1] as double,
+    );
   }
 
   @override
@@ -72,7 +75,7 @@ class SavedCoordinatesAdapter extends TypeAdapter<CoordinatesModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SavedCoordinatesAdapter &&
+      other is CoordinatesModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

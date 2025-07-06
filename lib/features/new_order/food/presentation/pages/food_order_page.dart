@@ -14,7 +14,7 @@ class FoodOrderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(title: const Text("Crave something?")),
+      appBar: AppBar(title: const Text("Craving something?")),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: FormValidatorGroupWidget(
@@ -95,9 +95,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
@@ -183,9 +181,11 @@ class _MiniFoodCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   item.name,
-                  style: Theme.of(context).textTheme.labelSmall,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(height: 1.2),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+                  maxLines: 2,
                 ),
               ),
               const SizedBox(width: 4),

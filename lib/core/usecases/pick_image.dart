@@ -12,7 +12,6 @@ class PickImageUsecase {
       imageQuality: 80,
     );
     if (result != null) return File(result.path);
-
     return null;
   }
 }

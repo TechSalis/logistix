@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/new_order/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:logistix/features/new_order/delivery/presentation/pages/new_delivery_page.dart';
-import 'package:logistix/features/new_order/food/presentation/pages/food_order_page.dart';
 import 'package:logistix/features/rider/domain/entities/rider.dart';
 
 class HomeTab extends StatelessWidget {
@@ -90,22 +89,7 @@ class _QuickActionGrid extends StatelessWidget {
       children:
           OrderType.values.map((action) {
             return GestureDetector(
-              onTap: switch (action) {
-                OrderType.delivery => () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const NewDeliveryPage()),
-                  );
-                },
-                OrderType.food => () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const FoodOrderPage()),
-                  );
-                },
-                OrderType.grocery => () {},
-                OrderType.errands => () {},
-              },
+              onTap: () => GoRouter.of(context).push('/${action.name}'),
               child: Column(
                 children: [
                   OrderIcon(

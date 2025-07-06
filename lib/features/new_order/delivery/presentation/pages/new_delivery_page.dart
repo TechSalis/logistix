@@ -48,10 +48,8 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
             children: [
               const SizedBox(height: 8),
               Card(
-                elevation: 2,
-                color: Theme.of(context).colorScheme.surface,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -109,17 +107,35 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                   builder: (context, ref, child) {
                     final imagePaths = ref.watch(deliveryOrderImagesProvider);
                     return ListView.separated(
-                      itemCount: imagePaths.length + 1,
+                      itemCount: (imagePaths.length + 1).clamp(0, 4),
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
                         if (index < imagePaths.length) {
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(imagePaths[index]),
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Image.file(
+                                  File(imagePaths[index]),
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    ref
+                                        .read(
+                                          deliveryOrderImagesProvider.notifier,
+                                        )
+                                        .removeImage(index);
+                                  },
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: Colors.white54,
+                                  ),
+                                  icon: const Icon(Icons.clear),
+                                ),
+                              ],
                             ),
                           );
                         }
@@ -170,7 +186,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                       }
                     });
                   }
-                  return ElevatedLoadingButton(
+                  return ElevatedLoadingButton.icon(
                     controller: roundedLoadingButtonController,
                     onPressed: () {
                       if (!validatorKey.currentState!.validateAndCheck()) {
@@ -192,7 +208,8 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                         ref.read(requestDeliveryProvider(data!));
                       }
                     },
-                    child: const Text("Request Delivery"),
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text("Request Delivery"),
                   );
                 },
               ),

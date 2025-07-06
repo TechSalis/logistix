@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
@@ -39,11 +39,10 @@ class LocationTextField extends ConsumerWidget {
       );
       if (permissionState.value?.isGranted ?? false) {
         Future<void> openLocationPicker() async {
-          final result = await Navigator.push<Address>(
+          final result = await const LocationPickerPageRoute().push<Address>(
             context,
-            MaterialPageRoute(builder: (_) => const LocationPickerPage()),
           );
-
+          
           if (result != null) {
             controller.text = result.formatted;
             onAddressPicked?.call(result);
