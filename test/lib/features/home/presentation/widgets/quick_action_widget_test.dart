@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:logistix/features/new_order/widgets/order_icon.dart';
+import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/features/quick_actions/presentation/quick_actions_types.dart';
 
 import '../../../../../test_helpers.dart';

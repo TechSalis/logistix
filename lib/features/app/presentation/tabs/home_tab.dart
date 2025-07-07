@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
-import 'package:logistix/features/new_order/widgets/order_icon.dart';
+import 'package:logistix/core/utils/router.dart';
+import 'package:logistix/features/auth/application/logic/auth_rp.dart';
+import 'package:logistix/core/entities/company_data.dart';
+import 'package:logistix/features/app/application/navigation_bar_rp.dart';
+import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -17,12 +22,25 @@ class HomeTab extends StatelessWidget {
       status: OrderStatus.enRoute,
       summary: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
       description: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
-      rider: Rider(id: 'id', name: 'name', company: 'company', rating: 4),
+      rider: RiderData(
+        id: 'id',
+        name: 'name',
+        imageUrl: 'imageUrl',
+        phone: 'phone',
+        company: CompanyData(id: 'id', name: ''),
+        rating: 4.5,
+      ),
     );
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: const Text("Welcome, Eric 👋"),
+        title: Consumer(
+          builder: (context, ref, _) {
+            final user = (ref.watch(authProvider) as AuthLoggedIn).user;
+            if (user.data.name?.isEmpty ?? true) return const Text("Hello, Customer 👋");
+            return Text("Welcome, ${user.data.name} 👋");
+          },
+        ),
         actions: [
           IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
         ],
@@ -45,11 +63,17 @@ class HomeTab extends StatelessWidget {
             if (order != null)
               SizedBox(
                 height: 160,
-                child: _LastOrderCard(
-                  order: order,
-                  eta: "6 mins",
-                  onReorder: () {},
-                  onTrack: order.rider == null ? null : () {},
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    return _LastOrderCard(
+                      order: order,
+                      eta: "6 mins",
+                      onViewDetails: () {
+                        ref.read(navBarIndexProvider.notifier).state = 1;
+                      },
+                      onTrack: order.rider == null ? null : () {},
+                    );
+                  },
                 ),
               )
             else //TODO: if (find rider != null)
@@ -89,7 +113,15 @@ class _QuickActionGrid extends StatelessWidget {
       children:
           OrderType.values.map((action) {
             return GestureDetector(
-              onTap: () => GoRouter.of(context).push('/${action.name}'),
+              onTap: () {
+                GoRouter.of(context).go(switch (action) {
+                  OrderType.food => const FoodOrderPageRoute().location,
+                  OrderType.grocery => '/${action.name}',
+                  OrderType.errands => '/${action.name}',
+                  OrderType.delivery => const NewDeliveryPageRoute().location,
+                });
+              },
+
               child: Column(
                 children: [
                   OrderIcon(
@@ -116,13 +148,13 @@ class _QuickActionGrid extends StatelessWidget {
 class _LastOrderCard extends StatelessWidget {
   final Order order;
   final String eta;
-  final VoidCallback onReorder;
+  final VoidCallback onViewDetails;
   final VoidCallback? onTrack;
 
   const _LastOrderCard({
     required this.order,
     required this.eta,
-    required this.onReorder,
+    required this.onViewDetails,
     this.onTrack,
   });
 
@@ -221,8 +253,8 @@ class _LastOrderCard extends StatelessWidget {
                         ),
                       ),
                     OutlinedButton(
-                      onPressed: onReorder,
-                      child: const Text("Reorder"),
+                      onPressed: onViewDetails,
+                      child: const Text("View Details"),
                     ),
                   ],
                 ),

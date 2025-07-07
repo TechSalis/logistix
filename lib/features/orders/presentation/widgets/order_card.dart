@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
-import 'package:logistix/features/new_order/widgets/order_icon.dart';
+import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 
 class OrderCard extends StatelessWidget {

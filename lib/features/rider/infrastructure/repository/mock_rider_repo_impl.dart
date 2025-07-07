@@ -1,12 +1,12 @@
 import 'dart:math';
 
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 
 class RandomRiderRepoImpl extends RiderRepo {
   @override
-  Stream<Coordinates> listenToRiderCoordinates(Rider rider) async* {
+  Stream<Coordinates> listenToRiderCoordinates(RiderData rider) async* {
     double lat = 6.5244, long = 3.3792;
     yield Coordinates(
       lat += (Random().nextInt(10) - 5) / 10000,

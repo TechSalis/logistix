@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/utils/router.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
 class RiderOnTheWayCard extends StatelessWidget {
   const RiderOnTheWayCard({super.key, required this.rider, required this.eta});
 
-  final Rider rider;
+  final RiderData rider;
   final String eta;
 
   @override

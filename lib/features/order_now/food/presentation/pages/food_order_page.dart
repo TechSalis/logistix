@@ -5,7 +5,7 @@ import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
-import 'package:logistix/features/new_order/food/application/logic/food_description_order_rp.dart';
+import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
   const FoodOrderPage({super.key});
@@ -95,6 +95,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

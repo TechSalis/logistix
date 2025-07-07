@@ -14,7 +14,6 @@ class LoadingStatusView extends StatelessWidget {
         children: [
           SpinKitRipple(
             size: 100,
-            // duration: Duration(milliseconds: 1500),
             color: Theme.of(context).progressIndicatorTheme.color,
           ),
           const SizedBox(height: 32),

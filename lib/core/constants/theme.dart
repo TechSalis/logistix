@@ -64,7 +64,7 @@ class MyTheme {
     cardTheme: const CardThemeData(
       color: Colors.white,
       margin: EdgeInsets.zero,
-      shadowColor: Colors.black87,
+      shadowColor: Colors.black54,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.grey100,

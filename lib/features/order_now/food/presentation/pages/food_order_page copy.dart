@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/presentation/widgets/buttons.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/features/new_order/food/application/logic/food_description_order_rp.dart';
+import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
   const FoodOrderPage({super.key});

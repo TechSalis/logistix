@@ -66,7 +66,7 @@ class OrderDetailsSheet extends StatelessWidget {
                   leading: UserAvatar(user: order.rider!),
 
                   title: Text(order.rider!.name),
-                  subtitle: Text(order.rider!.company ?? 'Independent'),
+                  subtitle: Text(order.rider!.company?.name ?? 'Independent'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/colors.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 
 class Order extends Equatable {
   final String id;
@@ -13,7 +13,7 @@ class Order extends Equatable {
   final OrderType type;
   final OrderStatus status;
   final String description, summary;
-  final Rider? rider;
+  final RiderData? rider;
 
   const Order({
     required this.id,

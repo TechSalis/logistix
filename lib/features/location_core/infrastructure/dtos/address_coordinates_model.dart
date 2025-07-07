@@ -18,7 +18,7 @@ class AddressModel extends Address with HiveObjectMixin {
   @override
   @HiveField(1)
   // ignore: overridden_fields
-  final CoordinatesModel? coordinates;
+  final Coordinates? coordinates;
 
   factory AddressModel.fromMap(Map<String, dynamic> map) {
     return AddressModel(
@@ -33,10 +33,7 @@ class AddressModel extends Address with HiveObjectMixin {
   factory AddressModel.address(Address address) {
     return AddressModel(
       address.formatted,
-      coordinates:
-          address.coordinates == null
-              ? null
-              : CoordinatesModel.coordinates(address.coordinates!),
+      coordinates: address.coordinates,
     );
   }
 
@@ -64,13 +61,4 @@ class CoordinatesModel extends Coordinates with HiveObjectMixin {
   factory CoordinatesModel.fromMap(Map<String, dynamic> map) {
     return CoordinatesModel(map['latitude'], map['longitude']);
   }
-
-  factory CoordinatesModel.coordinates(Coordinates coordinates) {
-    return CoordinatesModel(coordinates.latitude, coordinates.longitude);
-  }
-
-  Map<String, dynamic> toMap() => {
-    'latitude': latitude,
-    'longitude': longitude,
-  };
 }

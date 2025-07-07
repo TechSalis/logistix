@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/home/application/navigation_bar_rp.dart';
+import 'package:logistix/features/app/application/navigation_bar_rp.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
-import 'package:logistix/features/new_order/widgets/order_icon.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/features/order_now/widgets/order_icon.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 
 class QARiderNotification extends AppNotificationData {
   const QARiderNotification({
@@ -15,7 +15,7 @@ class QARiderNotification extends AppNotificationData {
     this.key,
   });
 
-  final Rider rider;
+  final RiderData rider;
   final Order order;
 
   @override
@@ -32,8 +32,9 @@ class QARiderNotificationWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final title =
-        '${data.rider.name}  •  ${data.rider.company ?? "Independent"}';
+    String title = data.rider.name;
+    if (data.rider.company?.name != null) title += '  •  ${data.rider.company}';
+
     openOrdersTab() async {
       ref.read(navBarIndexProvider.notifier).state = 1;
       await Future.delayed(Durations.medium4);

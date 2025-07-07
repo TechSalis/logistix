@@ -5,7 +5,7 @@ import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/mixins/track_rider_mixin.dart';
 
 class RiderTrackerMapWidget extends ConsumerStatefulWidget {
@@ -16,7 +16,7 @@ class RiderTrackerMapWidget extends ConsumerStatefulWidget {
     this.onMapCreated,
   });
 
-  final Rider rider;
+  final RiderData rider;
   final bool followMarkerState;
   final void Function(GoogleMapController)? onMapCreated;
 
@@ -34,7 +34,7 @@ class _RiderTrackerMapWidgetState extends ConsumerState<RiderTrackerMapWidget>
   bool get followMarkerState => widget.followMarkerState;
 
   @override
-  Rider get rider => widget.rider;
+  RiderData get rider => widget.rider;
 
   @override
   Widget build(BuildContext context) {

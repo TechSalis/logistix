@@ -4,14 +4,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/presentation/widgets/user_pan_away_refocus_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
 class RiderTrackerPage extends ConsumerStatefulWidget {
   const RiderTrackerPage({super.key, required this.rider});
 
-  final Rider rider;
+  final RiderData rider;
 
   @override
   ConsumerState<RiderTrackerPage> createState() => _RiderTrackerPageState();

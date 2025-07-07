@@ -9,12 +9,13 @@ class Coordinates extends Equatable {
   @override
   List<Object?> get props => [latitude, longitude];
 
-  factory Coordinates.fromMap(Map<String, dynamic> map) {
-    return Coordinates(map['latitude'] as double, map['longitude'] as double);
-  }
-
   @override
   String toString() {
     return 'Coordinates($latitude, $longitude)';
   }
+
+  Map<String, dynamic> toMap() => {
+    'latitude': latitude,
+    'longitude': longitude,
+  };
 }

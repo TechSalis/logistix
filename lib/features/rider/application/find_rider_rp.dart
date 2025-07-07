@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 
 sealed class FindRiderState {
   const FindRiderState();
@@ -24,18 +24,18 @@ final class RiderNotFoundState extends FindRiderState {
 
 final class RiderFoundState extends FindRiderState {
   const RiderFoundState({required this.rider, required this.eta});
-  final Rider rider;
+  final RiderData rider;
   final String eta;
 }
 
 final class ContactingRiderState extends FindRiderState {
   const ContactingRiderState(this.rider);
-  final Rider rider;
+  final RiderData rider;
 }
 
 final class RiderContactedState extends FindRiderState {
   const RiderContactedState(this.rider);
-  final Rider rider;
+  final RiderData rider;
 }
 
 class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
@@ -49,11 +49,12 @@ class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
   Future findRider() async {
     state = const FindingRiderState();
     await Future.delayed(const Duration(seconds: 2));
-    const rider = Rider(
+    const rider = RiderData(
       name: "Abdul Kareem",
       rating: 4.7,
-      company: "Swift Logistics",
       id: '',
+      phone: '',
+      imageUrl: ''
     );
     state = const RiderFoundState(eta: '40 min', rider: rider);
   }

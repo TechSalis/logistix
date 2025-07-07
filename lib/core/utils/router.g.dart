@@ -104,7 +104,7 @@ mixin _$NewDeliveryPageRoute on GoRouteData {
 
 mixin _$ChatPageRoute on GoRouteData {
   static ChatPageRoute _fromState(GoRouterState state) => ChatPageRoute(
-        state.extra as ChatParameters<UserBase>,
+        state.extra as ChatParameters<UserData>,
       );
 
   ChatPageRoute get _self => this as ChatPageRoute;
@@ -133,7 +133,7 @@ mixin _$ChatPageRoute on GoRouteData {
 mixin _$RiderTrackerPageRoute on GoRouteData {
   static RiderTrackerPageRoute _fromState(GoRouterState state) =>
       RiderTrackerPageRoute(
-        state.extra as Rider,
+        state.extra as RiderData,
       );
 
   RiderTrackerPageRoute get _self => this as RiderTrackerPageRoute;

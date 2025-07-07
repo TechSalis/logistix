@@ -9,6 +9,11 @@ import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/notifications/presentation/widgets/notification_listener_widget.dart';
 import 'package:overlay_support/overlay_support.dart';
 
+// ignore: depend_on_referenced_packages
+import 'package:image_picker_android/image_picker_android.dart';
+// ignore: depend_on_referenced_packages
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -37,20 +42,29 @@ Future precacheData() {
   return Future.wait([
     rootBundle.loadString('assets/json/google_map_theme.dark.json'),
     rootBundle.loadString('assets/json/google_map_theme.light.json'),
-    setupGoogleFonts(),
+    _setupGoogleFonts(),
   ]);
 }
 
-void setupLicenses() {
+Future _setupGoogleFonts() {
+  GoogleFonts.config.allowRuntimeFetching = false;
+  return GoogleFonts.pendingFonts([GoogleFonts.interTextTheme()]);
+}
+
+void appSetup() {
+  WidgetsFlutterBinding.ensureInitialized();
+  final imagePickerImplementation = ImagePickerPlatform.instance;
+  if (imagePickerImplementation is ImagePickerAndroid) {
+    imagePickerImplementation.useAndroidPhotoPicker = true;
+  }
+  _setupLicenses();
+}
+
+void _setupLicenses() {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString(
       'assets/google_fonts/Inter/OFL.txt',
     );
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
-}
-
-Future setupGoogleFonts() {
-  GoogleFonts.config.allowRuntimeFetching = false;
-  return GoogleFonts.pendingFonts([GoogleFonts.interTextTheme()]);
 }

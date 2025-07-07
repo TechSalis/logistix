@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 
 class RiderCardSmall extends StatelessWidget {
   const RiderCardSmall({
@@ -12,7 +12,7 @@ class RiderCardSmall extends StatelessWidget {
     this.borderRadius,
   });
 
-  final Rider rider;
+  final RiderData rider;
   final String? eta;
   final BorderRadius? borderRadius;
 
@@ -48,7 +48,7 @@ class RiderCardSmall extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    rider.company ?? 'Independent',
+                    rider.company?.name ?? 'Independent',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.hintColor,
                     ),

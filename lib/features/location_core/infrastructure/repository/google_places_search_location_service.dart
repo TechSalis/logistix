@@ -31,7 +31,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
         return address;
       }).toList();
     } catch (e) {
-      throw AppError(error: 'Unable to find address. $e');
+      throw AppError(error: 'Unable to find address');
     }
   }
 
@@ -42,7 +42,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
 
       return data;
     } catch (e) {
-      throw AppError(error: 'Unable to find address. $e');
+      throw AppError(error: 'Unable to find place');
     }
   }
 }

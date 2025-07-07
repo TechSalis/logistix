@@ -1,6 +1,6 @@
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/entities/place.dart';
+import 'package:logistix/features/location_core/infrastructure/dtos/address_coordinates_model.dart';
 
 class PlaceModel extends Place {
   const PlaceModel({required super.id, required super.name});
@@ -30,7 +30,7 @@ class PlaceDetailsModel extends PlaceDetails {
       name: json['displayName']['text'],
       address: Address(
         json['formattedAddress'],
-        coordinates: Coordinates.fromMap(json['location']),
+        coordinates: CoordinatesModel.fromMap(json['location']),
       ),
     );
   }

@@ -7,7 +7,7 @@ import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
-import 'package:logistix/features/new_order/delivery/application/logic/delivery_order_rp.dart';
+import 'package:logistix/features/order_now/delivery/application/logic/delivery_order_rp.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 class NewDeliveryPage extends StatefulWidget {
@@ -48,6 +48,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
             children: [
               const SizedBox(height: 8),
               Card(
+                elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -159,7 +160,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                           ),
                         );
                       },
-                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
                     );
                   },
                 ),

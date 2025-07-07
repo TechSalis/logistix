@@ -25,7 +25,7 @@ class MapViewWidget extends StatefulWidget {
 class _MapViewWidgetState extends State<MapViewWidget> {
   static const _kInitialPosition = CameraPosition(
     target: LatLng(6.5244, 3.3792),
-    zoom: 16,
+    zoom: 15,
   );
 
   String mapTheme = '';

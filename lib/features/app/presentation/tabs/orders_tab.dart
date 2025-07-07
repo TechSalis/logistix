@@ -3,7 +3,7 @@ import 'package:logistix/features/location_core/domain/entities/coordinate.dart'
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/rider/domain/entities/rider.dart';
+import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_on_the_way_widget.dart';
 
 class OrdersTab extends StatelessWidget {
@@ -27,7 +27,12 @@ class OrdersTab extends StatelessWidget {
         summary: 'Burger + fries + drink combo',
         status: OrderStatus.confirmed,
         price: 2500,
-        rider: Rider(id: '1', name: 'John Doe', rating: 4.7, company: 'RiderX'),
+        rider: RiderData(
+          id: 'id',
+          name: 'Johm Doe',
+          phone: 'phone',
+          imageUrl: 'imageUrl',
+        ),
       ),
       Order(
         id: '2',

@@ -11,8 +11,9 @@ class EnvConfig {
   final String googleMapApiUrl;
   final String googlePlaceApiUrl;
   final String googleApiKey;
-  // final String mapBoxApiUrl;
-  // final String mapboxToken;
+
+  // final String supabaseAnonKey;
+  // final String supabaseUrl;
 
   EnvConfig._internal({
     required this.apiUrl,
@@ -20,11 +21,12 @@ class EnvConfig {
     required this.googleApiKey,
     required this.googleMapApiUrl,
     required this.googlePlaceApiUrl,
-    // required this.mapBoxApiUrl,
-    // required this.mapboxToken,
+    // required this.supabaseAnonKey,
+    // required this.supabaseUrl,
   });
 
   static EnvConfig? _instance;
+
   static EnvConfig get instance => _instance!;
 
   bool get isDev => kDebugMode || ENV == 'DEV';
@@ -32,17 +34,16 @@ class EnvConfig {
   ///Ensure this function is called before the class is used
   static void extract(Map<String, String> variables) {
     _instance = EnvConfig._internal(
-      ENV: variables['ENV'] ?? 'DEV',
-      apiUrl: variables['API_URL'] ?? '',
-      googleMapApiUrl: variables['GOOGLE_MAP_API_URL'] ?? '',
-      googlePlaceApiUrl: variables['GOOGLE_PLACE_API_URL'] ?? '',
+      ENV: variables['ENV']!,
+      apiUrl: variables['API_URL']!,
+      googleMapApiUrl: variables['GOOGLE_MAP_API_URL']!,
+      googlePlaceApiUrl: variables['GOOGLE_PLACE_API_URL']!,
       googleApiKey:
           (Platform.isAndroid
               ? variables['GOOGLE_MAP_ANDROID_KEY']
-              : variables['GOOGLE_MAP_IOS_KEY']) ??
-          '',
-      // mapBoxApiUrl: variables['MAPBOX_API_URL'] ?? '',
-      // mapboxToken: variables['MAPBOX_PUBLIC_TOKEN'] ?? '',
+              : variables['GOOGLE_MAP_IOS_KEY'])!,
+      // supabaseUrl: variables['SUPABASE_URL']!,
+      // supabaseAnonKey: variables['SUPABASE_ANON_KEY']!,
     );
   }
 }

@@ -5,7 +5,6 @@ import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/entities/place.dart';
 import 'package:logistix/features/location_core/infrastructure/dtos/google_map_response_dtos.dart';
-import 'package:logistix/features/location_core/infrastructure/dtos/address_coordinates_model.dart';
 
 class GooglePlacesDatasource {
   final Dio _dio;
@@ -36,10 +35,7 @@ class GooglePlacesDatasource {
       data: {
         "input": query,
         "locationBias": {
-          "circle": {
-            "center": CoordinatesModel.coordinates(locationBias).toMap(),
-            "radius": 50000,
-          },
+          "circle": {"center": locationBias.toMap(), "radius": 50000},
         },
       },
       options: Options(
