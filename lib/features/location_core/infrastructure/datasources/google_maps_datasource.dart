@@ -27,7 +27,7 @@ class GoogleMapsDatasource {
 
   Future<List<Place>> getAddressProperties(Coordinates query) async {
     final res = await _dio.get(
-      'geocode/json',
+      '/geocode/json',
       queryParameters: {
         "latlng": '${query.latitude}, ${query.longitude}',
         'location_type': 'ROOFTOP|RANGE_INTERPOLATED',

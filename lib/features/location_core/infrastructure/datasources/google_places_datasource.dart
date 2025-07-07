@@ -31,7 +31,7 @@ class GooglePlacesDatasource {
     Coordinates locationBias,
   ) async {
     final res = await _dio.post(
-      ':autocomplete',
+      '/:autocomplete',
       data: {
         "input": query,
         "locationBias": {
@@ -57,7 +57,7 @@ class GooglePlacesDatasource {
 
   Future<PlaceDetails> place(String placeId) async {
     final res = await _dio.get(
-      placeId,
+      '/$placeId',
       options: Options(
         headers: {
           'X-Goog-FieldMask': 'id,displayName,formattedAddress,location',
