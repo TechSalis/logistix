@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/presentation/widgets/elevated_loading_button.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
@@ -41,7 +42,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("New Delivery")),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: padding_H16,
         child: FormValidatorGroupWidget(
           key: validatorKey,
           child: ListView(
@@ -50,7 +51,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
               Card(
                 elevation: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: padding_16,
                   child: Column(
                     children: [
                       TextFieldLabelAndErrorDisplayWidget(
@@ -107,7 +108,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                       itemBuilder: (context, index) {
                         if (index < imagePaths.length) {
                           return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: borderRadius_8,
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -143,7 +144,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                             width: 80,
                             height: 80,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: borderRadius_8,
                               color: theme.colorScheme.primary.withAlpha(13),
                               border: Border.all(
                                 color: theme.colorScheme.primary,
@@ -224,10 +225,10 @@ class _DeliveryFareWidget extends StatelessWidget {
     String? estimateFare = "₦1,500 - ₦2,500";
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: padding_16,
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withAlpha(13),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: borderRadius_12,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

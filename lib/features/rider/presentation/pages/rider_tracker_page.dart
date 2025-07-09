@@ -23,7 +23,11 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
   Future _onFollowRider() async {
     final coords = ref.read(trackRiderProvider(widget.rider)).value;
     if (coords != null) {
-      await map?.animateCamera(CameraUpdate.newLatLng(coords.toPoint()));
+      map?.animateCamera(
+        CameraUpdate.newLatLng(coords.toPoint()),
+        duration: Durations.medium1,
+      );
+      await Future.delayed(Durations.medium1);
       if (mounted) setState(() => followMarkerState = true);
     }
   }

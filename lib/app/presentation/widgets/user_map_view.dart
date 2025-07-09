@@ -97,8 +97,7 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
             ),
           ),
         ),
-        Align(
-          alignment: const Alignment(0, -.25),
+        Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -107,7 +106,7 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               TextButton(
                 onPressed: () {
                   if (isPermanentlyDenied) {

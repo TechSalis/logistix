@@ -53,13 +53,17 @@ extension OrderStatusExt on OrderStatus {
   Color get color => switch (this) {
     OrderStatus.pending => Colors.grey.shade800,
     OrderStatus.confirmed => AppColors.orange,
-    OrderStatus.enRoute => AppColors.orange,
-    OrderStatus.delivered => Colors.green,
+    OrderStatus.enRoute => Colors.green,
+    OrderStatus.delivered => Colors.green.shade700,
     OrderStatus.cancelled => Colors.red,
   };
 
   bool get isFinal {
     return this == OrderStatus.delivered || this == OrderStatus.cancelled;
+  }
+
+  bool get isProcessing {
+    return this == OrderStatus.confirmed || this == OrderStatus.enRoute;
   }
 }
 

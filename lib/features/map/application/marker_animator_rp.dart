@@ -29,11 +29,12 @@ class MarkerAnimator
       return;
     }
 
+    _animation?.removeListener(_updateAnimationListener);
     _animation = CoordinateTween(
       begin: state!,
       end: newPosition,
     ).animate(_controller)..addListener(_updateAnimationListener);
-    ref.onDispose(() => _animation!.removeListener(_updateAnimationListener));
+    ref.onDispose(() => _animation?.removeListener(_updateAnimationListener));
 
     _controller.forward(from: 0);
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 
 class DeliverySummaryDialog extends StatelessWidget {
@@ -17,10 +18,10 @@ class DeliverySummaryDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      insetPadding: padding_24,
+      shape: roundRectBorder16,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: padding_24,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -124,7 +125,7 @@ class _MapLocationCard extends StatelessWidget {
     return Card(
       elevation: 2,
       color: Theme.of(context).inputDecorationTheme.fillColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: roundRectBorder8,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

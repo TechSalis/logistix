@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
@@ -30,7 +31,7 @@ class RiderCardSmall extends StatelessWidget {
           decoration ??
           BoxDecoration(
             color: theme.cardTheme.color,
-            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            borderRadius: borderRadius_16,
             border: Border.all(color: theme.dividerColor.withAlpha(26)),
             boxShadow: const [
               BoxShadow(

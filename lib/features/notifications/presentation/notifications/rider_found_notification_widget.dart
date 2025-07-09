@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/app/application/navigation_bar_rp.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
@@ -37,17 +38,17 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: padding_H16_V8,
         child: Material(
           elevation: 4,
           shadowColor: Colors.black38,
           color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: borderRadius_12,
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: borderRadius_12,
             onTap: openOrdersTab,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: padding_H16_V12,
               child: Row(
                 children: [
                   // Icon

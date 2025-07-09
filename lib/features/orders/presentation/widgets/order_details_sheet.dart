@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
@@ -11,112 +13,116 @@ class OrderDetailsSheet extends StatelessWidget {
     final theme = Theme.of(context);
     return SafeArea(
       top: false,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Order Summary',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+      child: Padding(
+        padding: padding_H16,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Order Summary',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 16),
-              if (order.pickUp != null)
-                _InfoSection(
-                  icon: Icons.location_pin,
-                  label: 'From',
-                  value: order.pickUp!.formatted,
-                ),
-              if (order.dropOff != null)
-                _InfoSection(
-                  icon: Icons.flag,
-                  label: 'To',
-                  value: order.dropOff!.formatted,
-                ),
-              if (order.description.isNotEmpty)
-                _InfoSection(
-                  icon: Icons.notes,
-                  label: 'Description',
-                  value: order.description,
-                ),
-              const SizedBox(height: 20),
-              if (order.rider != null) ...[
-                const Divider(height: 32),
-                Text(
-                  'Rider',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: UserAvatar(user: order.rider!),
-
-                  title: Text(order.rider!.name),
-                  subtitle: Text(order.rider!.company?.name ?? 'Independent'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.location_on_outlined),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.chat_bubble_outline),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            ),
+            const SizedBox(height: 16),
+            if (order.pickUp != null)
+              _InfoSection(
+                icon: Icons.location_pin,
+                label: 'From',
+                value: order.pickUp!.formatted,
+              ),
+            if (order.dropOff != null)
+              _InfoSection(
+                icon: Icons.flag,
+                label: 'To',
+                value: order.dropOff!.formatted,
+              ),
+            if (order.description.isNotEmpty)
+              _InfoSection(
+                icon: Icons.notes,
+                label: 'Description',
+                value: order.description,
+              ),
+            const SizedBox(height: 20),
+            if (order.rider != null) ...[
               const Divider(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _InfoSection(
-                    icon: Icons.category_outlined,
-                    label: 'Type',
-                    value: order.type.label,
-                  ),
-                  _InfoSection(
-                    icon: Icons.check_circle_outline,
-                    label: 'Status',
-                    value: order.status.label,
-                  ),
-                  _InfoSection(
-                    icon: Icons.attach_money,
-                    label: 'Price',
-                    value: '₦${order.price.toStringAsFixed(0)}',
-                  ),
-                ],
+              Text(
+                'Rider',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              if (order.rider?.company != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 32),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.help_outline),
-                      label: const Text('Contact Company'),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: UserAvatar(user: order.rider!),
+                title: Text(
+                  order.rider!.name,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+                subtitle: Text(order.rider!.company?.name ?? 'Independent'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.my_location),
                       onPressed: () {},
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.chat_bubble_outline),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const Divider(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _InfoSection(
+                  icon: Icons.category_outlined,
+                  label: 'Type',
+                  value: order.type.label,
+                ),
+                _InfoSection(
+                  icon: Icons.check_circle_outline,
+                  label: 'Status',
+                  value: order.status.label,
+                ),
+                _InfoSection(
+                  icon: Icons.attach_money,
+                  label: 'Price',
+                  value: currencyFormatter.format(order.price),
+                ),
+              ],
+            ),
+            if (order.rider?.company != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.help_outline),
+                    label: const Text('Contact Company'),
+                    onPressed: () {},
                   ),
                 ),
-            ],
-          ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.only(top: 32),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.help_outline),
+                    label: const Text('Contact Support'),
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );

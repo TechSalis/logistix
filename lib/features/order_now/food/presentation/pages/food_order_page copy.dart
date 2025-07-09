@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/presentation/widgets/buttons.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';
@@ -17,7 +18,7 @@ class FoodOrderPage extends StatelessWidget {
           const SliverToBoxAdapter(child: _CustomOrderHero()),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: padding_H16,
             sliver: SliverToBoxAdapter(
               child: Text(
                 "Popular",
@@ -27,7 +28,7 @@ class FoodOrderPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: padding_H16,
             sliver: Consumer(
               builder: (context, ref, child) {
                 final items = ref.watch(foodRecommendationsProvider);
@@ -55,7 +56,7 @@ class FoodOrderPage extends StatelessWidget {
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: padding_H16,
             sliver: SliverToBoxAdapter(
               child: ElevatedButton.icon(
                 onPressed: () {},
@@ -95,10 +96,10 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
     return Card(
       elevation: 2,
       color: Theme.of(context).colorScheme.surface,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: padding_H16,
+      shape: roundRectBorder16,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

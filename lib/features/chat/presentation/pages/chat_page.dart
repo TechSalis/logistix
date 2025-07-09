@@ -34,7 +34,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         titleSpacing: 0,
         title: UserProfileGroup(user: widget.user),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.help_outline)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         ],
       ),
       body: Chat(

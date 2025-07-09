@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/presentation/widgets/buttons.dart';
 import 'package:logistix/core/presentation/widgets/location_text_field.dart';
 import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
@@ -16,7 +17,7 @@ class FoodOrderPage extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Craving something?")),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: padding_H16,
         child: FormValidatorGroupWidget(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +98,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
     return Card(
       elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: padding_16,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

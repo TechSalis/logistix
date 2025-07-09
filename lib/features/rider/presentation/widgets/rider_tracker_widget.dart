@@ -55,6 +55,10 @@ class _RiderTrackerMapWidgetState extends ConsumerState<RiderTrackerMapWidget>
           Marker(
             markerId: MarkerId(widget.rider.id),
             position: coordinates.toPoint(),
+            icon: AssetMapBitmap(
+              'assets/images/delivery_location.png',
+              imagePixelRatio: .8,
+            ),
           ),
       },
     );

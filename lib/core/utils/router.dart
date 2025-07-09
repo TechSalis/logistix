@@ -15,7 +15,7 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 final router = GoRouter(
   observers: [routeObserver],
-  restorationScopeId: 'app-route',
+  restorationScopeId: 'app',
   initialLocation: const HomePageRoute().location,
   routes: $appRoutes,
   redirect: (context, state) {

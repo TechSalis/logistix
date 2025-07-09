@@ -192,7 +192,7 @@ class _SearchSectionState extends State<_SearchSection> {
         children: [
           const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: padding_H16,
             child: ListenableBuilder(
               listenable: controller,
               builder: (context, child) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 
@@ -48,9 +49,9 @@ class PermissionDisclosureDialog extends ConsumerWidget {
     final theme = Theme.of(context);
     return Dialog(
       elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: roundRectBorder16,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: padding_24,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

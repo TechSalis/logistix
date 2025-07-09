@@ -84,7 +84,14 @@ class _NavBarState extends ConsumerState<_NavBar> with RestorationMixin {
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Theme.of(context).colorScheme.primary,
       currentIndex: ref.watch(navBarIndexProvider),
-      onTap: (value) => _counter.value = value,
+      onTap: (value) {
+        if (_counter.value == value) {
+          PrimaryScrollController.of(
+            context,
+          ).animateTo(0, duration: kTabScrollDuration, curve: Curves.easeInOut);
+        }
+        _counter.value = value;
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(

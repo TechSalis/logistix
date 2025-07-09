@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:logistix/core/presentation/theme/theme.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/notifications/presentation/widgets/notification_listener_widget.dart';
@@ -42,13 +40,7 @@ Future precacheData() {
   return Future.wait([
     rootBundle.loadString('assets/json/google_map_theme.dark.json'),
     rootBundle.loadString('assets/json/google_map_theme.light.json'),
-    _setupGoogleFonts(),
   ]);
-}
-
-Future _setupGoogleFonts() {
-  GoogleFonts.config.allowRuntimeFetching = false;
-  return GoogleFonts.pendingFonts([GoogleFonts.interTextTheme()]);
 }
 
 void appSetup() {
@@ -57,14 +49,5 @@ void appSetup() {
   if (imagePickerImplementation is ImagePickerAndroid) {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
-  _setupLicenses();
 }
 
-void _setupLicenses() {
-  LicenseRegistry.addLicense(() async* {
-    final license = await rootBundle.loadString(
-      'assets/google_fonts/Inter/OFL.txt',
-    );
-    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
-  });
-}

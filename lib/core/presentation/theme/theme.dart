@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:logistix/core/presentation/theme/colors.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 
 class MyTheme {
   static ThemeData get light => ThemeData(
@@ -23,9 +23,9 @@ class MyTheme {
       onSurface: AppColors.grey900,
       primaryContainer: AppColors.blueGrey,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardThemeData(
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: roundRectBorder16,
       shadowColor: Colors.black54,
     ),
     tabBarTheme: const TabBarThemeData(
@@ -43,7 +43,8 @@ class MyTheme {
         fontWeight: FontWeight.w500,
       ),
     ),
-    textTheme: GoogleFonts.interTextTheme().apply(
+    fontFamily: 'Inter',
+    textTheme: const TextTheme().apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black.withAlpha(200),
     ),
@@ -55,29 +56,27 @@ class MyTheme {
       fillColor: Colors.white,
       prefixIconColor: AppColors.blueGreyMaterial,
       hintStyle: TextStyle(color: Colors.grey),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      contentPadding: padding_H16_V8,
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: AppColors.orange),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: roundRectBorder8,
+        padding: padding_H16_V12,
         backgroundColor: AppColors.blueGrey,
         foregroundColor: Colors.white,
       ),
@@ -86,19 +85,15 @@ class MyTheme {
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: Color(0xFF9E9E9E)),
         foregroundColor: AppColors.blueGrey,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        padding: padding_H16_V12,
+        shape: roundRectBorder8,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: padding_H16_V12,
         textStyle: const TextStyle(fontSize: 15),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        shape: roundRectBorder8,
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
@@ -130,40 +125,36 @@ class MyTheme {
       fillColor: AppColors.grey900,
       hintStyle: TextStyle(color: AppColors.grey700),
       prefixIconColor: Color(0xFFB0BEC5),
-      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      contentPadding: padding_H16_V8,
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: AppColors.grey800),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: AppColors.orange),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        shape: roundRectBorder8,
         foregroundColor: AppColors.grey100,
         backgroundColor: AppColors.blueGreyMaterial[900],
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: padding_H16_V12,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: AppColors.grey800),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        shape: roundRectBorder8,
+        padding: padding_H16_V12,
         foregroundColor: AppColors.grey100,
       ),
     ),
@@ -196,7 +187,8 @@ class MyTheme {
       backgroundColor: Colors.black,
       shadowColor: Colors.black54,
     ),
-    textTheme: GoogleFonts.interTextTheme().apply(
+    fontFamily: 'Inter',
+    textTheme: const TextTheme().apply(
       bodyColor: AppColors.grey200,
       displayColor: AppColors.grey200,
     ),
@@ -204,10 +196,8 @@ class MyTheme {
       style: TextButton.styleFrom(
         // foregroundColor: AppColors.orange,
         textStyle: const TextStyle(fontSize: 15),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        padding: padding_H16_V12,
+        shape: roundRectBorder8,
       ),
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(

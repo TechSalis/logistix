@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:implicitly_animated_list/implicitly_animated_list.dart';
 import 'package:logistix/core/entities/rider_data.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
@@ -25,12 +26,7 @@ const orders = [
     description: 'Burger + fries + drink combo',
     status: OrderStatus.confirmed,
     price: 2500,
-    rider: RiderData(
-      id: 'id',
-      name: 'John Doe',
-      phone: 'phone',
-      imageUrl: '',
-    ),
+    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
   ),
   Order(
     id: '2',
@@ -47,7 +43,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '3',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -60,7 +56,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '4',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -74,7 +70,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '5',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -87,7 +83,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '6',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -100,7 +96,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '7',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -113,7 +109,7 @@ const orders = [
     rider: null,
   ),
   Order(
-    id: '2',
+    id: '28',
     type: OrderType.errands,
     pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
     dropOff: Address(
@@ -134,7 +130,8 @@ class OrdersTab extends StatefulWidget {
   State<OrdersTab> createState() => _OrdersPageState();
 }
 
-class _OrdersPageState extends State<OrdersTab> {
+class _OrdersPageState extends State<OrdersTab>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     bool hasActiveRider = true;
@@ -154,7 +151,7 @@ class _OrdersPageState extends State<OrdersTab> {
                   pinned: true,
                   stretch: true,
                   toolbarHeight: 0,
-                  expandedHeight: .3.sh,
+                  expandedHeight: hasActiveRider ? .3.sh : null,
                   stretchTriggerOffset: 80,
                   onStretchTrigger: () async {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -176,17 +173,21 @@ class _OrdersPageState extends State<OrdersTab> {
                           )
                           : null,
                   bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(kToolbarHeight + 44),
+                    preferredSize: Size.fromHeight(
+                      kToolbarHeight + (hasActiveRider ? 44 : 0),
+                    ),
                     child: ColoredBox(
                       color: Theme.of(context).scaffoldBackgroundColor,
                       child: Column(
                         children: [
-                          _TrackingRiderSection(rider: orders[0].rider!),
+                          if (hasActiveRider)
+                            _TrackingRiderSection(rider: orders[0].rider!),
                           TabBar(
                             tabs: const [
                               Tab(text: 'Ongoing'),
                               Tab(text: 'History'),
                             ],
+                            onTap: (value) {},
                             indicatorColor:
                                 Theme.of(context).colorScheme.primary,
                           ),
@@ -208,7 +209,7 @@ class _OrdersPageState extends State<OrdersTab> {
                   },
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: 16),
                   sliver: SliverToBoxAdapter(
                     child: TextButton(
                       onPressed: () {},
@@ -223,6 +224,9 @@ class _OrdersPageState extends State<OrdersTab> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _OrdersSliverList extends StatelessWidget {
@@ -233,13 +237,24 @@ class _OrdersSliverList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
+      sliver: SliverImplicitlyAnimatedList(
+        itemData: orders,
+        itemBuilder: (context, item) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: OrderCard(order: orders[index]),
+            padding: const EdgeInsets.only(bottom: 16),
+            child: OrderCard(
+              order: item,
+              onPopupSelected: (event) {
+                switch (event) {
+                  case OrderPopupEvent.cancel:
+                    break;
+                  case OrderPopupEvent.reorder:
+                    break;
+                }
+              },
+            ),
           );
-        }, childCount: orders.length),
+        },
       ),
     );
   }
@@ -274,15 +289,22 @@ class _TrackingRiderSection extends StatelessWidget {
       color: Colors.white,
       shape: const Border(),
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: padding_8,
         child: Row(
           children: [
-            Expanded(child: UserProfileGroup(user: rider)),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  ChatPageRoute(rider).push(context);
+                },
+                child: UserProfileGroup(user: rider),
+              ),
+            ),
             const Chip(
               visualDensity: VisualDensity(vertical: -4),
               label: Row(
                 children: [
-                  Icon(Icons.navigation, size: 14),
+                  Icon(Icons.my_location, size: 14),
                   SizedBox(width: 4),
                   Text('Tracking'),
                 ],

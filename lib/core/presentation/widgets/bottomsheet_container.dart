@@ -5,7 +5,7 @@ class BottomsheetContainer extends StatelessWidget {
   const BottomsheetContainer({
     super.key,
     required this.child,
-    this.borderRadius = const BorderRadius.all(Radius.circular(32)),
+    this.borderRadius = borderRadius_32,
   });
 
   final BorderRadiusGeometry borderRadius;
