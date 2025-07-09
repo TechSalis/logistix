@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
@@ -14,7 +13,7 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   late MarkerAnimator animator;
   GoogleMapController? map;
   bool isRouteActive = true;
-  
+
   bool get followMarkerState;
   RiderData get rider;
 
@@ -22,10 +21,23 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   RouteObserver<PageRoute<dynamic>> get observer => routeObserver;
 
   @override
-  void didPushNext() => isRouteActive = false;
+  void didPushNext() {
+    isRouteActive = false;
+  }
 
   @override
-  void didPopNext() => isRouteActive = true;
+  void didPopNext() {
+    isRouteActive = true;
+    final coords = ref.read(trackRiderProvider(rider)).value;
+    if (coords != null) {
+      map?.moveCamera(CameraUpdate.newLatLng(coords.toPoint()));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void didChangeDependencies() {
@@ -51,10 +63,12 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
 
   void onRiderUpdate(Coordinates coords) {
     animator.updatePosition(coords);
-    map?.animateCamera(
-      CameraUpdate.newLatLng(coords.toPoint()),
-      duration: kMapStreamPeriodDuration,
-    );
+    if (followMarkerState) {
+      map?.animateCamera(
+        CameraUpdate.newLatLng(coords.toPoint()),
+        duration: kMapStreamPeriodDuration,
+      );
+    }
   }
 
   void subscribeRouteAware() {
@@ -67,7 +81,7 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   }
 
   void listenToRiderTracking(WidgetRef ref) {
-    if (followMarkerState && isRouteActive) {
+    if (isRouteActive) {
       ref.listen(trackRiderProvider(rider), (p, n) {
         if (n.hasValue) onRiderUpdate(n.requireValue);
       });

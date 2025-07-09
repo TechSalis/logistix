@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/core/entities/company_data.dart';
-import 'package:logistix/features/app/application/navigation_bar_rp.dart';
-import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/app/application/navigation_bar_rp.dart';
+import 'package:logistix/app/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/core/entities/rider_data.dart';
@@ -15,12 +15,11 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Order? order = Order(
+    const Order order = Order(
       id: '13276',
       type: OrderType.delivery,
       price: 1200,
       status: OrderStatus.enRoute,
-      summary: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
       description: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
       rider: RiderData(
         id: 'id',
@@ -54,12 +53,12 @@ class HomeTab extends StatelessWidget {
             const SizedBox(height: 24),
             const Expanded(child: _MiniMapWidget()),
             const SizedBox(height: 12),
-            const _CallHelperCTA(),
-            const SizedBox(height: 32),
+            const _FindRiderCTA(),
+            const SizedBox(height: 24),
             Text("Order Now", style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
             const _QuickActionGrid(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             if (order != null)
               SizedBox(
                 height: 160,
@@ -114,7 +113,7 @@ class _QuickActionGrid extends StatelessWidget {
           OrderType.values.map((action) {
             return GestureDetector(
               onTap: () {
-                GoRouter.of(context).go(switch (action) {
+                GoRouter.of(context).push(switch (action) {
                   OrderType.food => const FoodOrderPageRoute().location,
                   OrderType.grocery => '/${action.name}',
                   OrderType.errands => '/${action.name}',
@@ -125,7 +124,7 @@ class _QuickActionGrid extends StatelessWidget {
               child: Column(
                 children: [
                   OrderIcon(
-                    action: action,
+                    type: action,
                     size: 52,
                     color: Theme.of(context).colorScheme.primary,
                   ),
@@ -174,7 +173,7 @@ class _LastOrderCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              order.summary,
+              order.description,
               style: Theme.of(context).textTheme.bodySmall,
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
@@ -303,18 +302,17 @@ class _EmptyOrderPrompt extends StatelessWidget {
   }
 }
 
-class _CallHelperCTA extends StatelessWidget {
-  const _CallHelperCTA();
+class _FindRiderCTA extends StatelessWidget {
+  const _FindRiderCTA();
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
+    return Center(
+      child: TextButton.icon(
         onPressed: () {},
         icon: const Icon(Icons.flash_on),
         label: const Text("Find a Rider"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.tertiary,
+        style: TextButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       ),
     );
@@ -327,7 +325,7 @@ class _MiniMapWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 1,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: const AbsorbPointer(child: UserMapView()),

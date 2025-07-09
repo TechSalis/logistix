@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logistix/core/constants/colors.dart';
+import 'package:logistix/core/presentation/theme/colors.dart';
 
 class MyTheme {
   static ThemeData get light => ThemeData(
@@ -23,11 +23,30 @@ class MyTheme {
       onSurface: AppColors.grey900,
       primaryContainer: AppColors.blueGrey,
     ),
+    cardTheme: CardThemeData(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shadowColor: Colors.black54,
+    ),
+    tabBarTheme: const TabBarThemeData(
+      labelStyle: TextStyle(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
+      dividerHeight: 0,
+    ),
     dividerTheme: const DividerThemeData(color: AppColors.grey200),
-    chipTheme: const ChipThemeData(selectedColor: AppColors.orange),
+    chipTheme: const ChipThemeData(
+      side: BorderSide.none,
+      padding: EdgeInsets.zero,
+      labelStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
     textTheme: GoogleFonts.interTextTheme().apply(
       bodyColor: Colors.black87,
-      displayColor: Colors.black87,
+      displayColor: Colors.black.withAlpha(200),
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
@@ -54,18 +73,14 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(6)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         backgroundColor: AppColors.blueGrey,
         foregroundColor: Colors.white,
       ),
     ),
-    cardTheme: const CardThemeData(
-      color: Colors.white,
-      margin: EdgeInsets.zero,
-      shadowColor: Colors.black54,
-    ),
+
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AppColors.grey100,
     ),
@@ -75,7 +90,7 @@ class MyTheme {
         foregroundColor: AppColors.blueGrey,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(6)),
         ),
       ),
     ),
@@ -136,7 +151,7 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(6)),
         ),
         foregroundColor: AppColors.grey100,
         backgroundColor: AppColors.blueGreyMaterial[900],
@@ -147,14 +162,22 @@ class MyTheme {
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: AppColors.grey800),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderRadius: BorderRadius.all(Radius.circular(6)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         foregroundColor: AppColors.grey100,
       ),
     ),
     dividerTheme: const DividerThemeData(color: AppColors.grey800),
-    chipTheme: const ChipThemeData(selectedColor: AppColors.orange),
+    chipTheme: const ChipThemeData(
+      side: BorderSide.none,
+      padding: EdgeInsets.zero,
+      labelStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
     cardTheme: const CardThemeData(
       margin: EdgeInsets.zero,
       color: AppColors.grey900,

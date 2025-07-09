@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/notifications/presentation/widgets/notification_profile_icon.dart';
+import 'package:logistix/core/presentation/widgets/avatar_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderIcon extends StatelessWidget {
-  const OrderIcon({super.key, required this.action, this.size, this.color});
-  final OrderType action;
+  const OrderIcon({super.key, required this.type, this.size, this.color});
+  final OrderType type;
   final double? size;
   final Color? color;
 
@@ -13,10 +13,10 @@ class OrderIcon extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: AvatarIcon(
-        backgroundColor: (color ?? action.color).withAlpha(20),
+        backgroundColor: (color ?? type.color).withAlpha(30),
         icon: Icon(
-          action.icon,
-          color: color ?? action.color,
+          type.icon,
+          color: color ?? type.color,
           size: size != null ? (size! * .5) : null,
         ),
       ),

@@ -6,7 +6,7 @@ import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/core/entities/rider_data.dart';
-import 'package:logistix/features/rider/presentation/mixins/track_rider_mixin.dart';
+import 'package:logistix/features/rider/presentation/controllers/track_rider_mixin.dart';
 
 class RiderTrackerMapWidget extends ConsumerStatefulWidget {
   const RiderTrackerMapWidget({
@@ -48,6 +48,7 @@ class _RiderTrackerMapWidgetState extends ConsumerState<RiderTrackerMapWidget>
             ref.read(trackRiderProvider(widget.rider)).requireValue.toPoint(),
           ),
         );
+        widget.onMapCreated?.call(m);
       },
       markers: {
         if (coordinates != null)

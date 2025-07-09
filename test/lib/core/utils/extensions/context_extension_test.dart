@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:logistix/core/constants/theme.dart';
-import 'package:logistix/core/utils/extensions/context_extension.dart';
+import 'package:logistix/core/presentation/theme/theme.dart';
+import 'package:logistix/core/presentation/theme/extensions/context_extension.dart';
 
 void main() {
   Future<void> buildWidget(WidgetTester tester, ThemeMode themeMode) async {

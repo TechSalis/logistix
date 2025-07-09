@@ -15,3 +15,4 @@ class User {
     required this.data,
   });
 }
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 
 class DeliverySummaryDialog extends StatelessWidget {
@@ -59,7 +60,7 @@ class DeliverySummaryDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: Navigator.of(context).pop,
+                onPressed: GoRouter.of(context).pop,
                 icon: const Icon(Icons.motorcycle),
                 label: const Text("Call Rider"),
               ),

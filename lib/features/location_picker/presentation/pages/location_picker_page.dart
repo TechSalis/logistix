@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/constants/styling.dart';
+import 'package:logistix/core/presentation/theme/styling.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/features/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
-import 'package:logistix/features/location_picker/presentation/widgets/addresses_list.dart';
-import 'package:logistix/features/map/presentation/widgets/location_pin.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
@@ -40,7 +40,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                       return IconButton.filled(
                         onPressed:
                             address != null
-                                ? () => Navigator.pop(context, address)
+                                ? () => GoRouter.of(context).pop(address)
                                 : null,
                         icon: const Icon(Icons.check),
                         style: IconButton.styleFrom(
@@ -227,6 +227,73 @@ class _SearchSectionState extends State<_SearchSection> {
           const Flexible(child: AddressSuggestionsSection()),
         ],
       ),
+    );
+  }
+}
+
+class AddressSuggestionsSection extends ConsumerWidget {
+  const AddressSuggestionsSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Material(
+      child: CustomScrollView(
+        slivers: [
+          const SliverPadding(padding: EdgeInsets.only(top: 8)),
+          SliverToBoxAdapter(
+            child: ListTile(
+              leading: const Icon(Icons.my_location),
+              title: const Text('Use my location'),
+              visualDensity: VisualDensity.compact,
+              onTap: () {
+                ref.read(locationPickerProvider.notifier).getUserCoordinates();
+              },
+            ),
+          ),
+          ...?ref.watch(locationSearchProvider).value?.addresses?.map((e) {
+            return SliverToBoxAdapter(child: AddressTileWidget(address: e));
+          }),
+          const SliverPadding(padding: EdgeInsets.only(top: 8)),
+        ],
+      ),
+    );
+  }
+}
+
+class AddressTileWidget extends ConsumerWidget {
+  const AddressTileWidget({super.key, required this.address, this.leading});
+
+  final Widget? leading;
+  final Address address;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: leading,
+      title: Text(address.formatted),
+      visualDensity: VisualDensity.compact,
+      trailing: IconButton(
+        icon: const Icon(Icons.favorite_outline),
+        visualDensity: VisualDensity.compact,
+        onPressed: () {},
+      ),
+      onTap: () {
+        ref.read(locationSearchProvider.notifier).getPlaceData(address);
+      },
+    );
+  }
+}
+
+class LocationPin extends StatelessWidget {
+  const LocationPin({super.key, this.size = 40});
+
+  final double size;
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.location_on,
+      size: size,
+      color: Theme.of(context).colorScheme.primary,
     );
   }
 }

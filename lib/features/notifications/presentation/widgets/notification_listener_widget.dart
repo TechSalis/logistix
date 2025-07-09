@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
-import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
+import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 
-class ProviderAppNotificationsListener extends ConsumerWidget {
-  const ProviderAppNotificationsListener({super.key, required this.child});
+class ProviderAppNotificationsHandler extends ConsumerWidget {
+  const ProviderAppNotificationsHandler({super.key, required this.child});
 
   final Widget child;
 

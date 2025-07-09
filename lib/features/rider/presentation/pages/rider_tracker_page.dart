@@ -21,29 +21,29 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
   bool followMarkerState = true;
   GoogleMapController? map;
 
+  Future _onFollowRider() async {
+    final coords = ref.read(trackRiderProvider(widget.rider)).value;
+    if (coords != null) {
+      await map?.animateCamera(CameraUpdate.newLatLng(coords.toPoint()));
+      if (mounted) setState(() => followMarkerState = true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        leading: BackButton(
-          style: IconButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.surface,
-            backgroundColor: Theme.of(context).colorScheme.onPrimary,
-          ),
-        ),
-        automaticallyImplyLeading: true,
-        backgroundColor: Colors.transparent,
+        titleSpacing: 0,
+        title: RiderCardSmall.transparent(rider: widget.rider),
       ),
       body: Stack(
         fit: StackFit.expand,
         children: [
           Positioned.fill(
-            child: MapPanUnfocusListener(
-              shouldFollowMarker: (followMarker) {
-                setState(() => followMarkerState = followMarker);
-              },
+            child: PanAwayListener(
+              onPanAway: (value) => setState(() => followMarkerState = !value),
               child: RiderTrackerMapWidget(
                 rider: widget.rider,
                 followMarkerState: followMarkerState,
@@ -54,21 +54,11 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
           if (!followMarkerState)
             Positioned(
               right: 16,
-              bottom: 140,
+              bottom: MediaQuery.of(context).viewPadding.bottom + 16,
               child: Consumer(
                 builder: (context, ref, child) {
                   return IconButton(
-                    onPressed: () {
-                      setState(() => followMarkerState = true);
-                      map?.animateCamera(
-                        CameraUpdate.newLatLng(
-                          ref
-                              .read(trackRiderProvider(widget.rider))
-                              .requireValue
-                              .toPoint(),
-                        ),
-                      );
-                    },
+                    onPressed: _onFollowRider,
                     style: IconButton.styleFrom(
                       foregroundColor: Theme.of(context).colorScheme.surface,
                       backgroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -78,12 +68,6 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
                 },
               ),
             ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 24,
-            child: SafeArea(child: RiderCardSmall(rider: widget.rider)),
-          ),
         ],
       ),
     );

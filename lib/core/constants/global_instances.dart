@@ -1,9 +1,8 @@
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 const uuid = Uuid();
-
-const kMapStreamPeriodDuration = Duration(seconds: 5);
 
 final dioCacheOptions = CacheOptions(
   store: MemCacheStore(),
@@ -13,3 +12,8 @@ final dioCacheOptions = CacheOptions(
 );
 
 final dioCacheInterceptor = DioCacheInterceptor(options: dioCacheOptions);
+
+final currencyFormatter = NumberFormat.simpleCurrency(
+  decimalDigits: 0,
+  name: 'NGN',
+);

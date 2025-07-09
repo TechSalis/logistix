@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/app/application/navigation_bar_rp.dart';
+import 'package:logistix/app/application/navigation_bar_rp.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
-import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
+import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
 import 'package:logistix/features/order_now/widgets/order_icon.dart';
@@ -66,7 +66,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
                 children: [
                   const SizedBox(width: 8),
                   // Icon
-                  OrderIcon(action: data.order.type, size: 42),
+                  OrderIcon(type: data.order.type, size: 42),
                   const SizedBox(width: 16),
 
                   // Textual content

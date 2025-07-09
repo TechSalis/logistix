@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/app/application/navigation_bar_rp.dart';
+import 'package:logistix/app/application/navigation_bar_rp.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
-import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
+import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/core/entities/rider_data.dart';
@@ -51,7 +51,7 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
               child: Row(
                 children: [
                   // Icon
-                  const OrderIcon(action: OrderType.delivery, size: 42),
+                  const OrderIcon(type: OrderType.delivery, size: 42),
                   const SizedBox(width: 16),
 
                   // Textual content

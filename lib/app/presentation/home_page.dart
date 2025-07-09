@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/app/application/navigation_bar_rp.dart';
-import 'package:logistix/features/app/presentation/tabs/home_tab.dart';
-import 'package:logistix/features/app/presentation/tabs/orders_tab.dart';
+import 'package:logistix/app/application/navigation_bar_rp.dart';
+import 'package:logistix/app/presentation/tabs/home_tab.dart';
+// import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy%203.dart';
+// import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy.dart';
+import 'package:logistix/app/presentation/tabs/orders_tab.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -33,6 +35,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       resizeToAvoidBottomInset: false,
       body: PageView(
         controller: controller,
+        restorationId: 'home-tab-page-view',
         physics: const NeverScrollableScrollPhysics(),
         children: const [HomeTab(), OrdersTab()],
       ),

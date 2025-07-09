@@ -18,7 +18,7 @@ class AddressModelAdapter extends TypeAdapter<AddressModel> {
     };
     return AddressModel(
       fields[0] as String,
-      coordinates: fields[1] as CoordinatesModel?,
+      coordinates: fields[1] as Coordinates?,
     );
   }
 

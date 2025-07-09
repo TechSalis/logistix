@@ -1,5 +1,5 @@
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
-import 'package:logistix/features/notifications/presentation/notifications/notification_widget.dart';
+import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 class AppNotificationService {

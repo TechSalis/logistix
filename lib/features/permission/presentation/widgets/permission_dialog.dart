@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 
@@ -42,7 +43,7 @@ class PermissionDisclosureDialog extends ConsumerWidget {
           openSettingsCallback?.call();
         default:
       }
-      if (n.value != null) Navigator.pop(context);
+      if (n.value != null) GoRouter.of(context).pop(context);
     });
     final theme = Theme.of(context);
     return Dialog(

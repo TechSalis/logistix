@@ -99,7 +99,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Text("Add Images (optional)", style: theme.textTheme.bodyMedium),
               const SizedBox(height: 8),
               SizedBox(

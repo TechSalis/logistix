@@ -9,29 +9,40 @@ class RiderCardSmall extends StatelessWidget {
     super.key,
     required this.rider,
     this.eta,
-    this.borderRadius,
+    this.decoration,
+    this.padding,
   });
 
+  const RiderCardSmall.transparent({super.key, required this.rider, this.eta})
+    : decoration = const BoxDecoration(),
+      padding = EdgeInsets.zero;
+
+  final Decoration? decoration;
+  final EdgeInsets? padding;
   final RiderData rider;
   final String? eta;
-  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.cardTheme.color,
-        borderRadius:
-            borderRadius ?? const BorderRadius.all(Radius.circular(16)),
-        border: Border.all(color: theme.dividerColor.withAlpha(26)),
-        boxShadow: const [
-          BoxShadow(blurRadius: 2, color: Colors.black12, offset: Offset(0, 1)),
-        ],
-      ),
+      decoration:
+          decoration ??
+          BoxDecoration(
+            color: theme.cardTheme.color,
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            border: Border.all(color: theme.dividerColor.withAlpha(26)),
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 2,
+                color: Colors.black12,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding:
+            padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
             UserAvatar(user: rider, size: 18),
@@ -62,16 +73,18 @@ class RiderCardSmall extends StatelessWidget {
               const SizedBox(width: 8),
             ],
             IconButton(
+              padding: EdgeInsets.zero,
               onPressed: () {
-                ChatPageRoute(ChatParameters(user: rider)).go(context);
+                ChatPageRoute(ChatParameters(user: rider)).push(context);
               },
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.chat_bubble_outline, size: 20),
+              // visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.chat_bubble_outline),
             ),
             IconButton(
               onPressed: () {},
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.help_outline, size: 20),
+              padding: EdgeInsets.zero,
+              // visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.help_outline),
             ),
           ],
         ),

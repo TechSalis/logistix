@@ -2,7 +2,7 @@
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:logistix/core/constants/colors.dart';
+import 'package:logistix/core/presentation/theme/colors.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/core/entities/rider_data.dart';
 
@@ -12,7 +12,7 @@ class Order extends Equatable {
   final double price;
   final OrderType type;
   final OrderStatus status;
-  final String description, summary;
+  final String description;
   final RiderData? rider;
 
   const Order({
@@ -23,7 +23,6 @@ class Order extends Equatable {
     this.pickUp,
     this.dropOff,
     required this.description,
-    required this.summary,
     this.rider,
   });
 
@@ -34,20 +33,15 @@ class Order extends Equatable {
     pickUp,
     dropOff,
     description,
-    summary,
     price,
     status,
     rider,
   ];
 }
 
-enum OrderStatus {
-  pending,
-  confirmed,
-  enRoute,
-  delivered,
-  cancelled;
+enum OrderStatus { pending, confirmed, enRoute, delivered, cancelled }
 
+extension OrderStatusExt on OrderStatus {
   String get label => switch (this) {
     OrderStatus.pending => 'Pending',
     OrderStatus.confirmed => 'Confirmed',
@@ -57,12 +51,16 @@ enum OrderStatus {
   };
 
   Color get color => switch (this) {
-    pending => Colors.grey.shade500,
-    confirmed => AppColors.orange.withAlpha(200),
-    enRoute => AppColors.orange,
-    delivered => Colors.green,
-    cancelled => Colors.red,
+    OrderStatus.pending => Colors.grey.shade800,
+    OrderStatus.confirmed => AppColors.orange,
+    OrderStatus.enRoute => AppColors.orange,
+    OrderStatus.delivered => Colors.green,
+    OrderStatus.cancelled => Colors.red,
   };
+
+  bool get isFinal {
+    return this == OrderStatus.delivered || this == OrderStatus.cancelled;
+  }
 }
 
 enum OrderType {

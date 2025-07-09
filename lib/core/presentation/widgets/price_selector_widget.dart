@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
-import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
-import 'package:logistix/core/constants/colors.dart';
-import 'package:logistix/core/utils/extensions/context_extension.dart';
+import 'package:flutter/services.dart';
+// import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
+// import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
+import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/core/presentation/theme/colors.dart';
+import 'package:logistix/core/presentation/theme/extensions/context_extension.dart';
 import 'dart:core';
 
 class PriceSelectorField extends StatelessWidget {
@@ -21,10 +23,15 @@ class PriceSelectorField extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.number,
       inputFormatters: [
-        CurrencyInputFormatter(
-          thousandSeparator: ThousandSeparator.Comma,
-          mantissaLength: 0,
-        ),
+        TextInputFormatter.withFunction((oldValue, newValue) {
+          return newValue.copyWith(
+            text: currencyFormatter.format(newValue.text),
+          );
+        }),
+        // CurrencyInputFormatter(
+        //   thousandSeparator: ThousandSeparator.Comma,
+        //   mantissaLength: 0,
+        // ),
       ],
       onTapOutside: (event) => FocusScope.of(context).unfocus(),
       decoration: InputDecoration(

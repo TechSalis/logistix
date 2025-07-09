@@ -8,30 +8,16 @@ part of 'router.dart';
 
 List<RouteBase> get $appRoutes => [
       $homePageRoute,
+      $foodOrderPageRoute,
+      $newDeliveryPageRoute,
+      $chatPageRoute,
+      $riderTrackerPageRoute,
       $locationPickerPageRoute,
     ];
 
 RouteBase get $homePageRoute => GoRouteData.$route(
-      path: '/',
+      path: '/home',
       factory: _$HomePageRoute._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: 'food',
-          factory: _$FoodOrderPageRoute._fromState,
-        ),
-        GoRouteData.$route(
-          path: 'delivery',
-          factory: _$NewDeliveryPageRoute._fromState,
-        ),
-        GoRouteData.$route(
-          path: 'chat',
-          factory: _$ChatPageRoute._fromState,
-        ),
-        GoRouteData.$route(
-          path: 'track-rider',
-          factory: _$RiderTrackerPageRoute._fromState,
-        ),
-      ],
     );
 
 mixin _$HomePageRoute on GoRouteData {
@@ -39,7 +25,7 @@ mixin _$HomePageRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location(
-        '/',
+        '/home',
       );
 
   @override
@@ -55,6 +41,11 @@ mixin _$HomePageRoute on GoRouteData {
   @override
   void replace(BuildContext context) => context.replace(location);
 }
+
+RouteBase get $foodOrderPageRoute => GoRouteData.$route(
+      path: '/food',
+      factory: _$FoodOrderPageRoute._fromState,
+    );
 
 mixin _$FoodOrderPageRoute on GoRouteData {
   static FoodOrderPageRoute _fromState(GoRouterState state) =>
@@ -79,6 +70,11 @@ mixin _$FoodOrderPageRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
+RouteBase get $newDeliveryPageRoute => GoRouteData.$route(
+      path: '/delivery',
+      factory: _$NewDeliveryPageRoute._fromState,
+    );
+
 mixin _$NewDeliveryPageRoute on GoRouteData {
   static NewDeliveryPageRoute _fromState(GoRouterState state) =>
       const NewDeliveryPageRoute();
@@ -101,6 +97,11 @@ mixin _$NewDeliveryPageRoute on GoRouteData {
   @override
   void replace(BuildContext context) => context.replace(location);
 }
+
+RouteBase get $chatPageRoute => GoRouteData.$route(
+      path: '/chat',
+      factory: _$ChatPageRoute._fromState,
+    );
 
 mixin _$ChatPageRoute on GoRouteData {
   static ChatPageRoute _fromState(GoRouterState state) => ChatPageRoute(
@@ -129,6 +130,11 @@ mixin _$ChatPageRoute on GoRouteData {
   void replace(BuildContext context) =>
       context.replace(location, extra: _self.$extra);
 }
+
+RouteBase get $riderTrackerPageRoute => GoRouteData.$route(
+      path: '/track-rider',
+      factory: _$RiderTrackerPageRoute._fromState,
+    );
 
 mixin _$RiderTrackerPageRoute on GoRouteData {
   static RiderTrackerPageRoute _fromState(GoRouterState state) =>
