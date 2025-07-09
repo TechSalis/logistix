@@ -15,9 +15,13 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 final router = GoRouter(
   observers: [routeObserver],
+  restorationScopeId: 'app-route',
   initialLocation: const HomePageRoute().location,
   routes: $appRoutes,
-  restorationScopeId: 'app-route',
+  redirect: (context, state) {
+    if (state.matchedLocation == "/") return const HomePageRoute().location;
+    return null;
+  },
 );
 
 @TypedGoRoute<HomePageRoute>(path: '/home')
@@ -49,11 +53,11 @@ class NewDeliveryPageRoute extends GoRouteData with _$NewDeliveryPageRoute {
 @TypedGoRoute<ChatPageRoute>(path: '/chat')
 class ChatPageRoute extends GoRouteData with _$ChatPageRoute {
   const ChatPageRoute(this.$extra);
-  final ChatParameters $extra;
+  final UserData $extra;
 
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      ChatPage(data: $extra);
+      ChatPage(user: $extra);
 }
 
 @TypedGoRoute<RiderTrackerPageRoute>(path: '/track-rider')

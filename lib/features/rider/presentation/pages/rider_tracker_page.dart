@@ -10,7 +10,6 @@ import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widge
 
 class RiderTrackerPage extends ConsumerStatefulWidget {
   const RiderTrackerPage({super.key, required this.rider});
-
   final RiderData rider;
 
   @override

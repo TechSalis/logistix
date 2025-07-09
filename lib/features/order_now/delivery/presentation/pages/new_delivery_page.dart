@@ -48,15 +48,9 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
             children: [
               const SizedBox(height: 8),
               Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+                elevation: 2,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       TextFieldLabelAndErrorDisplayWidget(
@@ -141,11 +135,10 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                           );
                         }
                         return GestureDetector(
-                          onTap: () {
-                            ref
-                                .read(deliveryOrderImagesProvider.notifier)
-                                .pickImage();
-                          },
+                          onTap:
+                              ref
+                                  .read(deliveryOrderImagesProvider.notifier)
+                                  .pickImage,
                           child: Container(
                             width: 80,
                             height: 80,

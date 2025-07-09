@@ -9,6 +9,7 @@ import 'package:logistix/app/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/order_now/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/core/entities/rider_data.dart';
+import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -36,7 +37,8 @@ class HomeTab extends StatelessWidget {
         title: Consumer(
           builder: (context, ref, _) {
             final user = (ref.watch(authProvider) as AuthLoggedIn).user;
-            if (user.data.name?.isEmpty ?? true) return const Text("Hello, Customer 👋");
+            if (user.data.name?.isEmpty ?? true)
+              return const Text("Hello, Customer 👋");
             return Text("Welcome, ${user.data.name} 👋");
           },
         ),
@@ -61,7 +63,7 @@ class HomeTab extends StatelessWidget {
             const SizedBox(height: 32),
             if (order != null)
               SizedBox(
-                height: 160,
+                height: 170,
                 child: Consumer(
                   builder: (context, ref, child) {
                     return _LastOrderCard(
@@ -70,14 +72,14 @@ class HomeTab extends StatelessWidget {
                       onViewDetails: () {
                         ref.read(navBarIndexProvider.notifier).state = 1;
                       },
-                      onTrack: order.rider == null ? null : () {},
+                      // onTrack: order.rider == null ? null : () {},
                     );
                   },
                 ),
               )
             else //TODO: if (find rider != null)
               // _FindRiderWidget(rider: rider)
-              const SizedBox(height: 160, child: _EmptyOrderPrompt()),
+              const SizedBox(height: 170, child: _EmptyOrderPrompt()),
             const SizedBox(height: 24),
           ],
         ),
@@ -171,7 +173,7 @@ class _LastOrderCard extends StatelessWidget {
               "🕓 Last Order: #${order.id}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               order.description,
               style: Theme.of(context).textTheme.bodySmall,
@@ -179,56 +181,69 @@ class _LastOrderCard extends StatelessWidget {
               maxLines: 1,
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    text: "Status: ",
+            RepaintBoundary(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      TextSpan(
-                        text: order.status.label,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        "Status: ",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          // color: order.status.color,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
+                      OrderStatusChip(status: order.status),
                     ],
                   ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: order.status.color,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text.rich(
-                  TextSpan(
-                    text: "ETA: ",
-                    children: [
-                      TextSpan(
-                        text: eta,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                  Text.rich(
+                    TextSpan(
+                      text: "ETA: ",
+                      children: [
+                        TextSpan(
+                          text: eta,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.green),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ElevatedButtonTheme(
-              data: ElevatedButtonThemeData(
-                style: Theme.of(context).elevatedButtonTheme.style?.copyWith(
-                  iconSize: const WidgetStatePropertyAll(16),
-                  minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
-                  textStyle: WidgetStatePropertyAll(
-                    Theme.of(context).textTheme.bodySmall,
-                  ),
-                  padding: const WidgetStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: 12),
-                  ),
-                ),
+                ],
               ),
-              child: OutlinedButtonTheme(
-                data: OutlinedButtonThemeData(
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (onTrack != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: ElevatedButton.icon(
+                      onPressed: onTrack,
+                      icon: const Icon(Icons.location_pin),
+                      label: const Text("Track"),
+                      style: Theme.of(
+                        context,
+                      ).elevatedButtonTheme.style?.copyWith(
+                        iconSize: const WidgetStatePropertyAll(16),
+                        minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+                        textStyle: WidgetStatePropertyAll(
+                          Theme.of(context).textTheme.bodySmall,
+                        ),
+                        padding: const WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 12),
+                        ),
+                      ),
+                    ),
+                  ),
+                OutlinedButton(
+                  onPressed: onViewDetails,
                   style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
                     minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
                     textStyle: WidgetStatePropertyAll(
@@ -238,26 +253,9 @@ class _LastOrderCard extends StatelessWidget {
                       EdgeInsets.symmetric(horizontal: 12),
                     ),
                   ),
+                  child: const Text("View Order"),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    if (onTrack != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ElevatedButton.icon(
-                          onPressed: onTrack,
-                          icon: const Icon(Icons.location_pin),
-                          label: const Text("Track"),
-                        ),
-                      ),
-                    OutlinedButton(
-                      onPressed: onViewDetails,
-                      child: const Text("View Details"),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ],
         ),
@@ -327,8 +325,8 @@ class _MiniMapWidget extends StatelessWidget {
     return Card(
       elevation: 1,
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: const AbsorbPointer(child: UserMapView()),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: const IgnorePointer(child: UserMapView()),
     );
   }
 }

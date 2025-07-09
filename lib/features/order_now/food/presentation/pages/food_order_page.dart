@@ -95,8 +95,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
@@ -172,7 +171,7 @@ class _MiniFoodCard extends StatelessWidget {
     return GestureDetector(
       onTap: onItemAdded,
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(

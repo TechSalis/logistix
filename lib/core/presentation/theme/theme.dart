@@ -9,7 +9,7 @@ class MyTheme {
     primarySwatch: AppColors.orange,
     scaffoldBackgroundColor: AppColors.grey100,
     appBarTheme: const AppBarTheme(
-      surfaceTintColor: AppColors.blueGrey,
+      surfaceTintColor: AppColors.grey100,
       color: AppColors.grey100,
       centerTitle: false,
     ),
@@ -24,7 +24,6 @@ class MyTheme {
       primaryContainer: AppColors.blueGrey,
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       shadowColor: Colors.black54,
@@ -47,6 +46,9 @@ class MyTheme {
     textTheme: GoogleFonts.interTextTheme().apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black.withAlpha(200),
+    ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Colors.white,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
@@ -73,16 +75,12 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         backgroundColor: AppColors.blueGrey,
         foregroundColor: Colors.white,
       ),
-    ),
-
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: AppColors.grey100,
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
@@ -90,13 +88,14 @@ class MyTheme {
         foregroundColor: AppColors.blueGrey,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        textStyle: const TextStyle(fontSize: 15),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
@@ -151,7 +150,7 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         foregroundColor: AppColors.grey100,
         backgroundColor: AppColors.blueGreyMaterial[900],
@@ -162,7 +161,7 @@ class MyTheme {
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: AppColors.grey800),
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(6)),
+          borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         foregroundColor: AppColors.grey100,
@@ -185,7 +184,7 @@ class MyTheme {
     ),
     appBarTheme: const AppBarTheme(
       color: Colors.black,
-      surfaceTintColor: AppColors.grey900,
+      surfaceTintColor: Colors.black,
       centerTitle: false,
     ),
     scaffoldBackgroundColor: Colors.black,
@@ -203,7 +202,8 @@ class MyTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: AppColors.orange,
+        // foregroundColor: AppColors.orange,
+        textStyle: const TextStyle(fontSize: 15),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),

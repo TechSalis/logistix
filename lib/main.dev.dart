@@ -10,10 +10,6 @@ void main() async {
   await Future.wait([
     dotenv.load(fileName: '.env.dev').then((_) {
       EnvConfig.extract(dotenv.env);
-      // return Supabase.initialize(
-      //   url: EnvConfig.instance.supabaseUrl,
-      //   anonKey: EnvConfig.instance.supabaseAnonKey,
-      // );
     }),
     Hive.initFlutter(),
     precacheData(),

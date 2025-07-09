@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/core/entities/rider_data.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
+import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
 const orders = [
@@ -27,7 +29,7 @@ const orders = [
       id: 'id',
       name: 'John Doe',
       phone: 'phone',
-      imageUrl: 'imageUrl',
+      imageUrl: '',
     ),
   ),
   Order(
@@ -125,14 +127,14 @@ const orders = [
   ),
 ];
 
-class OrdersTab extends ConsumerStatefulWidget {
+class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
 
   @override
-  ConsumerState<OrdersTab> createState() => _OrdersPageState();
+  State<OrdersTab> createState() => _OrdersPageState();
 }
 
-class _OrdersPageState extends ConsumerState<OrdersTab> {
+class _OrdersPageState extends State<OrdersTab> {
   @override
   Widget build(BuildContext context) {
     bool hasActiveRider = true;
@@ -152,7 +154,7 @@ class _OrdersPageState extends ConsumerState<OrdersTab> {
                   pinned: true,
                   stretch: true,
                   toolbarHeight: 0,
-                  expandedHeight: 200,
+                  expandedHeight: .3.sh,
                   stretchTriggerOffset: 80,
                   onStretchTrigger: () async {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -174,15 +176,21 @@ class _OrdersPageState extends ConsumerState<OrdersTab> {
                           )
                           : null,
                   bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(kToolbarHeight),
+                    preferredSize: const Size.fromHeight(kToolbarHeight + 44),
                     child: ColoredBox(
                       color: Theme.of(context).scaffoldBackgroundColor,
-                      child: TabBar(
-                        tabs: const [
-                          Tab(text: 'Ongoing'),
-                          Tab(text: 'History'),
+                      child: Column(
+                        children: [
+                          _TrackingRiderSection(rider: orders[0].rider!),
+                          TabBar(
+                            tabs: const [
+                              Tab(text: 'Ongoing'),
+                              Tab(text: 'History'),
+                            ],
+                            indicatorColor:
+                                Theme.of(context).colorScheme.primary,
+                          ),
                         ],
-                        indicatorColor: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
@@ -190,12 +198,23 @@ class _OrdersPageState extends ConsumerState<OrdersTab> {
                 ListenableBuilder(
                   listenable: DefaultTabController.of(context),
                   builder: (context, _) {
-                    return switch (DefaultTabController.of(context).index) {
-                      0 => _OrdersSliverList(orders: ongoing),
-                      1 => _OrdersSliverList(orders: history),
-                      _ => throw FlutterError('More tabs than Tabviews'),
-                    };
+                    return _OrdersSliverList(
+                      orders: switch (DefaultTabController.of(context).index) {
+                        0 => ongoing,
+                        1 => history,
+                        _ => throw FlutterError('More tabs than Tabviews'),
+                      },
+                    );
                   },
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  sliver: SliverToBoxAdapter(
+                    child: TextButton(
+                      onPressed: () {},
+                      child: const Text('Show more'),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -213,7 +232,7 @@ class _OrdersSliverList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate((context, index) {
           return Padding(
@@ -235,45 +254,43 @@ class RiderOnTheWayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      fit: StackFit.expand,
       children: [
         GestureDetector(
           onTap: () => RiderTrackerPageRoute(rider).push(context),
           child: AbsorbPointer(child: RiderTrackerMapWidget(rider: rider)),
         ),
-        Positioned(
-          left: 8,
-          right: 8,
-          bottom: kToolbarHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Chip(
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withAlpha(180),
-                visualDensity: const VisualDensity(vertical: -3),
-                label: Row(
-                  children: [
-                    Icon(
-                      Icons.navigation,
-                      size: 14,
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Tracking Rider',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.surface,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
+    );
+  }
+}
+
+class _TrackingRiderSection extends StatelessWidget {
+  const _TrackingRiderSection({required this.rider});
+  final RiderData rider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.white,
+      shape: const Border(),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Row(
+          children: [
+            Expanded(child: UserProfileGroup(user: rider)),
+            const Chip(
+              visualDensity: VisualDensity(vertical: -4),
+              label: Row(
+                children: [
+                  Icon(Icons.navigation, size: 14),
+                  SizedBox(width: 4),
+                  Text('Tracking'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

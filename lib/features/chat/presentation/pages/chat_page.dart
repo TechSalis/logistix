@@ -4,20 +4,14 @@ import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
-import 'package:logistix/core/entities/rider_data.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
-
-class ChatParameters<T extends UserData> {
-  ChatParameters({required this.user});
-  final T user;
-}
+import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
 
 class ChatPage<T extends UserData> extends ConsumerStatefulWidget {
-  const ChatPage({super.key, required this.data});
-  final ChatParameters<T> data;
+  const ChatPage({super.key, required this.user});
+  final UserData user;
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -38,36 +32,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            UserAvatar(user: widget.data.user, size: 18),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.data.user.name ?? '',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (widget.data.user is RiderData)
-                    Text(
-                      (widget.data.user as RiderData).company?.name ??
-                          'Independent',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).hintColor,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        title: UserProfileGroup(user: widget.user),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.help_outline)),
         ],
@@ -189,7 +154,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
         },
         resolveUser: (UserID id) async {
           if (user.id == id) return user.data.toUser();
-          if (widget.data.user.id == id) return widget.data.user.toUser();
+          if (widget.user.id == id) return widget.user.toUser();
           return null;
         },
       ),

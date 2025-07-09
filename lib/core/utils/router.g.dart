@@ -105,7 +105,7 @@ RouteBase get $chatPageRoute => GoRouteData.$route(
 
 mixin _$ChatPageRoute on GoRouteData {
   static ChatPageRoute _fromState(GoRouterState state) => ChatPageRoute(
-        state.extra as ChatParameters<UserData>,
+        state.extra as UserData,
       );
 
   ChatPageRoute get _self => this as ChatPageRoute;

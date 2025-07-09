@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/presentation/widgets/user_avatar.dart';
 import 'package:logistix/core/utils/router.dart';
-import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
+import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:logistix/core/entities/rider_data.dart';
 
 class RiderCardSmall extends StatelessWidget {
@@ -45,29 +45,7 @@ class RiderCardSmall extends StatelessWidget {
             padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
-            UserAvatar(user: rider, size: 18),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    rider.name,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    rider.company?.name ?? 'Independent',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.hintColor,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
+            Expanded(child: UserProfileGroup(user: rider)),
             if (eta != null) ...[
               ETAWidget(eta: eta!),
               const SizedBox(width: 8),
@@ -75,7 +53,7 @@ class RiderCardSmall extends StatelessWidget {
             IconButton(
               padding: EdgeInsets.zero,
               onPressed: () {
-                ChatPageRoute(ChatParameters(user: rider)).push(context);
+                ChatPageRoute(rider).push(context);
               },
               // visualDensity: VisualDensity.compact,
               icon: const Icon(Icons.chat_bubble_outline),
@@ -89,6 +67,48 @@ class RiderCardSmall extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class UserProfileGroup extends StatelessWidget {
+  const UserProfileGroup({super.key, required this.user});
+  final UserData user;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        UserAvatar(user: user, size: 18),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user.name ?? '',
+                maxLines: 1,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (user is RiderData)
+                Text(
+                  (user as RiderData).company?.name ?? 'Independent',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

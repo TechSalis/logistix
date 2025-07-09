@@ -35,7 +35,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       resizeToAvoidBottomInset: false,
       body: PageView(
         controller: controller,
-        restorationId: 'home-tab-page-view',
         physics: const NeverScrollableScrollPhysics(),
         children: const [HomeTab(), OrdersTab()],
       ),
@@ -44,20 +43,48 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-class _NavBar extends ConsumerWidget {
+class _NavBar extends ConsumerStatefulWidget {
   const _NavBar();
 
   @override
-  Widget build(BuildContext context, ref) {
+  ConsumerState<_NavBar> createState() => _NavBarState();
+}
+
+class _NavBarState extends ConsumerState<_NavBar> with RestorationMixin {
+  final _counter = RestorableInt(0);
+
+  @override
+  String? get restorationId => 'home-nav';
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_counter, 'tab-index');
+  }
+
+  @override
+  void initState() {
+    _counter.addListener(() {
+      ref.read(navBarIndexProvider.notifier).state = _counter.value;
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _counter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(navBarIndexProvider, (p, n) => _counter.value = n);
     return BottomNavigationBar(
-      elevation: 2,
+      // elevation: 2,
       useLegacyColorScheme: false,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Theme.of(context).colorScheme.primary,
-      onTap: (value) {
-        ref.read(navBarIndexProvider.notifier).state = value;
-      },
       currentIndex: ref.watch(navBarIndexProvider),
+      onTap: (value) => _counter.value = value,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(

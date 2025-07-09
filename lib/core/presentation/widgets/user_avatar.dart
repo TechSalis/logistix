@@ -13,7 +13,9 @@ class UserAvatar extends StatelessWidget {
     return CircleAvatar(
       radius: size,
       backgroundImage:
-          user.imageUrl == null ? null : NetworkImage(user.imageUrl!),
+          user.imageUrl?.isEmpty ?? true
+              ? null
+              : NetworkImage(user.imageUrl!, scale: .1),
       backgroundColor: theme.colorScheme.onSecondary.withAlpha(50),
       child:
           user.name?.isEmpty ?? true
