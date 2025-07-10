@@ -6,7 +6,7 @@ import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
-import 'package:logistix/core/entities/rider_data.dart';
+import 'package:logistix/app/domain/entities/rider_data.dart';
 
 mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
     on ConsumerState<T>, SingleTickerProviderStateMixin<T>, RouteAware {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 
 class DeliverySummaryDialog extends StatelessWidget {

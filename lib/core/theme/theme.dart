@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/core/presentation/theme/colors.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
+import 'package:logistix/core/theme/colors.dart';
+import 'package:logistix/core/theme/styling.dart';
 
 class MyTheme {
   static ThemeData get light => ThemeData(

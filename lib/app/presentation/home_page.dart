@@ -50,47 +50,27 @@ class _NavBar extends ConsumerStatefulWidget {
   ConsumerState<_NavBar> createState() => _NavBarState();
 }
 
-class _NavBarState extends ConsumerState<_NavBar> with RestorationMixin {
-  final _counter = RestorableInt(0);
-
-  @override
-  String? get restorationId => 'home-nav';
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_counter, 'tab-index');
-  }
-
-  @override
-  void initState() {
-    _counter.addListener(() {
-      ref.read(navBarIndexProvider.notifier).state = _counter.value;
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _counter.dispose();
-    super.dispose();
-  }
-
+class _NavBarState extends ConsumerState<_NavBar> {
   @override
   Widget build(BuildContext context) {
-    ref.listen(navBarIndexProvider, (p, n) => _counter.value = n);
     return BottomNavigationBar(
-      // elevation: 2,
       useLegacyColorScheme: false,
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Theme.of(context).colorScheme.primary,
       currentIndex: ref.watch(navBarIndexProvider),
       onTap: (value) {
-        if (_counter.value == value) {
-          PrimaryScrollController.of(
-            context,
-          ).animateTo(0, duration: kTabScrollDuration, curve: Curves.easeInOut);
+        if (ref.watch(navBarIndexProvider) != value) {
+          ref.watch(navBarIndexProvider.notifier).state = value;
+        } else {
+          final controller = PrimaryScrollController.maybeOf(context);
+          if (controller?.hasClients ?? false) {
+            controller?.animateTo(
+              0,
+              duration: kTabScrollDuration,
+              curve: Curves.easeInOut,
+            );
+          }
         }
-        _counter.value = value;
       },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

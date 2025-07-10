@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
+import 'package:logistix/core/theme/styling.dart';
 
 class BottomsheetContainer extends StatelessWidget {
   const BottomsheetContainer({

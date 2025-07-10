@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
-import 'package:logistix/core/entities/company_data.dart';
+import 'package:logistix/app/domain/entities/company_data.dart';
 import 'package:logistix/app/application/navigation_bar_rp.dart';
 import 'package:logistix/app/presentation/widgets/user_map_view.dart';
-import 'package:logistix/features/order_now/widgets/order_icon.dart';
+import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:logistix/core/entities/rider_data.dart';
+import 'package:logistix/app/domain/entities/rider_data.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 
 class HomeTab extends StatelessWidget {

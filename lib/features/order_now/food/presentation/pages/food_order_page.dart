@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
-import 'package:logistix/core/presentation/widgets/buttons.dart';
-import 'package:logistix/core/presentation/widgets/location_text_field.dart';
-import 'package:logistix/core/presentation/widgets/text_field_with_heading.dart';
+import 'package:logistix/core/theme/styling.dart';
+import 'package:logistix/app/presentation/widgets/buttons.dart';
+import 'package:logistix/app/presentation/widgets/location_text_field.dart';
+import 'package:logistix/app/presentation/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';

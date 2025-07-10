@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:implicitly_animated_list/implicitly_animated_list.dart';
-import 'package:logistix/core/entities/rider_data.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
+import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
@@ -134,6 +134,7 @@ class _OrdersPageState extends State<OrdersTab>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     bool hasActiveRider = true;
     final ongoing = orders.where((o) => !o.status.isFinal).toList();
     final history = orders.where((o) => o.status.isFinal).toList();

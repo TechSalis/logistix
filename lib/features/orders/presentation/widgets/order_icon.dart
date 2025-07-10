@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/core/presentation/widgets/avatar_icon.dart';
+import 'package:logistix/app/presentation/widgets/avatar_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderIcon extends StatelessWidget {

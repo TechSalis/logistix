@@ -1,5 +1,5 @@
 
-import 'package:logistix/core/entities/usecase.dart';
+import 'package:logistix/core/usecases/usecase.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/repository/location_service.dart';
 

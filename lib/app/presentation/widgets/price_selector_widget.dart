@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 // import 'package:flutter_multi_formatter/formatters/currency_input_formatter.dart';
 // import 'package:flutter_multi_formatter/formatters/money_input_enums.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/core/presentation/theme/colors.dart';
-import 'package:logistix/core/presentation/theme/extensions/context_extension.dart';
+import 'package:logistix/core/theme/colors.dart';
+import 'package:logistix/core/theme/extensions/context_extension.dart';
 import 'dart:core';
 
 class PriceSelectorField extends StatelessWidget {

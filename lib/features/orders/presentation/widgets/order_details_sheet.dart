@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/core/presentation/theme/styling.dart';
-import 'package:logistix/core/presentation/widgets/user_avatar.dart';
+import 'package:logistix/core/theme/styling.dart';
+import 'package:logistix/app/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderDetailsSheet extends StatelessWidget {
