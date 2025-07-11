@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/core/utils/router.dart';
@@ -17,7 +18,7 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Order order = Order(
+    final Order? order = Order(
       id: '13276',
       type: OrderType.delivery,
       price: 1200,
@@ -54,20 +55,21 @@ class HomeTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _SearchBar(),
-            const SizedBox(height: 24),
+            SizedBox(height: 16.h),
             const Expanded(child: _MiniMapWidget()),
-            const SizedBox(height: 16),
+            SizedBox(height: 16.h),
             const _FindRiderCTA(),
-            const SizedBox(height: 24),
+            SizedBox(height: 16.h),
             Text("Order Now", style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             const _QuickActionGrid(),
-            const SizedBox(height: 32),
-            if (order != null)
-              SizedBox(
-                height: 170,
-                child: Consumer(
-                  builder: (context, ref, child) {
+            SizedBox(height: 24.h),
+            Expanded(
+              child: Consumer(
+                builder: (context, ref, child) {
+                  if (order == null) {
+                    return const _EmptyOrderPrompt();
+                  } else {
                     return _LastOrderCard(
                       order: order,
                       eta: "6 mins",
@@ -76,13 +78,11 @@ class HomeTab extends StatelessWidget {
                       },
                       // onTrack: order.rider == null ? null : () {},
                     );
-                  },
-                ),
-              )
-            else //TODO: if (find rider != null)
-              // _FindRiderWidget(rider: rider)
-              const SizedBox(height: 170, child: _EmptyOrderPrompt()),
-            const SizedBox(height: 24),
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: 12.h),
           ],
         ),
       ),
@@ -170,7 +170,7 @@ class _LastOrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               "🕓 Last Order: #${order.id}",
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -182,7 +182,7 @@ class _LastOrderCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 8.h),
             RepaintBoundary(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -220,7 +220,7 @@ class _LastOrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const Spacer(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
