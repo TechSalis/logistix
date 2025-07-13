@@ -43,7 +43,7 @@ dependencies:
   rounded_loading_button: ^2.1.0
   # smooth_page_indicator: ^1.2.1
 
-  # supabase_flutter: ^2.9.1
+  supabase_flutter: ^2.9.1
   
   uuid: ^4.5.1
 
@@ -81,6 +81,8 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter/Inter_24pt-Light.ttf
+          weight: 200
+        - asset: assets/fonts/Inter/Inter_24pt-Light.ttf
           weight: 300
         - asset: assets/fonts/Inter/Inter_24pt-Regular.ttf
           weight: 400
@@ -90,3 +92,5 @@ flutter:
           weight: 600
         - asset: assets/fonts/Inter/Inter_24pt-Bold.ttf
           weight: 700
+        - asset: assets/fonts/Inter/Inter_24pt-Bold.ttf
+          weight: 800

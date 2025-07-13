@@ -6,23 +6,22 @@ import 'package:flutter/foundation.dart';
 
 ///Ensure the [EnvConfig.extract] function is called before the class is used
 class EnvConfig {
-  final String apiUrl;
   final String ENV;
+  final String apiUrl;
+  final String googleApiKey;
   final String googleMapApiUrl;
   final String googlePlaceApiUrl;
-  final String googleApiKey;
-
-  // final String supabaseAnonKey;
-  // final String supabaseUrl;
+  final String supabaseUrl;
+  final String supabaseAnonKey;
 
   EnvConfig._internal({
-    required this.apiUrl,
     required this.ENV,
+    required this.apiUrl,
     required this.googleApiKey,
     required this.googleMapApiUrl,
     required this.googlePlaceApiUrl,
-    // required this.supabaseAnonKey,
-    // required this.supabaseUrl,
+    required this.supabaseUrl,
+    required this.supabaseAnonKey,
   });
 
   static EnvConfig? _instance;
@@ -42,8 +41,8 @@ class EnvConfig {
           (Platform.isAndroid
               ? variables['GOOGLE_MAP_ANDROID_KEY']
               : variables['GOOGLE_MAP_IOS_KEY'])!,
-      // supabaseUrl: variables['SUPABASE_URL']!,
-      // supabaseAnonKey: variables['SUPABASE_ANON_KEY']!,
+      supabaseUrl: variables['SUPABASE_URL']!,
+      supabaseAnonKey: variables['SUPABASE_ANON_KEY']!,
     );
   }
 }
