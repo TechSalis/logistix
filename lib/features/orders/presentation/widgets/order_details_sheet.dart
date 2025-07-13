@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/app/domain/entities/rider_data.dart';
 import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/presentation/widgets/user_avatar.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderDetailsSheet extends StatelessWidget {
-  const OrderDetailsSheet({super.key, required this.order});
+  const OrderDetailsSheet({super.key, required this.order, this.rider});
   final Order order;
+  final RiderData? rider;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SafeArea(
       top: false,
+      left: false,
+      right: false,
       child: Padding(
         padding: padding_H16,
         child: Column(
@@ -44,8 +48,7 @@ class OrderDetailsSheet extends StatelessWidget {
                 label: 'Description',
                 value: order.description,
               ),
-            const SizedBox(height: 20),
-            if (order.rider != null) ...[
+            if (rider != null) ...[
               const Divider(height: 32),
               Text(
                 'Rider',
@@ -55,19 +58,19 @@ class OrderDetailsSheet extends StatelessWidget {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: UserAvatar(user: order.rider!),
+                leading: UserAvatar(user: rider!),
                 title: Text(
-                  order.rider!.name,
+                  rider!.name,
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
-                subtitle: Text(order.rider!.company?.name ?? 'Independent'),
+                subtitle: Text(rider!.company?.name ?? 'Independent'),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.my_location),
-                      onPressed: () {},
-                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.location_on_outlined),
+                    //   onPressed: () {},
+                    // ),
                     IconButton(
                       icon: const Icon(Icons.chat_bubble_outline),
                       onPressed: () {},
@@ -97,31 +100,49 @@ class OrderDetailsSheet extends StatelessWidget {
                 ),
               ],
             ),
-            if (order.rider?.company != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.help_outline),
-                    label: const Text('Contact Company'),
-                    onPressed: () {},
+            const Divider(height: 32),
+            if (!order.status.isProcessing)
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.tertiary,
                   ),
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Cancel Order'),
+                  onPressed: () {},
+                ),
+              )
+            else if (rider != null)
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  icon: const Icon(Icons.message_outlined),
+                  label: const Text('Message Rider'),
+                  onPressed: () {},
+                ),
+              ),
+            const SizedBox(height: 12),
+            if (rider?.company != null)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.help_outline),
+                  label: const Text('Contact Company'),
+                  onPressed: () {},
                 ),
               )
             else
-              Padding(
-                padding: const EdgeInsets.only(top: 32),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.help_outline),
-                    label: const Text('Contact Support'),
-                    onPressed: () {},
-                  ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.help_outline),
+                  label: const Text('Contact Support'),
+                  onPressed: () {},
                 ),
               ),
-            const SizedBox(height: 16),
+
+            const SizedBox(height: 8),
           ],
         ),
       ),

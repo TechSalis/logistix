@@ -20,7 +20,7 @@ class PanAwayListener extends StatefulWidget {
 
 class _PanAwayListenerState extends State<PanAwayListener> {
   /// True - centered. False - Panned away. Null -
-  bool? isCenteredState = true;
+  bool isCenteredState = true;
   Offset? tapDownPosition;
 
   @override
@@ -29,11 +29,7 @@ class _PanAwayListenerState extends State<PanAwayListener> {
       onPointerDown: (event) {
         tapDownPosition = event.position;
         // Dont update UI yet to show track location hutton
-        if (isCenteredState == true) {
-          isCenteredState = false;
-        } else {
-          isCenteredState = null;
-        }
+        isCenteredState = false;
       },
       onPointerUp: (event) {
         // if (followMarkerState) return;
@@ -41,7 +37,7 @@ class _PanAwayListenerState extends State<PanAwayListener> {
         final dy = (tapDownPosition!.dy - event.position.dy).abs();
 
         //Now we can update UI to show track location hutton
-        if (max(dx, dy) < widget.panAwayOffset && isCenteredState == false) {
+        if (max(dx, dy) < widget.panAwayOffset) {
           isCenteredState = true;
         }
         widget.onPanAway(isCenteredState != true);

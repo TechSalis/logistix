@@ -39,12 +39,12 @@ class Order extends Equatable {
   ];
 }
 
-enum OrderStatus { pending, confirmed, enRoute, delivered, cancelled }
+enum OrderStatus { pending, accepted, enRoute, delivered, cancelled }
 
 extension OrderStatusExt on OrderStatus {
   String get label => switch (this) {
     OrderStatus.pending => 'Pending',
-    OrderStatus.confirmed => 'Confirmed',
+    OrderStatus.accepted => 'Accepted',
     OrderStatus.enRoute => 'On the way',
     OrderStatus.delivered => 'Delivered',
     OrderStatus.cancelled => 'Cancelled',
@@ -52,7 +52,7 @@ extension OrderStatusExt on OrderStatus {
 
   Color get color => switch (this) {
     OrderStatus.pending => Colors.grey.shade800,
-    OrderStatus.confirmed => AppColors.orange,
+    OrderStatus.accepted => AppColors.orange,
     OrderStatus.enRoute => Colors.green,
     OrderStatus.delivered => Colors.green.shade700,
     OrderStatus.cancelled => Colors.red,
@@ -63,7 +63,7 @@ extension OrderStatusExt on OrderStatus {
   }
 
   bool get isProcessing {
-    return this == OrderStatus.confirmed || this == OrderStatus.enRoute;
+    return this == OrderStatus.accepted || this == OrderStatus.enRoute;
   }
 }
 

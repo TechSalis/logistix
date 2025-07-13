@@ -9,9 +9,15 @@ class MyTheme {
     primarySwatch: AppColors.orange,
     scaffoldBackgroundColor: AppColors.grey100,
     appBarTheme: const AppBarTheme(
-      surfaceTintColor: AppColors.grey100,
-      color: AppColors.grey100,
+      toolbarHeight: 40,
       centerTitle: false,
+      color: AppColors.grey100,
+      surfaceTintColor: AppColors.grey100,
+      titleTextStyle: TextStyle(
+        color: AppColors.grey900,
+        fontSize: 20,
+        fontWeight: FontWeight.w500,
+      ),
     ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.orange,
@@ -23,10 +29,14 @@ class MyTheme {
       onSurface: AppColors.grey900,
       primaryContainer: AppColors.blueGrey,
     ),
-    cardTheme: const CardThemeData(
+    cardTheme: CardThemeData(
+      elevation: 0,
       margin: EdgeInsets.zero,
-      shape: roundRectBorder16,
-      shadowColor: Colors.black54,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius_16,
+        side: BorderSide(color: Colors.grey.shade400, width: .5),
+      ),
+      shadowColor: Colors.black26,
     ),
     tabBarTheme: const TabBarThemeData(
       labelStyle: TextStyle(fontWeight: FontWeight.w600),
@@ -45,8 +55,9 @@ class MyTheme {
     ),
     fontFamily: 'Inter',
     textTheme: const TextTheme().apply(
-      bodyColor: Colors.black87,
-      displayColor: Colors.black.withAlpha(200),
+      fontFamily: 'Inter',
+      bodyColor: Colors.grey,
+      displayColor: Colors.grey,
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,

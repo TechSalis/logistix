@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/app/presentation/widgets/avatar_icon.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderIcon extends StatelessWidget {
@@ -12,9 +12,12 @@ class OrderIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
-      child: AvatarIcon(
-        backgroundColor: (color ?? type.color).withAlpha(30),
-        icon: Icon(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: (color ?? type.color).withAlpha(30),
+          borderRadius: borderRadius_12,
+        ),
+        child: Icon(
           type.icon,
           color: color ?? type.color,
           size: size != null ? (size! * .5) : null,

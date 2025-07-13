@@ -8,22 +8,25 @@ import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/app/domain/entities/company_data.dart';
 import 'package:logistix/app/application/navigation_bar_rp.dart';
 import 'package:logistix/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/app/domain/entities/rider_data.dart';
-import 'package:logistix/features/orders/presentation/widgets/order_card.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Order? order = Order(
-      id: '13276',
+    const Order order = Order(
+      id: '13276342',
       type: OrderType.delivery,
       price: 1200,
       status: OrderStatus.enRoute,
-      description: "Pick up Paracetamol from HealthPlus, deliver to Yaba",
+      description: "Pick up Paracetamol from HealthPlus",
+      pickUp: Address('Mozilla lodge, Akure street, Lagos'),
+      dropOff: Address('Mozilla lodge, Akure street, Lagos'),
       rider: RiderData(
         id: 'id',
         name: 'name',
@@ -55,30 +58,27 @@ class HomeTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _SearchBar(),
-            SizedBox(height: 16.h),
+            SizedBox(height: 12.h),
             const Expanded(child: _MiniMapWidget()),
             SizedBox(height: 16.h),
             const _FindRiderCTA(),
-            SizedBox(height: 16.h),
-            Text("Order Now", style: Theme.of(context).textTheme.titleMedium),
+            SizedBox(height: 20.h),
+            Text("Order Now!", style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: 12.h),
             const _QuickActionGrid(),
-            SizedBox(height: 24.h),
+            SizedBox(height: 20.h),
             Expanded(
               child: Consumer(
                 builder: (context, ref, child) {
-                  if (order == null) {
-                    return const _EmptyOrderPrompt();
-                  } else {
-                    return _LastOrderCard(
-                      order: order,
-                      eta: "6 mins",
-                      onViewDetails: () {
-                        ref.read(navBarIndexProvider.notifier).state = 1;
-                      },
-                      // onTrack: order.rider == null ? null : () {},
-                    );
-                  }
+                  if (order == null) return const _EmptyOrderPrompt();
+                  return LastOrderCard(
+                    order: order,
+                    eta: "6 mins",
+                    onViewDetails: () {
+                      ref.read(navBarIndexProvider.notifier).state = 1;
+                    },
+                    // onTrack: order.rider == null ? null : () {},
+                  );
                 },
               ),
             ),
@@ -132,7 +132,7 @@ class _QuickActionGrid extends StatelessWidget {
                     size: 52,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     action.label,
                     style: const TextStyle(
@@ -144,123 +144,6 @@ class _QuickActionGrid extends StatelessWidget {
               ),
             );
           }).toList(),
-    );
-  }
-}
-
-class _LastOrderCard extends StatelessWidget {
-  final Order order;
-  final String? eta;
-  final VoidCallback onViewDetails;
-  // final VoidCallback? onTrack;
-
-  const _LastOrderCard({
-    required this.order,
-    required this.eta,
-    required this.onViewDetails,
-    // this.onTrack,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      child: Padding(
-        padding: padding_H16_V8,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 8.h),
-            Text(
-              "🕓 Last Order: #${order.id}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              order.description,
-              style: Theme.of(context).textTheme.bodySmall,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            SizedBox(height: 8.h),
-            RepaintBoundary(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Status: ",
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          // color: order.status.color,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      OrderStatusChip(status: order.status),
-                    ],
-                  ),
-                  if (eta != null)
-                    Text.rich(
-                      TextSpan(
-                        text: "ETA: ",
-                        children: [
-                          TextSpan(
-                            text: eta,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // if (onTrack != null)
-                //   Padding(
-                //     padding: const EdgeInsets.only(right: 12),
-                //     child: ElevatedButton.icon(
-                //       onPressed: onTrack,
-                //       icon: const Icon(Icons.location_pin),
-                //       label: const Text("Track"),
-                //       style: Theme.of(
-                //         context,
-                //       ).elevatedButtonTheme.style?.copyWith(
-                //         iconSize: const WidgetStatePropertyAll(16),
-                //         minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
-                //         textStyle: WidgetStatePropertyAll(
-                //           Theme.of(context).textTheme.bodySmall,
-                //         ),
-                //         padding: const WidgetStatePropertyAll(
-                //           EdgeInsets.symmetric(horizontal: 12),
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                OutlinedButton(
-                  onPressed: onViewDetails,
-                  style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
-                    minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
-                    textStyle: WidgetStatePropertyAll(
-                      Theme.of(context).textTheme.bodySmall,
-                    ),
-                    padding: const WidgetStatePropertyAll(padding_H12),
-                  ),
-                  child: const Text("View Order"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -311,6 +194,7 @@ class _FindRiderCTA extends StatelessWidget {
         icon: const Icon(Icons.flash_on),
         label: const Text("Find a Rider"),
         style: TextButton.styleFrom(
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
           foregroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       ),

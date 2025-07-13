@@ -49,9 +49,9 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
             children: [
               const SizedBox(height: 8),
               Card(
-                elevation: 2,
+                elevation: 3,
                 child: Padding(
-                  padding: padding_16,
+                  padding: padding_24,
                   child: Column(
                     children: [
                       TextFieldLabelAndErrorDisplayWidget(

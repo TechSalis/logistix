@@ -7,10 +7,9 @@ abstract class AppColors {
   static const blueGreyMaterial = Colors.blueGrey;
   static const blueGrey = Color(0xFF263238);
   static const grey100 = Color(0xFFF5F5F5);
-  static const grey200 = Color(0xFFBDBDBD);
+  static const grey200 = Color(0xFFEEEEEE);
   static const grey700 = Color(0xFF616161);
   static const grey800 = Color(0xFF424242);
-  static const grey850 = Color(0xFF303030);
   static const grey900 = Color(0xFF212121);
 
   static const orange = MaterialColor(

@@ -55,7 +55,6 @@ class FoodOrderPage extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -96,9 +95,9 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      elevation: 3,
       child: Padding(
-        padding: padding_16,
+        padding: padding_24,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +171,6 @@ class _MiniFoodCard extends StatelessWidget {
     return GestureDetector(
       onTap: onItemAdded,
       child: Card(
-        elevation: 0,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(

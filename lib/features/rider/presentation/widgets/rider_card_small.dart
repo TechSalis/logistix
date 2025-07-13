@@ -1,76 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/presentation/widgets/user_avatar.dart';
-import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:logistix/app/domain/entities/rider_data.dart';
-
-class RiderCardSmall extends StatelessWidget {
-  const RiderCardSmall({
-    super.key,
-    required this.rider,
-    this.eta,
-    this.decoration,
-    this.padding,
-  });
-
-  const RiderCardSmall.transparent({super.key, required this.rider, this.eta})
-    : decoration = const BoxDecoration(),
-      padding = EdgeInsets.zero;
-
-  final Decoration? decoration;
-  final EdgeInsets? padding;
-  final RiderData rider;
-  final String? eta;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration:
-          decoration ??
-          BoxDecoration(
-            color: theme.cardTheme.color,
-            borderRadius: borderRadius_16,
-            border: Border.all(color: theme.dividerColor.withAlpha(26)),
-            boxShadow: const [
-              BoxShadow(
-                blurRadius: 2,
-                color: Colors.black12,
-                offset: Offset(0, 1),
-              ),
-            ],
-          ),
-      child: Padding(
-        padding:
-            padding ?? const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(child: UserProfileGroup(user: rider)),
-            if (eta != null) ...[
-              ETAWidget(eta: eta!),
-              const SizedBox(width: 8),
-            ],
-            IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                ChatPageRoute(rider).push(context);
-              },
-              // visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.chat_bubble_outline),
-            ),
-            IconButton(
-              onPressed: () {},
-              padding: EdgeInsets.zero,
-              // visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.help_outline),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class UserProfileGroup extends StatelessWidget {
   const UserProfileGroup({super.key, required this.user});
@@ -93,7 +24,7 @@ class UserProfileGroup extends StatelessWidget {
                 user.name ?? '',
                 maxLines: 1,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),

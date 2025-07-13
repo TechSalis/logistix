@@ -24,7 +24,7 @@ const orders = [
       coordinates: Coordinates(6.51, 3.36),
     ),
     description: 'Burger + fries + drink combo',
-    status: OrderStatus.confirmed,
+    status: OrderStatus.accepted,
     price: 2500,
     rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
   ),
@@ -91,7 +91,7 @@ const orders = [
       coordinates: Coordinates(6.50, 3.34),
     ),
     description: 'Pick up cleaned suits',
-    status: OrderStatus.confirmed,
+    status: OrderStatus.accepted,
     price: 1500,
     rider: null,
   ),
@@ -167,7 +167,7 @@ class _OrdersPageState extends State<OrdersTab>
                       hasActiveRider
                           ? FlexibleSpaceBar(
                             collapseMode: CollapseMode.parallax,
-                            background: RiderOnTheWayCard(
+                            background: _RiderTrackerCard(
                               rider: orders[0].rider!,
                               eta: '20 mins',
                             ),
@@ -182,7 +182,7 @@ class _OrdersPageState extends State<OrdersTab>
                       child: Column(
                         children: [
                           if (hasActiveRider)
-                            _TrackingRiderSection(rider: orders[0].rider!),
+                            _TrackingRiderTitleBar(rider: orders[0].rider!),
                           TabBar(
                             tabs: const [
                               Tab(text: 'Ongoing'),
@@ -261,27 +261,8 @@ class _OrdersSliverList extends StatelessWidget {
   }
 }
 
-class RiderOnTheWayCard extends StatelessWidget {
-  const RiderOnTheWayCard({super.key, required this.rider, required this.eta});
-
-  final RiderData rider;
-  final String eta;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: () => RiderTrackerPageRoute(rider).push(context),
-          child: AbsorbPointer(child: RiderTrackerMapWidget(rider: rider)),
-        ),
-      ],
-    );
-  }
-}
-
-class _TrackingRiderSection extends StatelessWidget {
-  const _TrackingRiderSection({required this.rider});
+class _TrackingRiderTitleBar extends StatelessWidget {
+  const _TrackingRiderTitleBar({required this.rider});
   final RiderData rider;
 
   @override
@@ -290,14 +271,12 @@ class _TrackingRiderSection extends StatelessWidget {
       color: Colors.white,
       shape: const Border(),
       child: Padding(
-        padding: padding_8,
+        padding: padding_H16_V8,
         child: Row(
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () {
-                  ChatPageRoute(rider).push(context);
-                },
+                onTap: () => ChatPageRoute(rider).push(context),
                 child: UserProfileGroup(user: rider),
               ),
             ),
@@ -314,6 +293,25 @@ class _TrackingRiderSection extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _RiderTrackerCard extends StatelessWidget {
+  const _RiderTrackerCard({required this.rider, required this.eta});
+
+  final RiderData rider;
+  final String eta;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () => RiderTrackerPageRoute(rider).push(context),
+          child: AbsorbPointer(child: RiderTrackerMapWidget(rider: rider)),
+        ),
+      ],
     );
   }
 }
