@@ -11,8 +11,10 @@ class MapViewWidget extends StatefulWidget {
     this.onMapCreated,
     this.onCameraIdle,
     this.markers = const {},
+    this.liteModeEnabled = false,
   });
 
+  final bool liteModeEnabled;
   final Set<Marker> markers;
   final Coordinates? initialPosition;
   final void Function(GoogleMapController map)? onMapCreated;
@@ -57,6 +59,7 @@ class _MapViewWidgetState extends State<MapViewWidget> {
                 zoomControlsEnabled: false,
                 myLocationEnabled: false,
                 myLocationButtonEnabled: false,
+                liteModeEnabled: widget.liteModeEnabled,
                 initialCameraPosition: CameraPosition(
                   target:
                       widget.initialPosition?.toPoint() ??

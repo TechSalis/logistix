@@ -48,6 +48,7 @@ class UserMapView extends ConsumerWidget {
   Widget _buildMap(BuildContext context, WidgetRef ref) {
     final userCoordinates = ref.watch(locationProvider)?.coordinates;
     return MapViewWidget(
+      liteModeEnabled: true,
       markers: {
         if (userCoordinates != null)
           Marker(

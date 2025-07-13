@@ -41,6 +41,7 @@ class _RiderTrackerMapWidgetState extends ConsumerState<RiderTrackerMapWidget>
     listenToRiderTracking(ref);
     final coordinates = ref.watch(markerAnimatorProvider(animator.arg));
     return MapViewWidget(
+      liteModeEnabled: true,
       onMapCreated: (m) {
         map = m;
         m.moveCamera(
