@@ -40,7 +40,20 @@ const orders = [
         'Pick up cleaned suits at 34 Orungle Street, Opposite Kings Close. Ikeja',
     status: OrderStatus.cancelled,
     price: 1500,
-    rider: null,
+    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
+  ),
+  Order(
+    id: '20',
+    type: OrderType.errands,
+    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
+    dropOff: Address(
+      '34 Orungle Street, Opposite Kings Close. Ikeja',
+      coordinates: Coordinates(6.50, 3.34),
+    ),
+    description:
+        'Pick up cleaned suits at 34 Orungle Street, Opposite Kings Close. Ikeja',
+    status: OrderStatus.cancelled,
+    price: 15000,
   ),
   Order(
     id: '3',
@@ -67,7 +80,7 @@ const orders = [
         'Pick up Chicken Republic at 34 Orungle Street, Opposite Kings Close. Ikeja.\nRepublic at 34 Orungle Street, Opposite Kings Close. Ikeja',
     status: OrderStatus.delivered,
     price: 1500,
-    rider: null,
+    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
   ),
   Order(
     id: '5',
@@ -80,20 +93,7 @@ const orders = [
     description: 'Pick up cleaned suits',
     status: OrderStatus.enRoute,
     price: 1500,
-    rider: null,
-  ),
-  Order(
-    id: '6',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description: 'Pick up cleaned suits',
-    status: OrderStatus.accepted,
-    price: 1500,
-    rider: null,
+    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
   ),
   Order(
     id: '7',
@@ -105,19 +105,6 @@ const orders = [
     ),
     description: 'Pick up cleaned suits',
     status: OrderStatus.cancelled,
-    price: 1500,
-    rider: null,
-  ),
-  Order(
-    id: '28',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description: 'Pick up cleaned suits',
-    status: OrderStatus.enRoute,
     price: 1500,
     rider: null,
   ),
@@ -152,7 +139,7 @@ class _OrdersPageState extends State<OrdersTab>
                   pinned: true,
                   stretch: true,
                   toolbarHeight: 0,
-                  expandedHeight: hasActiveRider ? .3.sh : null,
+                  expandedHeight: hasActiveRider ? .33.sh : null,
                   stretchTriggerOffset: 80,
                   onStretchTrigger: () async {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -309,7 +296,12 @@ class _RiderTrackerCard extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () => RiderTrackerPageRoute(rider).push(context),
-          child: AbsorbPointer(child: RiderTrackerMapWidget(rider: rider)),
+          child: AbsorbPointer(
+            child: Transform.translate(
+              offset: const Offset(0, -kToolbarHeight * .5),
+              child: RiderTrackerMapWidget(rider: rider),
+            ),
+          ),
         ),
       ],
     );

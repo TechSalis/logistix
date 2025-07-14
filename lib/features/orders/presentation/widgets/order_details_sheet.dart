@@ -64,19 +64,19 @@ class OrderDetailsSheet extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(rider!.company?.name ?? 'Independent'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // IconButton(
-                    //   icon: const Icon(Icons.location_on_outlined),
-                    //   onPressed: () {},
-                    // ),
-                    IconButton(
-                      icon: const Icon(Icons.chat_bubble_outline),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
+                // trailing: Row(
+                //   mainAxisSize: MainAxisSize.min,
+                //   children: [
+                //     // IconButton(
+                //     //   icon: const Icon(Icons.location_on_outlined),
+                //     //   onPressed: () {},
+                //     // ),
+                //     IconButton(
+                //       icon: const Icon(Icons.chat_bubble_outline),
+                //       onPressed: () {},
+                //     ),
+                //   ],
+                // ),
               ),
             ],
             const Divider(height: 32),

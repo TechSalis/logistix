@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:logistix/core/utils/env_config.dart';
-import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/entities/place.dart';
 import 'package:logistix/features/location_core/infrastructure/dtos/google_map_response_dtos.dart';
@@ -12,7 +12,14 @@ class GooglePlacesDatasource {
     // TODO: sessionToken = uuid.v4();
 
     _dio.interceptors.addAll([
-      dioCacheInterceptor,
+      DioCacheInterceptor(
+        options: CacheOptions(
+          store: MemCacheStore(),
+          policy: CachePolicy.forceCache,
+          hitCacheOnNetworkFailure: true,
+          maxStale: const Duration(days: 1),
+        ),
+      ),
       RetryInterceptor(dio: _dio, logPrint: print),
     ]);
     _dio.options = BaseOptions(

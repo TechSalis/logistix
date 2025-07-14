@@ -23,7 +23,9 @@ class OrderCard extends StatelessWidget {
           context: context,
           showDragHandle: true,
           isScrollControlled: true,
-          builder: (context) => OrderDetailsSheet(order: order),
+          builder: (context) {
+            return OrderDetailsSheet(order: order, rider: order.rider);
+          },
         );
       },
       child: Card(
