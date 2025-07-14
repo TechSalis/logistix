@@ -50,4 +50,3 @@ void appSetup() {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
 }
-

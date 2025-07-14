@@ -56,6 +56,8 @@ dependencies:
 
   # sound_library: ^1.0.0
   leak_tracker:
+  firebase_core: ^3.15.1
+  firebase_messaging: ^15.2.9
   # timeago: ^3.7.1
 
 dev_dependencies:
