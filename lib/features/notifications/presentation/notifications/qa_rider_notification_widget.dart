@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/app/application/navigation_bar_rp.dart';
+import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_sheet.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
 class QARiderNotification extends AppNotificationData {
   const QARiderNotification({
@@ -93,9 +93,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
                       ],
                     ),
                   ),
-
                   const SizedBox(width: 8),
-
                   // Action button
                   IconButton(
                     visualDensity: VisualDensity.compact,

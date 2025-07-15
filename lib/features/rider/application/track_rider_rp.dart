@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 import 'package:logistix/features/rider/infrastructure/repository/mock_rider_repo_impl.dart';
 

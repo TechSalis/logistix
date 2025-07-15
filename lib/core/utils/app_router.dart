@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
-import 'package:logistix/app/presentation/home_page.dart';
+import 'package:logistix/features/home/presentation/home_page.dart';
 import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
 import 'package:logistix/features/order_now/delivery/presentation/pages/new_delivery_page.dart';
 import 'package:logistix/features/order_now/food/presentation/pages/food_order_page.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 
-part 'router.g.dart';
+part 'app_router.g.dart';
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 

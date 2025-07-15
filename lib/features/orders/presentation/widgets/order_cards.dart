@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
-import 'package:logistix/app/presentation/widgets/user_avatar.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/presentation/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';

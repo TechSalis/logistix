@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/core/utils/router.dart';
+import 'package:logistix/core/utils/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
 mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
     on ConsumerState<T>, SingleTickerProviderStateMixin<T>, RouteAware {

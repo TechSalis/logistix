@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
 sealed class FindRiderState {
   const FindRiderState();

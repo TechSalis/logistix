@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logistix/features/home/presentation/provider_event_handler.dart';
 import 'package:logistix/core/theme/theme.dart';
 import 'package:logistix/core/utils/env_config.dart';
-import 'package:logistix/core/utils/router.dart';
-import 'package:logistix/features/notifications/presentation/widgets/notification_listener_widget.dart';
+import 'package:logistix/core/utils/extensions/hive.dart';
+import 'package:logistix/core/utils/app_router.dart';
+import 'package:logistix/features/auth/application/logic/auth_session.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 // ignore: depend_on_referenced_packages
@@ -21,17 +23,15 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      child: ProviderScope(
-        child: OverlaySupport.global(
-          child: ProviderAppNotificationsHandler(
-            child: MaterialApp.router(
-              restorationScopeId: 'app',
-              // showPerformanceOverlay: kDebugMode,
-              routerConfig: router,
-              theme: MyTheme.light,
-              darkTheme: MyTheme.dark,
-              // themeMode: ThemeMode.dark,
-            ),
+      child: OverlaySupport.global(
+        child: AppProviderScope(
+          child: MaterialApp.router(
+            restorationScopeId: 'app',
+            // showPerformanceOverlay: kDebugMode,
+            routerConfig: router,
+            theme: MyTheme.light,
+            darkTheme: MyTheme.dark,
+            // themeMode: ThemeMode.dark,
           ),
         ),
       ),
@@ -39,29 +39,31 @@ class MainApp extends StatelessWidget {
   }
 }
 
-Future precacheData() {
+Future precacheAssetData() {
   return Future.wait([
     rootBundle.loadString('assets/json/google_map_theme.dark.json'),
     rootBundle.loadString('assets/json/google_map_theme.light.json'),
   ]);
 }
 
-Future appSetup() {
-  WidgetsFlutterBinding.ensureInitialized();
+Future appPluginsSetup() {
   final imagePickerImplementation = ImagePickerPlatform.instance;
   if (imagePickerImplementation is ImagePickerAndroid) {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
-  return Firebase.initializeApp();
+  return Future.wait([
+    Hive.initFlutter().then((_) => Hive.openAllBoxes()),
+    Firebase.initializeApp(),
+  ]);
 }
 
-Future appSetupWithEnv() {
+Future supabasePluginSetupWithEnv(EnvConfig config) {
   return Supabase.initialize(
-    url: EnvConfig.instance.supabaseUrl,
-    anonKey: EnvConfig.instance.supabaseAnonKey,
+    url: config.supabaseUrl,
+    anonKey: config.supabaseAnonKey,
     //TODO: Add auth access token
     accessToken: () async {
-      return null;
+      return (await AuthLocalStore.instance.getSession())?.token;
     },
   );
 }

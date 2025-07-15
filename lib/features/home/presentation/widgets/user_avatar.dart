@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 
 class UserAvatar extends StatelessWidget {

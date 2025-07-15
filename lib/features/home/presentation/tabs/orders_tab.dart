@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:implicitly_animated_list/implicitly_animated_list.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/router.dart';
+import 'package:logistix/core/utils/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';

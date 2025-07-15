@@ -6,9 +6,9 @@ A dispatch app for vendors and users built with Flutter, Riverpod, and Clean Arc
 - Rider tracking
 - Chat
 - Real-time location
+- Create Delivery
 - Customized delivery flows; Food, Groceries and Errands
 - Find Rider
-- New Delivery
 - Manage Your Orders
 - Notifications and Realtime Updates
 
@@ -17,15 +17,17 @@ A dispatch app for vendors and users built with Flutter, Riverpod, and Clean Arc
 - Riverpod and ephemeral state management
 - Repository Pattern
 - SOLID principles
+- REST APIs and (Ably & Supabase) Websockets
+- FCM for notifications, alerts and status (data) updates
+
 
 ## Getting Started
 
+### Build and Run
 
-# Run and Build
-
-## Build Files Before Run Commands
-
+- flutter pub get
 - dart run build_runner build --delete-conflicting-outputs
+
 
 ## App Run / Build Commands
 

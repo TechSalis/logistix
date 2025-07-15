@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:logistix/app/domain/entities/company_data.dart';
+import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 
 class RiderData extends UserData with EquatableMixin {

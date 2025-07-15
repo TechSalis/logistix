@@ -28,7 +28,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = (ref.watch(authProvider) as AuthLoggedIn).user;
+    final user = (ref.watch(authProvider) as AuthLoggedInState).user;
     return Scaffold(
       appBar: ChatAppBar(user: widget.user),
       body: Chat(

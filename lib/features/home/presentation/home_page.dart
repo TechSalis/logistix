@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/app/application/navigation_bar_rp.dart';
-import 'package:logistix/app/presentation/tabs/home_tab.dart';
+import 'package:logistix/features/home/application/navigation_bar_rp.dart';
+import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 // import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy%203.dart';
 // import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy.dart';
-import 'package:logistix/app/presentation/tabs/orders_tab.dart';
+import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});

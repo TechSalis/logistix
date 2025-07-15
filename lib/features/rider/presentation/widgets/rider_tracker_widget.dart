@@ -5,7 +5,7 @@ import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/controllers/track_rider_mixin.dart';
 
 class RiderTrackerMapWidget extends ConsumerStatefulWidget {

@@ -1,5 +1,4 @@
-import 'package:logistix/features/auth/domain/entities/user.dart';
-import 'package:logistix/features/auth/infrastructure/models/user_data_model.dart';
+part of '../../domain/entities/user_session.dart';
 
 class AuthUserModel extends AuthUser {
   const AuthUserModel._({
@@ -12,18 +11,10 @@ class AuthUserModel extends AuthUser {
   factory AuthUserModel.fromMap(Map<String, dynamic> json) {
     return AuthUserModel._(
       id: json['id'] as String,
-      isAnonymous: json['is_anonymous'] as bool? ?? false,
+      isAnonymous: json['is_anonymous'] as bool? ?? true,
       role: _roleFromString(json['user_metadata']?['role']),
       data: UserDataModel.fromJson(json),
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'is_anonymous': isAnonymous,
-      'user_metadata': {'role': _roleToString(role), ...data.toMap()},
-    };
   }
 
   static UserRole _roleFromString(String value) {
@@ -32,10 +23,9 @@ class AuthUserModel extends AuthUser {
         return UserRole.rider;
       case 'company':
         return UserRole.company;
-      case 'customer':
+      default:
         return UserRole.customer;
     }
-    throw Exception('Unknown role: $value');
   }
 
   static String _roleToString(UserRole role) {
@@ -44,8 +34,24 @@ class AuthUserModel extends AuthUser {
         return 'rider';
       case UserRole.company:
         return 'company';
-      case UserRole.customer:
+      default:
         return 'customer';
     }
+  }
+}
+
+class AuthSessionModel extends AuthSession {
+  const AuthSessionModel._({
+    required super.refreshToken,
+    required super.token,
+    required super.expiresAt,
+  });
+
+  factory AuthSessionModel.fromMap(Map<String, dynamic> json) {
+    return AuthSessionModel._(
+      token: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String,
+      expiresAt: json['expires_at'] as String,
+    );
   }
 }

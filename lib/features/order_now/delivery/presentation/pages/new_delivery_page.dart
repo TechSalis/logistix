@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/app/presentation/widgets/buttons.dart';
+import 'package:logistix/features/home/presentation/widgets/buttons.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/app/presentation/widgets/text_fields.dart';
+import 'package:logistix/features/home/presentation/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';

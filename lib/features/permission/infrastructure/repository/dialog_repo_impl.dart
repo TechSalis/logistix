@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logistix/core/utils/extensions/hive.dart';
 import 'package:logistix/features/permission/domain/repository/dialog_repo.dart';
 
 class HivePermissionDialogRepositoryImpl extends PermissionDialogRepository {
@@ -7,7 +8,7 @@ class HivePermissionDialogRepositoryImpl extends PermissionDialogRepository {
     // required super.maxRetries,
   });
 
-  Future<Box> get box => Hive.openBox('dialogs');
+  Future<Box> get box => Hive.openTrackedBox('permissions');
 
   @override
   Future<bool> get isGranted async => (await box).get(key, defaultValue: false);

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/extensions/context_extension.dart';
-import 'package:logistix/core/utils/router.dart';
+import 'package:logistix/core/utils/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 
 class LocationTextField extends ConsumerWidget {

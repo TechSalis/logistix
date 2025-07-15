@@ -7,6 +7,7 @@ class MyTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     primarySwatch: AppColors.orange,
+    snackBarTheme: const SnackBarThemeData(showCloseIcon: true),
     scaffoldBackgroundColor: AppColors.grey100,
     appBarTheme: const AppBarTheme(
       toolbarHeight: 40,
@@ -122,7 +123,8 @@ class MyTheme {
     brightness: Brightness.dark,
     primarySwatch: AppColors.orange,
     scaffoldBackgroundColor: Colors.black,
-    appBarTheme: AppBarTheme(
+    snackBarTheme: const SnackBarThemeData(showCloseIcon: true),
+    appBarTheme: const AppBarTheme(
       toolbarHeight: 40,
       centerTitle: false,
       color: Colors.black,

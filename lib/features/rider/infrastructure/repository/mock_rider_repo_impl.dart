@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 
 class RandomRiderRepoImpl extends RiderRepo {

@@ -4,8 +4,6 @@ import 'package:logistix/features/notifications/application/notification_service
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/notifications/presentation/notifications/qa_rider_notification_widget.dart';
-import 'package:logistix/features/permission/application/permission_rp.dart';
-import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
 class AppNotifications extends ConsumerWidget {
   const AppNotifications({super.key, required this.data});
@@ -21,14 +19,15 @@ class AppNotifications extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!(ref
-            .read(permissionProvider(PermissionData.notifications))
-            .isGranted ??
-        true)) {
-      ref
-          .read(permissionProvider(PermissionData.notifications).notifier)
-          .request();
-    }
+    // TODO: Add Notification Permission
+    // if (!(ref
+    //         .read(permissionProvider(PermissionData.notifications))
+    //         .isGranted ??
+    //     true)) {
+    //   ref
+    //       .read(permissionProvider(PermissionData.notifications).notifier)
+    //       .request();
+    // }
     return switch (data) {
       QARiderNotification() => QARiderNotificationWidget(
         data: data as QARiderNotification,
@@ -36,7 +35,10 @@ class AppNotifications extends ConsumerWidget {
       RiderFoundNotification() => RiderFoundNotificationWidget(
         data: data as RiderFoundNotification,
       ),
-      _ => const SizedBox(),
+      _ =>
+        throw UnimplementedError(
+          '${data.runtimeType} has not been added to AppNotifications Widget',
+        ),
     };
   }
 }

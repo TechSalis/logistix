@@ -3,16 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/router.dart';
+import 'package:logistix/core/utils/app_router.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
-import 'package:logistix/app/domain/entities/company_data.dart';
-import 'package:logistix/app/application/navigation_bar_rp.dart';
-import 'package:logistix/app/presentation/widgets/user_map_view.dart';
+import 'package:logistix/features/home/domain/entities/company_data.dart';
+import 'package:logistix/features/home/application/navigation_bar_rp.dart';
+import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
+import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
+import 'package:logistix/features/rider/application/find_rider_rp.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -41,11 +46,16 @@ class HomeTab extends StatelessWidget {
       appBar: AppBar(
         title: Consumer(
           builder: (context, ref, _) {
-            final user = (ref.watch(authProvider) as AuthLoggedIn).user;
-            if (user.data.name?.isEmpty ?? true) {
+            final data =
+                (ref.watch(
+                  authProvider.select((value) {
+                    return value is AuthLoggedInState ? value : null;
+                  }),
+                ))?.user.data;
+            if (data?.name?.isEmpty ?? true) {
               return const Text("Hello, Customer 👋");
             }
-            return Text("Welcome, ${user.data.name} 👋");
+            return Text("Welcome, ${data?.name} 👋");
           },
         ),
         actions: [
@@ -57,19 +67,17 @@ class HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 8.h),
+            SizedBox(height: 12.h),
             const _SearchBar(),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
             const Expanded(child: _MiniMapWidget()),
-            SizedBox(height: 20.h),
-            const _FindRiderCTA(),
-            SizedBox(height: 24.h),
+            SizedBox(height: 32.h),
             Text("Order Now!", style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: 12.h),
             const _QuickActionGrid(),
-            SizedBox(height: 24.h),
+            SizedBox(height: 32.h),
             SizedBox(
-              height: 140.h,
+              height: 150.h,
               child: Consumer(
                 builder: (context, ref, child) {
                   if (order == null) return const _EmptyOrderPrompt();
@@ -78,7 +86,7 @@ class HomeTab extends StatelessWidget {
                       order: order,
                       prefixTitle: Row(
                         children: [
-                          const Text("🕓", style: TextStyle(fontSize: 16)),
+                          // const Text("🕓", style: TextStyle(fontSize: 16)),
                           Text(
                             " Last Order: ",
                             style: Theme.of(context).textTheme.labelLarge,
@@ -94,9 +102,9 @@ class HomeTab extends StatelessWidget {
                       order: order,
                       prefixTitle: Row(
                         children: [
-                          const Text("🕓", style: TextStyle(fontSize: 16)),
+                          // const Text("🕓 ", style: TextStyle(fontSize: 16)),
                           Text(
-                            " Active: ",
+                            "Active Order  ",
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ],
@@ -157,17 +165,11 @@ class _QuickActionGrid extends StatelessWidget {
                 children: [
                   OrderIcon(
                     type: action,
-                    size: 52,
+                    size: 52.w,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    action.label,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(action.label),
                 ],
               ),
             );
@@ -189,7 +191,7 @@ class _EmptyOrderPrompt extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Icon(
-              Icons.local_shipping,
+              Icons.moped,
               size: 48,
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -212,18 +214,29 @@ class _EmptyOrderPrompt extends StatelessWidget {
   }
 }
 
-class _FindRiderCTA extends StatelessWidget {
+class _FindRiderCTA extends ConsumerWidget {
   const _FindRiderCTA();
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isGranted =
+        ref.watch(permissionProvider(PermissionData.location)).isGranted;
+    if (isGranted == null) return const SizedBox.shrink();
+    ref.listen(findRiderProvider, (p, n) {
+      if (n is RiderContactedState) {
+        AppNotifications.show(RiderFoundNotification(rider: n.rider));
+        final riderProvider = ref.read(findRiderProvider.notifier);
+        Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
+      }
+    });
     return Center(
-      child: TextButton.icon(
-        onPressed: () {},
+      child: ElevatedButton.icon(
+        onPressed: isGranted ? () {} : null,
         icon: const Icon(Icons.flash_on),
         label: const Text("Find a Rider"),
-        style: TextButton.styleFrom(
-          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-          foregroundColor: Theme.of(context).colorScheme.tertiary,
+        style: ElevatedButton.styleFrom(
+          padding: padding_H12,
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       ),
     );
@@ -235,11 +248,18 @@ class _MiniMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
-      elevation: 1,
+    return Card(
+      elevation: 4,
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius_12),
-      child: UserMapView(),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Theme.of(context).cardColor, width: 4),
+      ),
+      child: Stack(
+        children: [
+          const UserMapView(),
+          Positioned(bottom: 8.w, right: 8.h, child: const _FindRiderCTA()),
+        ],
+      ),
     );
   }
 }

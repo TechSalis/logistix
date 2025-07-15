@@ -15,7 +15,7 @@ class UserDataModel extends UserData {
       name: json['user_metadata']['name'] as String?,
       email: json['user_metadata']['email'] as String?,
       phone: json['user_metadata']['phone'] as String?,
-      imageUrl: json['user_metadata']['imageUrl'] as String?,
+      imageUrl: json['user_metadata']['imagee_url'] as String?,
     );
   }
 }
