@@ -200,14 +200,11 @@ class _OrdersPageState extends State<OrdersTab>
                   },
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 32, top: 12),
+                  padding: const EdgeInsets.only(bottom: 16),
                   sliver: SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 40,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text('Show more'),
-                      ),
+                    child: TextButton(
+                      onPressed: () {},
+                      child: const Text('Show more'),
                     ),
                   ),
                 ),

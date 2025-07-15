@@ -29,11 +29,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>Allow $(CFBundleDisplayName) access to your camera, to take pictures of Delivery items and parcels</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>$(CFBundleDisplayName) wants to retrieve locations and addresses on the map</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow $(CFBundleDisplayName) select pictures of Delivery items and parcels </string>
+	<string>Allow $(CFBundleDisplayName) access to your gallery, to select pictures of delivery items and parcels </string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

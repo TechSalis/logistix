@@ -13,11 +13,11 @@ class MyTheme {
       centerTitle: false,
       color: AppColors.grey100,
       surfaceTintColor: AppColors.grey100,
-      titleTextStyle: TextStyle(
-        color: AppColors.grey900,
-        fontSize: 20,
-        fontWeight: FontWeight.w500,
-      ),
+      // titleTextStyle: TextStyle(
+      //   color: AppColors.grey900,
+      //   fontSize: 20,
+      //   fontWeight: FontWeight.w500,
+      // ),
     ),
     colorScheme: const ColorScheme.light(
       primary: AppColors.orange,
@@ -34,9 +34,9 @@ class MyTheme {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius_16,
-        side: BorderSide(color: Colors.grey.shade400, width: .5),
+        side: BorderSide(color: Colors.grey.shade300),
       ),
-      shadowColor: Colors.black26,
+      shadowColor: Colors.black38,
     ),
     tabBarTheme: const TabBarThemeData(
       labelStyle: TextStyle(fontWeight: FontWeight.w600),
@@ -121,6 +121,28 @@ class MyTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     primarySwatch: AppColors.orange,
+    scaffoldBackgroundColor: Colors.black,
+    appBarTheme: AppBarTheme(
+      toolbarHeight: 40,
+      centerTitle: false,
+      color: Colors.black,
+      surfaceTintColor: Colors.black,
+      // titleTextStyle: TextStyle(
+      //   color: Colors.grey.shade100,
+      //   fontSize: 20,
+      //   fontWeight: FontWeight.w500,
+      // ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      color: AppColors.grey900,
+      shadowColor: AppColors.grey100,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius_16,
+        side: BorderSide(color: Colors.grey.shade600),
+      ),
+    ),
     colorScheme: const ColorScheme.dark(
       primary: AppColors.orange,
       secondary: AppColors.blueGrey,
@@ -179,17 +201,11 @@ class MyTheme {
         fontWeight: FontWeight.w500,
       ),
     ),
-    cardTheme: const CardThemeData(
-      margin: EdgeInsets.zero,
-      color: AppColors.grey900,
-      shadowColor: AppColors.grey100,
+    tabBarTheme: const TabBarThemeData(
+      labelStyle: TextStyle(fontWeight: FontWeight.w600),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
+      dividerHeight: 0,
     ),
-    appBarTheme: const AppBarTheme(
-      color: Colors.black,
-      surfaceTintColor: Colors.black,
-      centerTitle: false,
-    ),
-    scaffoldBackgroundColor: Colors.black,
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.black,
     ),
@@ -200,12 +216,12 @@ class MyTheme {
     ),
     fontFamily: 'Inter',
     textTheme: const TextTheme().apply(
+      fontFamily: 'Inter',
       bodyColor: AppColors.grey200,
       displayColor: AppColors.grey200,
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        // foregroundColor: AppColors.orange,
         textStyle: const TextStyle(fontSize: 15),
         padding: padding_H16_V12,
         shape: roundRectBorder8,

@@ -1,3 +1,3 @@
 abstract class SettingsService {
-  Future<bool> openSettings();
+  Future<bool> open();
 }

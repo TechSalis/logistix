@@ -58,7 +58,7 @@ class OrderDetailsSheet extends StatelessWidget {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: UserAvatar(user: rider!),
+                leading: RiderAvatar(user: rider!, radius: 20),
                 title: Text(
                   rider!.name,
                   style: const TextStyle(fontWeight: FontWeight.w500),
@@ -122,7 +122,7 @@ class OrderDetailsSheet extends StatelessWidget {
                   onPressed: () {},
                 ),
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             if (rider?.company != null)
               SizedBox(
                 width: double.infinity,
@@ -142,7 +142,7 @@ class OrderDetailsSheet extends StatelessWidget {
                 ),
               ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
           ],
         ),
       ),

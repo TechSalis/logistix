@@ -10,7 +10,7 @@ sealed class AuthState {
 final class AuthLoggedOut extends AuthState {}
 
 final class AuthLoggedIn extends AuthState {
-  final User user;
+  final AuthUser user;
   AuthLoggedIn({required this.user});
 }
 
@@ -18,7 +18,7 @@ class AuthNotifier extends AutoDisposeNotifier<AuthState> {
   @override
   AuthState build() {
     return AuthLoggedIn(
-      user: const User(
+      user: const AuthUser(
         id: 'id',
         isAnonymous: true,
         role: UserRole.customer,

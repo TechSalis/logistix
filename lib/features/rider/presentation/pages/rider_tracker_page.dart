@@ -7,7 +7,7 @@ import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/map/presentation/widgets/user_pan_away_refocus_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/app/domain/entities/rider_data.dart';
-import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
+import 'package:logistix/features/rider/presentation/widgets/rider_profile_group.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
 class RiderTrackerPage extends ConsumerStatefulWidget {
@@ -94,7 +94,7 @@ class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
                           Row(
                             children: [
                               Expanded(
-                                child: UserProfileGroup(user: widget.rider),
+                                child: RiderProfileGroup(user: widget.rider),
                               ),
                               IconButton(
                                 onPressed: () {},

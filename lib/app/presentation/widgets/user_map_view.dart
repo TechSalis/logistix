@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/core/theme/extensions/colors_extension.dart';
 import 'package:logistix/core/theme/extensions/context_extension.dart';
 import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
@@ -11,6 +10,7 @@ import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class UserMapView extends ConsumerWidget {
   const UserMapView({super.key, this.onMapCreated});
@@ -19,30 +19,35 @@ class UserMapView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(permissionProvider(PermissionData.location), (p, n) {
-      if (n.hasValue && !n.value!.isGranted) {
-        showDialog(
-          context: context,
-          builder: (_) {
-            return PermissionDisclosureDialog(
-              data: PermissionData.location,
-              openSettingsCallback: () {
-                ref.read(locationSettingsProvider).openSettings();
-              },
-            );
-          },
-        );
-      }
-    });
-    final permission = ref.watch(permissionProvider(PermissionData.location));
-    return permission.maybeWhen(
-      data: (status) {
-        return status.isGranted
-            ? _buildMap(context, ref)
-            : const _PermissionDeniedOverlay();
+    ref.listen(
+      permissionProvider(
+        PermissionData.location,
+      ).select((v) => v.status == null),
+      (p, n) {
+        if (n) {
+          showDialog(
+            context: context,
+            builder: (_) {
+              return PermissionDisclosureDialog(
+                data: PermissionData.location,
+                openSettingsCallback: () {
+                  ref.read(locationSettingsProvider).open();
+                },
+              );
+            },
+          );
+        }
       },
-      orElse: () => const SizedBox.shrink(),
     );
+    final permission = ref.watch(permissionProvider(PermissionData.location));
+
+    if (permission.isGranted == null) {
+      return const SizedBox.shrink();
+    } else if (permission.isGranted!) {
+      return _buildMap(context, ref);
+    } else {
+      return const _PermissionDeniedOverlay();
+    }
   }
 
   Widget _buildMap(BuildContext context, WidgetRef ref) {
@@ -79,8 +84,7 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
     final isPermanentlyDenied =
         ref
             .watch(permissionProvider(PermissionData.location))
-            .value
-            ?.status
+            .status
             ?.isPermanentlyDenied ??
         false;
 
@@ -107,22 +111,22 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               TextButton(
                 onPressed: () {
                   if (isPermanentlyDenied) {
-                    ref.read(locationSettingsProvider).openSettings();
+                    ref.read(locationSettingsProvider).open();
                   } else {
                     ref
                         .read(
                           permissionProvider(PermissionData.location).notifier,
                         )
-                        .requestPermission();
+                        .request();
                   }
                 },
-                style: TextButton.styleFrom(
-                  textStyle: const TextStyle(fontSize: 18),
-                ),
+                // style: TextButton.styleFrom(
+                //   textStyle: const TextStyle(fontSize: 18),
+                // ),
                 child: Text(isPermanentlyDenied ? 'Open Settings' : 'Allow'),
               ),
             ],

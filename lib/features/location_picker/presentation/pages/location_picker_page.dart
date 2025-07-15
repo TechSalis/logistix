@@ -110,9 +110,10 @@ class _MapSectionState extends ConsumerState<_MapSection> {
         map?.animateCamera(CameraUpdate.newLatLng(coordinates.toPoint()));
       }
     });
-    final permission =
-        ref.watch(permissionProvider(PermissionData.location)).value;
-    if (permission == null || !permission.isGranted) return const UserMapView();
+    final permission = ref.watch(permissionProvider(PermissionData.location));
+    if (permission.isGranted != null || !permission.isGranted!) {
+      return const UserMapView();
+    }
     return Stack(
       children: [
         UserMapView(onMapCreated: (m) => setState(() => map = m)),
@@ -245,8 +246,14 @@ class AddressSuggestionsSection extends ConsumerWidget {
               leading: const Icon(Icons.my_location),
               title: const Text('Use my location'),
               visualDensity: VisualDensity.compact,
-              onTap: () {
-                ref.read(locationPickerProvider.notifier).getUserCoordinates();
+              onTap: () async {
+                if (await ref
+                    .read(permissionProvider(PermissionData.location).notifier)
+                    .request()) {
+                  ref
+                      .read(locationPickerProvider.notifier)
+                      .getUserCoordinates();
+                }
               },
             ),
           ),

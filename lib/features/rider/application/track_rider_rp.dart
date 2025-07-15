@@ -3,7 +3,9 @@ import 'package:logistix/app/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 import 'package:logistix/features/rider/infrastructure/repository/mock_rider_repo_impl.dart';
 
-final _riderRepoProvider = Provider<RiderRepo>((ref) => RandomRiderRepoImpl());
+final _riderRepoProvider = Provider.autoDispose<RiderRepo>(
+  (ref) => RandomRiderRepoImpl(),
+);
 
 final trackRiderProvider = StreamProvider.autoDispose.family((
   ref,

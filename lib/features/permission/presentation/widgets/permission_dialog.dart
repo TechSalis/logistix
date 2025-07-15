@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 
 class PermissionData {
-  final PermissionWithService permission;
+  final Permission permission;
   final String name, description;
 
   const PermissionData({
@@ -21,6 +21,13 @@ class PermissionData {
     description:
         'To show available riders, estimate delivery time, and track your order live, '
         'we need access to your device’s location.',
+  );
+
+  static const notifications = PermissionData(
+    permission: Permission.notification,
+    name: 'Notifications',
+    description:
+        'To receive updates and alerts, we need access to your device’s notifications.',
   );
 }
 
@@ -37,14 +44,10 @@ class PermissionDisclosureDialog extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(permissionProvider(data), (p, n) {
-      switch (n.value?.status) {
-        case PermissionStatus.granted:
-          ref.read(permissionProvider(data).notifier).setHasGranted();
-        case PermissionStatus.permanentlyDenied:
-          openSettingsCallback?.call();
-        default:
+      if (n.status?.isPermanentlyDenied ?? false) {
+        openSettingsCallback?.call();
       }
-      if (n.value != null) GoRouter.of(context).pop(context);
+      if (n.isGranted != null) GoRouter.of(context).pop(true);
     });
     final theme = Theme.of(context);
     return Dialog(
@@ -94,9 +97,7 @@ class PermissionDisclosureDialog extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      ref
-                          .read(permissionProvider(data).notifier)
-                          .requestPermission();
+                      ref.read(permissionProvider(data).notifier).request();
                     },
                     child: const Text('Continue'),
                   ),

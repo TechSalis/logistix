@@ -25,6 +25,7 @@ const padding_H16_V12 = EdgeInsets.symmetric(horizontal: 16, vertical: 12);
 const borderRadius_8 = BorderRadius.all(Radius.circular(8));
 const borderRadius_12 = BorderRadius.all(Radius.circular(12));
 const borderRadius_16 = BorderRadius.all(Radius.circular(16));
+const borderRadius_24 = BorderRadius.all(Radius.circular(24));
 const borderRadius_32 = BorderRadius.all(Radius.circular(32));
 
 const roundRectBorder8 = RoundedRectangleBorder(borderRadius: borderRadius_8);

@@ -1,7 +1,12 @@
-abstract class DialogRepository {
-  final String key;
-  DialogRepository({required this.key});
+abstract class PermissionDialogRepository {
+  PermissionDialogRepository({required this.key});
 
-  Future<bool?> isGranted();
+  final String key;
+  // final int maxRetries;
+
+  // Future<bool> get canShow;
+  // void wasCancelled();
+
+  Future<bool> get isGranted;
   Future<void> markAsGranted();
 }

@@ -15,7 +15,7 @@ class OrderIcon extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: (color ?? type.color).withAlpha(30),
-          borderRadius: borderRadius_12,
+          borderRadius: borderRadius_16,
         ),
         child: Icon(
           type.icon,

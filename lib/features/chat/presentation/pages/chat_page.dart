@@ -7,11 +7,11 @@ import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
-import 'package:logistix/features/rider/presentation/widgets/rider_card_small.dart';
+import 'package:logistix/features/chat/presentation/pages/chat_app_bar.dart';
 
 class ChatPage<T extends UserData> extends ConsumerStatefulWidget {
   const ChatPage({super.key, required this.user});
-  final UserData user;
+  final T user;
 
   @override
   ChatPageState createState() => ChatPageState();
@@ -30,13 +30,7 @@ class ChatPageState extends ConsumerState<ChatPage> {
   Widget build(BuildContext context) {
     final user = (ref.watch(authProvider) as AuthLoggedIn).user;
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: UserProfileGroup(user: widget.user),
-        actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-        ],
-      ),
+      appBar: ChatAppBar(user: widget.user),
       body: Chat(
         chatController: _chatController,
         currentUserId: user.id,

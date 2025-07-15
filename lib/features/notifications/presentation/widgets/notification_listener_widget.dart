@@ -6,7 +6,6 @@ import 'package:logistix/features/rider/application/find_rider_rp.dart';
 
 class ProviderAppNotificationsHandler extends ConsumerWidget {
   const ProviderAppNotificationsHandler({super.key, required this.child});
-
   final Widget child;
 
   @override
@@ -14,9 +13,9 @@ class ProviderAppNotificationsHandler extends ConsumerWidget {
     ref.listen(findRiderProvider, (p, n) {
       if (n is RiderContactedState) {
         AppNotifications.show(RiderFoundNotification(rider: n.rider));
-        // Reset rider dialog flow only if completed or cancelled
+        final riderProvider = ref.read(findRiderProvider.notifier);
         Future.delayed(Durations.medium3, () {
-          ref.invalidate(findRiderProvider);
+          riderProvider.ref.invalidateSelf();
         });
       }
     });

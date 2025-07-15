@@ -6,7 +6,7 @@ class FoodRecommendationItem {
   const FoodRecommendationItem({required this.name, required this.image});
 }
 
-final foodRecommendationsProvider = Provider((ref) {
+final foodRecommendationsProvider = Provider.autoDispose((ref) {
   return const [
     FoodRecommendationItem(name: "Jollof Rice", image: "🍛"),
     FoodRecommendationItem(name: "Fried Rice", image: "🥘"),

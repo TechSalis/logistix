@@ -1,0 +1,30 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "logistix-83bee",
+                    "appId": "1:1054763309342:android:ef76852dff0639d6f2d10f",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "ios": {
+                "default": {
+                    "projectId": "logistix-83bee",
+                    "appId": "1:1054763309342:ios:b93128eef9b83388f2d10f",
+                    "uploadDebugSymbols": false,
+                    "fileOutput": "ios/Runner/GoogleService-Info.plist"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "logistix-83bee",
+                    "configurations": {
+                        "android": "1:1054763309342:android:ef76852dff0639d6f2d10f",
+                        "ios": "1:1054763309342:ios:b93128eef9b83388f2d10f"
+                    }
+                }
+            }
+        }
+    }
+}

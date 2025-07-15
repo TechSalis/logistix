@@ -1,8 +1,10 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/core/theme/theme.dart';
+import 'package:logistix/core/utils/env_config.dart';
 import 'package:logistix/core/utils/router.dart';
 import 'package:logistix/features/notifications/presentation/widgets/notification_listener_widget.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -11,6 +13,7 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:image_picker_android/image_picker_android.dart';
 // ignore: depend_on_referenced_packages
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -43,10 +46,22 @@ Future precacheData() {
   ]);
 }
 
-void appSetup() {
+Future appSetup() {
   WidgetsFlutterBinding.ensureInitialized();
   final imagePickerImplementation = ImagePickerPlatform.instance;
   if (imagePickerImplementation is ImagePickerAndroid) {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
+  return Firebase.initializeApp();
+}
+
+Future appSetupWithEnv() {
+  return Supabase.initialize(
+    url: EnvConfig.instance.supabaseUrl,
+    anonKey: EnvConfig.instance.supabaseAnonKey,
+    //TODO: Add auth access token
+    accessToken: () async {
+      return null;
+    },
+  );
 }

@@ -32,7 +32,7 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  pod 'GoogleMaps'
+#  pod 'GoogleMaps'
 
   target 'RunnerTests' do
     inherit! :search_paths
@@ -83,7 +83,7 @@ post_install do |installer|
         'PERMISSION_LOCATION_WHENINUSE=1',
 
         # ## dart: PermissionGroup.notification
-        # 'PERMISSION_NOTIFICATIONS=1',
+        'PERMISSION_NOTIFICATIONS=1',
 
         # ## dart: PermissionGroup.mediaLibrary
         # 'PERMISSION_MEDIA_LIBRARY=1',

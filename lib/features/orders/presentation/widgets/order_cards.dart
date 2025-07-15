@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logistix/app/domain/entities/rider_data.dart';
+import 'package:logistix/app/presentation/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
@@ -8,10 +11,110 @@ import 'package:logistix/features/orders/presentation/widgets/order_details_shee
 
 enum OrderPopupEvent { cancel, reorder }
 
+class EtaWidget extends StatelessWidget {
+  const EtaWidget({super.key, required this.eta});
+  final String? eta;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        text: "ETA: ",
+        children: [
+          TextSpan(
+            text: eta ?? '--:--',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
+          ),
+        ],
+        style: Theme.of(
+          context,
+        ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w400),
+      ),
+    );
+  }
+}
+
+class OrderStatusChip extends StatelessWidget {
+  final OrderStatus status;
+  const OrderStatusChip({super.key, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      label: Text(status.label),
+      visualDensity: const VisualDensity(vertical: -4),
+      backgroundColor: status.color.withAlpha(30),
+      shape: const LinearBorder(),
+      labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: status.color,
+      ),
+    );
+  }
+}
+
+class OrderRefNumberChip extends StatelessWidget {
+  const OrderRefNumberChip({super.key, required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    return ActionChip(
+      backgroundColor: AppColors.grey200,
+      label: Row(
+        children: [
+          Text("#${order.refNumber}  "),
+          const Icon(Icons.copy, size: 14),
+        ],
+      ),
+      visualDensity: const VisualDensity(vertical: -4),
+      onPressed: () {
+        Clipboard.setData(ClipboardData(text: order.refNumber));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Copied to clipboard")));
+      },
+    );
+  }
+}
+
+class _LocationDisplay extends StatelessWidget {
+  const _LocationDisplay({required this.location});
+  final Address location;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(right: 6),
+          child: Icon(Icons.location_on, size: 14),
+        ),
+        Expanded(
+          child: Text(
+            location.formatted,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class OrderCard extends StatelessWidget {
-  const OrderCard({super.key, required this.order, this.onPopupSelected});
+  const OrderCard({
+    super.key,
+    required this.order,
+    this.onPopupSelected,
+    this.rider,
+  });
 
   final Order order;
+  final RiderData? rider;
   final Function(OrderPopupEvent event)? onPopupSelected;
 
   @override
@@ -29,13 +132,13 @@ class OrderCard extends StatelessWidget {
         );
       },
       child: Card(
+      elevation: 1,
         child: Padding(
-          padding: padding_H16_V8,
+          padding: padding_16,
           child: RepaintBoundary(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(order.type.icon, color: order.type.color, size: 20),
@@ -44,50 +147,63 @@ class OrderCard extends StatelessWidget {
                       child: Text(
                         order.description,
                         maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
+                    const SizedBox(width: 12),
+                    OrderStatusChip(status: order.status),
                   ],
                 ),
                 const SizedBox(height: 12),
                 DefaultTextStyle(
                   style: Theme.of(
                     context,
-                  ).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.w400),
-                  child: Row(
+                  ).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w400),
+                  child: Column(
                     children: [
                       if (order.pickUp != null)
-                        Expanded(
-                          child: _LocationDisplay(location: order.pickUp!),
-                        ),
+                        _LocationDisplay(location: order.pickUp!),
                       if (order.pickUp != null && order.dropOff != null)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Icon(
-                            Icons.keyboard_double_arrow_right_outlined,
-                            size: 20,
-                          ),
-                        ),
+                        const SizedBox(height: 8),
                       if (order.dropOff != null)
-                        Expanded(
-                          child: _LocationDisplay(location: order.dropOff!),
-                        ),
+                        _LocationDisplay(location: order.dropOff!),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 0),
-                      child: _EtaWidget(eta: '40 mins'),
-                    ),
-                    const Spacer(),
-                    OrderStatusChip(status: order.status),
-                  ],
-                ),
+                const SizedBox(height: 4),
+                if (rider != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(height: 24),
+                      const SizedBox(height: 2),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RiderAvatar(user: rider!, radius: 14),
+                          const SizedBox(width: 12),
+                          Text(
+                            rider!.name,
+                            maxLines: 1,
+                            style: theme.textTheme.labelLarge,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const Spacer(),
+                          const EtaWidget(eta: '40 min'),
+                          // Text(
+                          //   rider!.company?.name ?? 'Independent',
+                          //   style: Theme.of(context).textTheme.bodySmall
+                          //       ?.copyWith(fontWeight: FontWeight.w300),
+                          //   overflow: TextOverflow.ellipsis,
+                          //   maxLines: 1,
+                          // ),
+                        ],
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -97,64 +213,34 @@ class OrderCard extends StatelessWidget {
   }
 }
 
-class OrderStatusChip extends StatelessWidget {
-  final OrderStatus status;
-  const OrderStatusChip({super.key, required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    return Chip(
-      label: Text(status.label),
-      visualDensity: const VisualDensity(vertical: -4),
-      backgroundColor: status.color.withAlpha(30),
-      labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-        fontWeight: FontWeight.w600,
-        color: status.color,
-      ),
-    );
-  }
-}
-
-class LastOrderCard extends StatelessWidget {
+class OrderPreviewCard extends StatelessWidget {
+  final Widget prefixTitle;
   final Order order;
-  final String? eta;
-  final VoidCallback onViewDetails;
+  final Widget? etaWidget;
+  final VoidCallback onViewOrder;
 
-  const LastOrderCard({
+  const OrderPreviewCard({
     super.key,
+    required this.prefixTitle,
     required this.order,
-    required this.eta,
-    required this.onViewDetails,
+    this.etaWidget,
+    required this.onViewOrder,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: 2,
       child: Padding(
         padding: padding_H16_V8,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            SizedBox(height: 8.h),
             Row(
               children: [
-                const Text("🕓", style: TextStyle(fontSize: 16)),
-                Text(
-                  " Last Order: ",
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                ActionChip(
-                  backgroundColor: AppColors.grey200,
-                  label: Row(
-                    children: [
-                      Text("#${order.id}  "),
-                      const Icon(Icons.copy, size: 13),
-                    ],
-                  ),
-                  visualDensity: const VisualDensity(vertical: -4),
-                  onPressed: () {},
-                ),
+                prefixTitle,
+                OrderRefNumberChip(order: order),
                 const Spacer(),
                 OrderStatusChip(status: order.status),
               ],
@@ -165,7 +251,7 @@ class LastOrderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DefaultTextStyle(
-                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       fontWeight: FontWeight.w400,
                     ),
                     child: Row(
@@ -189,23 +275,15 @@ class LastOrderCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 4.h),
+                  const SizedBox(height: 8),
                   Flexible(
-                    child: Text.rich(
-                      TextSpan(
-                        text: "Description: ",
-                        children: [
-                          TextSpan(
-                            text: order.description * 2,
-                            style: const TextStyle(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      ),
+                    child: Text(
+                      order.description,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w300,
                       ),
                       overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
+                      maxLines: 3,
                     ),
                   ),
                 ],
@@ -215,11 +293,7 @@ class LastOrderCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (eta != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 0),
-                    child: _EtaWidget(eta: eta),
-                  ),
+                if (etaWidget != null) etaWidget!,
                 // if (onTrack != null)
                 //   Padding(
                 //     padding: const EdgeInsets.only(right: 12),
@@ -241,13 +315,10 @@ class LastOrderCard extends StatelessWidget {
                 //       ),
                 //     ),
                 //   ),
-                OutlinedButton(
-                  onPressed: onViewDetails,
-                  style: Theme.of(context).outlinedButtonTheme.style?.copyWith(
+                TextButton(
+                  onPressed: onViewOrder,
+                  style: Theme.of(context).textButtonTheme.style?.copyWith(
                     minimumSize: const WidgetStatePropertyAll(Size(0, 32)),
-                    textStyle: WidgetStatePropertyAll(
-                      Theme.of(context).textTheme.bodySmall,
-                    ),
                     padding: const WidgetStatePropertyAll(padding_H12),
                   ),
                   child: const Text("View Order"),
@@ -257,56 +328,6 @@ class LastOrderCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _EtaWidget extends StatelessWidget {
-  const _EtaWidget({required this.eta});
-  final String? eta;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text.rich(
-      TextSpan(
-        text: "ETA:  ",
-        children: [
-          TextSpan(
-            text: eta ?? '--:--',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
-            ),
-          ),
-        ],
-        style: Theme.of(
-          context,
-        ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-      ),
-    );
-  }
-}
-
-class _LocationDisplay extends StatelessWidget {
-  const _LocationDisplay({required this.location});
-  final Address location;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(right: 6),
-          child: Icon(Icons.location_on_outlined, size: 14),
-        ),
-        Expanded(
-          child: Text(
-            location.formatted,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
     );
   }
 }

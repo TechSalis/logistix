@@ -13,9 +13,6 @@ import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/app/domain/entities/rider_data.dart';
-import 'package:logistix/features/permission/application/permission_rp.dart';
-import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -60,17 +57,19 @@ class HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
             const _SearchBar(),
-            SizedBox(height: 16.h),
+            SizedBox(height: 20.h),
             const Expanded(child: _MiniMapWidget()),
-            SizedBox(height: 32.h),
+            SizedBox(height: 20.h),
+            const _FindRiderCTA(),
+            SizedBox(height: 24.h),
             Text("Order Now!", style: Theme.of(context).textTheme.titleMedium),
             SizedBox(height: 12.h),
             const _QuickActionGrid(),
-            SizedBox(height: 32.h),
+            SizedBox(height: 24.h),
             SizedBox(
-              height: 150.h,
+              height: 140.h,
               child: Consumer(
                 builder: (context, ref, child) {
                   if (order == null) return const _EmptyOrderPrompt();
@@ -79,7 +78,7 @@ class HomeTab extends StatelessWidget {
                       order: order,
                       prefixTitle: Row(
                         children: [
-                          // const Text("🕓", style: TextStyle(fontSize: 16)),
+                          const Text("🕓", style: TextStyle(fontSize: 16)),
                           Text(
                             " Last Order: ",
                             style: Theme.of(context).textTheme.labelLarge,
@@ -95,9 +94,9 @@ class HomeTab extends StatelessWidget {
                       order: order,
                       prefixTitle: Row(
                         children: [
-                          // const Text("🕓 ", style: TextStyle(fontSize: 16)),
+                          const Text("🕓", style: TextStyle(fontSize: 16)),
                           Text(
-                            "Active Order  ",
+                            " Active: ",
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                         ],
@@ -158,11 +157,17 @@ class _QuickActionGrid extends StatelessWidget {
                 children: [
                   OrderIcon(
                     type: action,
-                    size: 52.w,
+                    size: 52,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(height: 8),
-                  Text(action.label),
+                  Text(
+                    action.label,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ],
               ),
             );
@@ -207,21 +212,18 @@ class _EmptyOrderPrompt extends StatelessWidget {
   }
 }
 
-class _FindRiderCTA extends ConsumerWidget {
+class _FindRiderCTA extends StatelessWidget {
   const _FindRiderCTA();
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isGranted =
-        ref.watch(permissionProvider(PermissionData.location)).isGranted;
-    if (isGranted == null) return const SizedBox.shrink();
+  Widget build(BuildContext context) {
     return Center(
-      child: ElevatedButton.icon(
-        onPressed: isGranted ? () {} : null,
+      child: TextButton.icon(
+        onPressed: () {},
         icon: const Icon(Icons.flash_on),
         label: const Text("Find a Rider"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.tertiary,
+        style: TextButton.styleFrom(
+          textStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          foregroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       ),
     );
@@ -233,19 +235,11 @@ class _MiniMapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
+    return const Card(
+      elevation: 1,
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_16,
-        side: BorderSide(color: Theme.of(context).disabledColor),
-      ),
-      child: const Stack(
-        children: [
-          UserMapView(),
-          Positioned(bottom: 16, right: 16, child: _FindRiderCTA()),
-        ],
-      ),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius_12),
+      child: UserMapView(),
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/app/domain/entities/rider_data.dart';
 
 class Order extends Equatable {
-  final String id;
+  final String refNumber;
   final Address? pickUp, dropOff;
   final double price;
   final OrderType type;
@@ -16,7 +16,7 @@ class Order extends Equatable {
   final RiderData? rider;
 
   const Order({
-    required this.id,
+    required this.refNumber,
     required this.type,
     required this.price,
     required this.status,
@@ -28,7 +28,7 @@ class Order extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
+    refNumber,
     type,
     pickUp,
     dropOff,

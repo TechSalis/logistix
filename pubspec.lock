@@ -415,18 +415,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_chat_core
-      sha256: b41ba0395651631bf76fabe2c7635dfef919bbb542f1417fcb4399dc995c5541
+      sha256: a1a609298f26e487ecff85a4dc031c3754aebd878f655da96111571cdc9c94cb
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.2"
+    version: "2.7.0"
   flutter_chat_ui:
     dependency: "direct main"
     description:
       name: flutter_chat_ui
-      sha256: "1bd6cc1b1fdba90292e691a79d290753b1736585e23d7e8803e21c670b3e4797"
+      sha256: "313374988abb3549f4e36e3e1258de4a70c03f5a48f5aed4c1d9e3d817d7eacb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.1"
+    version: "2.7.0"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -497,18 +497,18 @@ packages:
     dependency: "direct main"
     description:
       name: flyer_chat_system_message
-      sha256: e53175f6c5ad3fa8bce544c8ef8c7f866496ca89756a0f8d8a93781cade90ab8
+      sha256: "7f46a794e3a61d08c295acc0b71bc0379cb8bcecb76c5dc22493e57ce9cbb679"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.10"
+    version: "2.1.11"
   flyer_chat_text_message:
     dependency: "direct main"
     description:
       name: flyer_chat_text_message
-      sha256: "5d48ba96c828db6234c9f1f1fc57b522f1a11f143c199135fc54a79b45d429cb"
+      sha256: "5a4004d14fa76280ed39106121f6bc63161f88ffc50c3bfbb761d66f0a0cc999"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.4.0"
   freezed_annotation:
     dependency: transitive
     description:
@@ -561,10 +561,10 @@ packages:
     dependency: transitive
     description:
       name: geocoding_ios
-      sha256: "43bde988312feb1a3cb6c3d514e9f4b04b564d1884fa56bd8241030bbb3bde36"
+      sha256: "18ab1c8369e2b0dcb3a8ccc907319334f35ee8cf4cfef4d9c8e23b13c65cb825"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "3.1.0"
   geocoding_platform_interface:
     dependency: transitive
     description:
