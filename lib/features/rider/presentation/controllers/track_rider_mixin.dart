@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
-import 'package:logistix/core/utils/app_router.dart';
+import 'package:logistix/core/utils/extensions/widget_extensions.dart';
+import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
@@ -18,7 +18,7 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   RiderData get rider;
 
   @protected
-  RouteObserver<PageRoute<dynamic>> get observer => routeObserver;
+  RouteObserver<PageRoute<dynamic>> get observer => pageObserver;
 
   @override
   void didPushNext() {

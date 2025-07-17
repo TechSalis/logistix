@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logistix/features/home/presentation/provider_event_handler.dart';
+import 'package:logistix/app/observers/provider_event_handler.dart';
 import 'package:logistix/core/theme/theme.dart';
-import 'package:logistix/core/utils/env_config.dart';
+import 'package:logistix/core/env_config.dart';
 import 'package:logistix/core/utils/extensions/hive.dart';
-import 'package:logistix/core/utils/app_router.dart';
-import 'package:logistix/features/auth/application/logic/auth_session.dart';
+import 'package:logistix/app/router/app_router.dart';
+import 'package:logistix/core/services/auth_store_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 // ignore: depend_on_referenced_packages
@@ -19,7 +19,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -52,7 +51,12 @@ Future appPluginsSetup() {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
   return Future.wait([
-    Hive.initFlutter().then((_) => Hive.openAllBoxes()),
+    Hive.initFlutter().then((_) {
+      return Future.wait([
+        Hive.openRequiredBoxes(),
+        Hive.openAllTrackedBoxes(),
+      ]);
+    }),
     Firebase.initializeApp(),
   ]);
 }
@@ -61,7 +65,6 @@ Future supabasePluginSetupWithEnv(EnvConfig config) {
   return Supabase.initialize(
     url: config.supabaseUrl,
     anonKey: config.supabaseAnonKey,
-    //TODO: Add auth access token
     accessToken: () async {
       return (await AuthLocalStore.instance.getSession())?.token;
     },

@@ -7,8 +7,7 @@ class AppProviderScope extends StatefulWidget {
   final Widget child;
 
   @override
-  State<AppProviderScope> createState() =>
-      _AppProviderScopeState();
+  State<AppProviderScope> createState() => _AppProviderScopeState();
 }
 
 class _AppProviderScopeState extends State<AppProviderScope> {
@@ -21,9 +20,7 @@ class _AppProviderScopeState extends State<AppProviderScope> {
       child: Consumer(
         builder: (context, ref, child) {
           ref.listen(authProvider, (p, n) {
-            if (p is AuthUnknownState || p.runtimeType != n.runtimeType) {
-              return;
-            }
+            if (p != null && p.runtimeType != n.runtimeType) return;
             switch (n) {
               case AuthLoggedOutState _:
                 _providerScopeKey = UniqueKey();

@@ -6,19 +6,21 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 
 part 'fcm.dart';
 
-abstract class NotificationService {
-  static final inApp = _AppNotificationService();
+class NotificationService extends _AppNotificationService {
+  static final inApp = NotificationService();
 
   static Future<void> setup() => _setupFCM();
 }
 
-class _AppNotificationService {
+abstract class _AppNotificationService {
+  _AppNotificationService();
+
   final Map<NotificationKey, OverlaySupportEntry> _activeOverlays = {};
 
   void show(AppNotificationData notification, {Duration? duration}) {
     final key = notification.key ?? NotificationKey(notification);
     final entry = showOverlayNotification(
-      (context) => AppNotifications(data: notification),
+      (context) => AppNotificationsWidget(data: notification),
       duration: duration,
       key: key,
     );

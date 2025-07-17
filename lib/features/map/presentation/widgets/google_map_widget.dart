@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
+import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
 class MapViewWidget extends StatefulWidget {

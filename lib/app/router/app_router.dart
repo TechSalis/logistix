@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logistix/app/router/route_guard.dart';
+import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
 import 'package:logistix/features/home/presentation/home_page.dart';
@@ -7,24 +10,36 @@ import 'package:logistix/features/location_picker/presentation/pages/location_pi
 import 'package:logistix/features/order_now/delivery/presentation/pages/new_delivery_page.dart';
 import 'package:logistix/features/order_now/food/presentation/pages/food_order_page.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/presentation/widgets/order_details_page.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 
 part 'app_router.g.dart';
 
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final pageObserver = RouteObserver<PageRoute>();
 
-final router = GoRouter(
-  observers: [routeObserver],
+final GoRouter router = GoRouter(
+  observers: [pageObserver],
   restorationScopeId: 'app',
-  initialLocation: const HomePageRoute().location,
   routes: $appRoutes,
-  redirect: (context, state) {
-    if (state.matchedLocation == "/") return const HomePageRoute().location;
-    return null;
-  },
+  redirect:
+      RouteGuardsBuilder([
+        PageRoutesGuard(
+          routes: [
+            const FoodOrderPageRoute().location,
+            const NewDeliveryPageRoute().location,
+          ],
+          guardCondition: (context, state) {
+            final ref = ProviderScope.containerOf(context, listen: false);
+            final isLoggedIn = ref.read(authProvider).isLoggedIn;
+            return isLoggedIn;
+          },
+          redirect: '/',
+        ),
+      ]).call,
 );
 
-@TypedGoRoute<HomePageRoute>(path: '/home')
+@TypedGoRoute<HomePageRoute>(path: '/')
 class HomePageRoute extends GoRouteData with _$HomePageRoute {
   const HomePageRoute();
 
@@ -48,6 +63,16 @@ class NewDeliveryPageRoute extends GoRouteData with _$NewDeliveryPageRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const NewDeliveryPage();
+}
+
+@TypedGoRoute<OrderDetailsPageRoute>(path: '/order-details')
+class OrderDetailsPageRoute extends GoRouteData with _$OrderDetailsPageRoute {
+  const OrderDetailsPageRoute(this.$extra);
+  final Order $extra;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      OrderDetailsPage(order: $extra);
 }
 
 @TypedGoRoute<ChatPageRoute>(path: '/chat')

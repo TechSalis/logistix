@@ -5,7 +5,5 @@ class AppError extends Error {
   AppError({this.error, this.code});
 
   @override
-  String toString() {
-    return 'AppError($error, $code)';
-  }
+  String toString() => 'AppError($error, $code)';
 }

@@ -1,5 +1,3 @@
-// lib/features/orders/domain/entities/order.dart
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/theme/colors.dart';
@@ -39,22 +37,25 @@ class Order extends Equatable {
   ];
 }
 
-enum OrderStatus { pending, accepted, enRoute, delivered, cancelled }
+enum OrderStatus {
+  pending,
+  accepted,
+  onTheWay,
+  delivered,
+  cancelled;
 
-extension OrderStatusExt on OrderStatus {
   String get label => switch (this) {
     OrderStatus.pending => 'Pending',
     OrderStatus.accepted => 'Accepted',
-    OrderStatus.enRoute => 'On the way',
+    OrderStatus.onTheWay => 'On the way',
     OrderStatus.delivered => 'Delivered',
     OrderStatus.cancelled => 'Cancelled',
   };
-
   Color get color => switch (this) {
     OrderStatus.pending => Colors.grey.shade800,
     OrderStatus.accepted => AppColors.orange,
-    OrderStatus.enRoute => Colors.green,
-    OrderStatus.delivered => Colors.green.shade700,
+    OrderStatus.onTheWay => Colors.blue,
+    OrderStatus.delivered => Colors.green,
     OrderStatus.cancelled => Colors.red,
   };
 
@@ -63,7 +64,7 @@ extension OrderStatusExt on OrderStatus {
   }
 
   bool get isProcessing {
-    return this == OrderStatus.accepted || this == OrderStatus.enRoute;
+    return this == OrderStatus.accepted || this == OrderStatus.onTheWay;
   }
 }
 

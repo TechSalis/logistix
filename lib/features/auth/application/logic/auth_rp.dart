@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/auth/application/logic/auth_session.dart';
+import 'package:logistix/core/services/auth_store_service.dart';
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 
 sealed class AuthState {
@@ -7,10 +7,6 @@ sealed class AuthState {
 
   bool get isLoggedIn => this is AuthLoggedInState;
   bool get isLoggedOut => this is AuthLoggedOutState;
-}
-
-final class AuthUnknownState extends AuthState {
-  const AuthUnknownState();
 }
 
 final class AuthLoggedOutState extends AuthState {
@@ -25,23 +21,13 @@ final class AuthLoggedInState extends AuthState {
 class AuthNotifier extends AutoDisposeNotifier<AuthState> {
   @override
   AuthState build() {
-    getCachedUser();
-    return const AuthUnknownState();
-  }
-
-  Future getCachedUser() async {
-    final user = await AuthLocalStore.instance.getUser();
+    final user = AuthLocalStore.instance.getUser();
     if (user == null) {
-      state = const AuthLoggedOutState();
+      return const AuthLoggedOutState();
     } else {
-      state = AuthLoggedInState(user: user);
+      return AuthLoggedInState(user: user);
     }
   }
-
-  // Future cacheRemoteUser() async {
-  //   state = AuthLoggedInState(user: user);
-  //   await AuthLocalStore.instance.saveUser();
-  // }
 
   Future logOut() async {
     final user = await AuthLocalStore.instance.clear();

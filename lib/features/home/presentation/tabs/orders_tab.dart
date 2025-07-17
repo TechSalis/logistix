@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:implicitly_animated_list/implicitly_animated_list.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/app_router.dart';
+import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
@@ -91,7 +91,7 @@ const orders = [
       coordinates: Coordinates(6.50, 3.34),
     ),
     description: 'Pick up cleaned suits',
-    status: OrderStatus.enRoute,
+    status: OrderStatus.onTheWay,
     price: 1500,
     rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
   ),
@@ -238,14 +238,8 @@ class _OrdersSliverList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 16),
             child: OrderCard(
               order: item,
-              rider: item.rider,
-              onPopupSelected: (event) {
-                switch (event) {
-                  case OrderPopupEvent.cancel:
-                    break;
-                  case OrderPopupEvent.reorder:
-                    break;
-                }
+              onTap: () {
+                OrderDetailsPageRoute(item).push(context);
               },
             ),
           );

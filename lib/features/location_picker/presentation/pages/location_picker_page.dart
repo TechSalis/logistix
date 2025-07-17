@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
+import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';

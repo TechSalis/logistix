@@ -4,7 +4,7 @@ import 'package:logistix/features/auth/infrastructure/repository/auth_hive_repos
 
 class AuthLocalStore implements AuthLocalRepository {
   AuthLocalStore._internal();
-  static final instance = AuthLocalStore._internal();
+  static final AuthLocalStore instance = AuthLocalStore._internal();
 
   final AuthLocalRepository _impl = AuthHiveRepositoryImpl();
 
@@ -12,10 +12,10 @@ class AuthLocalStore implements AuthLocalRepository {
   Future<void> clear() => _impl.clear();
 
   @override
-  Future<AuthSession?> getSession() => _impl.getSession();
+  AuthSession? getSession() => _impl.getSession() as AuthSession?;
 
   @override
-  Future<AuthUser?> getUser() => _impl.getUser();
+  AuthUser? getUser() => _impl.getUser() as AuthUser?;
 
   @override
   Future<void> saveSession(AuthSession session) => _impl.saveSession(session);

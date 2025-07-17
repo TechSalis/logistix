@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/notifications/presentation/notifications/qa_rider_notification_widget.dart';
 
-class AppNotifications extends ConsumerWidget {
-  const AppNotifications({super.key, required this.data});
+class AppNotificationsWidget extends ConsumerWidget {
+  const AppNotificationsWidget({super.key, required this.data});
   final AppNotificationData data;
-
-  static void show(AppNotificationData data, {Duration? duration}) {
-    NotificationService.inApp.show(data, duration: duration);
-  }
-
-  static void dismiss({NotificationKey? key, AppNotificationData? data}) {
-    NotificationService.inApp.dismiss(key: key, data: data);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +28,7 @@ class AppNotifications extends ConsumerWidget {
       ),
       _ =>
         throw UnimplementedError(
-          '${data.runtimeType} has not been added to AppNotifications Widget',
+          '${data.runtimeType} is not yet added to AppNotificationsWidget',
         ),
     };
   }

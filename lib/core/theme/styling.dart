@@ -29,4 +29,5 @@ const borderRadius_24 = BorderRadius.all(Radius.circular(24));
 const borderRadius_32 = BorderRadius.all(Radius.circular(32));
 
 const roundRectBorder8 = RoundedRectangleBorder(borderRadius: borderRadius_8);
+const roundRectBorder12 = RoundedRectangleBorder(borderRadius: borderRadius_12);
 const roundRectBorder16 = RoundedRectangleBorder(borderRadius: borderRadius_16);

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/core/theme/styling.dart';
+import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
-import 'package:logistix/features/notifications/presentation/notifications/app_notifications_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
@@ -33,7 +33,7 @@ class RiderFoundNotificationWidget extends ConsumerWidget {
     openOrdersTab() async {
       ref.read(navBarIndexProvider.notifier).state = 1;
       await Future.delayed(Durations.medium4);
-      AppNotifications.dismiss(data: data);
+      NotificationService.inApp.dismiss(data: data);
     }
 
     return SafeArea(

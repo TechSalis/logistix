@@ -34,7 +34,7 @@ class MyTheme {
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_16,
+        borderRadius: borderRadius_12,
         side: BorderSide(color: Colors.grey.shade300),
       ),
       shadowColor: Colors.black38,
@@ -48,11 +48,11 @@ class MyTheme {
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
       padding: EdgeInsets.zero,
-      labelStyle: TextStyle(
-        color: Colors.black,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
+      // labelStyle: TextStyle(
+      //   color: Colors.black,
+      //   fontSize: 12,
+      //   fontWeight: FontWeight.w500,
+      // ),
     ),
     fontFamily: 'Inter',
     textTheme: const TextTheme().apply(
@@ -141,7 +141,7 @@ class MyTheme {
       color: AppColors.grey900,
       shadowColor: AppColors.grey100,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_16,
+        borderRadius: borderRadius_12,
         side: BorderSide(color: Colors.grey.shade600),
       ),
     ),
@@ -197,11 +197,11 @@ class MyTheme {
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
       padding: EdgeInsets.zero,
-      labelStyle: TextStyle(
-        color: Colors.white,
-        fontSize: 12,
-        fontWeight: FontWeight.w500,
-      ),
+      // labelStyle: TextStyle(
+      //   color: Colors.white,
+      //   fontSize: 12,
+      //   fontWeight: FontWeight.w500,
+      // ),
     ),
     tabBarTheme: const TabBarThemeData(
       labelStyle: TextStyle(fontWeight: FontWeight.w600),

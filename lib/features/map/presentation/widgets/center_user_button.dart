@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/coordinates_extension.dart';
+import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 
 class CenterUserOnMapButton extends ConsumerWidget {

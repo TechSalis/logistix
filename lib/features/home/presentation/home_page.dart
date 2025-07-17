@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
-// import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy%203.dart';
-// import 'package:logistix/features/app/presentation/tabs/orders_tab%20copy.dart';
 import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
+import 'package:logistix/features/map/application/user_location_rp.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -31,6 +30,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         curve: Curves.easeInOut,
       );
     });
+    ref.watch(locationProvider);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: PageView(
@@ -43,16 +43,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 }
 
-class _NavBar extends ConsumerStatefulWidget {
+class _NavBar extends ConsumerWidget {
   const _NavBar();
 
   @override
-  ConsumerState<_NavBar> createState() => _NavBarState();
-}
-
-class _NavBarState extends ConsumerState<_NavBar> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return BottomNavigationBar(
       useLegacyColorScheme: false,
       type: BottomNavigationBarType.fixed,
