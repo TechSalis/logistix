@@ -18,7 +18,7 @@ class RiderData extends UserData with EquatableMixin {
     required super.imageUrl,
     this.company,
     this.rating,
-  }) : super(name: name);
+  });
 
   @override
   List<Object?> get props => [id, name, company];

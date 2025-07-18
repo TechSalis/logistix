@@ -1,247 +1,213 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:implicitly_animated_list/implicitly_animated_list.dart';
+import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/router/app_router.dart';
-import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
+import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_profile_group.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
 
-const orders = [
-  Order(
-    refNumber: '1',
-    type: OrderType.food,
-    pickUp: Address(
-      'Burger Place. Hilltop',
-      coordinates: Coordinates(6.52, 3.37),
-    ),
-    dropOff: Address(
-      'Divine Mercy Lodge, Hilltop',
-      coordinates: Coordinates(6.51, 3.36),
-    ),
-    description: 'Burger + fries + drink combo',
-    status: OrderStatus.accepted,
-    price: 2500,
-    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
-  ),
-  Order(
-    refNumber: '2',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description:
-        'Pick up cleaned suits at 34 Orungle Street, Opposite Kings Close. Ikeja',
-    status: OrderStatus.cancelled,
-    price: 1500,
-    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
-  ),
-  Order(
-    refNumber: '20',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description:
-        'Pick up cleaned suits at 34 Orungle Street, Opposite Kings Close. Ikeja',
-    status: OrderStatus.cancelled,
-    price: 15000,
-  ),
-  Order(
-    refNumber: '3',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description: 'Pick up cleaned suits',
-    status: OrderStatus.pending,
-    price: 1500,
-    rider: null,
-  ),
-  Order(
-    refNumber: '4',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description:
-        'Pick up Chicken Republic at 34 Orungle Street, Opposite Kings Close. Ikeja.\nRepublic at 34 Orungle Street, Opposite Kings Close. Ikeja',
-    status: OrderStatus.delivered,
-    price: 1500,
-    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
-  ),
-  Order(
-    refNumber: '5',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description: 'Pick up cleaned suits',
-    status: OrderStatus.onTheWay,
-    price: 1500,
-    rider: RiderData(id: 'id', name: 'John Doe', phone: 'phone', imageUrl: ''),
-  ),
-  Order(
-    refNumber: '7',
-    type: OrderType.errands,
-    pickUp: Address('Chicken Republic', coordinates: Coordinates(6.53, 3.35)),
-    dropOff: Address(
-      '34 Orungle Street, Opposite Kings Close. Ikeja',
-      coordinates: Coordinates(6.50, 3.34),
-    ),
-    description: 'Pick up cleaned suits',
-    status: OrderStatus.cancelled,
-    price: 1500,
-    rider: null,
-  ),
-];
-
-class OrdersTab extends StatefulWidget {
+class OrdersTab extends ConsumerStatefulWidget {
   const OrdersTab({super.key});
 
   @override
-  State<OrdersTab> createState() => _OrdersPageState();
+  ConsumerState<OrdersTab> createState() => _OrdersPageState();
 }
 
-class _OrdersPageState extends State<OrdersTab>
-    with AutomaticKeepAliveClientMixin {
+class _OrdersPageState extends ConsumerState<OrdersTab>
+    with SingleTickerProviderStateMixin {
+  late final TabController tabController;
+
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    bool hasActiveRider = true;
-    final ongoing = orders.where((o) => !o.status.isFinal).toList();
-    final history = orders.where((o) => o.status.isFinal).toList();
-    return Scaffold(
-      body: DefaultTabController(
-        length: 2,
-        child: Builder(
-          builder: (context) {
-            return CustomScrollView(
-              physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics(),
-              ),
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  stretch: true,
-                  toolbarHeight: 0,
-                  expandedHeight: hasActiveRider ? .33.sh : null,
-                  stretchTriggerOffset: 80,
-                  onStretchTrigger: () async {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Tap on map to enter full screen"),
-                        ),
-                      );
-                    });
-                  },
-                  flexibleSpace:
-                      hasActiveRider
-                          ? FlexibleSpaceBar(
-                            collapseMode: CollapseMode.parallax,
-                            background: Transform.translate(
-                              offset: const Offset(0, -kToolbarHeight * .5),
-                              child: _RiderTrackerCard(
-                                rider: orders[0].rider!,
-                                eta: '20 mins',
-                              ),
-                            ),
-                          )
-                          : null,
-                  bottom: PreferredSize(
-                    preferredSize: Size.fromHeight(
-                      kToolbarHeight + (hasActiveRider ? 52 : 0),
-                    ),
-                    child: ColoredBox(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      child: Column(
-                        children: [
-                          if (hasActiveRider)
-                            _TrackingRiderTitleBar(rider: orders[0].rider!),
-                          TabBar(
-                            tabs: const [
-                              Tab(text: 'Ongoing'),
-                              Tab(text: 'History'),
-                            ],
-                            onTap: (value) {},
-                            indicatorColor:
-                                Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                ListenableBuilder(
-                  listenable: DefaultTabController.of(context),
-                  builder: (context, _) {
-                    return _OrdersSliverList(
-                      orders: switch (DefaultTabController.of(context).index) {
-                        0 => ongoing,
-                        1 => history,
-                        _ => throw FlutterError('More tabs than Tabviews'),
-                      },
-                    );
-                  },
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 32, top: 12),
-                  sliver: SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 40,
-                      child: TextButton(
-                        onPressed: () {},
-                        child: const Text('Show more'),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
+  initState() {
+    super.initState();
+    tabController = TabController(length: 2, vsync: this);
+
+    if (ref.read(ordersProvider).value?.data.isEmpty ?? false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) ref.watch(ordersProvider.notifier).getOngoing();
+      });
+    }
   }
 
   @override
-  bool get wantKeepAlive => true;
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          Consumer(
+            builder: (context, ref, child) {
+              final rider =
+                  ref.watch(findRiderProvider) is RiderContactedState
+                      ? (ref.watch(findRiderProvider) as RiderContactedState)
+                          .rider
+                      : null;
+              return SliverAppBar(
+                pinned: true,
+                stretch: rider != null,
+                toolbarHeight: 0,
+                expandedHeight: rider != null ? .33.sh : null,
+                stretchTriggerOffset: 80,
+                onStretchTrigger: () async {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Tap on the map to open")),
+                    );
+                  });
+                },
+                flexibleSpace:
+                    rider != null
+                        ? FlexibleSpaceBar(
+                          collapseMode: CollapseMode.parallax,
+                          background: Transform.translate(
+                            offset: const Offset(0, -kToolbarHeight * .5),
+                            child: _RiderTrackerCard(
+                              rider: rider,
+                              eta: '20 mins',
+                            ),
+                          ),
+                        )
+                        : null,
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(rider != null ? 108 : 52),
+                  child: ColoredBox(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    child: Column(
+                      children: [
+                        if (rider != null) _TrackingRiderTitleBar(rider: rider),
+                        TabBar(
+                          controller: tabController,
+                          indicatorColor: Theme.of(context).colorScheme.primary,
+                          tabs: const [Tab(text: 'Ongoing'), Tab(text: 'All')],
+                          onTap: (value) {
+                            if (value == 0) {
+                              ref.read(ordersProvider.notifier).getOngoing();
+                            } else if (value == 1) {
+                              ref.read(ordersProvider.notifier).getAll();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              return ref
+                  .watch(ordersProvider)
+                  .when(
+                    skipError: true,
+                    skipLoadingOnReload: true,
+                    skipLoadingOnRefresh: true,
+                    loading: () {
+                      return const SliverFillRemaining(
+                        fillOverscroll: false,
+                        hasScrollBody: false,
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                    error: (error, stackTrace) {
+                      return SliverFillRemaining(
+                        hasScrollBody: false,
+                        fillOverscroll: false,
+                        child: Center(
+                          child: Text(
+                            (error as AppError).message,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      );
+                    },
+                    data: (state) {
+                      final data = switch (tabController.index) {
+                        0 => state.data[OrdersState.onGoing],
+                        1 => state.data[OrdersState.history],
+                        _ => throw FlutterError('More tabs than Tabviews'),
+                      };
+                      if (data == null || data.orders.isEmpty) {
+                        return SliverFillRemaining(
+                          hasScrollBody: false,
+                          fillOverscroll: false,
+                          child: Center(
+                            child: Text(
+                              'No orders yet!',
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                          ),
+                        );
+                      }
+                      return _OrdersSliverList(data: data);
+                    },
+                  );
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _OrdersSliverList extends StatelessWidget {
-  const _OrdersSliverList({required this.orders});
-  final List<Order> orders;
+  const _OrdersSliverList({required this.data});
+
+  final OrderTabData data;
 
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       sliver: SliverImplicitlyAnimatedList(
-        itemData: orders,
+        itemData: data.orders.toList(growable: false),
         itemBuilder: (context, item) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: OrderCard(
-              order: item,
-              onTap: () {
-                OrderDetailsPageRoute(item).push(context);
-              },
-            ),
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: OrderCard(
+                  order: item,
+                  onTap: () => OrderDetailsPageRoute(item).push(context),
+                ),
+              ),
+              if (item == data.orders.last && !data.page.isLast)
+                SliverPadding(
+                  padding: const EdgeInsets.only(bottom: 32, top: 12),
+                  sliver: SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 40,
+                      child: Consumer(
+                        builder: (context, ref, child) {
+                          if (ref.watch(ordersProvider).isLoading) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return TextButton(
+                            onPressed: () {},
+                            child: const Text('Show more'),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/core/constants/global_instances.dart';
-import 'package:logistix/features/home/presentation/widgets/user_avatar.dart';
+import 'package:logistix/app/widgets/user_avatar.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 
@@ -16,7 +17,7 @@ class OrderDetailsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Order Details')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: padding_16,
         children: [
           // Order Summary
           Card(
@@ -68,7 +69,7 @@ class OrderDetailsPage extends StatelessWidget {
                     child: ListTile(
                       leading: const Icon(Icons.store),
                       title: const Text("Pickup"),
-                      subtitle: Text(order.pickUp!.formatted),
+                      subtitle: Text(order.pickUp!.name),
                     ),
                   ),
                 const SizedBox(height: 8),
@@ -77,7 +78,7 @@ class OrderDetailsPage extends StatelessWidget {
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
                       title: const Text("Drop-off"),
-                      subtitle: Text(order.dropOff!.formatted),
+                      subtitle: Text(order.dropOff!.name),
                     ),
                   ),
               ],

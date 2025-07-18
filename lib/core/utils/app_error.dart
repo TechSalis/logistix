@@ -1,9 +1,22 @@
-class AppError extends Error {
-  final String? error;
-  final int? code;
+import 'package:dio/dio.dart';
 
-  AppError({this.error, this.code});
+abstract class AppError {
+  final String message;
+  const AppError(this.message);
+}
 
-  @override
-  String toString() => 'AppError($error, $code)';
+class NetworkError extends AppError {
+  final int code;
+  const NetworkError(super.message, {this.code = -1});
+
+  factory NetworkError.fromResponse(Response res) {
+    return NetworkError(
+      res.data['messsage'] ?? res.data['error'] ?? 'Something went wrong',
+      code: res.statusCode ?? -1,
+    );
+  }
+}
+
+class BusinessError extends AppError {
+  const BusinessError(super.message);
 }

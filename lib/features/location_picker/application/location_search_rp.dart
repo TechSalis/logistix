@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/utils/debouncer.dart';
-import 'package:logistix/core/utils/extensions/widget_ref.dart';
+import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/features/location_core/domain/entities/place.dart';
 import 'package:logistix/features/location_core/infrastructure/repository/google_places_search_location_service.dart';
 import 'package:logistix/features/location_core/domain/repository/search_location_service.dart';

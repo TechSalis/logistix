@@ -7,40 +7,35 @@ part 'address_coordinates_model.g.dart';
 @HiveType(typeId: 0)
 // ignore: must_be_immutable
 class AddressModel extends Address with HiveObjectMixin {
-  AddressModel(this.formatted, {this.coordinates})
-    : super(formatted, coordinates: coordinates);
+  AddressModel(this.name, {this.coordinates})
+    : super(name, coordinates: coordinates);
 
   @override
   @HiveField(0)
   // ignore: overridden_fields
-  final String formatted;
+  final String name;
 
   @override
   @HiveField(1)
   // ignore: overridden_fields
   final Coordinates? coordinates;
 
-  factory AddressModel.fromMap(Map<String, dynamic> map) {
+  factory AddressModel.fromJson(Map<String, dynamic> map) {
     return AddressModel(
-      map['formatted'],
+      map['name'],
       coordinates:
           map['coordinates'] == null
               ? null
-              : CoordinatesModel.fromMap(map['coordinates']),
+              : CoordinatesModel.fromJson(map['coordinates']),
     );
   }
 
   factory AddressModel.address(Address address) {
     return AddressModel(
-      address.formatted,
+      address.name,
       coordinates: address.coordinates,
     );
   }
-
-  Map<String, dynamic> toMap() => {
-    'formatted': formatted,
-    if (coordinates != null) 'coordinates': coordinates!.toMap(),
-  };
 }
 
 @HiveType(typeId: 1)
@@ -58,7 +53,7 @@ class CoordinatesModel extends Coordinates with HiveObjectMixin {
   // ignore: overridden_fields
   final double longitude;
 
-  factory CoordinatesModel.fromMap(Map<String, dynamic> map) {
+  factory CoordinatesModel.fromJson(Map<String, dynamic> map) {
     return CoordinatesModel(map['latitude'], map['longitude']);
   }
 }

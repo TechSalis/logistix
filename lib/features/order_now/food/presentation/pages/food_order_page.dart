@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/home/presentation/widgets/buttons.dart';
-import 'package:logistix/features/home/presentation/widgets/text_fields.dart';
+import 'package:logistix/app/widgets/buttons.dart';
+import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
@@ -22,7 +22,7 @@ class FoodOrderPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               const _CustomOrderHero(),
               const SizedBox(height: 32),
               Text("Popular", style: Theme.of(context).textTheme.titleMedium),
@@ -95,7 +95,7 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 3,
+      elevation: 2,
       child: Padding(
         padding: padding_24,
         child: Column(

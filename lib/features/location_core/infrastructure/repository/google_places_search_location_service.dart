@@ -21,9 +21,9 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
         text,
         await _locationApi.getUserCoordinates(),
       );
+      _addressPlaceIds.clear();
 
       // Only store place ids of newest addresses
-      _addressPlaceIds.clear();
       return data.map((e) {
         final address = Address(e.name, coordinates: null);
 
@@ -31,7 +31,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
         return address;
       }).toList();
     } catch (e) {
-      throw AppError(error: 'Unable to find address');
+      throw BusinessError('Unable to fetch address');
     }
   }
 
@@ -42,7 +42,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
 
       return data;
     } catch (e) {
-      throw AppError(error: 'Unable to find place');
+      throw BusinessError('Unable to find a place');
     }
   }
 }

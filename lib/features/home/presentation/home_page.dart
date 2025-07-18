@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
-import 'package:logistix/features/map/application/user_location_rp.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -14,6 +14,14 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final controller = PageController();
+
+  @override
+  void initState() {
+    if (ref.read(authProvider.notifier).canLoginAnonymously()) {
+      ref.read(authProvider.notifier).loginAnonymously();
+    }
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -30,7 +38,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         curve: Curves.easeInOut,
       );
     });
-    ref.watch(locationProvider);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: PageView(
@@ -54,8 +61,8 @@ class _NavBar extends ConsumerWidget {
       selectedItemColor: Theme.of(context).colorScheme.primary,
       currentIndex: ref.watch(navBarIndexProvider),
       onTap: (value) {
-        if (ref.watch(navBarIndexProvider) != value) {
-          ref.watch(navBarIndexProvider.notifier).state = value;
+        if (ref.read(navBarIndexProvider) != value) {
+          ref.read(navBarIndexProvider.notifier).state = value;
         } else {
           final controller = PrimaryScrollController.maybeOf(context);
           if (controller?.hasClients ?? false) {

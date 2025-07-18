@@ -30,8 +30,8 @@ abstract class AppColors {
 }
 
 class QuickActionColors {
-  static const food = Color(0xffba2f2f);
-  static const groceries = Color(0xFF22C55E);
-  static const errands = Color(0xFF6366F1);
-  static const lastDelivery = Color(0xFF64748B);
+  static const delivery = Color(0xFF64748B); // Calmer blue
+  static const food = Color(0xFFF4511E); // Soft deep orange (food, spicy vibe)
+  static const groceries = Color(0xFF43A047); // Balanced green
+  static const errands = Color(0xFF8E24AA); // Royal purple – universal, classy
 }

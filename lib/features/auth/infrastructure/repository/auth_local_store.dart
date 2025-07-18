@@ -1,21 +1,21 @@
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/auth/domain/repository/auth_local_repository.dart';
-import 'package:logistix/features/auth/infrastructure/repository/auth_hive_repository_impl.dart';
+import 'package:logistix/features/auth/infrastructure/repository/auth_hive_local_repository_impl.dart';
 
 class AuthLocalStore implements AuthLocalRepository {
   AuthLocalStore._internal();
   static final AuthLocalStore instance = AuthLocalStore._internal();
 
-  final AuthLocalRepository _impl = AuthHiveRepositoryImpl();
+  final AuthLocalRepository _impl = AuthHiveLocalRepositoryImpl();
 
   @override
   Future<void> clear() => _impl.clear();
 
   @override
-  AuthSession? getSession() => _impl.getSession() as AuthSession?;
+  AuthSession? getSession() => _impl.getSession();
 
   @override
-  AuthUser? getUser() => _impl.getUser() as AuthUser?;
+  AuthUser? getUser() => _impl.getUser();
 
   @override
   Future<void> saveSession(AuthSession session) => _impl.saveSession(session);

@@ -18,12 +18,12 @@ class AuthUser {
     required this.data,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'is_anonymous': isAnonymous,
-      'role': AuthUserModel._roleToString(role),
-      'user_metadata': data.toMap(),
+      'role': role.name,
+      'user_metadata': data.toJson(),
     };
   }
 }
@@ -31,7 +31,7 @@ class AuthUser {
 class AuthSession {
   final String token;
   final String refreshToken;
-  final String expiresAt;
+  final int expiresAt;
 
   const AuthSession({
     required this.token,
@@ -39,7 +39,7 @@ class AuthSession {
     required this.expiresAt,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'access_token': token,
       'refresh_token': refreshToken,

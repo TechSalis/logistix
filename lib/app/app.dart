@@ -8,7 +8,7 @@ import 'package:logistix/core/theme/theme.dart';
 import 'package:logistix/core/env_config.dart';
 import 'package:logistix/core/utils/extensions/hive.dart';
 import 'package:logistix/app/router/app_router.dart';
-import 'package:logistix/core/services/auth_store_service.dart';
+import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 // ignore: depend_on_referenced_packages
@@ -65,8 +65,6 @@ Future supabasePluginSetupWithEnv(EnvConfig config) {
   return Supabase.initialize(
     url: config.supabaseUrl,
     anonKey: config.supabaseAnonKey,
-    accessToken: () async {
-      return (await AuthLocalStore.instance.getSession())?.token;
-    },
+    accessToken: () async => AuthLocalStore.instance.getSession()?.token,
   );
 }

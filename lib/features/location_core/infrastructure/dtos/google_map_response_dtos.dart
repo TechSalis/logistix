@@ -30,7 +30,7 @@ class PlaceDetailsModel extends PlaceDetails {
       name: json['displayName']['text'],
       address: Address(
         json['formattedAddress'],
-        coordinates: CoordinatesModel.fromMap(json['location']),
+        coordinates: CoordinatesModel.fromJson(json['location']),
       ),
     );
   }

@@ -14,7 +14,7 @@ class Coordinates extends Equatable {
     return 'Coordinates($latitude, $longitude)';
   }
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toJson() => {
     'latitude': latitude,
     'longitude': longitude,
   };

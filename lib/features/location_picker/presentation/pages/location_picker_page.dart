@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
-import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
+import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
@@ -111,7 +111,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
       }
     });
     final permission = ref.watch(permissionProvider(PermissionData.location));
-    if (permission.isGranted != null || !permission.isGranted!) {
+    if (permission.isGranted == null || !permission.isGranted!) {
       return const UserMapView();
     }
     return Stack(
@@ -134,7 +134,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                   side: BorderSide.none,
                   onDeleted: () => ref.invalidate(locationPickerProvider),
                   label: Text(
-                    ref.watch(locationPickerProvider).value!.address!.formatted,
+                    ref.watch(locationPickerProvider).value!.address!.name,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -277,7 +277,7 @@ class AddressTileWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
       leading: leading,
-      title: Text(address.formatted),
+      title: Text(address.name),
       visualDensity: VisualDensity.compact,
       trailing: IconButton(
         icon: const Icon(Icons.favorite_outline),

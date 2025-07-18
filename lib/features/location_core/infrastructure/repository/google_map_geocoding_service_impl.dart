@@ -16,7 +16,7 @@ class GoogleGeocodingServiceImpl implements GeocodingService {
       if (data == null) return null;
       return Address(data.name, coordinates: coordinate);
     } catch (e) {
-      throw AppError(error: 'Failed to get address: $e');
+      throw NetworkError('Couldn\'t get address');
     }
   }
 }

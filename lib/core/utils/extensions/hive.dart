@@ -5,7 +5,7 @@ import 'package:logistix/core/constants/hive_constants.dart';
 
 extension HiveExt on HiveInterface {
   Future<void> openRequiredBoxes<T>() async {
-    await Future.wait(HiveConstants.allBoxes.map(Hive.openBox));
+    await Future.wait(HiveConstants.startupBoxes.map(Hive.openBox));
   }
 
   Future<void> openAllTrackedBoxes<T>() async {

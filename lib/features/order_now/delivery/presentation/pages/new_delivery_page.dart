@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/features/home/presentation/widgets/buttons.dart';
+import 'package:logistix/app/widgets/buttons.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/home/presentation/widgets/text_fields.dart';
+import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
@@ -47,9 +47,9 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
           key: validatorKey,
           child: ListView(
             children: [
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Card(
-                elevation: 3,
+                elevation: 2,
                 child: Padding(
                   padding: padding_24,
                   child: Column(
@@ -96,7 +96,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
               ),
               const SizedBox(height: 32),
               Text("Add Images (optional)", style: theme.textTheme.bodyMedium),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               SizedBox(
                 height: 80,
                 child: Consumer(
@@ -159,7 +159,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
               Consumer(

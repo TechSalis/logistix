@@ -83,7 +83,7 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 1,
+      // elevation: 1,
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius_8,
@@ -94,7 +94,7 @@ class OrderCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(order.type.icon, size: 20),
+                  Icon(order.type.icon, size: 22),
                   const SizedBox(width: 8),
                   OrderRefNumberChip(order: order),
                   const Spacer(),
@@ -102,25 +102,24 @@ class OrderCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-    
+
               /// Pickup and Dropoff
               if (order.pickUp != null)
                 OrderLocationRow(
                   icon: Icons.store,
-                  label: order.pickUp!.formatted,
+                  label: order.pickUp!.name,
                 ),
               if (order.dropOff != null)
                 OrderLocationRow(
                   icon: Icons.location_on_outlined,
-                  label: order.dropOff!.formatted,
+                  label: order.dropOff!.name,
                 ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               /// Price and Order Type
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  EtaWidget(eta: '20 min')],
+                children: [EtaWidget(eta: '20 min')],
               ),
             ],
           ),

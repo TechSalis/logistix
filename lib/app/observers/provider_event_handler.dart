@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
+import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
 
 class AppProviderScope extends StatefulWidget {
   const AppProviderScope({super.key, required this.child});
@@ -23,8 +24,10 @@ class _AppProviderScopeState extends State<AppProviderScope> {
             if (p != null && p.runtimeType != n.runtimeType) return;
             switch (n) {
               case AuthLoggedOutState _:
-                _providerScopeKey = UniqueKey();
-              default:
+                AuthLocalStore.instance.clear();
+                setState(() => _providerScopeKey = UniqueKey());
+              case AuthLoggedInState _:
+                AuthLocalStore.instance.saveUser(n.user);
             }
           });
           return child!;

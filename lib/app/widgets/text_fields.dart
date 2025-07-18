@@ -33,7 +33,7 @@ class LocationTextField extends ConsumerWidget {
         final result = await const LocationPickerPageRoute().push<Address>(
           context,
         );
-        if (result != null) controller.text = result.formatted;
+        if (result != null) controller.text = result.name;
       }
 
       textField = Row(

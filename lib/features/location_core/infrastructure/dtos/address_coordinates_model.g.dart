@@ -27,7 +27,7 @@ class AddressModelAdapter extends TypeAdapter<AddressModel> {
     writer
       ..writeByte(2)
       ..writeByte(0)
-      ..write(obj.formatted)
+      ..write(obj.name)
       ..writeByte(1)
       ..write(obj.coordinates);
   }

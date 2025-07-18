@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix/app/router/route_guard.dart';
-import 'package:logistix/features/auth/application/logic/auth_rp.dart';
+import 'package:logistix/app/providers/app_data_cache.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
+import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
 import 'package:logistix/features/home/presentation/home_page.dart';
 import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
@@ -17,29 +17,31 @@ import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.da
 part 'app_router.g.dart';
 
 final pageObserver = RouteObserver<PageRoute>();
-
 final GoRouter router = GoRouter(
   observers: [pageObserver],
   restorationScopeId: 'app',
   routes: $appRoutes,
-  redirect:
-      RouteGuardsBuilder([
-        PageRoutesGuard(
-          routes: [
-            const FoodOrderPageRoute().location,
-            const NewDeliveryPageRoute().location,
-          ],
-          guardCondition: (context, state) {
-            final ref = ProviderScope.containerOf(context, listen: false);
-            final isLoggedIn = ref.read(authProvider).isLoggedIn;
-            return isLoggedIn;
-          },
-          redirect: '/',
-        ),
-      ]).call,
+  redirect: (context, state) {
+    final ref = ProviderScope.containerOf(context);
+    if (!ref.read(appCacheProvider).isFirstLogin &&
+        AuthLocalStore.instance.getSession() == null) {
+      if (state.matchedLocation == '/') return '/auth';
+    }
+    return null;
+  },
 );
 
-@TypedGoRoute<HomePageRoute>(path: '/')
+@TypedGoRoute<HomePageRoute>(
+  path: '/',
+  routes: [
+    TypedGoRoute<FoodOrderPageRoute>(path: '/food'),
+    TypedGoRoute<NewDeliveryPageRoute>(path: '/delivery'),
+    TypedGoRoute<OrderDetailsPageRoute>(path: '/order-details'),
+    TypedGoRoute<ChatPageRoute>(path: '/chat'),
+    TypedGoRoute<RiderTrackerPageRoute>(path: '/rider-tracker'),
+    TypedGoRoute<LocationPickerPageRoute>(path: '/location-picker'),
+  ],
+)
 class HomePageRoute extends GoRouteData with _$HomePageRoute {
   const HomePageRoute();
 

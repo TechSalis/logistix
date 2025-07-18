@@ -7,7 +7,7 @@ import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
-import 'package:logistix/features/home/presentation/widgets/user_map_view.dart';
+import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
@@ -24,7 +24,7 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Order? order = Order(
+    const Order order = Order(
       refNumber: '13276342',
       type: OrderType.delivery,
       price: 1200,

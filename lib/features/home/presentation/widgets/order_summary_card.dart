@@ -68,11 +68,11 @@ class HomeOrderSummaryCard extends StatelessWidget {
               /// Pickup → Dropoff
               OrderLocationRow(
                 icon: Icons.store,
-                label: order!.pickUp?.formatted ?? "N/A",
+                label: order!.pickUp?.name ?? "N/A",
               ),
               OrderLocationRow(
                 icon: Icons.pin_drop_outlined,
-                label: order!.dropOff?.formatted ?? "N/A",
+                label: order!.dropOff?.name ?? "N/A",
               ),
               const SizedBox(height: 12),
 

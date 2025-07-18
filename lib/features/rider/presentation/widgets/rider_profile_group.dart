@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/home/presentation/widgets/user_avatar.dart';
+import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
 class RiderProfileGroup extends StatelessWidget {

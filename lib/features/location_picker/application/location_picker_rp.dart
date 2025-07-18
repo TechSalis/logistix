@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:logistix/core/utils/app_error.dart';
-import 'package:logistix/core/utils/extensions/widget_ref.dart';
+import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/features/location_core/infrastructure/repository/google_map_geocoding_service_impl.dart';
 import 'package:logistix/features/location_core/infrastructure/repository/local_geocoding_service_impl.dart';
 import 'package:logistix/features/location_core/infrastructure/datasources/google_maps_datasource.dart';
@@ -49,7 +49,7 @@ class LocationPickerNotifier
     extends AutoDisposeAsyncNotifier<LocationPickerState> {
   @override
   LocationPickerState build() {
-    ref.watch(_mapsApi);
+    ref.read(_mapsApi);
     return LocationPickerState.initial();
   }
 
@@ -75,14 +75,13 @@ class LocationPickerNotifier
 
   Future<void> _getAddress(Coordinates coordinates) async {
     state = const AsyncLoading();
-    try {
-      final Address? address = await ref.watch(
+    
+    state = await AsyncValue.guard(() async {
+      final address = await ref.read(
         addressFromCoordinatesProvider(coordinates).future,
       );
-      state = AsyncData(state.value!.copyWith(address: address));
-    } catch (e, s) {
-      state = AsyncError(e, s);
-    }
+      return state.value!.copyWith(address: address);
+    });
   }
 
   void setAddress(Address address) {
@@ -91,7 +90,7 @@ class LocationPickerNotifier
 
   Future<void> getUserCoordinates() async {
     setCoordinates(
-      await ref.watch(locationProvider.notifier).getUserCoordinatesUsecase(),
+      await ref.read(locationProvider.notifier).getUserCoordinatesUsecase(),
       distanceDeltaFromCurrentCoordinates: null,
     );
   }

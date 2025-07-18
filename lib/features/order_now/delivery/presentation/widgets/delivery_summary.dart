@@ -38,7 +38,7 @@ class DeliverySummaryDialog extends StatelessWidget {
             // Pickup Map + Info
             _MapLocationCard(
               label: "Pickup",
-              address: pickup.formatted,
+              address: pickup.name,
               // coordinates: pickup.coordinates,
             ),
 
@@ -47,7 +47,7 @@ class DeliverySummaryDialog extends StatelessWidget {
             // Drop-off Map + Info
             _MapLocationCard(
               label: "Drop-off",
-              address: dropoff.formatted,
+              address: dropoff.name,
               // coordinates: dropoff.coordinates,
             ),
 
