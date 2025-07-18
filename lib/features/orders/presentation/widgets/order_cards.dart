@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 

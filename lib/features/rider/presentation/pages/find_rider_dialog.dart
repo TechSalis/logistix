@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
@@ -47,9 +48,7 @@ class FindRiderDialog extends StatelessWidget {
                   case RidersFound():
                     return RiderFoundView(
                       rider: order.rider!,
-                      onContact: () {
-                        
-                      },
+                      onContact: () {},
                     );
                   case NoRidersFound():
                     return NoRiderFoundView(
@@ -168,19 +167,19 @@ class FindingRiderView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CircularProgressIndicator(),
-        SizedBox(height: 32),
+        SpinKitRipple(size: 80, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 40),
         Text(
           "Looking for nearby riders...",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           "This usually takes a few seconds.",
-          style: TextStyle(color: Colors.grey),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
@@ -209,13 +208,12 @@ class RiderFoundView extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         if (rider.rating != null) RatingGroupWidget(rating: rider.rating!),
-        const SizedBox(height: 32),
-        ElevatedButton.icon(
-          onPressed: onContact,
-          icon: const Icon(Icons.chat),
-          label: const Text("Contact Rider"),
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
+        const SizedBox(height: 40),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: onContact,
+            child: const Text("Contact Rider"),
           ),
         ),
       ],
@@ -235,14 +233,14 @@ class NoRiderFoundView extends StatelessWidget {
       children: [
         const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 40),
         const SizedBox(height: 12),
-        const Text(
+        Text(
           "No rider found nearby",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 6),
-        const Text(
+        Text(
           "You can try again in a moment.",
-          style: TextStyle(color: Colors.grey),
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 32),
         OutlinedButton.icon(
