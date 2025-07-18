@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
@@ -7,35 +6,26 @@ sealed class FindRiderState {
   const FindRiderState();
 }
 
-final class FindRiderInitialState extends FindRiderState {
-  const FindRiderInitialState({this.nearLocation});
-
-  final Address? nearLocation;
+class FindRiderInitialState extends FindRiderState {
+  const FindRiderInitialState();
 }
 
-final class FindingRiderState extends FindRiderState {
-  const FindingRiderState();
+class LocationSelected extends FindRiderState {
+  final Address location;
+  const LocationSelected(this.location);
 }
 
-final class RiderNotFoundState extends FindRiderState {
-  const RiderNotFoundState({required this.error});
-  final AppError? error;
+class SearchingForRiders extends FindRiderState {
+  const SearchingForRiders();
 }
 
-final class RiderFoundState extends FindRiderState {
-  const RiderFoundState({required this.rider, required this.eta});
-  final RiderData rider;
-  final String eta;
+class RidersFound extends FindRiderState {
+  final List<RiderData> riders;
+  const RidersFound(this.riders);
 }
 
-final class ContactingRiderState extends FindRiderState {
-  const ContactingRiderState(this.rider);
-  final RiderData rider;
-}
-
-final class RiderContactedState extends FindRiderState {
-  const RiderContactedState(this.rider);
-  final RiderData rider;
+class NoRidersFound extends FindRiderState {
+  const NoRidersFound();
 }
 
 class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
@@ -43,27 +33,20 @@ class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
   FindRiderState build() => const FindRiderInitialState();
 
   void setLocation(Address address) {
-    state = FindRiderInitialState(nearLocation: address);
+    state = LocationSelected(address);
   }
 
   Future findRider() async {
-    state = const FindingRiderState();
+    state = const SearchingForRiders();
     await Future.delayed(const Duration(seconds: 2));
     const rider = RiderData(
       name: "Abdul Kareem",
       rating: 4.7,
       id: '',
       phone: '',
-      imageUrl: ''
+      imageUrl: '',
     );
-    state = const RiderFoundState(eta: '40 min', rider: rider);
-  }
-
-  Future contactRider() async {
-    state = ContactingRiderState((state as RiderFoundState).rider);
-    await Future.delayed(const Duration(seconds: 2));
-
-    state = RiderContactedState((state as ContactingRiderState).rider);
+    state = const RidersFound([rider]);
   }
 }
 

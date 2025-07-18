@@ -31,7 +31,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
         return address;
       }).toList();
     } catch (e) {
-      throw BusinessError('Unable to fetch address');
+      throw const BusinessError('Unable to fetch address');
     }
   }
 
@@ -42,7 +42,7 @@ class GooglePlacesSearchLocationServiceImpl extends SearchLocationService {
 
       return data;
     } catch (e) {
-      throw BusinessError('Unable to find a place');
+      throw const BusinessError('Unable to find a place');
     }
   }
 }

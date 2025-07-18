@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/styling.dart';
 
 Future<void> showEmailPasswordDialog(BuildContext context) async {
@@ -28,7 +29,7 @@ Future<void> showEmailPasswordDialog(BuildContext context) async {
               Text(
                 "Let’s save your details so you can get live updates and track your orders.",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[700]),
+                style: TextStyle(color: AppColors.grey700),
               ),
               const SizedBox(height: 32),
               // Email

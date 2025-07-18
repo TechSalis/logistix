@@ -12,7 +12,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 class UserMapView extends ConsumerWidget {
   const UserMapView({super.key, this.onMapCreated});
-
   final void Function(GoogleMapController map)? onMapCreated;
 
   @override
@@ -63,12 +62,14 @@ class UserMapView extends ConsumerWidget {
           ),
       },
       onMapCreated: (controller) async {
-        if (context.mounted) onMapCreated?.call(controller);
-        final provider = ref.read(locationProvider.notifier)
+        final provider = ref.watch(locationProvider.notifier)
           ..trackUserCoordinates();
+        final pos = await provider.getUserCoordinates();
 
-        final pos = await provider.getUserCoordinatesUsecase();
-        controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
+        if (context.mounted) {
+          controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
+          onMapCreated?.call(controller);
+        }
       },
     );
   }
@@ -122,9 +123,6 @@ class _PermissionDeniedOverlay extends ConsumerWidget {
                         .request();
                   }
                 },
-                // style: TextButton.styleFrom(
-                //   textStyle: const TextStyle(fontSize: 18),
-                // ),
                 child: Text(isPermanentlyDenied ? 'Open Settings' : 'Allow'),
               ),
             ],

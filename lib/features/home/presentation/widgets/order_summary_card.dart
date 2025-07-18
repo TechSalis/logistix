@@ -56,7 +56,7 @@ class HomeOrderSummaryCard extends StatelessWidget {
               /// Header
               Row(
                 children: [
-                  Icon(order!.type.icon, color: order!.type.color, size: 24),
+                  Icon(order!.type.icon, color: order!.type.color, size: 28),
                   const SizedBox(width: 8),
                   OrderRefNumberChip(order: order!),
                   const Spacer(),
@@ -80,9 +80,9 @@ class HomeOrderSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   '"${order!.description}"',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontStyle: FontStyle.italic,
-                    color: Colors.black54,
+                    color: theme.hintColor,
                   ),
                   maxLines: 2,
                 ),

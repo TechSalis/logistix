@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/router/app_router.dart';
+import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
@@ -18,29 +20,31 @@ import 'package:logistix/features/home/presentation/widgets/order_summary_card.d
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
+import 'package:logistix/features/rider/presentation/pages/find_rider_dialog.dart';
+
+const Order order = Order(
+  refNumber: '13276342',
+  type: OrderType.delivery,
+  price: 1200,
+  status: OrderStatus.onTheWay,
+  description: "Pick up Paracetamol from HealthPlus",
+  pickUp: Address('Mozilla lodge, Akure street, Lagos'),
+  dropOff: Address('Mozilla lodge, Akure street, Lagos'),
+  rider: RiderData(
+    id: 'id',
+    name: 'johnny Akunle',
+    imageUrl: 'imageUrl',
+    phone: '09069184604',
+    company: CompanyData(id: 'id', name: 'Hedge Funds'),
+    rating: 4.5,
+  ),
+);
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const Order order = Order(
-      refNumber: '13276342',
-      type: OrderType.delivery,
-      price: 1200,
-      status: OrderStatus.onTheWay,
-      description: "Pick up Paracetamol from HealthPlus",
-      pickUp: Address('Mozilla lodge, Akure street, Lagos'),
-      dropOff: Address('Mozilla lodge, Akure street, Lagos'),
-      rider: RiderData(
-        id: 'id',
-        name: 'name',
-        imageUrl: 'imageUrl',
-        phone: 'phone',
-        company: CompanyData(id: 'id', name: ''),
-        rating: 4.5,
-      ),
-    );
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -159,15 +163,17 @@ class _FindRiderCTA extends ConsumerWidget {
         ref.watch(permissionProvider(PermissionData.location)).isGranted;
     if (isGranted == null) return const SizedBox.shrink();
     ref.listen(findRiderProvider, (p, n) {
-      if (n is RiderContactedState) {
-        NotificationService.inApp.show(RiderFoundNotification(rider: n.rider));
-        final riderProvider = ref.read(findRiderProvider.notifier);
-        Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
+      if (n is RidersFound) {
+        NotificationService.inApp.showNotification(
+          RiderFoundNotification(rider: n.riders.first),
+        );
+        // final riderProvider = ref.read(findRiderProvider.notifier);
+        // Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
       }
     });
     return Center(
       child: ElevatedButton.icon(
-        onPressed: isGranted ? () {} : null,
+        onPressed: isGranted ? () => showFindRiderDialog(context) : null,
         icon: const Icon(Icons.flash_on),
         label: const Text("Find a Rider"),
         style: ElevatedButton.styleFrom(
@@ -185,10 +191,13 @@ class _MiniMapWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: context.isLightTheme ? 4 : 0,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Theme.of(context).cardColor, width: 4),
+        side: BorderSide(
+          color: context.isLightTheme ? Colors.white : AppColors.grey700,
+          width: 4,
+        ),
       ),
       child: Stack(
         children: [

@@ -15,7 +15,7 @@ class LocalGeocodingServiceImpl implements GeocodingService {
     );
 
     if (placemarks.isEmpty) {
-      throw NetworkError('No address was found.');
+      throw const NetworkError('No address was found.');
     }
 
     final place = placemarks.first;

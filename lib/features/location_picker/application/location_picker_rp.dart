@@ -13,6 +13,8 @@ import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/repository/geocoding_service.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
 // Dependency Injection
 
@@ -47,15 +49,21 @@ final locationPickerProvider = AsyncNotifierProvider.autoDispose(
 
 class LocationPickerNotifier
     extends AutoDisposeAsyncNotifier<LocationPickerState> {
+  late final PermissionNotifier _permissionProvider;
+  late final UserLocationNotifier _locationProvider;
+
   @override
   LocationPickerState build() {
-    ref.read(_mapsApi);
+    _permissionProvider = ref.read(
+      permissionProvider(PermissionData.location).notifier,
+    );
+    _locationProvider = ref.read(locationProvider.notifier);
     return LocationPickerState.initial();
   }
 
   Future<void> setCoordinates(
     Coordinates coordinates, {
-    double? distanceDeltaFromCurrentCoordinates = 500,
+    double? minDistanceDeltaFromCurrentCoordinates = 500,
   }) async {
     if (state.value?.address?.coordinates == null) {
       _getAddress(coordinates);
@@ -66,8 +74,8 @@ class LocationPickerNotifier
         state.value!.address!.coordinates!.latitude,
         state.value!.address!.coordinates!.longitude,
       );
-      if (distanceDeltaFromCurrentCoordinates == null ||
-          distance > distanceDeltaFromCurrentCoordinates) {
+      if (minDistanceDeltaFromCurrentCoordinates == null ||
+          distance > minDistanceDeltaFromCurrentCoordinates) {
         _getAddress(coordinates);
       }
     }
@@ -75,9 +83,9 @@ class LocationPickerNotifier
 
   Future<void> _getAddress(Coordinates coordinates) async {
     state = const AsyncLoading();
-    
+
     state = await AsyncValue.guard(() async {
-      final address = await ref.read(
+      final address = await ref.watch(
         addressFromCoordinatesProvider(coordinates).future,
       );
       return state.value!.copyWith(address: address);
@@ -89,9 +97,10 @@ class LocationPickerNotifier
   }
 
   Future<void> getUserCoordinates() async {
+    if (!await _permissionProvider.request()) return;
     setCoordinates(
-      await ref.read(locationProvider.notifier).getUserCoordinatesUsecase(),
-      distanceDeltaFromCurrentCoordinates: null,
+      await _locationProvider.getUserCoordinates(),
+      minDistanceDeltaFromCurrentCoordinates: null,
     );
   }
 }
@@ -99,11 +108,11 @@ class LocationPickerNotifier
 // UI State
 class LocationPickerState extends Equatable {
   const LocationPickerState({required this.address});
+  final Address? address;
 
   factory LocationPickerState.initial() =>
       const LocationPickerState(address: null);
 
-  final Address? address;
 
   LocationPickerState copyWith({Address? address, AppError? error}) {
     return LocationPickerState(address: address ?? this.address);

@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/app/widgets/buttons.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/order_now/delivery/application/logic/delivery_order_rp.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -22,6 +24,8 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
   final descriptionController = TextEditingController();
   final dropoffController = TextEditingController();
   final pickupController = TextEditingController();
+
+  Address? pickup, dropoff;
 
   final roundedLoadingButtonController = RoundedLoadingButtonController();
   final validatorKey = GlobalKey<FormValidatorGroupState>();
@@ -68,11 +72,15 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                       ),
                       const SizedBox(height: 24),
                       TextFieldLabelAndErrorDisplayWidget(
-                        controller: descriptionController,
+                        controller: pickupController,
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("Pickup Location"),
                         child: LocationTextField(
-                          controller: pickupController,
+                          heroTag: "pickup",
+                          onAddressChanged: (value) {
+                            pickupController.text = value.name;
+                            setState(() => pickup = value);
+                          },
                           decoration: const InputDecoration(
                             hintText: "Choose pickup location",
                           ),
@@ -80,11 +88,15 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                       ),
                       const SizedBox(height: 24),
                       TextFieldLabelAndErrorDisplayWidget(
-                        controller: descriptionController,
+                        controller: dropoffController,
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("Dropoff Location"),
                         child: LocationTextField(
-                          controller: dropoffController,
+                          heroTag: "dropoff",
+                          onAddressChanged: (value) {
+                            dropoffController.text = value.name;
+                            setState(() => dropoff = value);
+                          },
                           decoration: const InputDecoration(
                             hintText: "Choose dropoff location",
                           ),
@@ -98,7 +110,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
               Text("Add Images (optional)", style: theme.textTheme.bodyMedium),
               const SizedBox(height: 12),
               SizedBox(
-                height: 80,
+                height: .25.sw - 20,
                 child: Consumer(
                   builder: (context, ref, child) {
                     final imagePaths = ref.watch(deliveryOrderImagesProvider);
@@ -140,17 +152,18 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                               ref
                                   .read(deliveryOrderImagesProvider.notifier)
                                   .pickImage,
-                          child: Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              borderRadius: borderRadius_8,
-                              color: theme.colorScheme.primary.withAlpha(13),
-                              border: Border.all(
-                                color: theme.colorScheme.primary,
+                          child: SizedBox.square(
+                            dimension: .25.sw - 20,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                borderRadius: borderRadius_8,
+                                color: theme.colorScheme.primary.withAlpha(13),
+                                border: Border.all(
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
+                              child: const Icon(Icons.add_a_photo),
                             ),
-                            child: const Icon(Icons.add_a_photo),
                           ),
                         );
                       },
@@ -227,8 +240,8 @@ class _DeliveryFareWidget extends StatelessWidget {
     return Container(
       padding: padding_16,
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withAlpha(13),
-        borderRadius: borderRadius_12,
+        color: theme.colorScheme.primary.withAlpha(20),
+        border: Border.all(color: theme.colorScheme.primary.withAlpha(80)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

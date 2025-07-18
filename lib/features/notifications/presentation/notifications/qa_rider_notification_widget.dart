@@ -38,7 +38,7 @@ class QARiderNotificationWidget extends ConsumerWidget {
     openOrdersTab() async {
       ref.read(navBarIndexProvider.notifier).state = 1;
       await Future.delayed(Durations.medium4);
-      NotificationService.inApp.dismiss(data: data);
+      NotificationService.inApp.dismissNotification(data: data);
       // if (context.mounted) {
       //   showModalBottomSheet(
       //     context: context,

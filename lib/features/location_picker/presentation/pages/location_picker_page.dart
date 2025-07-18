@@ -12,8 +12,14 @@ import 'package:logistix/features/location_picker/application/location_search_rp
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
+class LocationPickerPageParams {
+  const LocationPickerPageParams({this.heroTag});
+  final String? heroTag;
+}
+
 class LocationPickerPage extends StatefulWidget {
-  const LocationPickerPage({super.key});
+  const LocationPickerPage({super.key, required this.params});
+  final LocationPickerPageParams params;
 
   @override
   State<LocationPickerPage> createState() => _LocationPickerPageState();
@@ -62,7 +68,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                 setState(() => _searchState = false);
                 FocusScope.of(context).unfocus();
               },
-              child: const _MapSection(),
+              child: _MapSection(heroTag: widget.params.heroTag),
             ),
           ),
           Expanded(
@@ -78,7 +84,8 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
 }
 
 class _MapSection extends ConsumerStatefulWidget {
-  const _MapSection();
+  const _MapSection({this.heroTag});
+  final String? heroTag;
 
   @override
   ConsumerState<_MapSection> createState() => _MapSectionState();
@@ -119,8 +126,14 @@ class _MapSectionState extends ConsumerState<_MapSection> {
         UserMapView(onMapCreated: (m) => setState(() => map = m)),
         Center(
           child: Transform.translate(
-            offset: const Offset(0, -17),
-            child: const LocationPin(size: 40),
+            offset: const Offset(0, -18),
+            child:
+                widget.heroTag == null
+                    ? const LocationPin(size: 44)
+                    : Hero(
+                      tag: widget.heroTag!,
+                      child: const LocationPin(size: 44),
+                    ),
           ),
         ),
         Positioned(
@@ -240,20 +253,14 @@ class AddressSuggestionsSection extends ConsumerWidget {
     return Material(
       child: CustomScrollView(
         slivers: [
-          const SliverPadding(padding: EdgeInsets.only(top: 8)),
+          const SliverPadding(padding: EdgeInsets.only(top: 12)),
           SliverToBoxAdapter(
             child: ListTile(
               leading: const Icon(Icons.my_location),
-              title: const Text('Use my location'),
+              title: const Text('My location'),
               visualDensity: VisualDensity.compact,
-              onTap: () async {
-                if (await ref
-                    .read(permissionProvider(PermissionData.location).notifier)
-                    .request()) {
-                  ref
-                      .read(locationPickerProvider.notifier)
-                      .getUserCoordinates();
-                }
+              onTap: () {
+                ref.read(locationPickerProvider.notifier).getUserCoordinates();
               },
             ),
           ),

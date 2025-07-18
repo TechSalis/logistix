@@ -27,15 +27,15 @@ class MyTheme {
       surface: Colors.white,
       onPrimary: AppColors.grey900,
       onSecondary: AppColors.grey900,
-      onSurface: AppColors.grey900,
+      onSurface: AppColors.grey800,
       primaryContainer: AppColors.blueGrey,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardThemeData(
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius_12,
-        side: BorderSide(color: Colors.grey.shade300),
+        side: BorderSide(color: AppColors.grey300),
       ),
       shadowColor: Colors.black38,
     ),
@@ -55,11 +55,11 @@ class MyTheme {
       // ),
     ),
     fontFamily: 'Inter',
-    textTheme: const TextTheme().apply(
-      fontFamily: 'Inter',
-      bodyColor: Colors.grey,
-      displayColor: Colors.grey,
-    ),
+    // textTheme: const TextTheme().apply(
+    //   fontFamily: 'Inter',
+    //   bodyColor: Colors.grey,
+    //   displayColor: Colors.grey,
+    // ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
     ),
@@ -129,20 +129,15 @@ class MyTheme {
       centerTitle: false,
       color: Colors.black,
       surfaceTintColor: Colors.black,
-      // titleTextStyle: TextStyle(
-      //   color: Colors.grey.shade100,
-      //   fontSize: 20,
-      //   fontWeight: FontWeight.w500,
-      // ),
     ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardThemeData(
       elevation: 1,
       margin: EdgeInsets.zero,
       color: AppColors.grey900,
-      shadowColor: AppColors.grey100,
+      shadowColor: AppColors.grey300,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius_12,
-        side: BorderSide(color: Colors.grey.shade600),
+        side: BorderSide(color: AppColors.grey800),
       ),
     ),
     colorScheme: const ColorScheme.dark(
@@ -150,16 +145,16 @@ class MyTheme {
       secondary: AppColors.blueGrey,
       tertiary: AppColors.redAccent,
       surface: Colors.black,
-      onPrimary: AppColors.grey100,
+      onPrimary: AppColors.grey200,
       onSecondary: AppColors.grey200,
-      onSurface: AppColors.grey200,
+      onSurface: AppColors.grey300,
       primaryContainer: Colors.blueGrey,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.grey900,
+      fillColor: Colors.black,
       hintStyle: TextStyle(color: AppColors.grey700),
-      prefixIconColor: Color(0xFFB0BEC5),
+      prefixIconColor: Color.fromARGB(255, 100, 111, 114),
       contentPadding: padding_H16_V8,
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius_12,
@@ -197,11 +192,6 @@ class MyTheme {
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
       padding: EdgeInsets.zero,
-      // labelStyle: TextStyle(
-      //   color: Colors.white,
-      //   fontSize: 12,
-      //   fontWeight: FontWeight.w500,
-      // ),
     ),
     tabBarTheme: const TabBarThemeData(
       labelStyle: TextStyle(fontWeight: FontWeight.w600),
@@ -217,11 +207,6 @@ class MyTheme {
       shadowColor: Colors.black54,
     ),
     fontFamily: 'Inter',
-    textTheme: const TextTheme().apply(
-      fontFamily: 'Inter',
-      bodyColor: AppColors.grey200,
-      displayColor: AppColors.grey200,
-    ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         textStyle: const TextStyle(fontSize: 15),

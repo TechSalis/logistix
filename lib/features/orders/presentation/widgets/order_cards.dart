@@ -56,7 +56,7 @@ class OrderRefNumberChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ActionChip(
-      backgroundColor: AppColors.grey100,
+      backgroundColor: Theme.of(context).highlightColor,
       label: Row(
         children: [
           Text("#${order.refNumber}  "),

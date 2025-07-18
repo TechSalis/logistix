@@ -49,7 +49,7 @@ enum OrderStatus {
     OrderStatus.cancelled => 'Cancelled',
   };
   Color get color => switch (this) {
-    OrderStatus.pending => Colors.grey.shade800,
+    OrderStatus.pending => AppColors.grey800,
     OrderStatus.accepted => AppColors.orange,
     OrderStatus.onTheWay => Colors.blue,
     OrderStatus.delivered => Colors.green,

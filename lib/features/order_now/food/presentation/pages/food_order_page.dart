@@ -6,6 +6,7 @@ import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
@@ -84,6 +85,8 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   final restaurantController = TextEditingController();
   final locationController = TextEditingController();
 
+  Address? restaurant, dropoff;
+
   @override
   void dispose() {
     customOrderController.dispose();
@@ -133,7 +136,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
               validatorProvider: RequiredValidatorProvider,
               label: const Text("Restaurant (optional)"),
               child: LocationTextField(
-                controller: restaurantController,
+                heroTag: 'restaurant',
+                onAddressChanged: (value) {
+                  restaurantController.text = value.name;
+                  setState(() => restaurant = value);
+                },
                 decoration: const InputDecoration(
                   hintText: "Name or location",
                   prefixIcon: Icon(Icons.store_mall_directory_outlined),
@@ -146,7 +153,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
               validatorProvider: RequiredValidatorProvider,
               label: const Text("Delivery address"),
               child: LocationTextField(
-                controller: locationController,
+                heroTag: 'location',
+                onAddressChanged: (value) {
+                  locationController.text = value.name;
+                  setState(() => dropoff = value);
+                },
                 decoration: const InputDecoration(
                   hintText: "Delivery address",
                   prefixIcon: Icon(Icons.pin_drop_outlined),
@@ -171,6 +182,7 @@ class _MiniFoodCard extends StatelessWidget {
     return GestureDetector(
       onTap: onItemAdded,
       child: Card(
+        color: Theme.of(context).colorScheme.surface,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Row(

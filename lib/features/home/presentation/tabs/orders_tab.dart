@@ -52,9 +52,10 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
           Consumer(
             builder: (context, ref, child) {
               final rider =
-                  ref.watch(findRiderProvider) is RiderContactedState
-                      ? (ref.watch(findRiderProvider) as RiderContactedState)
-                          .rider
+                  ref.watch(findRiderProvider) is RidersFound
+                      ? (ref.watch(findRiderProvider) as RidersFound)
+                          .riders
+                          .first
                       : null;
               return SliverAppBar(
                 pinned: true,
@@ -92,7 +93,10 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                         TabBar(
                           controller: tabController,
                           indicatorColor: Theme.of(context).colorScheme.primary,
-                          tabs: const [Tab(text: 'Ongoing'), Tab(text: 'All')],
+                          tabs: const [
+                            Tab(text: 'Ongoing'),
+                            Tab(text: 'All Orders'),
+                          ],
                           onTap: (value) {
                             if (value == 0) {
                               ref.read(ordersProvider.notifier).getOngoing();

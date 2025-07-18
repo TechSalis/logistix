@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:logistix/core/usecases/usecase.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
@@ -10,5 +11,5 @@ class GetUserCoordinates extends Usecase<Coordinates> {
     : _locationService = locationService;
 
   @override
-  call() => _locationService.getUserCoordinates();
+  Future<Coordinates> call() => _locationService.getUserCoordinates();
 }

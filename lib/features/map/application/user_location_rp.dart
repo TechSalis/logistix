@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_core/infrastructure/repository/location_service_impl.dart';
 import 'package:logistix/features/location_core/domain/repository/location_service.dart';
@@ -12,29 +13,30 @@ final locationServiceProvider = Provider.autoDispose<GeoLocationService>(
 );
 
 class UserLocationNotifier extends AutoDisposeNotifier<Address?> {
-  late final GetUserCoordinates getUserCoordinatesUsecase;
+  late final GetUserCoordinates _getUserCoordinatesUsecase;
   StreamSubscription? _getUserCoordinatesStream;
 
   @override
   Address? build() {
-    getUserCoordinatesUsecase = GetUserCoordinates(
+    _getUserCoordinatesUsecase = GetUserCoordinates(
       locationService: ref.read(locationServiceProvider),
     );
-    ref.onDispose(() => _getUserCoordinatesStream?.cancel());
     return null;
   }
 
-  Future<void> getUserCoordinates() async {
-    final coordinates = await getUserCoordinatesUsecase();
+  Future<Coordinates> getUserCoordinates() async {
+    final coordinates = await _getUserCoordinatesUsecase();
     state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
+    return coordinates;
   }
 
-  Future<void> getUserAddress() async {
-    final coordinates = await getUserCoordinatesUsecase();
+  Future<Address?> getUserAddress() async {
+    final coordinates = await _getUserCoordinatesUsecase();
     final address = await ref.watch(
       addressFromCoordinatesProvider(coordinates).future,
     );
-    state = address;
+    if (address != null) state = address;
+    return address;
   }
 
   void trackUserCoordinates() {
@@ -45,6 +47,9 @@ class UserLocationNotifier extends AutoDisposeNotifier<Address?> {
         .listen((coordinates) {
           state = (state ?? Address.empty()).copyWith(coordinates: coordinates);
         });
+    ref.onDispose(() {
+      _getUserCoordinatesStream?.cancel();
+    });
   }
 }
 

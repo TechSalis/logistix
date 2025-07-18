@@ -100,9 +100,11 @@ class RiderTrackerPageRoute extends GoRouteData with _$RiderTrackerPageRoute {
 @TypedGoRoute<LocationPickerPageRoute>(path: '/location-picker')
 class LocationPickerPageRoute extends GoRouteData
     with _$LocationPickerPageRoute {
-  const LocationPickerPageRoute();
+  const LocationPickerPageRoute(this.$extra);
+  final LocationPickerPageParams $extra;
 
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const LocationPickerPage();
+  Widget build(BuildContext context, GoRouterState state) {
+    return LocationPickerPage(params: $extra);
+  }
 }

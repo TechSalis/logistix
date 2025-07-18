@@ -6,42 +6,59 @@ import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
 
 class LocationTextField extends ConsumerWidget {
   const LocationTextField({
     super.key,
-    required this.controller,
     required this.decoration,
     this.showLocationPicker = true,
+    this.enabled = true,
+    this.heroTag,
+    this.address,
+    required this.onAddressChanged,
   });
 
-  final TextEditingController controller;
+  final String? heroTag;
+  final Address? address;
   final InputDecoration decoration;
-  final bool showLocationPicker;
+  final bool showLocationPicker, enabled;
+  final void Function(Address value) onAddressChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget textField = TextField(
-      controller: controller,
+    Widget textField = TextFormField(
+      enabled: enabled,
       decoration: decoration,
+      initialValue: address?.name,
+      onChanged: (value) {
+        onAddressChanged(address?.copyWith(name: value) ?? Address(value));
+      },
       inputFormatters: [LengthLimitingTextInputFormatter(255)],
       onTapOutside: (_) => FocusScope.of(context).unfocus(),
     );
 
     if (showLocationPicker) {
       Future<void> openLocationPicker() async {
-        final result = await const LocationPickerPageRoute().push<Address>(
-          context,
-        );
-        if (result != null) controller.text = result.name;
+        final result = await LocationPickerPageRoute(
+          LocationPickerPageParams(heroTag: heroTag),
+        ).push<Address>(context);
+        if (result != null) onAddressChanged(result);
       }
 
       textField = Row(
         children: [
           Expanded(child: textField),
           IconButton(
-            onPressed: openLocationPicker,
-            icon: const Icon(Icons.add_location_alt),
+            visualDensity: const VisualDensity(horizontal: -1),
+            icon:
+                heroTag == null
+                    ? const Icon(Icons.add_location_alt)
+                    : Hero(
+                      tag: heroTag!,
+                      child: const Icon(Icons.add_location_alt),
+                    ),
+            onPressed: enabled ? openLocationPicker : null,
           ),
         ],
       );
