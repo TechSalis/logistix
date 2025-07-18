@@ -13,11 +13,11 @@ import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rating.dart';
 
 Future showFindRiderDialog(BuildContext context) {
+  final ref = ProviderScope.containerOf(context);
   return showDialog(
     context: context,
     builder: (context) => const FindRiderDialog(),
   ).then((value) {
-    final ref = ProviderScope.containerOf(context);
     final riderProvider = ref.read(findRiderProvider.notifier);
     Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
   });

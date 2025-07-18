@@ -32,6 +32,7 @@ class LocationTextField extends ConsumerWidget {
       decoration: decoration,
       initialValue: address?.name,
       onChanged: (value) {
+        value = value.trim();
         onAddressChanged(address?.copyWith(name: value) ?? Address(value));
       },
       inputFormatters: [LengthLimitingTextInputFormatter(255)],

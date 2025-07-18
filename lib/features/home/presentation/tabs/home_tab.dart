@@ -13,8 +13,9 @@ import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/home/presentation/widgets/order_summary_card.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
@@ -23,13 +24,13 @@ import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/pages/find_rider_dialog.dart';
 
 const Order order = Order(
-  refNumber: '13276342',
-  type: OrderType.delivery,
+  refNumber: 13276342,
+  orderType: OrderType.delivery,
   price: 1200,
-  status: OrderStatus.onTheWay,
+  orderStatus: OrderStatus.onTheWay,
   description: "Pick up Paracetamol from HealthPlus",
-  pickUp: Address('Mozilla lodge, Akure street, Lagos'),
-  dropOff: Address('Mozilla lodge, Akure street, Lagos'),
+  pickup: Address('Mozilla lodge, Akure street, Lagos'),
+  dropoff: Address('Mozilla lodge, Akure street, Lagos'),
   rider: RiderData(
     id: 'id',
     name: 'johnny Akunle',

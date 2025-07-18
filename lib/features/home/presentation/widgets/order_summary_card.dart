@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 
 class HomeOrderSummaryCard extends StatelessWidget {
@@ -56,11 +56,15 @@ class HomeOrderSummaryCard extends StatelessWidget {
               /// Header
               Row(
                 children: [
-                  Icon(order!.type.icon, color: order!.type.color, size: 28),
+                  Icon(
+                    order!.orderType.icon,
+                    color: order!.orderType.color,
+                    size: 28,
+                  ),
                   const SizedBox(width: 8),
                   OrderRefNumberChip(order: order!),
                   const Spacer(),
-                  OrderStatusChip(status: order!.status),
+                  OrderStatusChip(status: order!.orderStatus),
                 ],
               ),
               const SizedBox(height: 12),
@@ -68,11 +72,11 @@ class HomeOrderSummaryCard extends StatelessWidget {
               /// Pickup → Dropoff
               OrderLocationRow(
                 icon: Icons.store,
-                label: order!.pickUp?.name ?? "N/A",
+                label: order!.pickup?.name ?? "N/A",
               ),
               OrderLocationRow(
                 icon: Icons.pin_drop_outlined,
-                label: order!.dropOff?.name ?? "N/A",
+                label: order!.dropoff?.name ?? "N/A",
               ),
               const SizedBox(height: 12),
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 
 class EtaWidget extends StatelessWidget {
   const EtaWidget({super.key, required this.eta});
@@ -64,7 +65,7 @@ class OrderRefNumberChip extends StatelessWidget {
       ),
       visualDensity: const VisualDensity(vertical: -4),
       onPressed: () {
-        Clipboard.setData(ClipboardData(text: order.refNumber));
+        Clipboard.setData(ClipboardData(text: order.refNumber.toString()));
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text("Copied to clipboard")));
@@ -93,28 +94,27 @@ class OrderCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(order.type.icon, size: 22),
+                  Icon(order.orderType.icon, size: 22),
                   const SizedBox(width: 8),
                   OrderRefNumberChip(order: order),
                   const Spacer(),
-                  OrderStatusChip(status: order.status),
+                  OrderStatusChip(status: order.orderStatus),
                 ],
               ),
               const SizedBox(height: 8),
 
               /// Pickup and Dropoff
-              if (order.pickUp != null)
+              if (order.pickup != null)
                 OrderLocationRow(
                   icon: Icons.store,
-                  label: order.pickUp!.name,
+                  label: order.pickup!.name,
                 ),
-              if (order.dropOff != null)
+              if (order.dropoff != null)
                 OrderLocationRow(
                   icon: Icons.location_on_outlined,
-                  label: order.dropOff!.name,
+                  label: order.dropoff!.name,
                 ),
               const SizedBox(height: 12),
-
               /// Price and Order Type
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

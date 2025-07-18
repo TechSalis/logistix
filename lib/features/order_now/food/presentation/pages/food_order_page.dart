@@ -64,7 +64,7 @@ class FoodOrderPage extends StatelessWidget {
                   label: const Text("Place Order"),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
             ],
           ),
         ),

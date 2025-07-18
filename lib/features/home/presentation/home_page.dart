@@ -5,6 +5,7 @@ import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -26,6 +27,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   void dispose() {
+    ref.invalidate(ordersProvider);
     controller.dispose();
     super.dispose();
   }

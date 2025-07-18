@@ -24,7 +24,6 @@ class DioClient {
       ),
     );
     dio.interceptors.addAll([
-      RetryInterceptor(dio: dio, logPrint: debugPrint),
       Fresh.oAuth2(
         tokenStorage: _tokenStore,
         tokenHeader: (token) {
@@ -34,6 +33,7 @@ class DioClient {
         },
         refreshToken: _onRefreshToken,
       ),
+      RetryInterceptor(dio: dio, logPrint: debugPrint),
     ]);
   }
 
@@ -47,17 +47,17 @@ class DioClient {
         },
       ),
     );
-    
     final session = AuthSessionModel.fromJson(res.data);
-
     AuthLocalStore.instance.saveSession(session);
-    DioClient.updateSession(session);
-
     return session.toOAuth2Token();
   }
 
-  static void updateSession(AuthSession session) {
-    _tokenStore.write(session.toOAuth2Token());
+  static void updateSession(AuthSession? session) {
+    if (session == null) {
+      _tokenStore.delete();
+    } else {
+      _tokenStore.write(session.toOAuth2Token());
+    }
   }
 }
 

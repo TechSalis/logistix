@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 
 class OrderIcon extends StatelessWidget {
   const OrderIcon({super.key, required this.type, this.size, this.color});

@@ -30,17 +30,17 @@ final _remoteGeocodingProvider = Provider.autoDispose<GeocodingService>((ref) {
   return GoogleGeocodingServiceImpl(ref.watch(_mapsApi));
 });
 
-final addressFromCoordinatesProvider = FutureProvider.autoDispose
-    .family<Address?, Coordinates>((ref, Coordinates arg) async {
-      Address? address;
-      try {
-        // throw PlatformException(code: 'code');
-        address = await ref.watch(_localGeocodingProvider).getAddress(arg);
-      } on PlatformException {
-        address = await ref.watch(_remoteGeocodingProvider).getAddress(arg);
-      }
-      return address;
-    });
+final addressFromCoordinatesProvider = FutureProvider.autoDispose.family((
+  ref,
+  Coordinates arg,
+) async {
+  try {
+    // throw PlatformException(code: 'code');
+    return await ref.watch(_localGeocodingProvider).getAddress(arg);
+  } on PlatformException {
+    return await ref.watch(_remoteGeocodingProvider).getAddress(arg);
+  }
+});
 
 // State Manager
 final locationPickerProvider = AsyncNotifierProvider.autoDispose(
@@ -112,7 +112,6 @@ class LocationPickerState extends Equatable {
 
   factory LocationPickerState.initial() =>
       const LocationPickerState(address: null);
-
 
   LocationPickerState copyWith({Address? address, AppError? error}) {
     return LocationPickerState(address: address ?? this.address);

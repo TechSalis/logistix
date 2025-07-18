@@ -3,7 +3,7 @@ import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/core/constants/global_instances.dart';
 import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 
 class OrderDetailsPage extends StatelessWidget {
@@ -31,7 +31,11 @@ class OrderDetailsPage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(order.type.icon, color: order.type.color, size: 20),
+                      Icon(
+                        order.orderType.icon,
+                        color: order.orderType.color,
+                        size: 20,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         "Order #${order.refNumber}",
@@ -47,7 +51,7 @@ class OrderDetailsPage extends StatelessWidget {
                         "Status:",
                         style: TextStyle(color: Colors.grey),
                       ),
-                      OrderStatusChip(status: order.status),
+                      OrderStatusChip(status: order.orderStatus),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -58,27 +62,27 @@ class OrderDetailsPage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           // Pickup & Dropoff
-          if (order.pickUp != null || order.dropOff != null)
+          if (order.pickup != null || order.dropoff != null)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Locations", style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
-                if (order.pickUp != null)
+                if (order.pickup != null)
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.store),
                       title: const Text("Pickup"),
-                      subtitle: Text(order.pickUp!.name),
+                      subtitle: Text(order.pickup!.name),
                     ),
                   ),
                 const SizedBox(height: 8),
-                if (order.dropOff != null)
+                if (order.dropoff != null)
                   Card(
                     child: ListTile(
                       leading: const Icon(Icons.location_on_outlined),
                       title: const Text("Drop-off"),
-                      subtitle: Text(order.dropOff!.name),
+                      subtitle: Text(order.dropoff!.name),
                     ),
                   ),
               ],

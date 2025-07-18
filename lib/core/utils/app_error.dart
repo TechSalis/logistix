@@ -3,6 +3,9 @@ import 'package:dio/dio.dart';
 abstract class AppError {
   final String message;
   const AppError(this.message);
+
+  @override
+  String toString() => 'AppError($message)';
 }
 
 class NetworkError extends AppError {
@@ -15,8 +18,14 @@ class NetworkError extends AppError {
       code: res.statusCode ?? -1,
     );
   }
+
+  @override
+  String toString() => 'NetworkError($message, code: $code)';
 }
 
 class BusinessError extends AppError {
   const BusinessError(super.message);
+
+  @override
+  String toString() => 'BusinessError($message)';
 }

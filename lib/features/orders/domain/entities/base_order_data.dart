@@ -1,39 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/theme/colors.dart';
-import 'package:logistix/features/home/domain/entities/rider_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_repo_entiries.dart';
+import 'package:logistix/features/location_core/domain/entities/address.dart';
 
-class Order extends CreateOrderData with EquatableMixin {
-  final String refNumber;
-  final OrderStatus status;
-  final RiderData? rider;
-
-  const Order({
-    required super.type,
-    required super.description,
-    super.pickUp,
-    super.dropOff,
-    required super.price,
-
-    required this.refNumber,
-    required this.status,
-    this.rider,
-  });
-
-  @override
-  List<Object?> get props => [
-    refNumber,
-    type,
-    pickUp,
-    dropOff,
-    description,
-    price,
-    status,
-    rider,
-  ];
-}
-
+/// In sync with data values in the backend
 enum OrderStatus {
   pending,
   accepted,
@@ -55,16 +25,9 @@ enum OrderStatus {
     OrderStatus.delivered => Colors.green,
     OrderStatus.cancelled => Colors.red,
   };
-
-  // bool get isFinal {
-  //   return this == OrderStatus.delivered || this == OrderStatus.cancelled;
-  // }
-
-  // bool get isProcessing {
-  //   return this == OrderStatus.accepted || this == OrderStatus.onTheWay;
-  // }
 }
 
+/// In sync with data values in the backend
 enum OrderType {
   food,
   grocery,
@@ -91,4 +54,31 @@ enum OrderType {
     grocery => QuickActionColors.groceries,
     errands => QuickActionColors.errands,
   };
+}
+
+abstract base class BaseOrderData extends Equatable {
+  final Address? pickup, dropoff;
+  final double? price;
+  final OrderType orderType;
+  final String description;
+
+  const BaseOrderData({
+    required this.pickup,
+    required this.dropoff,
+    this.price,
+    required this.orderType,
+    required this.description,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'pickup': pickup?.toJson(),
+    'dropoff': dropoff?.toJson(),
+    'price': price,
+    'order_type': orderType.name,
+    'description': description,
+  };
+  
+  @override
+  List<Object?> get props => [description, pickup, dropoff, orderType, price];
+
 }

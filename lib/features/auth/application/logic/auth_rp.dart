@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/app/providers/app_data_cache.dart';
+import 'package:logistix/core/services/app_data_cache.dart';
 import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/features/auth/domain/repository/auth_remote_repository.dart';
 import 'package:logistix/features/auth/infrastructure/models/auth_dto.dart';
@@ -61,12 +61,16 @@ class AuthNotifier extends AutoDisposeNotifier<AuthState> {
   void _saveLoginResponse(AuthLoginResponse data) {
     state = AuthLoggedInState(user: data.user);
     AuthLocalStore.instance.saveSession(data.session);
-    DioClient.updateSession(data.session);
   }
 
   Future logout() async {
     final response = await ref.read(authRepoProvider).logout();
-    response.ifAny(success: (_) => state = const AuthLoggedOutState());
+    response.ifAny(
+      success: (_) {
+        DioClient.updateSession(null);
+        return state = const AuthLoggedOutState();
+      },
+    );
   }
 }
 

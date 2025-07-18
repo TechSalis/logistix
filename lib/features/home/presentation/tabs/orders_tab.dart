@@ -28,11 +28,9 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
 
-    if (ref.read(ordersProvider).value?.data.isEmpty ?? false) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) ref.watch(ordersProvider.notifier).getOngoing();
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ordersProvider.notifier).getOngoing(true);
+    });
   }
 
   @override
@@ -99,9 +97,11 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                           ],
                           onTap: (value) {
                             if (value == 0) {
-                              ref.read(ordersProvider.notifier).getOngoing();
+                              ref
+                                  .read(ordersProvider.notifier)
+                                  .getOngoing(true);
                             } else if (value == 1) {
-                              ref.read(ordersProvider.notifier).getAll();
+                              ref.read(ordersProvider.notifier).getAll(true);
                             }
                           },
                         ),
@@ -142,7 +142,7 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                     data: (state) {
                       final data = switch (tabController.index) {
                         0 => state.data[OrdersState.onGoing],
-                        1 => state.data[OrdersState.history],
+                        1 => state.data[OrdersState.all],
                         _ => throw FlutterError('More tabs than Tabviews'),
                       };
                       if (data == null || data.orders.isEmpty) {
@@ -190,24 +190,22 @@ class _OrdersSliverList extends StatelessWidget {
                 ),
               ),
               if (item == data.orders.last && !data.page.isLast)
-                SliverPadding(
+                Padding(
                   padding: const EdgeInsets.only(bottom: 32, top: 12),
-                  sliver: SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 40,
-                      child: Consumer(
-                        builder: (context, ref, child) {
-                          if (ref.watch(ordersProvider).isLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          return TextButton(
-                            onPressed: () {},
-                            child: const Text('Show more'),
+                  child: SizedBox(
+                    height: 40,
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        if (ref.watch(ordersProvider).isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
-                        },
-                      ),
+                        }
+                        return TextButton(
+                          onPressed: () {},
+                          child: const Text('Show more'),
+                        );
+                      },
                     ),
                   ),
                 ),

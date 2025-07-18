@@ -11,6 +11,8 @@ import 'package:logistix/features/form_validator/application/textfield_validator
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/order_now/delivery/application/logic/delivery_order_rp.dart';
+import 'package:logistix/features/order_now/entities/order_request_data.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 class NewDeliveryPage extends StatefulWidget {
@@ -26,11 +28,10 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
   final pickupController = TextEditingController();
 
   Address? pickup, dropoff;
+  DeliveryRequestData? data;
 
   final roundedLoadingButtonController = RoundedLoadingButtonController();
   final validatorKey = GlobalKey<FormValidatorGroupState>();
-
-  DeliveryRequestData? data;
 
   @override
   void dispose() {
@@ -38,6 +39,25 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
     dropoffController.dispose();
     pickupController.dispose();
     super.dispose();
+  }
+
+  void _validateAndCreateOrder({required Iterable<String> images}) {
+    if (!validatorKey.currentState!.validateAndCheck() ||
+        (pickup == null || dropoff == null)) {
+      setState(() => data = null);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields.")),
+      );
+    } else {
+      setState(() {
+        data = DeliveryRequestData(
+          description: descriptionController.text.trim(),
+          pickup: pickup!,
+          dropoff: dropoff!,
+          imagePaths: images,
+        );
+      });
+    }
   }
 
   @override
@@ -79,7 +99,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                           heroTag: "pickup",
                           onAddressChanged: (value) {
                             pickupController.text = value.name;
-                            setState(() => pickup = value);
+                            pickup = value;
                           },
                           decoration: const InputDecoration(
                             hintText: "Choose pickup location",
@@ -95,7 +115,7 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                           heroTag: "dropoff",
                           onAddressChanged: (value) {
                             dropoffController.text = value.name;
-                            setState(() => dropoff = value);
+                            dropoff = value;
                           },
                           decoration: const InputDecoration(
                             hintText: "Choose dropoff location",
@@ -148,10 +168,11 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                           );
                         }
                         return GestureDetector(
-                          onTap:
-                              ref
-                                  .read(deliveryOrderImagesProvider.notifier)
-                                  .pickImage,
+                          onTap: () {
+                            ref
+                                .read(deliveryOrderImagesProvider.notifier)
+                                .pickImage();
+                          },
                           child: SizedBox.square(
                             dimension: .25.sw - 20,
                             child: DecoratedBox(
@@ -177,44 +198,30 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
               const SizedBox(height: 32),
               Consumer(
                 builder: (context, ref, child) {
-                  if (data != null &&
-                      ref.exists(requestDeliveryProvider(data!))) {
-                    ref.listen(requestDeliveryProvider(data!), (p, n) {
+                  if (data != null) {
+                    ref.listen(createOrderProvider(data!), (p, n) {
+                      if (data == null) return;
                       switch (n) {
                         case AsyncLoading():
                           roundedLoadingButtonController.start();
                           break;
-                        case AsyncData():
-                          roundedLoadingButtonController.success();
-                          break;
                         case AsyncError():
                           roundedLoadingButtonController.error();
-                          break;
-                        default:
+                        case AsyncData():
+                          ref
+                              .read(ordersProvider.notifier)
+                              .addLocalOrder(n.requireValue.value, data!);
+                          roundedLoadingButtonController.success();
+                          data = null;
                       }
                     });
                   }
                   return ElevatedLoadingButton.icon(
                     controller: roundedLoadingButtonController,
                     onPressed: () {
-                      if (!validatorKey.currentState!.validateAndCheck()) {
-                        setState(() => data = null);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Please fill all required fields."),
-                          ),
-                        );
-                      } else {
-                        setState(() {
-                          data = DeliveryRequestData(
-                            description: descriptionController.text,
-                            pickup: pickupController.text,
-                            dropoff: dropoffController.text,
-                            imagePaths: ref.read(deliveryOrderImagesProvider),
-                          );
-                        });
-                        ref.read(requestDeliveryProvider(data!));
-                      }
+                      _validateAndCreateOrder(
+                        images: ref.read(deliveryOrderImagesProvider),
+                      );
                     },
                     icon: const Icon(Icons.check_circle_outline),
                     label: const Text("Request Delivery"),
@@ -241,7 +248,7 @@ class _DeliveryFareWidget extends StatelessWidget {
       padding: padding_16,
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withAlpha(20),
-        border: Border.all(color: theme.colorScheme.primary.withAlpha(80)),
+        border: Border.all(color: theme.colorScheme.primary.withAlpha(60)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
