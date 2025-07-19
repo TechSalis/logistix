@@ -145,7 +145,10 @@ class OrderDetailsPage extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: _CostRow(
                 label: "Total",
-                value: currencyFormatter.format(order.price),
+                value:
+                    order.price == null
+                        ? "N/A"
+                        : currencyFormatter.format(order.price),
               ),
             ),
           ),

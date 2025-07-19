@@ -46,17 +46,14 @@ final class OrdersState {
   static const pageOne = PageData(index: 0, size: 10, isLast: false);
 }
 
-class OrdersNotifier extends AsyncNotifier<OrdersState> {
+class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   @override
-  OrdersState build() => OrdersState.initial();
+  OrdersState build() {
+    Future.microtask(() => getOrdersFor(OrdersState.onGoing));
+    return OrdersState.initial();
+  }
 
-  Future getOngoing([bool refresh = false]) =>
-      _getOrdersFor(OrdersState.onGoing, refresh);
-
-  Future getAll([bool refresh = false]) =>
-      _getOrdersFor(OrdersState.all, refresh);
-
-  Future _getOrdersFor(OrderFilter filter, [bool refresh = false]) async {
+  Future getOrdersFor(OrderFilter filter, [bool refresh = false]) async {
     state = const AsyncValue.loading();
 
     final response = await ref
@@ -97,13 +94,13 @@ class OrdersNotifier extends AsyncNotifier<OrdersState> {
                 orders: [
                   Order(
                     refNumber: refNumber,
-                    orderType: requestData.orderType,
                     orderStatus: OrderStatus.pending,
+                    orderType: requestData.orderType,
                     description: requestData.description,
                     pickup: requestData.pickup,
                     dropoff: requestData.dropoff,
-                    rider: null,
                     price: null,
+                    rider: null,
                   ),
                   ...state.requireValue.data[OrdersState.onGoing]!.orders,
                 ],
@@ -114,6 +111,7 @@ class OrdersNotifier extends AsyncNotifier<OrdersState> {
   }
 }
 
-final ordersProvider = AsyncNotifierProvider<OrdersNotifier, OrdersState>(
-  OrdersNotifier.new,
-);
+final ordersProvider =
+    AsyncNotifierProvider.autoDispose<OrdersNotifier, OrdersState>(
+      OrdersNotifier.new,
+    );

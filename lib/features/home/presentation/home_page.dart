@@ -27,7 +27,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   void dispose() {
-    ref.invalidate(ordersProvider);
     controller.dispose();
     super.dispose();
   }
@@ -35,6 +34,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     ref.listen(locationProvider, (previous, next) {});
+    ref.listen(ordersProvider, (previous, next) {});
     ref.listen(navBarIndexProvider, (p, n) {
       controller.animateToPage(
         n,

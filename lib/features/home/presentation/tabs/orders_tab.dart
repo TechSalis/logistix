@@ -27,10 +27,6 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
   initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ordersProvider.notifier).getOngoing(true);
-    });
   }
 
   @override
@@ -96,13 +92,14 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                             Tab(text: 'All Orders'),
                           ],
                           onTap: (value) {
-                            if (value == 0) {
-                              ref
-                                  .read(ordersProvider.notifier)
-                                  .getOngoing(true);
-                            } else if (value == 1) {
-                              ref.read(ordersProvider.notifier).getAll(true);
-                            }
+                            ref.read(ordersProvider.notifier).getOrdersFor(
+                              switch (value) {
+                                0 => OrdersState.onGoing,
+                                1 => OrdersState.all,
+                                _ => throw UnimplementedError(),
+                              },
+                              true,
+                            );
                           },
                         ),
                       ],
@@ -140,24 +137,35 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                       );
                     },
                     data: (state) {
-                      final data = switch (tabController.index) {
-                        0 => state.data[OrdersState.onGoing],
-                        1 => state.data[OrdersState.all],
+                      final filter = switch (tabController.index) {
+                        0 => OrdersState.onGoing,
+                        1 => OrdersState.all,
                         _ => throw FlutterError('More tabs than Tabviews'),
                       };
-                      if (data == null || data.orders.isEmpty) {
+                      if (state.data[filter]?.orders.isEmpty ?? true) {
                         return SliverFillRemaining(
                           hasScrollBody: false,
                           fillOverscroll: false,
                           child: Center(
                             child: Text(
-                              'No orders yet!',
+                              'No orders found.',
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                           ),
                         );
                       }
-                      return _OrdersSliverList(data: data);
+                      return _OrdersSliverList(
+                        data: state.data[filter]!,
+                        onLoadMore: () {
+                          return ref
+                              .watch(ordersProvider.notifier)
+                              .getOrdersFor(switch (tabController.index) {
+                                0 => OrdersState.onGoing,
+                                1 => OrdersState.all,
+                                _ => throw UnimplementedError(),
+                              }, false);
+                        },
+                      );
                     },
                   );
             },
@@ -169,9 +177,9 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
 }
 
 class _OrdersSliverList extends StatelessWidget {
-  const _OrdersSliverList({required this.data});
-
+  const _OrdersSliverList({required this.data, required this.onLoadMore});
   final OrderTabData data;
+  final Future Function() onLoadMore;
 
   @override
   Widget build(BuildContext context) {
@@ -194,25 +202,45 @@ class _OrdersSliverList extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 32, top: 12),
                   child: SizedBox(
                     height: 40,
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        if (ref.watch(ordersProvider).isLoading) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return TextButton(
-                          onPressed: () {},
-                          child: const Text('Show more'),
-                        );
-                      },
-                    ),
+                    child: _ShowMoreLoader(onLoadMore: onLoadMore),
                   ),
                 ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class _ShowMoreLoader extends StatefulWidget {
+  const _ShowMoreLoader({required this.onLoadMore});
+  final Future Function() onLoadMore;
+
+  @override
+  State<_ShowMoreLoader> createState() => _ShowMoreLoaderState();
+}
+
+class _ShowMoreLoaderState extends State<_ShowMoreLoader> {
+  Future? _future;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return TextButton(
+          onPressed: () {
+            setState(() {
+              _future = widget.onLoadMore();
+            });
+          },
+          child: const Text('Show more'),
+        );
+      },
     );
   }
 }
