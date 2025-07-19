@@ -24,10 +24,10 @@ dependencies:
 
   go_router: ^16.0.0
 
-  flutter_chat_core: ^2.6.1
-  flutter_chat_ui: ^2.5.2
-  flyer_chat_system_message: ^2.1.10
-  flyer_chat_text_message: ^2.3.2
+  # flutter_chat_core: ^2.6.1
+  # flutter_chat_ui: ^2.5.2
+  # flyer_chat_system_message: ^2.1.10
+  # flyer_chat_text_message: ^2.3.2
 
   flutter_dotenv: ^5.2.1
   flutter_screenutil: ^5.9.3
