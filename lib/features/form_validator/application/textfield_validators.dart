@@ -8,7 +8,7 @@ final RequiredValidatorProvider = FormValidatorProviderFamily(
 
 abstract final class FormValidators {
   static String? required(String value) {
-    if (value.isEmpty) return 'This is required';
+    if (value.isEmpty) return 'Required';
     return null;
   }
 }

@@ -59,13 +59,11 @@ Future<void> showEmailPasswordDialog(BuildContext context) async {
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: "Phone",
-                  prefixIcon: const Icon(Icons.phone_outlined),
+                  prefixIcon: Icon(Icons.phone_outlined),
                   filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  border: OutlineInputBorder(borderRadius: borderRadius_12),
                 ),
               ),
               const SizedBox(height: 40),

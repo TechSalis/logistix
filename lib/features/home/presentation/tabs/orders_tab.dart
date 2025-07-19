@@ -46,10 +46,9 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
           Consumer(
             builder: (context, ref, child) {
               final rider =
-                  ref.watch(findRiderProvider) is RidersFound
-                      ? (ref.watch(findRiderProvider) as RidersFound)
-                          .riders
-                          .first
+                  ref.watch(findRiderProvider) is FindRiderReturnedWith
+                      ? (ref.watch(findRiderProvider) as FindRiderReturnedWith)
+                          .rider
                       : null;
               return SliverAppBar(
                 pinned: true,
@@ -115,8 +114,6 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                   .watch(ordersProvider)
                   .when(
                     skipError: true,
-                    skipLoadingOnReload: true,
-                    skipLoadingOnRefresh: true,
                     loading: () {
                       return const SliverFillRemaining(
                         fillOverscroll: false,

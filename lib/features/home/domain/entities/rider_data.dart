@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 
 class RiderData extends UserData with EquatableMixin {
   final CompanyData? company;
   final double? rating;
-
 
   @override
   // ignore: overridden_fields
@@ -18,9 +18,8 @@ class RiderData extends UserData with EquatableMixin {
     required super.imageUrl,
     this.company,
     this.rating,
-  });
+  }) : super(role: UserRole.rider);
 
   @override
   List<Object?> get props => [id, name, company];
 }
-

@@ -4,7 +4,6 @@ class AuthUserModel extends AuthUser {
   const AuthUserModel._({
     required super.id,
     required super.isAnonymous,
-    required super.role,
     required super.data,
   });
 
@@ -12,7 +11,6 @@ class AuthUserModel extends AuthUser {
     return AuthUserModel._(
       id: json['id'] as String,
       isAnonymous: json['is_anonymous'] as bool? ?? true,
-      role: UserRole.values.byName(json['user_metadata']?['role']),
       data: UserDataModel.fromJson(json),
     );
   }

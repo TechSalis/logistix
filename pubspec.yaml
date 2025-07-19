@@ -42,7 +42,6 @@ dependencies:
   
   implicitly_animated_list: ^2.3.0
   rounded_loading_button: ^2.1.0
-  pretty_dio_logger: ^1.4.0
   # smooth_page_indicator: ^1.2.1
   uuid: ^4.5.1
 
@@ -59,15 +58,16 @@ dependencies:
   supabase_flutter: ^2.9.1
   # timeago: ^3.7.1
   leak_tracker:
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-  
   build_runner: ^2.4.15
   hive_generator: ^2.0.1
   go_router_builder: ^3.0.1
+  json_serializable: ^6.9.0
   mockito: ^5.4.5
 
 flutter:
@@ -83,16 +83,11 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter/Inter_24pt-Light.ttf
-          weight: 200
-        - asset: assets/fonts/Inter/Inter_24pt-Light.ttf
           weight: 300
         - asset: assets/fonts/Inter/Inter_24pt-Regular.ttf
-          weight: 400
         - asset: assets/fonts/Inter/Inter_24pt-Medium.ttf
           weight: 500
         - asset: assets/fonts/Inter/Inter_24pt-SemiBold.ttf
           weight: 600
         - asset: assets/fonts/Inter/Inter_24pt-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Inter/Inter_24pt-Bold.ttf
-          weight: 800

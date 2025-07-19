@@ -3,6 +3,7 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/core/env_config.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/entities/place.dart';
 import 'package:logistix/features/location_core/infrastructure/dtos/google_map_response_dtos.dart';
@@ -25,7 +26,8 @@ class GooglePlacesDatasource {
     ]);
     _dio.options = BaseOptions(
       baseUrl: EnvConfig.instance.googlePlaceApiUrl,
-      // connectTimeout: const Duration(seconds: 10),
+      connectTimeout: duration_10s,
+      receiveTimeout: duration_10s,
       headers: {
         'X-Goog-Api-Key': EnvConfig.instance.googleApiKey,
         'Content-Type': 'application/json',

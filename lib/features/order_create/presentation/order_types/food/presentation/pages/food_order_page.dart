@@ -7,7 +7,7 @@ import 'package:logistix/features/form_validator/widgets/text_field_with_heading
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/order_now/food/application/logic/food_description_order_rp.dart';
+import 'package:logistix/features/order_create/presentation/order_types/food/application/logic/food_description_order_rp.dart';
 
 class FoodOrderPage extends StatelessWidget {
   const FoodOrderPage({super.key});
@@ -84,7 +84,6 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
   final customOrderController = TextEditingController();
   final restaurantController = TextEditingController();
   final locationController = TextEditingController();
-
   Address? restaurant, dropoff;
 
   @override
@@ -135,11 +134,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
               controller: restaurantController,
               validatorProvider: RequiredValidatorProvider,
               label: const Text("Restaurant (optional)"),
-              child: LocationTextField(
+              child: AddressTextField(
                 heroTag: 'restaurant',
                 onAddressChanged: (value) {
                   restaurantController.text = value.name;
-                  setState(() => restaurant = value);
+                  restaurant = value;
                 },
                 decoration: const InputDecoration(
                   hintText: "Name or location",
@@ -152,11 +151,11 @@ class _CustomOrderHeroState extends State<_CustomOrderHero> {
               controller: locationController,
               validatorProvider: RequiredValidatorProvider,
               label: const Text("Delivery address"),
-              child: LocationTextField(
+              child: AddressTextField(
                 heroTag: 'location',
                 onAddressChanged: (value) {
                   locationController.text = value.name;
-                  setState(() => dropoff = value);
+                  dropoff = value;
                 },
                 decoration: const InputDecoration(
                   hintText: "Delivery address",

@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/usecases/pick_image.dart';
-import 'package:logistix/features/order_now/entities/order_request_data.dart';
-import 'package:logistix/features/order_now/domain/repository/create_order_repo.dart';
-import 'package:logistix/features/order_now/infrastructure/repository/create_order_repo_impl.dart';
+import 'package:logistix/features/order_create/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/domain/repository/create_order_repo.dart';
+import 'package:logistix/features/order_create/infrastructure/repository/create_order_repo_impl.dart';
 
 final _createOrderRepoProvider = Provider.autoDispose<CreateOrderRepo>((ref) {
   return CreateOrderRepoImpl(client: DioClient.instance);

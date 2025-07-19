@@ -65,16 +65,20 @@ class LocationSearchNotifier
 
   Future<void> getAddress(String text) async {
     state = const AsyncValue.loading();
-    final result = await ref.watch(_searchLocationProvider).search(text);
-    state = AsyncValue.data(
-      LocationSearchState(addresses: result, input: text),
-    );
+
+    state = await AsyncValue.guard(() async {
+      final result = await ref.watch(_searchLocationProvider).search(text);
+      return LocationSearchState(addresses: result, input: text);
+    });
   }
 
   Future<void> getPlaceData(Address address) async {
     state = const AsyncValue.loading();
-    final place = await ref.watch(_searchLocationProvider).place(address);
-    state = AsyncData(state.requireValue.copyWith(place: place));
+    
+    state = await AsyncValue.guard(() async {
+      final place = await ref.watch(_searchLocationProvider).place(address);
+      return state.requireValue.copyWith(place: place);
+    });
   }
 }
 

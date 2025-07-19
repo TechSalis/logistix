@@ -15,6 +15,6 @@ void main() async {
     }),
     precacheAssetData(),
   ]);
-
+  
   runApp(const MainApp());
 }

@@ -6,6 +6,7 @@ class AuthLocalStore implements AuthLocalRepository {
   AuthLocalStore._internal();
   static final AuthLocalStore instance = AuthLocalStore._internal();
 
+  //TODO: Use SecureStorage
   final AuthLocalRepository _impl = AuthHiveLocalRepositoryImpl();
 
   @override

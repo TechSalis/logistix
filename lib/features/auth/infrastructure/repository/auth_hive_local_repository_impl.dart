@@ -25,7 +25,7 @@ class AuthHiveLocalRepositoryImpl extends AuthLocalRepository {
   AuthUser? getUser() {
     final userdata = box.get('user');
     if (userdata == null) return null;
-    return AuthUserModel.fromJson(userdata);
+    return AuthUserModel.fromJson(Map.from(userdata));
   }
 
   @override

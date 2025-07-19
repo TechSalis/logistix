@@ -7,8 +7,9 @@ import 'package:logistix/features/auth/infrastructure/repository/auth_local_stor
 import 'package:logistix/features/chat/presentation/pages/chat_page.dart';
 import 'package:logistix/features/home/presentation/home_page.dart';
 import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
-import 'package:logistix/features/order_now/delivery/presentation/pages/new_delivery_page.dart';
-import 'package:logistix/features/order_now/food/presentation/pages/food_order_page.dart';
+import 'package:logistix/features/location_picker/presentation/pages/location_picker_params.dart';
+import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/pages/new_delivery_page.dart';
+import 'package:logistix/features/order_create/presentation/order_types/food/presentation/pages/food_order_page.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_page.dart';
@@ -27,6 +28,10 @@ final GoRouter router = GoRouter(
         AuthLocalStore.instance.getSession() == null) {
       if (state.matchedLocation == '/') return '/auth';
     }
+    if (state.matchedLocation == '/auth') {
+      debugPrint('redirecting / -> /auth');
+      return '/';
+    }
     return null;
   },
 );
@@ -38,8 +43,8 @@ final GoRouter router = GoRouter(
     TypedGoRoute<NewDeliveryPageRoute>(path: '/delivery'),
     TypedGoRoute<OrderDetailsPageRoute>(path: '/order-details'),
     TypedGoRoute<ChatPageRoute>(path: '/chat'),
-    TypedGoRoute<RiderTrackerPageRoute>(path: '/rider-tracker'),
-    TypedGoRoute<LocationPickerPageRoute>(path: '/location-picker'),
+    TypedGoRoute<LocationPickerPageRoute>(path: '/pick-location'),
+    TypedGoRoute<RiderTrackerPageRoute>(path: '/track-rider'),
   ],
 )
 class HomePageRoute extends GoRouteData with _$HomePageRoute {
@@ -97,7 +102,7 @@ class RiderTrackerPageRoute extends GoRouteData with _$RiderTrackerPageRoute {
       RiderTrackerPage(rider: $extra);
 }
 
-@TypedGoRoute<LocationPickerPageRoute>(path: '/location-picker')
+@TypedGoRoute<LocationPickerPageRoute>(path: '/pick-location')
 class LocationPickerPageRoute extends GoRouteData
     with _$LocationPickerPageRoute {
   const LocationPickerPageRoute(this.$extra);

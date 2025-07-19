@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistix/app/router/app_router.dart';
-import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/core/constants/objects.dart';
 import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
@@ -21,9 +21,7 @@ class OrderDetailsPage extends StatelessWidget {
         children: [
           // Order Summary
           Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: borderRadius_12),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -138,9 +136,7 @@ class OrderDetailsPage extends StatelessWidget {
           Text("Payment", style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: borderRadius_12),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: _CostRow(

@@ -4,11 +4,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
+import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
-import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
+import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rating.dart';
 
@@ -18,8 +19,16 @@ Future showFindRiderDialog(BuildContext context) {
     context: context,
     builder: (context) => const FindRiderDialog(),
   ).then((value) {
-    final riderProvider = ref.read(findRiderProvider.notifier);
-    Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
+    final riderState = ref.read(findRiderProvider);
+    if (riderState is FindRiderContacted) {
+      NotificationService.inApp.showNotification(
+        RiderFoundNotification(
+          rider: (riderState as FindRiderContacted).rider!,
+        ),
+      );
+      final riderProvider = ref.read(findRiderProvider.notifier);
+      Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
+    }
   });
 }
 
@@ -39,24 +48,44 @@ class FindRiderDialog extends StatelessWidget {
           child: Center(
             child: Consumer(
               builder: (context, ref, child) {
-                switch (ref.watch(findRiderProvider)) {
-                  case FindRiderInitialState():
-                  case LocationSelected():
-                    return const FindRiderView();
-                  case SearchingForRiders():
-                    return const FindingRiderView();
-                  case RidersFound():
-                    return RiderFoundView(
-                      rider: order.rider!,
-                      onContact: () {},
+                ref.listen(findRiderProvider, (p, n) {
+                  if (n.hasError && n.error is AppError) {
+                    NotificationService.inApp.showToast(
+                      (n.error! as AppError).message,
                     );
-                  case NoRidersFound():
-                    return NoRiderFoundView(
-                      onRetry: () {
-                        ref.read(findRiderProvider.notifier).findRider();
-                      },
-                    );
+                  }
+                });
+                final state = ref.watch(findRiderProvider).requireValue;
+                if (ref.watch(findRiderProvider).isLoading) {
+                  switch (state) {
+                    case FindRiderInitialState():
+                      return const FindingRiderView();
+                    case FindRiderReturnedWith():
+                      return const FindingRiderView();
+                    default:
+                  }
+                } else {
+                  switch (state) {
+                    case FindRiderInitialState():
+                      return const FindRiderView();
+                    case FindRiderReturnedWith():
+                      if (state.rider != null) {
+                        return RiderFoundView(
+                          rider: state.rider!,
+                          onContact: () {
+                            // ChatPageRoute(state.rider!).push(context);
+                          },
+                        );
+                      }
+                      return NoRiderFoundView(
+                        onRetry: () {
+                          ref.read(findRiderProvider.notifier).findRider();
+                        },
+                      );
+                    default:
+                  }
                 }
+                return const SizedBox.shrink();
               },
             ),
           ),
@@ -106,8 +135,7 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 32),
-        LocationTextField(
-          key: ValueKey(address),
+        AddressTextField(
           enabled: !useCurrent,
           address: address,
           onAddressChanged: (value) => address = value,
@@ -130,7 +158,7 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
               children: [
                 Icon(Icons.my_location, size: 18, color: labelColor),
                 const SizedBox(width: 6),
-                const Text("Use current location"),
+                const Text("Use my location"),
               ],
             ),
             onSelected: _toggleUseCurrent,
@@ -146,7 +174,7 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
             icon: const Icon(Icons.search),
             label: const Text("Find Rider"),
             onPressed: () {
-              if (address == null) {
+              if (address?.name.isEmpty ?? true) {
                 NotificationService.inApp.showToast(
                   "Please provide a location",
                 );
@@ -231,13 +259,13 @@ class NoRiderFoundView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 40),
-        const SizedBox(height: 12),
+        const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 60),
+        const SizedBox(height: 16),
         Text(
           "No rider found nearby",
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
           "You can try again in a moment.",
           style: Theme.of(context).textTheme.bodyMedium,

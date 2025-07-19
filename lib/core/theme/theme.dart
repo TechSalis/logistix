@@ -7,7 +7,10 @@ class MyTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     primarySwatch: AppColors.orange,
-    snackBarTheme: const SnackBarThemeData(showCloseIcon: true),
+    snackBarTheme: const SnackBarThemeData(
+      showCloseIcon: true,
+      backgroundColor: Colors.black,
+    ),
     scaffoldBackgroundColor: AppColors.grey100,
     appBarTheme: const AppBarTheme(
       toolbarHeight: 40,
@@ -25,8 +28,8 @@ class MyTheme {
       secondary: AppColors.blueGrey,
       tertiary: AppColors.redAccent,
       surface: Colors.white,
-      onPrimary: AppColors.grey900,
-      onSecondary: AppColors.grey900,
+      onPrimary: AppColors.grey800,
+      onSecondary: AppColors.grey800,
       onSurface: AppColors.grey800,
       primaryContainer: AppColors.blueGrey,
     ),
@@ -65,7 +68,7 @@ class MyTheme {
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Color(0xFFFAFAFA),
       prefixIconColor: AppColors.blueGreyMaterial,
       hintStyle: TextStyle(color: Colors.grey),
       contentPadding: padding_H16_V8,
@@ -90,7 +93,7 @@ class MyTheme {
         shape: roundRectBorder8,
         padding: padding_H16_V12,
         backgroundColor: AppColors.blueGrey,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.grey300,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -123,7 +126,20 @@ class MyTheme {
     brightness: Brightness.dark,
     primarySwatch: AppColors.orange,
     scaffoldBackgroundColor: Colors.black,
-    snackBarTheme: const SnackBarThemeData(showCloseIcon: true),
+    snackBarTheme: const SnackBarThemeData(
+      showCloseIcon: true,
+      backgroundColor: AppColors.grey300,
+    ),
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.orange,
+      secondary: AppColors.blueGrey,
+      tertiary: AppColors.redAccent,
+      surface: Colors.black,
+      onPrimary: AppColors.grey300,
+      onSecondary: AppColors.grey300,
+      onSurface: AppColors.grey300,
+      primaryContainer: Colors.blueGrey,
+    ),
     appBarTheme: const AppBarTheme(
       toolbarHeight: 40,
       centerTitle: false,
@@ -139,16 +155,6 @@ class MyTheme {
         borderRadius: borderRadius_12,
         side: BorderSide(color: AppColors.grey800),
       ),
-    ),
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.orange,
-      secondary: AppColors.blueGrey,
-      tertiary: AppColors.redAccent,
-      surface: Colors.black,
-      onPrimary: AppColors.grey200,
-      onSecondary: AppColors.grey200,
-      onSurface: AppColors.grey300,
-      primaryContainer: Colors.blueGrey,
     ),
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
@@ -175,7 +181,7 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         shape: roundRectBorder8,
-        foregroundColor: AppColors.grey100,
+        foregroundColor: AppColors.grey300,
         backgroundColor: AppColors.blueGreyMaterial[900],
         padding: padding_H16_V12,
       ),
@@ -185,7 +191,7 @@ class MyTheme {
         side: const BorderSide(color: AppColors.grey800),
         shape: roundRectBorder8,
         padding: padding_H16_V12,
-        foregroundColor: AppColors.grey100,
+        foregroundColor: AppColors.grey300,
       ),
     ),
     dividerTheme: const DividerThemeData(color: AppColors.grey800),

@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 
+part 'address.g.dart';
+
+@JsonSerializable()
 class Address extends Equatable {
   final String name;
   final Coordinates? coordinates;
@@ -15,14 +19,11 @@ class Address extends Equatable {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'name': name,
-    if (coordinates != null) 'coordinates': coordinates!.toJson(),
-  };
-
-  @override
-  String toString() => 'Address($name, $coordinates)';
-
   @override
   List<Object?> get props => [name, coordinates];
+
+  factory Address.fromJson(Map<String, dynamic> json) =>
+      _$AddressFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AddressToJson(this);
 }

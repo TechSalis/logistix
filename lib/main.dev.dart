@@ -15,6 +15,7 @@ void main() async {
     }),
     precacheAssetData(),
   ]);
+  // await Hive.deleteFromDisk();
 
   trackLeaks();
   runApp(const MainApp());

@@ -3,7 +3,8 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flyer_chat_text_message/flyer_chat_text_message.dart';
-import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/core/constants/objects.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:flyer_chat_system_message/flyer_chat_system_message.dart';
@@ -99,16 +100,10 @@ class ChatPageState extends ConsumerState<ChatPage> {
                 height: .6,
               ),
               borderRadius: BorderRadius.only(
-                topLeft:
-                    isFirst && !isSentByMe
-                        ? Radius.zero
-                        : const Radius.circular(10),
-                topRight:
-                    isFirst && isSentByMe
-                        ? Radius.zero
-                        : const Radius.circular(10),
-                bottomLeft: const Radius.circular(10),
-                bottomRight: const Radius.circular(10),
+                topLeft: isFirst && !isSentByMe ? Radius.zero : radius_10,
+                topRight: isFirst && isSentByMe ? Radius.zero : radius_10,
+                bottomLeft: radius_10,
+                bottomRight: radius_10,
               ),
             );
           },

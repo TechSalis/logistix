@@ -11,8 +11,6 @@ import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/notifications/application/notification_service.dart';
-import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
@@ -20,7 +18,6 @@ import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/home/presentation/widgets/order_summary_card.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
-import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/pages/find_rider_dialog.dart';
 
 const Order order = Order(
@@ -163,15 +160,6 @@ class _FindRiderCTA extends ConsumerWidget {
     final isGranted =
         ref.watch(permissionProvider(PermissionData.location)).isGranted;
     if (isGranted == null) return const SizedBox.shrink();
-    ref.listen(findRiderProvider, (p, n) {
-      if (n is RidersFound) {
-        NotificationService.inApp.showNotification(
-          RiderFoundNotification(rider: n.riders.first),
-        );
-        // final riderProvider = ref.read(findRiderProvider.notifier);
-        // Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
-      }
-    });
     return Center(
       child: ElevatedButton.icon(
         onPressed: isGranted ? () => showFindRiderDialog(context) : null,

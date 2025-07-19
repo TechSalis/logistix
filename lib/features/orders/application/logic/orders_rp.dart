@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/utils/page.dart';
-import 'package:logistix/features/order_now/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/orders/domain/entities/create_order.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
@@ -56,17 +56,19 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   Future getOrdersFor(OrderFilter filter, [bool refresh = false]) async {
     state = const AsyncValue.loading();
 
-    final response = await ref
-        .watch(_ordersRepoProvider)
-        .getMyOrders(
-          refresh ? OrdersState.pageOne : state.requireValue.data[filter]!.page,
-          filter,
-        );
+    state = await AsyncValue.guard(() async {
+      final response = await ref
+          .watch(_ordersRepoProvider)
+          .getMyOrders(
+            refresh
+                ? OrdersState.pageOne
+                : state.requireValue.data[filter]!.page,
+            filter,
+          );
 
-    response.fold((l) => state = AsyncValue.error(l, StackTrace.current), (r) {
-      final data = state.requireValue.data;
-      return state = AsyncValue.data(
-        state.requireValue.copyWith(
+      return response.fold((l) => throw l, (r) {
+        final data = state.requireValue.data;
+        return state.requireValue.copyWith(
           data: {
             ...data,
             if (refresh)
@@ -79,8 +81,8 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
                 ),
               ),
           },
-        ),
-      );
+        );
+      });
     });
   }
 

@@ -9,55 +9,23 @@ import 'package:logistix/app/widgets/text_fields.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
-import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/order_now/delivery/application/logic/delivery_order_rp.dart';
-import 'package:logistix/features/order_now/entities/order_request_data.dart';
-import 'package:logistix/features/orders/application/logic/orders_rp.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:logistix/features/order_create/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
+import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
 
-class NewDeliveryPage extends StatefulWidget {
+class NewDeliveryPage extends ConsumerStatefulWidget {
   const NewDeliveryPage({super.key});
 
   @override
-  State<NewDeliveryPage> createState() => _NewDeliveryPageState();
+  ConsumerState<NewDeliveryPage> createState() => _NewDeliveryPageState();
 }
 
-class _NewDeliveryPageState extends State<NewDeliveryPage> {
-  final descriptionController = TextEditingController();
-  final dropoffController = TextEditingController();
-  final pickupController = TextEditingController();
-
-  Address? pickup, dropoff;
-  DeliveryRequestData? data;
-
-  final roundedLoadingButtonController = RoundedLoadingButtonController();
-  final validatorKey = GlobalKey<FormValidatorGroupState>();
-
+class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
+    with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
   @override
-  void dispose() {
-    descriptionController.dispose();
-    dropoffController.dispose();
-    pickupController.dispose();
-    super.dispose();
-  }
-
-  void _validateAndCreateOrder({required Iterable<String> images}) {
-    if (!validatorKey.currentState!.validateAndCheck() ||
-        (pickup == null || dropoff == null)) {
-      setState(() => data = null);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all required fields.")),
-      );
-    } else {
-      setState(() {
-        data = DeliveryRequestData(
-          description: descriptionController.text.trim(),
-          pickup: pickup!,
-          dropoff: dropoff!,
-          imagePaths: images,
-        );
-      });
-    }
+  bool onValidate() {
+    return (validatorKey.currentState!.validateAndCheck() &&
+        (pickup != null && dropoff != null));
   }
 
   @override
@@ -95,8 +63,9 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                         controller: pickupController,
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("Pickup Location"),
-                        child: LocationTextField(
+                        child: AddressTextField(
                           heroTag: "pickup",
+                          address: pickup,
                           onAddressChanged: (value) {
                             pickupController.text = value.name;
                             pickup = value;
@@ -111,8 +80,9 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
                         controller: dropoffController,
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("Dropoff Location"),
-                        child: LocationTextField(
+                        child: AddressTextField(
                           heroTag: "dropoff",
+                          address: dropoff,
                           onAddressChanged: (value) {
                             dropoffController.text = value.name;
                             dropoff = value;
@@ -196,37 +166,21 @@ class _NewDeliveryPageState extends State<NewDeliveryPage> {
               const SizedBox(height: 32),
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
-              Consumer(
-                builder: (context, ref, child) {
-                  if (data != null) {
-                    ref.listen(createOrderProvider(data!), (p, n) {
-                      if (data == null) return;
-                      switch (n) {
-                        case AsyncLoading():
-                          roundedLoadingButtonController.start();
-                          break;
-                        case AsyncError():
-                          roundedLoadingButtonController.error();
-                        case AsyncData():
-                          ref
-                              .read(ordersProvider.notifier)
-                              .addLocalOrder(n.requireValue.value, data!);
-                          roundedLoadingButtonController.success();
-                          data = null;
-                      }
-                    });
-                  }
-                  return ElevatedLoadingButton.icon(
-                    controller: roundedLoadingButtonController,
-                    onPressed: () {
-                      _validateAndCreateOrder(
-                        images: ref.read(deliveryOrderImagesProvider),
-                      );
-                    },
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: const Text("Request Delivery"),
+              ElevatedLoadingButton.icon(
+                controller: roundedLoadingButtonController,
+                resetAfterDuration: duration_3s,
+                onPressed: () {
+                  validateAndCreateOrder(
+                    DeliveryRequestData(
+                      description: descriptionController.text.trim(),
+                      pickup: pickup,
+                      dropoff: dropoff,
+                      imagePaths: ref.read(deliveryOrderImagesProvider),
+                    ),
                   );
                 },
+                icon: const Icon(Icons.check_circle_outline),
+                label: const Text("Request Delivery"),
               ),
             ],
           ),

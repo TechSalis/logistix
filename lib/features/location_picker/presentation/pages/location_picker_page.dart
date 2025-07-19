@@ -9,13 +9,9 @@ import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
+import 'package:logistix/features/location_picker/presentation/pages/location_picker_params.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
-
-class LocationPickerPageParams {
-  const LocationPickerPageParams({this.heroTag});
-  final String? heroTag;
-}
 
 class LocationPickerPage extends StatefulWidget {
   const LocationPickerPage({super.key, required this.params});

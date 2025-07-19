@@ -31,14 +31,14 @@ class AuthNotifier extends AutoDisposeNotifier<AuthState> {
   @override
   AuthState build() {
     final session = AuthLocalStore.instance.getSession();
-    if (session != null) DioClient.updateSession(session);
-
-    final user = AuthLocalStore.instance.getUser();
-    if (user == null) {
-      return const AuthLoggedOutState();
-    } else {
-      return AuthLoggedInState(user: user);
+    if (session != null) {
+      final user = AuthLocalStore.instance.getUser();
+      if (user != null) {
+        DioClient.updateSession(session);
+        return AuthLoggedInState(user: user);
+      }
     }
+    return const AuthLoggedOutState();
   }
 
   bool canLoginAnonymously() {
@@ -60,7 +60,14 @@ class AuthNotifier extends AutoDisposeNotifier<AuthState> {
 
   void _saveLoginResponse(AuthLoginResponse data) {
     state = AuthLoggedInState(user: data.user);
-    AuthLocalStore.instance.saveSession(data.session);
+
+    DioClient.updateSession(data.session);
+
+    AuthLocalStore.instance
+      ..saveSession(data.session)
+      ..saveUser(data.user);
+
+    ref.read(appCacheProvider).isFirstLogin = false;
   }
 
   Future logout() async {

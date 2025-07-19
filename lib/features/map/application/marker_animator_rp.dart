@@ -3,10 +3,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/presentation/coordinate_tween.dart';
 
-const kMapStreamPeriodDuration = Duration(seconds: 5);
+const kMapStreamPeriodDuration = duration_10s;
 
 class MarkerAnimator
     extends AutoDisposeFamilyNotifier<Coordinates?, MarkerAnimatorParams> {

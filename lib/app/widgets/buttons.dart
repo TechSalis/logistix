@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -22,12 +24,13 @@ class CustomTextButton extends StatelessWidget {
   }
 }
 
-class ElevatedLoadingButton extends StatelessWidget {
+class ElevatedLoadingButton extends StatefulWidget {
   const ElevatedLoadingButton({
     super.key,
     this.onPressed,
     required this.controller,
     required this.child,
+    this.resetAfterDuration,
   });
 
   ElevatedLoadingButton.icon({
@@ -36,6 +39,7 @@ class ElevatedLoadingButton extends StatelessWidget {
     required this.controller,
     required Widget icon,
     required Widget label,
+    this.resetAfterDuration,
   }) : child = Row(
          mainAxisSize: MainAxisSize.min,
          children: [icon, const SizedBox(width: 8), label],
@@ -43,7 +47,33 @@ class ElevatedLoadingButton extends StatelessWidget {
 
   final Widget child;
   final RoundedLoadingButtonController controller;
+  final Duration? resetAfterDuration;
   final void Function()? onPressed;
+
+  @override
+  State<ElevatedLoadingButton> createState() => _ElevatedLoadingButtonState();
+}
+
+class _ElevatedLoadingButtonState extends State<ElevatedLoadingButton> {
+  StreamSubscription? _sub;
+
+  @override
+  void initState() {
+    if (widget.resetAfterDuration != null) {
+      _sub = widget.controller.stateStream.listen((event) {
+        if (event == ButtonState.error || event == ButtonState.success) {
+          Future.delayed(widget.resetAfterDuration!, widget.controller.reset);
+        }
+      });
+    }
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +84,12 @@ class ElevatedLoadingButton extends StatelessWidget {
           width: consts.maxWidth,
           borderRadius: 8,
           animateOnTap: false,
-          onPressed: onPressed,
-          controller: controller,
+          resetDuration: Durations.extralong4,
+          onPressed: widget.onPressed,
+          controller: widget.controller,
           color: Theme.of(context).elevatedButtonTheme.style?.foregroundColor
               ?.resolve({WidgetState.selected}),
-          child: child,
+          child: widget.child,
         );
       },
     );

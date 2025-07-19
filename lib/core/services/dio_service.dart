@@ -1,13 +1,14 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:dio_smart_retry/dio_smart_retry.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fresh_dio/fresh_dio.dart';
 import 'package:logistix/core/env_config.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
@@ -20,8 +21,8 @@ class DioClient {
     dio = Dio(
       BaseOptions(
         baseUrl: EnvConfig.instance.apiUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        connectTimeout: duration_10s,
+        receiveTimeout: duration_10s,
       ),
     );
     dio.interceptors.addAll([
@@ -35,7 +36,7 @@ class DioClient {
         refreshToken: _onRefreshToken,
       ),
       RetryInterceptor(dio: dio, logPrint: debugPrint),
-      PrettyDioLogger(
+      LogInterceptor(
         requestHeader: true,
         requestBody: true,
         responseBody: true,

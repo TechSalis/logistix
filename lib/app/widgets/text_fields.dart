@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logistix/core/constants/global_instances.dart';
+import 'package:logistix/core/constants/objects.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
+import 'package:logistix/features/location_picker/presentation/pages/location_picker_params.dart';
 
-class LocationTextField extends ConsumerWidget {
-  const LocationTextField({
+class AddressTextField extends ConsumerStatefulWidget {
+  const AddressTextField({
     super.key,
     required this.decoration,
     this.showLocationPicker = true,
@@ -26,25 +26,61 @@ class LocationTextField extends ConsumerWidget {
   final void Function(Address value) onAddressChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AddressTextField> createState() => _AddressTextFieldState();
+}
+
+class _AddressTextFieldState extends ConsumerState<AddressTextField> {
+  final controller = TextEditingController();
+  Address? address;
+
+  @override
+  void initState() {
+    _updateAddress();
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant AddressTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.address != oldWidget.address) _updateAddress();
+  }
+
+  void _updateAddress() {
+    address = widget.address;
+    controller.text = address?.name ?? '';
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     Widget textField = TextFormField(
-      enabled: enabled,
-      decoration: decoration,
-      initialValue: address?.name,
+      enabled: widget.enabled,
+      decoration: widget.decoration,
+      controller: controller,
       onChanged: (value) {
         value = value.trim();
-        onAddressChanged(address?.copyWith(name: value) ?? Address(value));
+        widget.onAddressChanged(
+          address?.copyWith(name: value) ?? Address(value),
+        );
       },
       inputFormatters: [LengthLimitingTextInputFormatter(255)],
       onTapOutside: (_) => FocusScope.of(context).unfocus(),
     );
 
-    if (showLocationPicker) {
+    if (widget.showLocationPicker) {
       Future<void> openLocationPicker() async {
         final result = await LocationPickerPageRoute(
-          LocationPickerPageParams(heroTag: heroTag),
+          LocationPickerPageParams(heroTag: widget.heroTag),
         ).push<Address>(context);
-        if (result != null) onAddressChanged(result);
+        if (result != null) {
+          widget.onAddressChanged(result);
+          controller.text = result.name;
+        }
       }
 
       textField = Row(
@@ -53,13 +89,13 @@ class LocationTextField extends ConsumerWidget {
           IconButton(
             visualDensity: const VisualDensity(horizontal: -1),
             icon:
-                heroTag == null
+                widget.heroTag == null
                     ? const Icon(Icons.add_location_alt)
                     : Hero(
-                      tag: heroTag!,
+                      tag: widget.heroTag!,
                       child: const Icon(Icons.add_location_alt),
                     ),
-            onPressed: enabled ? openLocationPicker : null,
+            onPressed: widget.enabled ? openLocationPicker : null,
           ),
         ],
       );

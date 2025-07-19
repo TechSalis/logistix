@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/core/utils/extensions/dio.dart';
-import 'package:logistix/features/order_now/domain/repository/create_order_repo.dart';
+import 'package:logistix/features/order_create/domain/repository/create_order_repo.dart';
 import 'package:logistix/features/orders/domain/entities/create_order.dart';
 
 class CreateOrderRepoImpl extends CreateOrderRepo {

@@ -11,7 +11,7 @@ abstract class AppColors {
   static const grey300 = Color(0xFFE0E0E0);
   static const grey700 = Color(0xFF616161);
   static const grey800 = Color(0xFF424242);
-  static const grey900 = Color.fromARGB(255, 25, 25, 25);
+  static const grey900 = Color(0xFF191919);
 
   static const orange = MaterialColor(
     0xFFF97316,

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
@@ -7,38 +8,30 @@ sealed class FindRiderState {
 }
 
 class FindRiderInitialState extends FindRiderState {
-  const FindRiderInitialState();
+  final Address? location;
+  const FindRiderInitialState([this.location]);
 }
 
-class LocationSelected extends FindRiderState {
-  final Address location;
-  const LocationSelected(this.location);
+class FindRiderReturnedWith extends FindRiderState {
+  final RiderData? rider;
+  const FindRiderReturnedWith(this.rider);
+}
+class FindRiderContacted extends FindRiderState {
+  final RiderData? rider;
+  const FindRiderContacted(this.rider);
 }
 
-class SearchingForRiders extends FindRiderState {
-  const SearchingForRiders();
-}
-
-class RidersFound extends FindRiderState {
-  final List<RiderData> riders;
-  const RidersFound(this.riders);
-}
-
-class NoRidersFound extends FindRiderState {
-  const NoRidersFound();
-}
-
-class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
+class FindRiderNotifier extends AutoDisposeAsyncNotifier<FindRiderState> {
   @override
   FindRiderState build() => const FindRiderInitialState();
 
   void setLocation(Address address) {
-    state = LocationSelected(address);
+    state = AsyncData(FindRiderInitialState(address));
   }
 
   Future findRider() async {
-    state = const SearchingForRiders();
-    await Future.delayed(const Duration(seconds: 2));
+    state = const AsyncLoading();
+    await Future.delayed(duration_3s);
     const rider = RiderData(
       name: "Abdul Kareem",
       rating: 4.7,
@@ -46,8 +39,10 @@ class FindRiderNotifier extends AutoDisposeNotifier<FindRiderState> {
       phone: '',
       imageUrl: '',
     );
-    state = const RidersFound([rider]);
+    state = const AsyncData(FindRiderReturnedWith(rider));
   }
 }
 
-final findRiderProvider = NotifierProvider.autoDispose(FindRiderNotifier.new);
+final findRiderProvider = AsyncNotifierProvider.autoDispose(
+  FindRiderNotifier.new,
+);
