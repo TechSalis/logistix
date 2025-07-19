@@ -7,6 +7,7 @@ import 'package:fresh_dio/fresh_dio.dart';
 import 'package:logistix/core/env_config.dart';
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
@@ -34,6 +35,15 @@ class DioClient {
         refreshToken: _onRefreshToken,
       ),
       RetryInterceptor(dio: dio, logPrint: debugPrint),
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        responseHeader: false,
+        error: true,
+        compact: true,
+        maxWidth: 90,
+      ),
     ]);
   }
 
