@@ -43,7 +43,7 @@ class FindRiderDialog extends StatelessWidget {
       child: Padding(
         padding: padding_24,
         child: SizedBox(
-          height: 288,
+          height: 274,
           width: double.infinity,
           child: Center(
             child: Consumer(
@@ -118,15 +118,20 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
   @override
   Widget build(BuildContext context) {
     final currentlocationColor = Color.lerp(
-      Colors.orange.shade500,
+      Theme.of(context).colorScheme.tertiary,
       Theme.of(context).colorScheme.surface,
       0.7,
     );
-    final labelColor = useCurrent ? Colors.orange.shade800 : null;
+    final labelColor =
+        useCurrent ? Theme.of(context).colorScheme.tertiary : null;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.flash_on, size: 32, color: Colors.orange),
+        Icon(
+          Icons.flash_on,
+          size: 32,
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         const SizedBox(height: 8),
         Text(
           "Find a Nearby Rider",
@@ -134,14 +139,14 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
             context,
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         AddressTextField(
           enabled: !useCurrent,
           address: address,
           onAddressChanged: (value) => address = value,
           decoration: const InputDecoration(
             labelText: "Enter your location",
-            prefixIcon: Icon(Icons.location_on_outlined),
+            // prefixIcon: Icon(Icons.my_location),
             border: OutlineInputBorder(borderRadius: borderRadius_12),
           ),
         ),
@@ -173,6 +178,9 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
           child: ElevatedButton.icon(
             icon: const Icon(Icons.search),
             label: const Text("Find Rider"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
+            ),
             onPressed: () {
               if (address?.name.isEmpty ?? true) {
                 NotificationService.inApp.showToast(

@@ -79,7 +79,7 @@ class _NavBar extends ConsumerWidget {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.moped_rounded),
+          icon: Icon(Icons.format_list_numbered_sharp),
           label: 'Orders',
         ),
         BottomNavigationBarItem(icon: Icon(Icons.person_2), label: 'Profile'),

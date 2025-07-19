@@ -42,8 +42,16 @@ class DioClient {
         responseBody: true,
         responseHeader: false,
         error: true,
-        compact: true,
-        maxWidth: 90,
+      ),
+      InterceptorsWrapper(
+        onResponse: (options, handler) async {
+          if (EnvConfig.instance.isDev) {
+            await Future.delayed(
+              Duration(milliseconds: 2000 + Random().nextInt(5000)),
+            );
+          }
+          return handler.next(options);
+        },
       ),
     ]);
   }

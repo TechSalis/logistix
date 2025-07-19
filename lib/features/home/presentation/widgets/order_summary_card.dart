@@ -43,7 +43,7 @@ class HomeOrderSummaryCard extends StatelessWidget {
     }
     return Card(
       shape: roundRectBorder12,
-      elevation: 2,
+      elevation: 4,
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius_12,

@@ -6,70 +6,60 @@ class MyTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    primarySwatch: AppColors.orange,
+    primarySwatch: AppColors.orangeMat,
     snackBarTheme: const SnackBarThemeData(
       showCloseIcon: true,
       backgroundColor: Colors.black,
     ),
-    scaffoldBackgroundColor: AppColors.grey100,
-    appBarTheme: const AppBarTheme(
+    scaffoldBackgroundColor: AppColors.greyMat.shade50,
+    appBarTheme: AppBarTheme(
       toolbarHeight: 40,
       centerTitle: false,
-      color: AppColors.grey100,
-      surfaceTintColor: AppColors.grey100,
-      // titleTextStyle: TextStyle(
-      //   color: AppColors.grey900,
-      //   fontSize: 20,
-      //   fontWeight: FontWeight.w500,
-      // ),
+      color: AppColors.greyMat.shade50,
+      surfaceTintColor: AppColors.greyMat.shade100,
+      titleTextStyle: const TextStyle(
+        color: Colors.black,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
-    colorScheme: const ColorScheme.light(
-      primary: AppColors.orange,
-      secondary: AppColors.blueGrey,
+    colorScheme: ColorScheme.light(
+      primary: AppColors.orangeMat,
+      secondary: AppColors.blueGreyMat.shade900,
       tertiary: AppColors.redAccent,
       surface: Colors.white,
-      onPrimary: AppColors.grey800,
-      onSecondary: AppColors.grey800,
-      onSurface: AppColors.grey800,
-      primaryContainer: AppColors.blueGrey,
+      onPrimary: AppColors.greyMat.shade800,
+      onSecondary: AppColors.greyMat.shade800,
+      onSurface: AppColors.greyMat.shade800,
+      primaryContainer: AppColors.blueGreyMat,
     ),
-    cardTheme: const CardThemeData(
-      elevation: 0,
+    cardTheme: CardThemeData(
+      elevation: 1,
       margin: EdgeInsets.zero,
+      shadowColor: Colors.black38,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius_12,
-        side: BorderSide(color: AppColors.grey300),
+        side: BorderSide(color: AppColors.greyMat.shade300),
       ),
-      shadowColor: Colors.black38,
     ),
     tabBarTheme: const TabBarThemeData(
       labelStyle: TextStyle(fontWeight: FontWeight.w600),
       unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
       dividerHeight: 0,
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.grey200),
+    dividerTheme: DividerThemeData(color: AppColors.greyMat.shade200),
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
       padding: EdgeInsets.zero,
-      // labelStyle: TextStyle(
-      //   color: Colors.black,
-      //   fontSize: 12,
-      //   fontWeight: FontWeight.w500,
-      // ),
     ),
     fontFamily: 'Inter',
-    // textTheme: const TextTheme().apply(
-    //   fontFamily: 'Inter',
-    //   bodyColor: Colors.grey,
-    //   displayColor: Colors.grey,
-    // ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
     ),
-    inputDecorationTheme: const InputDecorationTheme(
+    inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Color(0xFFFAFAFA),
-      prefixIconColor: AppColors.blueGreyMaterial,
+      fillColor: Colors.white,
+      prefixIconColor: AppColors.blueGreyMat.shade400,
       hintStyle: TextStyle(color: Colors.grey),
       contentPadding: padding_H16_V8,
       enabledBorder: OutlineInputBorder(
@@ -78,7 +68,7 @@ class MyTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: borderRadius_12,
-        borderSide: BorderSide(color: AppColors.orange),
+        borderSide: BorderSide(color: AppColors.orangeMat),
       ),
       errorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
@@ -90,16 +80,17 @@ class MyTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        elevation: 2,
         shape: roundRectBorder8,
         padding: padding_H16_V12,
-        backgroundColor: AppColors.blueGrey,
-        foregroundColor: AppColors.grey300,
+        backgroundColor: AppColors.blueGreyMat.shade900,
+        foregroundColor: Colors.white,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: Color(0xFF9E9E9E)),
-        foregroundColor: AppColors.blueGrey,
+        foregroundColor: AppColors.blueGreyMat,
         padding: padding_H16_V12,
         shape: roundRectBorder8,
       ),
@@ -117,27 +108,30 @@ class MyTheme {
       shadowColor: Colors.black12,
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.orange,
+      color: AppColors.orangeMat,
     ),
   );
 
   static ThemeData get dark => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primarySwatch: AppColors.orange,
+    primarySwatch: AppColors.orangeMat,
     scaffoldBackgroundColor: Colors.black,
-    snackBarTheme: const SnackBarThemeData(
+    snackBarTheme: SnackBarThemeData(
       showCloseIcon: true,
-      backgroundColor: AppColors.grey300,
+      backgroundColor: AppColors.greyMat.shade300,
     ),
-    colorScheme: const ColorScheme.dark(
-      primary: AppColors.orange,
-      secondary: AppColors.blueGrey,
+    dialogTheme: DialogThemeData(
+      barrierColor: AppColors.greyMat.shade900.withAlpha(150),
+    ),
+    colorScheme: ColorScheme.dark(
+      primary: AppColors.orangeMat,
+      secondary: AppColors.blueGreyMat,
       tertiary: AppColors.redAccent,
       surface: Colors.black,
-      onPrimary: AppColors.grey300,
-      onSecondary: AppColors.grey300,
-      onSurface: AppColors.grey300,
+      onPrimary: AppColors.greyMat.shade300,
+      onSecondary: AppColors.greyMat.shade300,
+      onSurface: AppColors.greyMat.shade300,
       primaryContainer: Colors.blueGrey,
     ),
     appBarTheme: const AppBarTheme(
@@ -145,56 +139,62 @@ class MyTheme {
       centerTitle: false,
       color: Colors.black,
       surfaceTintColor: Colors.black,
-    ),
-    cardTheme: const CardThemeData(
-      elevation: 1,
-      margin: EdgeInsets.zero,
-      color: AppColors.grey900,
-      shadowColor: AppColors.grey300,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_12,
-        side: BorderSide(color: AppColors.grey800),
+      titleTextStyle: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
       ),
     ),
-    inputDecorationTheme: const InputDecorationTheme(
+    cardTheme: CardThemeData(
+      elevation: 1,
+      margin: EdgeInsets.zero,
+      color: AppColors.greyMat.shade900,
+      shadowColor: AppColors.greyMat.shade700,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius_12,
+        side: BorderSide(color: AppColors.greyMat.shade800),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: Colors.black,
-      hintStyle: TextStyle(color: AppColors.grey700),
-      prefixIconColor: Color.fromARGB(255, 100, 111, 114),
+      hintStyle: TextStyle(color: AppColors.greyMat.shade700),
+      prefixIconColor: const Color(0xFF646F72),
       contentPadding: padding_H16_V8,
       enabledBorder: OutlineInputBorder(
         borderRadius: borderRadius_12,
-        borderSide: BorderSide(color: AppColors.grey800),
+        borderSide: BorderSide(color: AppColors.greyMat.shade800),
       ),
-      focusedBorder: OutlineInputBorder(
+      focusedBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
-        borderSide: BorderSide(color: AppColors.orange),
+        borderSide: BorderSide(color: AppColors.orangeMat),
       ),
-      errorBorder: OutlineInputBorder(
+      errorBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
-      focusedErrorBorder: OutlineInputBorder(
+      focusedErrorBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        elevation: 2,
         shape: roundRectBorder8,
-        foregroundColor: AppColors.grey300,
-        backgroundColor: AppColors.blueGreyMaterial[900],
+        foregroundColor: AppColors.greyMat.shade300,
+        backgroundColor: AppColors.blueGreyMat.shade900,
         padding: padding_H16_V12,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: AppColors.grey800),
+        side: BorderSide(color: AppColors.greyMat.shade800),
         shape: roundRectBorder8,
         padding: padding_H16_V12,
-        foregroundColor: AppColors.grey300,
+        foregroundColor: AppColors.greyMat.shade300,
       ),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.grey800),
+    dividerTheme: DividerThemeData(color: AppColors.greyMat.shade800),
     chipTheme: const ChipThemeData(
       side: BorderSide.none,
       padding: EdgeInsets.zero,
@@ -221,7 +221,7 @@ class MyTheme {
       ),
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AppColors.orange,
+      color: AppColors.orangeMat,
     ),
   );
 }

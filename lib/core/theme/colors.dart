@@ -3,31 +3,36 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-  static const redAccent = Colors.redAccent;
-  static const blueGreyMaterial = Colors.blueGrey;
-  static const blueGrey = Color(0xFF263238);
-  static const grey100 = Color(0xFFF5F5F5);
-  static const grey200 = Color(0xFFEEEEEE);
-  static const grey300 = Color(0xFFE0E0E0);
-  static const grey700 = Color(0xFF616161);
-  static const grey800 = Color(0xFF424242);
-  static const grey900 = Color(0xFF191919);
+static const greyMat = MaterialColor(0xFF8E827A, <int, Color>{
+    50: Color(0xFFFAF8F7),
+    100: Color(0xFFF2EEEB),
+    200: Color(0xFFE1D8D3),
+    300: Color(0xFFCFC1B9),
+    400: Color(0xFFBFAEA4),
+    500: Color(0xFF8E827A),
+    600: Color(0xFF6E655F),
+    700: Color(0xFF4F4844),
+    800: Color(0xFF3B3632), // rich, dark mocha charcoal
+    900: Color(0xFF252220), // warm charcoal black
+  });
 
-  static const orange = MaterialColor(
-    0xFFF97316,
-    <int, Color>{
-      50: Color(0xFFFFF7ED),
-      100: Color(0xFFFFEDD5),
-      200: Color(0xFFFED7AA),
-      300: Color(0xFFFDBA74),
-      400: Color(0xFFFB923C),
-      500: Color(0xFFF97316), // Base
-      600: Color(0xFFEA580C),
-      700: Color(0xFFC2410C),
-      800: Color(0xFF9A3412),
-      900: Color(0xFF7C2D12),
-    },
-  );
+
+
+  static const redAccent = Color(0xFFEF4444);
+  static const blueGreyMat = Colors.blueGrey;
+  static const orangeMat = MaterialColor(0xFFF97316, <int, Color>{
+    50: Color(0xFFFFF7ED),
+    100: Color(0xFFFFEDD5),
+    200: Color(0xFFFED7AA),
+    300: Color(0xFFFDBA74),
+    400: Color(0xFFFB923C),
+    500: Color(0xFFF97316),
+    600: Color(0xFFEA580C),
+    700: Color(0xFFC2410C),
+    800: Color(0xFF9A3412),
+    900: Color(0xFF7C2D12),
+});
+
 }
 
 class QuickActionColors {

@@ -167,7 +167,7 @@ class _FindRiderCTA extends ConsumerWidget {
         label: const Text("Find a Rider"),
         style: ElevatedButton.styleFrom(
           padding: padding_H12,
-          backgroundColor: Theme.of(context).colorScheme.tertiary,
+          backgroundColor: Colors.red[800],
         ),
       ),
     );
@@ -184,7 +184,8 @@ class _MiniMapWidget extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(
         side: BorderSide(
-          color: context.isLightTheme ? Colors.white : AppColors.grey700,
+          color:
+              context.isLightTheme ? Colors.white : AppColors.greyMat.shade800,
           width: 4,
         ),
       ),

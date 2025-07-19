@@ -39,7 +39,7 @@ class OrderStatusChip extends StatelessWidget {
     return Chip(
       label: Text(status.label),
       visualDensity: const VisualDensity(vertical: -4),
-      backgroundColor: status.color.withAlpha(30),
+      backgroundColor: status.color.withAlpha(40),
       shape: const LinearBorder(),
       labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
         fontWeight: FontWeight.w600,

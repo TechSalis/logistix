@@ -140,7 +140,7 @@ class PriceSelectorField extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               color:
-                  context.isDarkTheme ? AppColors.blueGreyMaterial[200] : null,
+                  context.isDarkTheme ? AppColors.blueGreyMat[200] : null,
             ),
           ),
         ),

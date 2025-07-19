@@ -19,8 +19,8 @@ enum OrderStatus {
     OrderStatus.cancelled => 'Cancelled',
   };
   Color get color => switch (this) {
-    OrderStatus.pending => AppColors.grey800,
-    OrderStatus.accepted => AppColors.orange,
+    OrderStatus.pending => AppColors.blueGreyMat,
+    OrderStatus.accepted => Colors.blue,
     OrderStatus.onTheWay => Colors.blue,
     OrderStatus.delivered => Colors.green,
     OrderStatus.cancelled => Colors.red,
@@ -43,9 +43,9 @@ enum OrderType {
 
   IconData get icon => switch (this) {
     delivery => Icons.moped,
-    food => Icons.fastfood_outlined,
+    food => Icons.fastfood,
     grocery => Icons.shopping_cart,
-    errands => Icons.local_mall_outlined,
+    errands => Icons.local_mall,
   };
 
   Color get color => switch (this) {
