@@ -32,6 +32,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ? null
               : AppBar(
                 centerTitle: true,
+                toolbarHeight: 48,
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
                 title: const Text('Drag to position marker'),
                 actions: [
@@ -39,7 +40,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                     builder: (context, ref, child) {
                       final address =
                           ref.watch(locationPickerProvider).value?.address;
-                      return IconButton.filled(
+                      return IconButton(
                         onPressed:
                             address != null
                                 ? () => GoRouter.of(context).pop(address)
@@ -145,7 +146,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                   label: Text(
                     ref.watch(locationPickerProvider).value!.address!.name,
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
+                    maxLines: 1,
                   ),
                 );
               }

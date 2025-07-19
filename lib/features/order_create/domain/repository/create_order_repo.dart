@@ -4,4 +4,5 @@ import 'package:logistix/features/orders/domain/entities/create_order.dart';
 
 abstract class CreateOrderRepo {
   Future<Either<AppError, int>> createOrder(CreateOrderData data);
+  Future<Either<AppError, String>> uploadImage(String path);
 }

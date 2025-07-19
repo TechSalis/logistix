@@ -22,14 +22,16 @@ class TextFieldLabelAndErrorDisplayWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            DefaultTextStyle(
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
-              child: label,
+            Flexible(
+              child: DefaultTextStyle(
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium!.copyWith(fontWeight: FontWeight.bold),
+                child: label,
+              ),
             ),
+            const SizedBox(width: 12),
             FormValidatorErrorWidget(
               controller: controller,
               validatorProvider: validatorProvider,

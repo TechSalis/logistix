@@ -11,13 +11,16 @@ const kMapStreamPeriodDuration = duration_10s;
 
 class MarkerAnimator
     extends AutoDisposeFamilyNotifier<Coordinates?, MarkerAnimatorParams> {
-  late final AnimationController _controller;
+  AnimationController? _controller;
   Animation<Coordinates>? _animation;
 
   @override
   Coordinates? build(MarkerAnimatorParams param) {
-    _controller = AnimationController(vsync: arg.vsync, duration: arg.duration);
-    ref.onDispose(_controller.dispose);
+    _controller ??= AnimationController(
+      vsync: arg.vsync,
+      duration: arg.duration,
+    );
+    ref.onDispose(() => _controller?.dispose());
 
     return state = param.initialPosition;
   }
@@ -34,10 +37,10 @@ class MarkerAnimator
     _animation = CoordinateTween(
       begin: state!,
       end: newPosition,
-    ).animate(_controller)..addListener(_updateAnimationListener);
+    ).animate(_controller!)..addListener(_updateAnimationListener);
     ref.onDispose(() => _animation?.removeListener(_updateAnimationListener));
 
-    _controller.forward(from: 0);
+    _controller!.forward(from: 0);
   }
 
   void dispose() => ref.invalidateSelf();

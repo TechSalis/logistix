@@ -16,12 +16,12 @@ mixin CreateOrderWidgetMixin<
   ProviderSubscription? _providerSub;
 
   RoundedLoadingButtonController get roundedLoadingButtonController;
-  bool onValidate();
-
+  String? onValidate();
 
   void validateAndCreateOrder(D newData) {
     _clearSub();
-    if (onValidate()) {
+    final validation = onValidate();
+    if (validation == null) {
       setState(() => data = newData);
       _providerSub = ref.listenManual(createOrderProvider(data!), (p, n) {
         switch (n) {
@@ -41,9 +41,9 @@ mixin CreateOrderWidgetMixin<
       });
     } else {
       setState(() => data = null);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill all required fields.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(validation)));
     }
   }
 
@@ -72,6 +72,7 @@ mixin BaseCreateOrderTemplateMixin<
   final descriptionController = TextEditingController();
   final dropoffController = TextEditingController();
   final pickupController = TextEditingController();
+
   Address? pickup, dropoff;
 
   @override

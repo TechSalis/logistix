@@ -49,8 +49,8 @@ final locationPickerProvider = AsyncNotifierProvider.autoDispose(
 
 class LocationPickerNotifier
     extends AutoDisposeAsyncNotifier<LocationPickerState> {
-  late final PermissionNotifier _permissionProvider;
-  late final UserLocationNotifier _locationProvider;
+  late PermissionNotifier _permissionProvider;
+  late UserLocationNotifier _locationProvider;
 
   @override
   LocationPickerState build() {

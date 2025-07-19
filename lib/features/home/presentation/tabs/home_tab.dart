@@ -167,7 +167,7 @@ class _FindRiderCTA extends ConsumerWidget {
         label: const Text("Find a Rider"),
         style: ElevatedButton.styleFrom(
           padding: padding_H12,
-          backgroundColor: Colors.red[800],
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
         ),
       ),
     );

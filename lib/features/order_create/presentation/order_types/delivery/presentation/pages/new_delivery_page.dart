@@ -23,14 +23,31 @@ class NewDeliveryPage extends ConsumerStatefulWidget {
 class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
     with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
   @override
-  bool onValidate() {
-    return (validatorKey.currentState!.validateAndCheck() &&
-        (pickup != null && dropoff != null));
+  String? onValidate() {
+    /// Validates the form fields and checks if all images are uploaded
+    final fieldsValidated =
+        validatorKey.currentState!.validateAndCheck() &&
+        (pickup != null && dropoff != null);
+
+    if (fieldsValidated) {
+      for (final imagePath in ref.read(orderImagesProvider).requireValue) {
+        final uploadState = ref.read(uploadImageProvider(imagePath));
+        // Check if image is still uploading or if upload has failed
+        if (uploadState.isLoading || !uploadState.hasValue) {
+          return "Please check your image uploads.";
+        }
+      }
+      return null;
+      // return ref.read(orderImagesProvider).isLoading ||
+      //     ref.read(orderImagesProvider).hasError;
+      // All fields are valid and images are uploaded
+    }
+    // Fields are not valid
+    return 'Please fill all required fields.';
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text("New Delivery")),
       body: Padding(
@@ -97,88 +114,27 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                 ),
               ),
               const SizedBox(height: 32),
-              Text("Add Images (optional)", style: theme.textTheme.bodyMedium),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: .25.sw - 20,
-                child: Consumer(
-                  builder: (context, ref, child) {
-                    final imagePaths = ref.watch(deliveryOrderImagesProvider);
-                    return ListView.separated(
-                      itemCount: (imagePaths.length + 1).clamp(0, 4),
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        if (index < imagePaths.length) {
-                          return ClipRRect(
-                            borderRadius: borderRadius_8,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.file(
-                                  File(imagePaths[index]),
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    ref
-                                        .read(
-                                          deliveryOrderImagesProvider.notifier,
-                                        )
-                                        .removeImage(index);
-                                  },
-                                  style: IconButton.styleFrom(
-                                    backgroundColor: Colors.white54,
-                                  ),
-                                  icon: const Icon(Icons.clear),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        return GestureDetector(
-                          onTap: () {
-                            ref
-                                .read(deliveryOrderImagesProvider.notifier)
-                                .pickImage();
-                          },
-                          child: SizedBox.square(
-                            dimension: .25.sw - 20,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                borderRadius: borderRadius_8,
-                                color: theme.colorScheme.primary.withAlpha(13),
-                                border: Border.all(
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                              child: const Icon(Icons.add_a_photo),
-                            ),
-                          ),
-                        );
-                      },
-                      separatorBuilder: (_, _) => const SizedBox(width: 12),
-                    );
-                  },
-                ),
-              ),
+              const _ImagesSection(),
               const SizedBox(height: 32),
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
               ElevatedLoadingButton.icon(
                 controller: roundedLoadingButtonController,
                 resetAfterDuration: duration_3s,
-                onPressed: () {
-                  validateAndCreateOrder(
-                    DeliveryRequestData(
-                      description: descriptionController.text.trim(),
-                      pickup: pickup,
-                      dropoff: dropoff,
-                      imagePaths: ref.read(deliveryOrderImagesProvider),
-                    ),
-                  );
-                },
+                onPressed:
+                    ref.watch(orderImagesProvider).isLoading
+                        ? null
+                        : () {
+                          final provider = ref.watch(orderImagesProvider);
+                          validateAndCreateOrder(
+                            DeliveryRequestData(
+                              description: descriptionController.text.trim(),
+                              pickup: pickup,
+                              dropoff: dropoff,
+                              imagePaths: provider.requireValue,
+                            ),
+                          );
+                        },
                 icon: const Icon(Icons.check_circle_outline),
                 label: const Text("Request Delivery"),
               ),
@@ -186,6 +142,99 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ImagesSection extends StatelessWidget {
+  const _ImagesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final size = .25.sw - 20;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Add Images (optional)", style: theme.textTheme.labelLarge),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: size,
+          child: Consumer(
+            builder: (context, ref, child) {
+              final urls = ref.watch(orderImagesProvider).value ?? [];
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: (urls.length + 1).clamp(
+                  0,
+                  DeliveryOrderImagesNotifier.maxImages,
+                ),
+                itemBuilder: (context, index) {
+                  if (index < urls.length) {
+                    return Container(
+                      width: size,
+                      padding: padding_16,
+                      decoration: BoxDecoration(
+                        borderRadius: borderRadius_8,
+                        image: DecorationImage(
+                          image:
+                              urls[index].startsWith("http")
+                                  ? NetworkImage(urls[index])
+                                  : FileImage(File(urls[index])),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          ref
+                              .read(orderImagesProvider.notifier)
+                              .removeImage(index);
+                        },
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white54,
+                        ),
+                        icon: FutureBuilder(
+                          future: ref.watch(
+                            uploadImageProvider(urls[index]).future,
+                          ),
+                          builder: (context, snap) {
+                            return Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                const Icon(Icons.clear),
+                                if (snap.connectionState ==
+                                    ConnectionState.waiting)
+                                  const CircularProgressIndicator(),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                  return GestureDetector(
+                    onTap: () {
+                      ref.read(orderImagesProvider.notifier).pickImage();
+                    },
+                    child: SizedBox.square(
+                      dimension: size,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: borderRadius_8,
+                          color: theme.colorScheme.primary.withAlpha(13),
+                          border: Border.all(color: theme.colorScheme.primary),
+                        ),
+                        child: const Icon(Icons.add_a_photo),
+                      ),
+                    ),
+                  );
+                },
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

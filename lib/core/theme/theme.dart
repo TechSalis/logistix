@@ -13,7 +13,7 @@ class MyTheme {
     ),
     scaffoldBackgroundColor: AppColors.greyMat.shade50,
     appBarTheme: AppBarTheme(
-      toolbarHeight: 40,
+      toolbarHeight: 48,
       centerTitle: false,
       color: AppColors.greyMat.shade50,
       surfaceTintColor: AppColors.greyMat.shade100,
@@ -60,27 +60,27 @@ class MyTheme {
       filled: true,
       fillColor: Colors.white,
       prefixIconColor: AppColors.blueGreyMat.shade400,
-      hintStyle: TextStyle(color: Colors.grey),
+      hintStyle: const TextStyle(color: Colors.grey),
       contentPadding: padding_H16_V8,
-      enabledBorder: OutlineInputBorder(
+      enabledBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
       ),
-      focusedBorder: OutlineInputBorder(
+      focusedBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
         borderSide: BorderSide(color: AppColors.orangeMat),
       ),
-      errorBorder: OutlineInputBorder(
+      errorBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1),
       ),
-      focusedErrorBorder: OutlineInputBorder(
+      focusedErrorBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFD50000), width: 1.5),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        elevation: 2,
+        elevation: 4,
         shape: roundRectBorder8,
         padding: padding_H16_V12,
         backgroundColor: AppColors.blueGreyMat.shade900,
@@ -135,7 +135,7 @@ class MyTheme {
       primaryContainer: Colors.blueGrey,
     ),
     appBarTheme: const AppBarTheme(
-      toolbarHeight: 40,
+      toolbarHeight: 48,
       centerTitle: false,
       color: Colors.black,
       surfaceTintColor: Colors.black,
@@ -179,7 +179,7 @@ class MyTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        elevation: 2,
+        elevation: 4,
         shape: roundRectBorder8,
         foregroundColor: AppColors.greyMat.shade300,
         backgroundColor: AppColors.blueGreyMat.shade900,

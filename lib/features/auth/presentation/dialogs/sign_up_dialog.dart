@@ -26,10 +26,10 @@ Future<void> showEmailPasswordDialog(BuildContext context) async {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 "Let’s save your details so you can get live updates and track your orders.",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.grey700),
+                style: TextStyle(color: AppColors.greyMat.shade700),
               ),
               const SizedBox(height: 32),
               // Email

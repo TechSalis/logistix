@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 abstract class AppColors {
-static const greyMat = MaterialColor(0xFF8E827A, <int, Color>{
+  static const greyMat = MaterialColor(0xFF8E827A, <int, Color>{
     50: Color(0xFFFAF8F7),
     100: Color(0xFFF2EEEB),
     200: Color(0xFFE1D8D3),
@@ -16,9 +16,7 @@ static const greyMat = MaterialColor(0xFF8E827A, <int, Color>{
     900: Color(0xFF252220), // warm charcoal black
   });
 
-
-
-  static const redAccent = Color(0xFFEF4444);
+  static const redAccent = Color(0xFFC62828);
   static const blueGreyMat = Colors.blueGrey;
   static const orangeMat = MaterialColor(0xFFF97316, <int, Color>{
     50: Color(0xFFFFF7ED),
@@ -31,8 +29,7 @@ static const greyMat = MaterialColor(0xFF8E827A, <int, Color>{
     700: Color(0xFFC2410C),
     800: Color(0xFF9A3412),
     900: Color(0xFF7C2D12),
-});
-
+  });
 }
 
 class QuickActionColors {

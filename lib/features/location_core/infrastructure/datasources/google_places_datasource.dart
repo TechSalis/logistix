@@ -45,7 +45,13 @@ class GooglePlacesDatasource {
       data: {
         "input": query,
         "locationBias": {
-          "circle": {"center": locationBias.toJson(), "radius": 50000},
+          "circle": {
+            "center": {
+              'latitude': locationBias.latitude,
+              'longitude': locationBias.longitude,
+            },
+            "radius": 50000,
+          },
         },
       },
       options: Options(

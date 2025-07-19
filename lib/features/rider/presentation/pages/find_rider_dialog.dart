@@ -109,7 +109,7 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
   void _toggleUseCurrent(_) async {
     if (!useCurrent) {
       final newAddress =
-          await ref.read(locationProvider.notifier).getUserAddress();
+          await ref.watch(locationProvider.notifier).getUserAddress();
       address = newAddress;
     }
     setState(() => useCurrent = !useCurrent);
