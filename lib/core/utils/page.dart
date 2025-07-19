@@ -9,6 +9,11 @@ class PageData {
     required this.isLast,
   });
 
+  const PageData.pageOne([int? size])
+    : index = 0,
+      size = size ?? 10,
+      isLast = false;
+
   Map<String, dynamic> toJson() => {'page': index, 'size': size};
 
   PageData next({bool isLast = false}) {

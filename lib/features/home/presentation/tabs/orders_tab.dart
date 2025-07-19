@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:implicitly_animated_list/implicitly_animated_list.dart';
+import 'package:logistix/app/widgets/loaders.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/core/theme/styling.dart';
@@ -90,16 +91,7 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                             Tab(text: 'Ongoing'),
                             Tab(text: 'All Orders'),
                           ],
-                          onTap: (value) {
-                            ref.read(ordersProvider.notifier).getOrdersFor(
-                              switch (value) {
-                                0 => OrdersState.onGoing,
-                                1 => OrdersState.all,
-                                _ => throw UnimplementedError(),
-                              },
-                              true,
-                            );
-                          },
+                          onTap: (_) => _loadOrders(true),
                         ),
                       ],
                     ),
@@ -110,66 +102,68 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
           ),
           Consumer(
             builder: (context, ref, child) {
-              return ref
-                  .watch(ordersProvider)
-                  .when(
-                    skipError: true,
-                    loading: () {
-                      return const SliverFillRemaining(
-                        fillOverscroll: false,
-                        hasScrollBody: false,
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    },
-                    error: (error, stackTrace) {
-                      return SliverFillRemaining(
-                        hasScrollBody: false,
-                        fillOverscroll: false,
-                        child: Center(
-                          child: Text(
-                            (error as AppError).message,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ),
-                      );
-                    },
-                    data: (state) {
-                      final filter = switch (tabController.index) {
-                        0 => OrdersState.onGoing,
-                        1 => OrdersState.all,
-                        _ => throw FlutterError('More tabs than Tabviews'),
-                      };
-                      if (state.data[filter]?.orders.isEmpty ?? true) {
-                        return SliverFillRemaining(
-                          hasScrollBody: false,
-                          fillOverscroll: false,
-                          child: Center(
-                            child: Text(
-                              'No orders found.',
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                          ),
-                        );
-                      }
-                      return _OrdersSliverList(
-                        data: state.data[filter]!,
-                        onLoadMore: () {
-                          return ref
-                              .watch(ordersProvider.notifier)
-                              .getOrdersFor(switch (tabController.index) {
-                                0 => OrdersState.onGoing,
-                                1 => OrdersState.all,
-                                _ => throw UnimplementedError(),
-                              }, false);
-                        },
-                      );
-                    },
+              final state = ref.watch(ordersProvider);
+              final filter = switch (tabController.index) {
+                0 => OrdersState.onGoing,
+                1 => OrdersState.all,
+                _ => throw FlutterError('More tabs than Tabviews'),
+              };
+              final data = state.value?.data[filter];
+              if (state.isLoading && (data?.orders.isEmpty ?? true)) {
+                return const SliverFillRemaining(
+                  fillOverscroll: false,
+                  hasScrollBody: false,
+                  child: Center(child: LargeLoadingIndicator()),
+                );
+              }
+              if (state.hasError) {
+                if (state.error is AppError) {
+                  return SliverFillRemaining(
+                    hasScrollBody: false,
+                    fillOverscroll: false,
+                    child: Center(
+                      child: Text(
+                        (state.error as AppError).message,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
                   );
+                }
+                return const SliverFillRemaining(
+                  hasScrollBody: false,
+                  fillOverscroll: false,
+                );
+              }
+              if (data?.orders.isEmpty ?? true) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  fillOverscroll: false,
+                  child: Center(
+                    child: Text(
+                      'No orders found.',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                );
+              }
+              return _OrdersSliverList(
+                data: state.requireValue.data[filter]!,
+                onLoadMore: _loadOrders,
+              );
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<dynamic> _loadOrders([bool refresh = false]) {
+    return ref.watch(ordersProvider.notifier).getOrdersFor(switch (tabController
+        .index) {
+      0 => OrdersState.onGoing,
+      1 => OrdersState.all,
+      _ => throw UnimplementedError(),
+    }, false);
   }
 }
 
@@ -227,7 +221,7 @@ class _ShowMoreLoaderState extends State<_ShowMoreLoader> {
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: LargeLoadingIndicator());
         }
         return TextButton(
           onPressed: () {

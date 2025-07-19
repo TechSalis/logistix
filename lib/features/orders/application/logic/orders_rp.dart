@@ -18,6 +18,10 @@ class OrderTabData {
 
   const OrderTabData({required this.orders, required this.page});
 
+  const OrderTabData.initial()
+    : orders = const [],
+      page = const PageData.pageOne();
+
   OrderTabData copyWith({Iterable<Order>? orders, PageData? page}) {
     return OrderTabData(orders: orders ?? this.orders, page: page ?? this.page);
   }
@@ -25,25 +29,23 @@ class OrderTabData {
 
 final class OrdersState {
   final Map<OrderFilter, OrderTabData> data;
-  const OrdersState({required this.data});
 
-  factory OrdersState.initial() => const OrdersState(
-    data: {
-      OrdersState.onGoing: OrderTabData(orders: [], page: pageOne),
-      OrdersState.all: OrderTabData(orders: [], page: pageOne),
-    },
-  );
+  const OrdersState({required this.data});
+  factory OrdersState.initial() => const OrdersState(data: {});
 
   OrdersState copyWith({Map<OrderFilter, OrderTabData>? data}) {
     return OrdersState(data: data ?? this.data);
   }
 
+  OrderTabData _getNewIfAbsent(OrderFilter filter) =>
+      data[filter] ?? const OrderTabData.initial();
+
+  static const all = OrderFilter();
   static const onGoing = OrderFilter(
     statuses: [OrderStatus.pending, OrderStatus.accepted, OrderStatus.onTheWay],
   );
-  static const all = OrderFilter();
 
-  static const pageOne = PageData(index: 0, size: 10, isLast: false);
+  static const _size = 10;
 }
 
 class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
@@ -61,24 +63,29 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
           .watch(_ordersRepoProvider)
           .getMyOrders(
             refresh
-                ? OrdersState.pageOne
-                : state.requireValue.data[filter]!.page,
+                ? const PageData.pageOne()
+                : state.requireValue._getNewIfAbsent(filter).page,
             filter,
           );
 
       return response.fold((l) => throw l, (r) {
-        final data = state.requireValue.data;
+        final data = state.requireValue._getNewIfAbsent(filter);
         return state.requireValue.copyWith(
           data: {
-            ...data,
+            ...state.requireValue.data,
             if (refresh)
-              filter: OrderTabData(orders: r, page: OrdersState.pageOne)
+              filter: OrderTabData(
+                orders: r,
+                page: PageData(
+                  index: 0,
+                  size: OrdersState._size,
+                  isLast: r.length < OrdersState._size,
+                ),
+              )
             else
               filter: OrderTabData(
-                orders: [...data[filter]!.orders, ...r],
-                page: data[filter]!.page.next(
-                  isLast: r.length < data[filter]!.page.size,
-                ),
+                orders: [...data.orders, ...r],
+                page: data.page.next(isLast: r.length < OrdersState._size),
               ),
           },
         );
@@ -87,27 +94,32 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   }
 
   void addLocalOrder(int refNumber, OrderRequestData requestData) {
+    MapEntry<OrderFilter, OrderTabData> createLocalOrderMapEntry(
+      OrderFilter filter,
+    ) {
+      final data = state.requireValue._getNewIfAbsent(filter);
+      final newOrder = Order(
+        refNumber: refNumber,
+        orderStatus: OrderStatus.pending,
+        orderType: requestData.orderType,
+        description: requestData.description,
+        pickup: requestData.pickup,
+        dropoff: requestData.dropoff,
+        price: null,
+        rider: null,
+      );
+      return MapEntry(
+        filter,
+        data.copyWith(orders: [newOrder, ...data.orders]),
+      );
+    }
+
     state = AsyncData(
       state.requireValue.copyWith(
-        data: {
-          ...state.requireValue.data,
-          OrdersState.onGoing: state.requireValue.data[OrdersState.onGoing]!
-              .copyWith(
-                orders: [
-                  Order(
-                    refNumber: refNumber,
-                    orderStatus: OrderStatus.pending,
-                    orderType: requestData.orderType,
-                    description: requestData.description,
-                    pickup: requestData.pickup,
-                    dropoff: requestData.dropoff,
-                    price: null,
-                    rider: null,
-                  ),
-                  ...state.requireValue.data[OrdersState.onGoing]!.orders,
-                ],
-              ),
-        },
+        data: Map.from(state.requireValue.data)..addEntries([
+          createLocalOrderMapEntry(OrdersState.onGoing),
+          createLocalOrderMapEntry(OrdersState.all),
+        ]),
       ),
     );
   }
