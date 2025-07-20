@@ -11,6 +11,7 @@ import 'package:logistix/features/home/domain/entities/company_data.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
@@ -160,6 +161,7 @@ class _FindRiderCTA extends ConsumerWidget {
     final isGranted =
         ref.watch(permissionProvider(PermissionData.location)).isGranted;
     if (isGranted == null) return const SizedBox.shrink();
+    ref.watch(locationProvider.notifier).getUserCoordinates();
     return Center(
       child: ElevatedButton.icon(
         onPressed: isGranted ? () => showFindRiderDialog(context) : null,

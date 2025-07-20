@@ -1,18 +1,19 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
-import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
+import 'package:logistix/features/map/presentation/widgets/flutter_map_widget.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class UserMapView extends ConsumerWidget {
   const UserMapView({super.key, this.onMapCreated});
-  final void Function(GoogleMapController map)? onMapCreated;
+  final void Function(MyMapController map)? onMapCreated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -51,26 +52,25 @@ class UserMapView extends ConsumerWidget {
     final userCoordinates = ref.watch(locationProvider)?.coordinates;
     return MapViewWidget(
       liteModeEnabled: true,
-      markers: {
+      onMapCreated: onMapCreated,
+      initialPosition: userCoordinates,
+      markers: [
         if (userCoordinates != null)
           Marker(
-            markerId: const MarkerId('user_location'),
-            position: userCoordinates.toPoint(),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              Theme.of(context).colorScheme.tertiary.toHue(),
+            key: const ValueKey('user_location'),
+            point: userCoordinates.toPoint(),
+            width: 48,
+            height: 48,
+            child: Transform.translate(
+              offset: const Offset(0, -19),
+              child: Icon(
+                Icons.location_on,
+                size: 48,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
             ),
           ),
-      },
-      onMapCreated: (controller) async {
-        final provider = ref.watch(locationProvider.notifier)
-          ..trackUserCoordinates();
-        final pos = await provider.getUserCoordinates();
-
-        if (context.mounted) {
-          controller.animateCamera(CameraUpdate.newLatLng(pos.toPoint()));
-          onMapCreated?.call(controller);
-        }
-      },
+      ],
     );
   }
 }

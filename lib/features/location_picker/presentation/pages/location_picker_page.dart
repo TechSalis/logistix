@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_picker/application/location_picker_rp.dart';
 import 'package:logistix/features/location_picker/application/location_search_rp.dart';
 import 'package:logistix/features/location_picker/presentation/pages/location_picker_params.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 
@@ -32,7 +31,8 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               ? null
               : AppBar(
                 centerTitle: true,
-                toolbarHeight: 48,
+                elevation: 4,
+                toolbarHeight: 52,
                 titleTextStyle: Theme.of(context).textTheme.titleMedium,
                 title: const Text('Drag to position marker'),
                 actions: [
@@ -89,16 +89,9 @@ class _MapSection extends ConsumerStatefulWidget {
 }
 
 class _MapSectionState extends ConsumerState<_MapSection> {
-  GoogleMapController? map;
+  MyMapController? map;
 
-  Future<Coordinates> getMapCoordinates(GoogleMapController map) async {
-    final bounds = await map.getVisibleRegion();
-    final center = Coordinates(
-      (bounds.northeast.latitude + bounds.southwest.latitude) * .5,
-      (bounds.northeast.longitude + bounds.southwest.longitude) * .5,
-    );
-    return center;
-  }
+  Coordinates getMapCoordinates(MyMapController map) => map.getCoordinates();
 
   @override
   Widget build(BuildContext context) {
@@ -110,9 +103,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
     });
     ref.listen(locationPickerProvider, (p, n) {
       final coordinates = n.value?.address?.coordinates;
-      if (coordinates != null) {
-        map?.animateCamera(CameraUpdate.newLatLng(coordinates.toPoint()));
-      }
+      if (coordinates != null) map?.animateTo(coordinates);
     });
     final permission = ref.watch(permissionProvider(PermissionData.location));
     if (permission.isGranted == null || !permission.isGranted!) {
@@ -123,13 +114,13 @@ class _MapSectionState extends ConsumerState<_MapSection> {
         UserMapView(onMapCreated: (m) => setState(() => map = m)),
         Center(
           child: Transform.translate(
-            offset: const Offset(0, -18),
+            offset: const Offset(0, -17),
             child:
                 widget.heroTag == null
-                    ? const LocationPin(size: 44)
+                    ? const LocationPin(size: 42)
                     : Hero(
                       tag: widget.heroTag!,
-                      child: const LocationPin(size: 44),
+                      child: const LocationPin(size: 42),
                     ),
           ),
         ),
@@ -163,7 +154,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
                 ),
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 onPressed: () async {
-                  final coordinates = await getMapCoordinates(map!);
+                  final coordinates = getMapCoordinates(map!);
                   ref
                       .read(locationPickerProvider.notifier)
                       .setCoordinates(coordinates);
@@ -296,7 +287,7 @@ class AddressTileWidget extends ConsumerWidget {
 }
 
 class LocationPin extends StatelessWidget {
-  const LocationPin({super.key, this.size = 40});
+  const LocationPin({super.key, this.size = 32});
 
   final double size;
   @override

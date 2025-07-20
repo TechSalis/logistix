@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 
 mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
     on ConsumerState<T>, SingleTickerProviderStateMixin<T>, RouteAware {
   late MarkerAnimator animator;
-  GoogleMapController? map;
+  MyMapController? map;
   bool isRouteActive = true;
 
   bool get followMarkerState;
@@ -21,22 +20,13 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   RouteObserver<PageRoute<dynamic>> get observer => pageObserver;
 
   @override
-  void didPushNext() {
-    isRouteActive = false;
-  }
+  void didPushNext() => isRouteActive = false;
 
   @override
   void didPopNext() {
     isRouteActive = true;
     final coords = ref.read(trackRiderProvider(rider)).value;
-    if (coords != null) {
-      map?.moveCamera(CameraUpdate.newLatLng(coords.toPoint()));
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    if (coords != null) map?.animateTo(coords);
   }
 
   @override
@@ -56,18 +46,15 @@ mixin TrackRiderControllerMixin<T extends ConsumerStatefulWidget>
   @override
   void dispose() {
     animator.dispose();
+    map?.dispose();
     unsubscribeRouteAware();
-    map = null;
     super.dispose();
   }
 
   void onRiderUpdate(Coordinates coords) {
     animator.updatePosition(coords);
     if (followMarkerState) {
-      map?.animateCamera(
-        CameraUpdate.newLatLng(coords.toPoint()),
-        duration: kMapStreamPeriodDuration,
-      );
+      map?.animateTo(coords, duration: kMapStreamPeriodDuration);
     }
   }
 

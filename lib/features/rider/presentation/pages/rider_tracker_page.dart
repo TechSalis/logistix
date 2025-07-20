@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/app/router/app_router.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 import 'package:logistix/features/map/presentation/widgets/user_pan_away_refocus_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
@@ -20,15 +19,12 @@ class RiderTrackerPage extends ConsumerStatefulWidget {
 
 class _RiderTrackerPageState extends ConsumerState<RiderTrackerPage> {
   bool? followMarkerState = true;
-  GoogleMapController? map;
+  MyMapController? map;
 
   Future _onFollowRider() async {
     final coords = ref.read(trackRiderProvider(widget.rider)).value;
     if (coords != null) {
-      map?.animateCamera(
-        CameraUpdate.newLatLng(coords.toPoint()),
-        duration: Durations.medium1,
-      );
+      map?.animateTo(coords);
       await Future.delayed(Durations.medium1);
       if (mounted) setState(() => followMarkerState = true);
     }

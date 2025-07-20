@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
-import 'package:logistix/features/map/presentation/widgets/google_map_widget.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
+import 'package:logistix/features/map/presentation/widgets/flutter_map_widget.dart';
 import 'package:logistix/features/rider/application/track_rider_rp.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/rider/presentation/controllers/track_rider_mixin.dart';
@@ -18,7 +18,7 @@ class RiderTrackerMapWidget extends ConsumerStatefulWidget {
 
   final RiderData rider;
   final bool followMarkerState;
-  final void Function(GoogleMapController)? onMapCreated;
+  final void Function(MyMapController)? onMapCreated;
 
   @override
   ConsumerState<RiderTrackerMapWidget> createState() =>
@@ -43,24 +43,20 @@ class _RiderTrackerMapWidgetState extends ConsumerState<RiderTrackerMapWidget>
     return MapViewWidget(
       onMapCreated: (m) {
         map = m;
-        m.moveCamera(
-          CameraUpdate.newLatLng(
-            ref.read(trackRiderProvider(widget.rider)).requireValue.toPoint(),
-          ),
-        );
+        m.animateTo(ref.read(trackRiderProvider(widget.rider)).requireValue);
         widget.onMapCreated?.call(m);
       },
-      markers: {
+      markers: [
         if (coordinates != null)
           Marker(
-            markerId: MarkerId(widget.rider.id),
-            position: coordinates.toPoint(),
-            icon: AssetMapBitmap(
-              'assets/images/delivery_location.png',
-              imagePixelRatio: .8,
+            key: ValueKey(widget.rider.id),
+            point: coordinates.toPoint(),
+            child: Icon(
+              Icons.location_on,
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
-      },
+      ],
     );
   }
 }

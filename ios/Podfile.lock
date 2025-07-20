@@ -39,20 +39,9 @@ PODS:
   - geolocator_apple (1.2.0):
     - Flutter
     - FlutterMacOS
-  - Google-Maps-iOS-Utils (5.0.0):
-    - GoogleMaps (~> 8.0)
-  - google_maps_flutter_ios (0.0.1):
-    - Flutter
-    - Google-Maps-iOS-Utils (< 7.0, >= 5.0)
-    - GoogleMaps (< 10.0, >= 8.4)
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - GoogleMaps (8.4.0):
-    - GoogleMaps/Maps (= 8.4.0)
-  - GoogleMaps/Base (8.4.0)
-  - GoogleMaps/Maps (8.4.0):
-    - GoogleMaps/Base
   - GoogleUtilities/AppDelegateSwizzler (8.1.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -105,7 +94,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
-  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -120,9 +108,7 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseInstallations
     - FirebaseMessaging
-    - Google-Maps-iOS-Utils
     - GoogleDataTransport
-    - GoogleMaps
     - GoogleUtilities
     - nanopb
     - PromisesObjC
@@ -140,8 +126,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
-  google_maps_flutter_ios:
-    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   package_info_plus:
@@ -167,10 +151,7 @@ SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   geocoding_ios: eafacae6ad11a1eb56681f7d11df602a5fd49416
   geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
-  Google-Maps-iOS-Utils: 66d6de12be1ce6d3742a54661e7a79cb317a9321
-  google_maps_flutter_ios: e31555a04d1986ab130f2b9f24b6cdc861acc6d3
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
-  GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -181,6 +162,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
-PODFILE CHECKSUM: e2f47c84d12408341aa32d835cf7f0de9047981c
+PODFILE CHECKSUM: 38579f826529526549b134e227e1f0856780f88d
 
 COCOAPODS: 1.16.2

@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 
 class CenterUserOnMapButton extends ConsumerWidget {
   const CenterUserOnMapButton({super.key, required this.map});
-  final GoogleMapController map;
+  final MyMapController map;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     void centerUserHelperFunction() {
       final pos = ref.read(locationProvider)?.coordinates;
-      map.animateCamera(CameraUpdate.newLatLng(pos!.toPoint()));
+      map.animateTo(pos!);
     }
 
     return IconButton(
