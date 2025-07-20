@@ -16,6 +16,7 @@ class MyTheme {
       toolbarHeight: 48,
       centerTitle: false,
       color: AppColors.greyMat.shade50,
+      shadowColor: Colors.black38,
       surfaceTintColor: AppColors.greyMat.shade100,
       titleTextStyle: const TextStyle(
         color: Colors.black,
@@ -139,6 +140,7 @@ class MyTheme {
       centerTitle: false,
       color: Colors.black,
       surfaceTintColor: Colors.black,
+      shadowColor: Colors.black38,
       titleTextStyle: TextStyle(
         color: Colors.white,
         fontSize: 20,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:implicitly_animated_list/implicitly_animated_list.dart';
 import 'package:logistix/app/widgets/loaders.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
@@ -176,9 +175,10 @@ class _OrdersSliverList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-      sliver: SliverImplicitlyAnimatedList(
-        itemData: data.orders.toList(growable: false),
-        itemBuilder: (context, item) {
+      sliver: SliverAnimatedList(
+        initialItemCount: data.orders.length,
+        itemBuilder: (context, index, anim) {
+          final item = data.orders.elementAt(index);
           return Column(
             children: [
               Padding(
