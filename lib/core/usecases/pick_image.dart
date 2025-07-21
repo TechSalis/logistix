@@ -10,9 +10,9 @@ class PickImageUsecase {
     final result = await _picker.pickImage(
       requestFullMetadata: false,
       source: ImageSource.gallery,
-      imageQuality: 80,
-      maxHeight: 1080,
-      maxWidth: 1080,
+      imageQuality: 70,
+      maxHeight: 720,
+      maxWidth: 720,
     );
     if (result != null) return File(result.path);
     return null;

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/either.dart';
-import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/core/utils/page.dart';
 import 'package:logistix/features/orders/domain/entities/create_order.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
@@ -14,7 +14,7 @@ class OrdersRepositoryImpl extends OrdersRepository {
 
   @override
   Future<Either<AppError, void>> cancelOrder(String id) async {
-    final res = await client.post('/orders/cancel/$id');
+    final res = await client.post('/orders/cancel/$id').handleDioException();
     return res.toAppErrorOr((res) {});
   }
 
@@ -23,10 +23,13 @@ class OrdersRepositoryImpl extends OrdersRepository {
     PageData page,
     OrderFilter? filter,
   ) async {
-    final res = await client.get(
-      '/orders/my-orders',
-      queryParameters: {...?filter?.toJson(), ...page.toJson()},
-    );
+    final res =
+        await client
+            .get(
+              '/orders/my-orders',
+              queryParameters: {...?filter?.toJson(), ...page.toJson()},
+            )
+            .handleDioException();
     return res.toAppErrorOr((res) {
       return List.from(res.data).map((e) => OrderModel.fromJson(e));
     });
@@ -34,7 +37,7 @@ class OrdersRepositoryImpl extends OrdersRepository {
 
   @override
   Future<Either<AppError, Order>> getOrder(String id) async {
-    final res = await client.get('/orders/my-orders');
+    final res = await client.get('/orders/my-orders').handleDioException();
     return res.toAppErrorOr((res) => OrderModel.fromJson(res.data));
   }
 }

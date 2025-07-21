@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/app/widgets/buttons.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/widgets/text_fields.dart';
+import 'package:logistix/features/auth/application/utils/auth_network_image.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
@@ -179,7 +180,7 @@ class _ImagesSection extends StatelessWidget {
                         image: DecorationImage(
                           image:
                               urls[index].startsWith("http")
-                                  ? NetworkImage(urls[index])
+                                  ? NetworkImageWithAuth(urls[index])
                                   : FileImage(File(urls[index])),
                           fit: BoxFit.cover,
                         ),
@@ -194,9 +195,12 @@ class _ImagesSection extends StatelessWidget {
                           backgroundColor: Colors.white54,
                         ),
                         icon: FutureBuilder(
-                          future: ref.watch(
-                            uploadImageProvider(urls[index]).future,
-                          ),
+                          future:
+                              ref.exists(uploadImageProvider(urls[index]))
+                                  ? ref.watch(
+                                    uploadImageProvider(urls[index]).future,
+                                  )
+                                  : null,
                           builder: (context, snap) {
                             return Stack(
                               alignment: Alignment.center,
@@ -214,7 +218,7 @@ class _ImagesSection extends StatelessWidget {
                   }
                   return GestureDetector(
                     onTap: () {
-                      ref.read(orderImagesProvider.notifier).pickImage();
+                      ref.read(orderImagesProvider.notifier).uploadImage();
                     },
                     child: SizedBox.square(
                       dimension: size,

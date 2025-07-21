@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
+import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/either.dart';
-import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/auth/domain/repository/auth_remote_repository.dart';
 import 'package:logistix/features/auth/infrastructure/models/auth_dto.dart';
@@ -12,7 +12,10 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Future<Either<AppError, AuthLoginResponse>> login(LoginData data) async {
-    final res = await client.post('/auth/login', data: data.toJson());
+    final res =
+        await client
+            .post('/auth/login', data: data.toJson())
+            .handleDioException();
     return res.toAppErrorOr((res) => AuthLoginResponse.fromJson(res.data));
   }
 
@@ -20,16 +23,16 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<Either<AppError, AuthLoginResponse>> loginAnonymously(
     UserRole role,
   ) async {
-    final res = await client.post(
-      '/auth/anonymous/login',
-      data: {'role': role.name},
-    );
+    final res =
+        await client
+            .post('/auth/anonymous/login', data: {'role': role.name})
+            .handleDioException();
     return res.toAppErrorOr((res) => AuthLoginResponse.fromJson(res.data));
   }
 
   @override
   Future<Either<AppError, void>> logout() async {
-    final res = await client.post('/auth/logout');
+    final res = await client.post('/auth/logout').handleDioException();
     return res.toAppErrorOr((res) {});
   }
 
@@ -38,10 +41,10 @@ class AuthRepositoryImpl extends AuthRepository {
     LoginData data,
     UserRole role,
   ) async {
-    final res = await client.post(
-      '/auth/signup',
-      data: {...data.toJson(), 'role': role.name},
-    );
+    final res =
+        await client
+            .post('/auth/signup', data: {...data.toJson(), 'role': role.name})
+            .handleDioException();
     return res.toAppErrorOr((res) => AuthLoginResponse.fromJson(res.data));
   }
 }

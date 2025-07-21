@@ -116,21 +116,17 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                 );
               }
               if (state.hasError) {
-                if (state.error is AppError) {
-                  return SliverFillRemaining(
-                    hasScrollBody: false,
-                    fillOverscroll: false,
-                    child: Center(
-                      child: Text(
-                        (state.error as AppError).message,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                  );
-                }
-                return const SliverFillRemaining(
+                return SliverFillRemaining(
                   hasScrollBody: false,
                   fillOverscroll: false,
+                  child: Center(
+                    child: Text(
+                      state.error is AppError
+                          ? (state.error as AppError).message
+                          : "A network error occured.",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
                 );
               }
               if (data?.orders.isEmpty ?? true) {

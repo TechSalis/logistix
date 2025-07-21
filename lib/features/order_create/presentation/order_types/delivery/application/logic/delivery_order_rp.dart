@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/usecases/pick_image.dart';
+import 'package:logistix/core/utils/cache_image_to_url.dart';
+import 'package:logistix/features/auth/application/utils/auth_network_image.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/domain/repository/create_order_repo.dart';
 import 'package:logistix/features/order_create/infrastructure/repository/create_order_repo_impl.dart';
@@ -13,11 +15,10 @@ final createOrderProvider = FutureProvider.family.autoDispose((
   ref,
   OrderRequestData arg,
 ) async {
-
   final res = await ref
       .watch(_createOrderRepoProvider)
       .createOrder(arg.toNewOrder());
-      
+
   return res.fold((l) => throw l, (r) => r);
 });
 
@@ -40,13 +41,18 @@ class DeliveryOrderImagesNotifier
   @override
   List<String> build() => [];
 
-  Future<void> pickImage() async {
+  Future<void> uploadImage() async {
     final file = await PickImageUsecase().call();
     if (file != null && !state.requireValue.contains(file.path)) {
       state = AsyncData(List.from(state.requireValue)..add(file.path));
 
       try {
         final url = await ref.watch(uploadImageProvider(file.path).future);
+
+        await cacheImageFromBytes(
+          await file.readAsBytes(),
+          NetworkImageWithAuth(url),
+        );
 
         state = AsyncData(
           List.from(state.requireValue)

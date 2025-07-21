@@ -11,17 +11,11 @@ class Either<F, S> {
   final F? fail;
   final S? success;
 
-  const Either._({this.fail, this.success})
-    : assert(
-        fail == null || success == null,
-        'Only one of fail or success can be non-null.',
-      );
+  /// Creates a new [Either] that contains the [value].
+  const Either.fail(F value) : success = null, fail = value;
 
   /// Creates a new [Either] that contains the [value].
-  factory Either.fail(F value) => Either._(fail: value);
-
-  /// Creates a new [Either] that contains the [value].
-  factory Either.success(S value) => Either._(success: value);
+  const Either.success(S value) : success = value, fail = null;
 
   /// Returns whether the value is Left.
   bool get isFail => fail != null;
@@ -35,19 +29,14 @@ class Either<F, S> {
 
   /// Returns the value of the Right if the value is Right, otherwise
   /// throws a [StateError].
-  S get successValue => isSuccess ? success! : throw StateError('Not a Success.');
+  S get successValue =>
+      isSuccess ? success! : throw StateError('Not a Success.');
 
-  T fold<T>(
-    T Function(F value) fail,
-    T Function(S value) success,
-  ) {
+  T fold<T>(T Function(F value) fail, T Function(S value) success) {
     return isFail ? fail(failValue) : success(successValue);
   }
 
-  T? ifAny<T>({
-    T Function(F value)? fail,
-    T Function(S value)? success,
-  }) {
+  T? ifAny<T>({T Function(F value)? fail, T Function(S value)? success}) {
     return isFail ? fail?.call(failValue) : success?.call(successValue);
   }
 
