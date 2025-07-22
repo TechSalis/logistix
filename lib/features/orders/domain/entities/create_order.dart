@@ -15,7 +15,7 @@ class OrderFilter {
 
 final class CreateOrderData extends BaseOrderData {
   final Map<String, dynamic>? extras;
-  
+
   const CreateOrderData({
     required super.pickup,
     required super.dropoff,
@@ -42,4 +42,7 @@ final class CreateOrderData extends BaseOrderData {
       extras: extras ?? this.extras,
     );
   }
+
+  @override
+  Map<String, dynamic> toJson() => super.toJson()..['extras'] = extras;
 }

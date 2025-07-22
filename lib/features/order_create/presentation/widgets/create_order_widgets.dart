@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
 import 'package:logistix/features/orders/application/logic/orders_rp.dart';
@@ -12,35 +13,34 @@ mixin CreateOrderWidgetMixin<
   W extends ConsumerStatefulWidget
 >
     on ConsumerState<W> {
-  D? data;
-  ProviderSubscription? _providerSub;
-
   RoundedLoadingButtonController get roundedLoadingButtonController;
+  ProviderSubscription<AsyncValue<int>>? _providerSub;
+
+  D? _data;
   String? onValidate();
 
   void validateAndCreateOrder(D newData) {
     _clearSub();
+    if (_data != null) ref.invalidate(createOrderProvider(_data!));
+
     final validation = onValidate();
     if (validation == null) {
-      setState(() => data = newData);
-      _providerSub = ref.listenManual(createOrderProvider(data!), (p, n) {
+      roundedLoadingButtonController.start();
+
+      _data = newData;
+      _providerSub = ref.listenManual(createOrderProvider(_data!), (p, n) {
         switch (n) {
-          case AsyncLoading():
-            roundedLoadingButtonController.start();
-            break;
           case AsyncError():
-            roundedLoadingButtonController.error();
             _clearSub();
+            roundedLoadingButtonController.error();
           case AsyncData():
             ref
                 .read(ordersProvider.notifier)
-                .addLocalOrder(n.requireValue.value, data!);
+                .addLocalOrder(n.requireValue, _data!);
             roundedLoadingButtonController.success();
-            data = null;
         }
       });
     } else {
-      setState(() => data = null);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(validation)));

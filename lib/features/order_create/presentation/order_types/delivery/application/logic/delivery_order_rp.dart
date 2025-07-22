@@ -22,7 +22,7 @@ final createOrderProvider = FutureProvider.family.autoDispose((
   return res.fold((l) => throw l, (r) => r);
 });
 
-final uploadImageProvider = FutureProvider.family.autoDispose((
+final uploadImageRequestProvider = FutureProvider.family.autoDispose((
   ref,
   String path,
 ) async {
@@ -30,43 +30,52 @@ final uploadImageProvider = FutureProvider.family.autoDispose((
   return res.fold((l) => throw l, (r) => r);
 });
 
-final orderImagesProvider = AsyncNotifierProvider.autoDispose(
-  DeliveryOrderImagesNotifier.new,
-);
+final imagesUploadProvider = AsyncNotifierProvider.autoDispose(() {
+  return ImagesUploadNotifier(
+    maxImages: 4,
+    onUploadImage: (path, ref) {
+      return ref.watch(uploadImageRequestProvider(path).future);
+    },
+  );
+});
 
-class DeliveryOrderImagesNotifier
-    extends AutoDisposeAsyncNotifier<List<String>> {
-  static const maxImages = 4;
+class ImagesUploadNotifier
+    extends AutoDisposeAsyncNotifier<Map<String, String?>> {
+  final int maxImages;
+  final Future<String> Function(String path, Ref ref) onUploadImage;
+
+  ImagesUploadNotifier({required this.maxImages, required this.onUploadImage});
 
   @override
-  List<String> build() => [];
+  Map<String, String> build() => {};
 
   Future<void> uploadImage() async {
     final file = await PickImageUsecase().call();
-    if (file != null && !state.requireValue.contains(file.path)) {
-      state = AsyncData(List.from(state.requireValue)..add(file.path));
 
-      try {
-        final url = await ref.watch(uploadImageProvider(file.path).future);
+    if (file != null && !state.requireValue.containsKey(file.path)) {
+      state = AsyncData(Map.from(state.requireValue)..[file.path] = null);
+
+      state = await AsyncValue.guard<Map<String, String?>>(() async {
+        final url = await onUploadImage(file.path, ref);
 
         await cacheImageFromBytes(
           await file.readAsBytes(),
           NetworkImageWithAuth(url),
         );
 
-        state = AsyncData(
-          List.from(state.requireValue)
-            ..remove(file.path)
-            ..add(url),
-        );
-      } catch (err, stack) {
-        state = AsyncData(List.from(state.requireValue)..remove(file.path));
-        state = AsyncValue.error(err, stack);
+        return Map.from(state.requireValue)..[file.path] = url;
+      });
+      if (state.hasError) {
+        state = AsyncData(Map.from(state.requireValue)..remove(file.path));
       }
     }
   }
 
+  bool isUploading(String path) => state.requireValue[path] == null;
+
   void removeImage(int index) {
-    state = AsyncData(List.from(state.requireValue)..removeAt(index));
+    final newMap = Map<String, String>.from(state.requireValue)
+      ..remove(state.requireValue.keys.elementAt(index));
+    state = AsyncData(newMap);
   }
 }

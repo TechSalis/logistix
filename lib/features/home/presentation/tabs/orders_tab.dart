@@ -27,6 +27,9 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
   initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
+    Future.microtask(() {
+      ref.read(ordersProvider.notifier).getOrdersFor(OrdersState.onGoing);
+    });
   }
 
   @override

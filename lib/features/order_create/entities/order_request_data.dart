@@ -21,21 +21,23 @@ sealed class OrderRequestData extends BaseOrderData {
 }
 
 final class DeliveryRequestData extends OrderRequestData with EquatableMixin {
-  final Iterable<String> imagePaths;
+  final Iterable<String> imageUrls;
 
   const DeliveryRequestData({
     required super.description,
     required super.pickup,
     required super.dropoff,
-    this.imagePaths = const [],
+    this.imageUrls = const [],
   }) : super(orderType: OrderType.delivery);
 
   @override
-  List<Object?> get props => [...super.props, imagePaths];
+  List<Object?> get props => [...super.props, imageUrls];
 
   @override
   CreateOrderData toNewOrder() {
-    return super.toNewOrder().copyWith(extras: {'image_paths': imagePaths});
+    return super.toNewOrder().copyWith(
+      extras: {'image_urls': imageUrls.toList()},
+    );
   }
 }
 

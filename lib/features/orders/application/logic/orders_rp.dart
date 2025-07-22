@@ -50,13 +50,10 @@ final class OrdersState {
 
 class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   @override
-  OrdersState build() {
-    Future.microtask(() => getOrdersFor(OrdersState.onGoing));
-    return OrdersState.initial();
-  }
+  OrdersState build() => OrdersState.initial();
 
   Future getOrdersFor(OrderFilter filter, [bool refresh = false]) async {
-    state = const AsyncValue.loading();
+    state = const AsyncValue<OrdersState>.loading();
 
     state = await AsyncValue.guard(() async {
       final response = await ref
@@ -100,14 +97,15 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
       final data = state.requireValue._getNewIfAbsent(filter);
       final newOrder = Order(
         refNumber: refNumber,
-        orderStatus: OrderStatus.pending,
         orderType: requestData.orderType,
         description: requestData.description,
         pickup: requestData.pickup,
         dropoff: requestData.dropoff,
-        price: null,
+        price: requestData.price,
+        orderStatus: OrderStatus.pending,
         rider: null,
       );
+
       return MapEntry(
         filter,
         data.copyWith(orders: [newOrder, ...data.orders]),

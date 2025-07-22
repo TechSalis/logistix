@@ -16,9 +16,7 @@ class CreateOrderRepoImpl extends CreateOrderRepo {
   Future<Either<AppError, int>> createOrder(CreateOrderData data) async {
     final res =
         await client.post('/orders', data: data.toJson()).handleDioException();
-    return res.toAppErrorOr((res) {
-      return res.data['ref_number'];
-    });
+    return res.toAppErrorOr((res) => res.data['ref_number']);
   }
 
   @override
@@ -44,22 +42,7 @@ class CreateOrderRepoImpl extends CreateOrderRepo {
 
     final url = res.toAppErrorOr((res) => res.data['upload_url'] as String);
     dio.close(force: true);
+
     return url;
   }
-
-  // @override
-  // Future<Either<AppError, String>> uploadImage(String path) async {
-  //   final contentType = lookupMimeType(path)?.split('/');
-  //   final formData = FormData.fromMap({
-  //     'image_path': await MultipartFile.fromFile(
-  //       path,
-  //       contentType:
-  //           contentType == null
-  //               ? null
-  //               : DioMediaType(contentType[0], contentType[1]),
-  //     ),
-  //   });
-  //   final response = await client.post('orders/images', data: formData);
-  //   return response.data['image_urls'];
-  // }
 }

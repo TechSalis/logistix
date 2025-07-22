@@ -62,7 +62,9 @@ class _ElevatedLoadingButtonState extends State<ElevatedLoadingButton> {
     if (widget.resetAfterDuration != null) {
       _sub = widget.controller.stateStream.listen((event) {
         if (event == ButtonState.error || event == ButtonState.success) {
-          Future.delayed(widget.resetAfterDuration!, widget.controller.reset);
+          Future.delayed(widget.resetAfterDuration!, () {
+            if (mounted) widget.controller.reset();
+          });
         }
       });
     }

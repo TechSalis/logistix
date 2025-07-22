@@ -22,7 +22,9 @@ class NewDeliveryPage extends ConsumerStatefulWidget {
 }
 
 class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
-    with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
+    with
+        CreateOrderWidgetMixin<DeliveryRequestData, NewDeliveryPage>,
+        BaseCreateOrderTemplateMixin {
   @override
   String? onValidate() {
     /// Validates the form fields and checks if all images are uploaded
@@ -31,20 +33,21 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
         (pickup != null && dropoff != null);
 
     if (fieldsValidated) {
-      for (final imagePath in ref.read(orderImagesProvider).requireValue) {
-        final uploadState = ref.read(uploadImageProvider(imagePath));
-        // Check if image is still uploading or if upload has failed
-        if (uploadState.isLoading || !uploadState.hasValue) {
-          return "Please check your image uploads.";
-        }
+      for (final path in ref.read(imagesUploadProvider).requireValue.keys) {
+        final uploading = ref
+            .read(imagesUploadProvider.notifier)
+            .isUploading(path);
+        // Check if image is still uploading
+        if (uploading) return "Please wait for your image uploads.";
       }
-      return null;
       // return ref.read(orderImagesProvider).isLoading ||
       //     ref.read(orderImagesProvider).hasError;
       // All fields are valid and images are uploaded
+    } else {
+      // Fields are not valid
+      return 'Please fill all required fields.';
     }
-    // Fields are not valid
-    return 'Please fill all required fields.';
+    return null;
   }
 
   @override
@@ -123,16 +126,17 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                 controller: roundedLoadingButtonController,
                 resetAfterDuration: duration_3s,
                 onPressed:
-                    ref.watch(orderImagesProvider).isLoading
+                    ref.watch(imagesUploadProvider).isLoading
                         ? null
                         : () {
-                          final provider = ref.watch(orderImagesProvider);
+                          final provider = ref.watch(imagesUploadProvider);
                           validateAndCreateOrder(
                             DeliveryRequestData(
                               description: descriptionController.text.trim(),
                               pickup: pickup,
                               dropoff: dropoff,
-                              imagePaths: provider.requireValue,
+                              imageUrls:
+                                  provider.requireValue.values.whereType(),
                             ),
                           );
                         },
@@ -163,15 +167,16 @@ class _ImagesSection extends StatelessWidget {
           height: size,
           child: Consumer(
             builder: (context, ref, child) {
-              final urls = ref.watch(orderImagesProvider).value ?? [];
+              final images = ref.watch(imagesUploadProvider).value ?? {};
               return ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: (urls.length + 1).clamp(
+                itemCount: (images.length + 1).clamp(
                   0,
-                  DeliveryOrderImagesNotifier.maxImages,
+                  ref.read(imagesUploadProvider.notifier).maxImages,
                 ),
                 itemBuilder: (context, index) {
-                  if (index < urls.length) {
+                  if (index < images.length) {
+                    final entry = images.entries.elementAt(index);
                     return Container(
                       width: size,
                       padding: padding_16,
@@ -179,26 +184,29 @@ class _ImagesSection extends StatelessWidget {
                         borderRadius: borderRadius_8,
                         image: DecorationImage(
                           image:
-                              urls[index].startsWith("http")
-                                  ? NetworkImageWithAuth(urls[index])
-                                  : FileImage(File(urls[index])),
+                              entry.value != null
+                                  ? NetworkImageWithAuth(entry.value!)
+                                  : FileImage(File(entry.key)),
                           fit: BoxFit.cover,
                         ),
                       ),
                       child: IconButton(
+                        padding: EdgeInsets.zero,
                         onPressed: () {
                           ref
-                              .read(orderImagesProvider.notifier)
+                              .read(imagesUploadProvider.notifier)
                               .removeImage(index);
                         },
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white54,
+                          backgroundColor: Colors.white70,
                         ),
                         icon: FutureBuilder(
                           future:
-                              ref.exists(uploadImageProvider(urls[index]))
+                              ref.exists(uploadImageRequestProvider(entry.key))
                                   ? ref.watch(
-                                    uploadImageProvider(urls[index]).future,
+                                    uploadImageRequestProvider(
+                                      entry.key,
+                                    ).future,
                                   )
                                   : null,
                           builder: (context, snap) {
@@ -208,7 +216,9 @@ class _ImagesSection extends StatelessWidget {
                                 const Icon(Icons.clear),
                                 if (snap.connectionState ==
                                     ConnectionState.waiting)
-                                  const CircularProgressIndicator(),
+                                  const CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                  ),
                               ],
                             );
                           },
@@ -218,7 +228,7 @@ class _ImagesSection extends StatelessWidget {
                   }
                   return GestureDetector(
                     onTap: () {
-                      ref.read(orderImagesProvider.notifier).uploadImage();
+                      ref.read(imagesUploadProvider.notifier).uploadImage();
                     },
                     child: SizedBox.square(
                       dimension: size,
