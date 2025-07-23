@@ -114,7 +114,7 @@ class _MapSectionState extends ConsumerState<_MapSection> {
         UserMapView(onMapCreated: (m) => setState(() => map = m)),
         Center(
           child: Transform.translate(
-            offset: const Offset(0, -17),
+            offset: const Offset(0, -18),
             child:
                 widget.heroTag == null
                     ? const LocationPin(size: 42)

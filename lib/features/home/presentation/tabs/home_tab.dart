@@ -8,36 +8,17 @@ import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/home/domain/entities/company_data.dart';
-import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
-import 'package:logistix/features/home/presentation/widgets/order_summary_card.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
 import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
 import 'package:logistix/features/rider/presentation/pages/find_rider_dialog.dart';
-
-const Order order = Order(
-  refNumber: 13276342,
-  orderType: OrderType.delivery,
-  price: 1200,
-  orderStatus: OrderStatus.onTheWay,
-  description: "Pick up Paracetamol from HealthPlus",
-  pickup: Address('Mozilla lodge, Akure street, Lagos'),
-  dropoff: Address('Mozilla lodge, Akure street, Lagos'),
-  rider: RiderData(
-    id: 'id',
-    name: 'johnny Akunle',
-    imageUrl: 'imageUrl',
-    phone: '09069184604',
-    company: CompanyData(id: 'id', name: 'Hedge Funds'),
-    rating: 4.5,
-  ),
-);
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
@@ -70,25 +51,51 @@ class HomeTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12.h),
             const _SearchBar(),
             SizedBox(height: 16.h),
             const Expanded(child: _MiniMapWidget()),
             SizedBox(height: 32.h),
-            Text("Order Now!", style: Theme.of(context).textTheme.titleMedium),
+            const Text(
+              "Order Now!",
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             SizedBox(height: 12.h),
             const _QuickActionGrid(),
             SizedBox(height: 32.h),
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 140.h),
+              constraints: BoxConstraints(maxHeight: 150.h),
               child: Consumer(
                 builder: (context, ref, child) {
-                  return HomeOrderSummaryCard(
-                    order: order,
-                    onTap: () {
-                      ref.read(navBarIndexProvider.notifier).state = 1;
-                    },
+                  const Order order = Order(
+                    refNumber: 132763,
+                    orderType: OrderType.delivery,
+                    price: 1200,
+                    orderStatus: OrderStatus.onTheWay,
+                    description: "Pick up Paracetamol from HealthPlus",
+                    pickup: Address('Mozilla lodge, Akure street, Lagos'),
+                    dropoff: Address('Mozilla lodge, Akure street, Lagos'),
+                    rider: RiderData(
+                      id: 'id',
+                      name: 'johnny Akunle',
+                      imageUrl:
+                          'https://cdn.pixabay.com/photo/2025/07/12/10/04/reinebringen-9710168_1280.jpg',
+                      phone: '09069184604',
+                      company: CompanyData(id: 'id', name: 'Hedge Funds'),
+                      rating: 4.5,
+                    ),
                   );
+
+                  return const OrderPreviewCard(order: order);
+                  // return HomeOrderSummaryCard(
+                  //   order: order,
+                  //   onTap: () {
+                  //     ref.read(navBarIndexProvider.notifier).state = 1;
+                  //   },
+                  // );
                 },
               ),
             ),

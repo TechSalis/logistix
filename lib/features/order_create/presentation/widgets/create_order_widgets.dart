@@ -6,6 +6,7 @@ import 'package:logistix/features/notifications/application/notification_service
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
 import 'package:logistix/features/orders/application/logic/orders_rp.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
 mixin CreateOrderWidgetMixin<
@@ -19,6 +20,8 @@ mixin CreateOrderWidgetMixin<
   D? _data;
   String? onValidate();
 
+  void onOrderCreated(Order order);
+
   void validateAndCreateOrder(D newData) {
     _clearSub();
     if (_data != null) ref.invalidate(createOrderProvider(_data!));
@@ -31,19 +34,18 @@ mixin CreateOrderWidgetMixin<
       _providerSub = ref.listenManual(createOrderProvider(_data!), (p, n) {
         switch (n) {
           case AsyncError():
-            _clearSub();
             roundedLoadingButtonController.error();
+            _clearSub();
           case AsyncData():
-            ref
-                .read(ordersProvider.notifier)
-                .addLocalOrder(n.requireValue, _data!);
             roundedLoadingButtonController.success();
+            final order = ref
+                .read(ordersProvider.notifier)
+                .addOrderFromRequest(n.requireValue, _data!);
+            onOrderCreated(order);
         }
       });
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(validation)));
+      NotificationService.inApp.showSnackbar(context, validation);
     }
   }
 

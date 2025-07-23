@@ -44,7 +44,10 @@ class _HomePageState extends ConsumerState<HomePage> {
       resizeToAvoidBottomInset: false,
       body: PageView(
         controller: controller,
-        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (value) {
+          ref.read(navBarIndexProvider.notifier).state = value;
+        },
+        // physics: const NeverScrollableScrollPhysics(),
         children: const [HomeTab(), OrdersTab()],
       ),
       bottomNavigationBar: const _NavBar(),
@@ -82,7 +85,8 @@ class _NavBar extends ConsumerWidget {
           icon: Icon(Icons.format_list_numbered_sharp),
           label: 'Orders',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.person_2), label: 'Profile'),
+        BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: 'Chat'),
+        // BottomNavigationBarItem(icon: Icon(Icons.person_2), label: 'Profile'),
       ],
     );
   }

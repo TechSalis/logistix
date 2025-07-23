@@ -20,6 +20,7 @@ Future showFindRiderDialog(BuildContext context) {
     builder: (context) => const FindRiderDialog(),
   ).then((value) {
     final riderState = ref.read(findRiderProvider);
+    
     if (riderState is FindRiderContacted) {
       NotificationService.inApp.showNotification(
         RiderFoundNotification(
@@ -214,7 +215,7 @@ class FindingRiderView extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          "This usually takes a few seconds.",
+          "This usually takes a few minutes.",
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],

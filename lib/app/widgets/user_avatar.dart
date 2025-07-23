@@ -16,7 +16,7 @@ class UserAvatar extends StatelessWidget {
       backgroundImage:
           user.imageUrl?.isEmpty ?? true
               ? null
-              : NetworkImageWithAuth(user.imageUrl!, scale: .1),
+              : NetworkImageWithAuth(user.imageUrl!),
       backgroundColor: theme.colorScheme.onSecondary.withAlpha(30),
       child:
           user.name?.isEmpty ?? true

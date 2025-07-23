@@ -37,6 +37,8 @@ final class OrdersState {
     return OrdersState(data: data ?? this.data);
   }
 
+  OrderTabData? get(OrderFilter filter) => data[filter];
+
   OrderTabData _getNewIfAbsent(OrderFilter filter) =>
       data[filter] ?? const OrderTabData.initial();
 
@@ -52,9 +54,10 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   @override
   OrdersState build() => OrdersState.initial();
 
-  Future getOrdersFor(OrderFilter filter, [bool refresh = false]) async {
-    state = const AsyncValue<OrdersState>.loading();
 
+  Future fetchOrdersFor(OrderFilter filter, [bool refresh = false]) async {
+    state = const AsyncValue<OrdersState>.loading();
+    
     state = await AsyncValue.guard(() async {
       final response = await ref
           .watch(_ordersRepoProvider)
@@ -64,7 +67,6 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
                 : state.requireValue._getNewIfAbsent(filter).page,
             filter,
           );
-
       return response.fold((l) => throw l, (r) {
         final data = state.requireValue._getNewIfAbsent(filter);
         return state.requireValue.copyWith(
@@ -90,22 +92,22 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
     });
   }
 
-  void addLocalOrder(int refNumber, OrderRequestData requestData) {
+  Order addOrderFromRequest(int refNumber, OrderRequestData requestData) {
+    final newOrder = Order(
+      refNumber: refNumber,
+      orderType: requestData.orderType,
+      description: requestData.description,
+      pickup: requestData.pickup,
+      dropoff: requestData.dropoff,
+      price: requestData.price,
+      orderStatus: OrderStatus.pending,
+      rider: null,
+    );
+
     MapEntry<OrderFilter, OrderTabData> createLocalOrderMapEntry(
       OrderFilter filter,
     ) {
       final data = state.requireValue._getNewIfAbsent(filter);
-      final newOrder = Order(
-        refNumber: refNumber,
-        orderType: requestData.orderType,
-        description: requestData.description,
-        pickup: requestData.pickup,
-        dropoff: requestData.dropoff,
-        price: requestData.price,
-        orderStatus: OrderStatus.pending,
-        rider: null,
-      );
-
       return MapEntry(
         filter,
         data.copyWith(orders: [newOrder, ...data.orders]),
@@ -120,6 +122,7 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
         ]),
       ),
     );
+    return newOrder;
   }
 }
 

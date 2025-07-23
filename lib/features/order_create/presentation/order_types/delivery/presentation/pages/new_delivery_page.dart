@@ -12,7 +12,9 @@ import 'package:logistix/features/form_validator/application/textfield_validator
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
+import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
 import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
+import 'package:logistix/features/orders/domain/entities/order_responses.dart';
 
 class NewDeliveryPage extends ConsumerStatefulWidget {
   const NewDeliveryPage({super.key});
@@ -22,9 +24,7 @@ class NewDeliveryPage extends ConsumerStatefulWidget {
 }
 
 class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
-    with
-        CreateOrderWidgetMixin<DeliveryRequestData, NewDeliveryPage>,
-        BaseCreateOrderTemplateMixin {
+    with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
   @override
   String? onValidate() {
     /// Validates the form fields and checks if all images are uploaded
@@ -51,6 +51,11 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
   }
 
   @override
+  void onOrderCreated(Order order) {
+    showOrderSummarySheet(context, order);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("New Delivery")),
@@ -72,9 +77,11 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("What do you need delivered?"),
                         child: TextField(
+                          autofocus: true,
                           controller: descriptionController,
                           decoration: const InputDecoration(
                             hintText: "e.g. A package, envelope, documents",
+                            prefixIcon: Icon(Icons.local_post_office_outlined),
                           ),
                           maxLines: 2,
                         ),
@@ -93,6 +100,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                           },
                           decoration: const InputDecoration(
                             hintText: "Choose pickup location",
+                            prefixIcon: Icon(Icons.pin_drop_outlined),
                           ),
                         ),
                       ),
@@ -110,6 +118,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                           },
                           decoration: const InputDecoration(
                             hintText: "Choose dropoff location",
+                            prefixIcon: Icon(Icons.home_work_outlined),
                           ),
                         ),
                       ),
@@ -143,6 +152,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                 icon: const Icon(Icons.check_circle_outline),
                 label: const Text("Request Delivery"),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
@@ -198,7 +208,7 @@ class _ImagesSection extends StatelessWidget {
                               .removeImage(index);
                         },
                         style: IconButton.styleFrom(
-                          backgroundColor: Colors.white70,
+                          backgroundColor: Colors.white54,
                         ),
                         icon: FutureBuilder(
                           future:

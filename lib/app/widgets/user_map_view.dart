@@ -59,13 +59,13 @@ class UserMapView extends ConsumerWidget {
           Marker(
             key: const ValueKey('user_location'),
             point: userCoordinates.toPoint(),
-            width: 48,
-            height: 48,
+            width: 42,
+            height: 42,
             child: Transform.translate(
               offset: const Offset(0, -19),
               child: Icon(
                 Icons.location_on,
-                size: 48,
+                size: 42,
                 color: Theme.of(context).colorScheme.tertiary,
               ),
             ),

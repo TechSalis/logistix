@@ -82,15 +82,15 @@ class _ElevatedLoadingButtonState extends State<ElevatedLoadingButton> {
     return LayoutBuilder(
       builder: (context, consts) {
         return RoundedLoadingButton(
-          height: 42,
+          height: 46,
           width: consts.maxWidth,
           borderRadius: 8,
           animateOnTap: false,
           resetDuration: Durations.extralong4,
-          onPressed: widget.onPressed,
-          controller: widget.controller,
           color: Theme.of(context).elevatedButtonTheme.style?.foregroundColor
               ?.resolve({WidgetState.selected}),
+          controller: widget.controller,
+          onPressed: widget.onPressed,
           child: widget.child,
         );
       },

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/orders/domain/entities/create_order.dart';
 
-sealed class OrderRequestData extends BaseOrderData {
+base class OrderRequestData extends BaseOrderData {
   const OrderRequestData({
     required super.description,
     required super.pickup,
@@ -41,10 +41,3 @@ final class DeliveryRequestData extends OrderRequestData with EquatableMixin {
   }
 }
 
-final class FoodRequestData extends OrderRequestData with EquatableMixin {
-  const FoodRequestData({
-    required super.description,
-    required super.pickup,
-    required super.dropoff,
-  }) : super(orderType: OrderType.food);
-}

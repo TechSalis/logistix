@@ -6,6 +6,7 @@ import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/router/app_router.dart';
+import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/orders/application/logic/orders_rp.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
@@ -28,7 +29,15 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     Future.microtask(() {
-      ref.read(ordersProvider.notifier).getOrdersFor(OrdersState.onGoing);
+      if (ref
+              .read(ordersProvider)
+              .value
+              ?.get(OrdersState.onGoing)
+              ?.orders
+              .isEmpty ??
+          true) {
+        ref.read(ordersProvider.notifier).fetchOrdersFor(OrdersState.onGoing);
+      }
     });
   }
 
@@ -61,8 +70,9 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
                 stretchTriggerOffset: 80,
                 onStretchTrigger: () async {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Tap on the map to open")),
+                    NotificationService.inApp.showToast(
+                      // context,
+                      "Tap on the map to open",
                     );
                   });
                 },
@@ -156,12 +166,14 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
   }
 
   Future<dynamic> _loadOrders([bool refresh = false]) {
-    return ref.watch(ordersProvider.notifier).getOrdersFor(switch (tabController
-        .index) {
-      0 => OrdersState.onGoing,
-      1 => OrdersState.all,
-      _ => throw UnimplementedError(),
-    }, false);
+    return ref.watch(ordersProvider.notifier).fetchOrdersFor(
+      switch (tabController.index) {
+        0 => OrdersState.onGoing,
+        1 => OrdersState.all,
+        _ => throw UnimplementedError(),
+      },
+      false,
+    );
   }
 }
 

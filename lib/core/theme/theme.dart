@@ -13,7 +13,7 @@ class MyTheme {
     ),
     scaffoldBackgroundColor: AppColors.greyMat.shade50,
     appBarTheme: AppBarTheme(
-      toolbarHeight: 48,
+      // toolbarHeight: 48,
       centerTitle: false,
       color: AppColors.greyMat.shade50,
       shadowColor: Colors.black38,
@@ -34,13 +34,13 @@ class MyTheme {
       onSurface: AppColors.greyMat.shade800,
       primaryContainer: AppColors.blueGreyMat,
     ),
-    cardTheme: CardThemeData(
+    cardTheme: const CardThemeData(
       elevation: 1,
       margin: EdgeInsets.zero,
       shadowColor: Colors.black38,
       shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_12,
-        side: BorderSide(color: AppColors.greyMat.shade300),
+        borderRadius: borderRadius_16,
+        // side: BorderSide(color: AppColors.greyMat.shade300),
       ),
     ),
     tabBarTheme: const TabBarThemeData(
@@ -59,10 +59,10 @@ class MyTheme {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
+      contentPadding: padding_H16_V8,
       fillColor: Colors.white,
       prefixIconColor: AppColors.blueGreyMat.shade400,
       hintStyle: const TextStyle(color: Colors.grey),
-      contentPadding: padding_H16_V8,
       enabledBorder: const OutlineInputBorder(
         borderRadius: borderRadius_12,
         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -81,11 +81,11 @@ class MyTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        elevation: 4,
+        elevation: 2,
         shape: roundRectBorder8,
-        padding: padding_H16_V12,
-        backgroundColor: AppColors.blueGreyMat.shade900,
         foregroundColor: Colors.white,
+        backgroundColor: AppColors.blueGreyMat.shade900,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -136,7 +136,7 @@ class MyTheme {
       primaryContainer: Colors.blueGrey,
     ),
     appBarTheme: const AppBarTheme(
-      toolbarHeight: 48,
+      // toolbarHeight: 48,
       centerTitle: false,
       color: Colors.black,
       surfaceTintColor: Colors.black,
@@ -152,14 +152,14 @@ class MyTheme {
       margin: EdgeInsets.zero,
       color: AppColors.greyMat.shade900,
       shadowColor: AppColors.greyMat.shade700,
-      shape: RoundedRectangleBorder(
-        borderRadius: borderRadius_12,
-        side: BorderSide(color: AppColors.greyMat.shade800),
+      shape: const RoundedRectangleBorder(
+        borderRadius: borderRadius_16,
+        // side: BorderSide(color: AppColors.greyMat.shade800),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.black,
+      fillColor: Colors.black54,
       hintStyle: TextStyle(color: AppColors.greyMat.shade700),
       prefixIconColor: const Color(0xFF646F72),
       contentPadding: padding_H16_V8,
@@ -185,14 +185,14 @@ class MyTheme {
         shape: roundRectBorder8,
         foregroundColor: AppColors.greyMat.shade300,
         backgroundColor: AppColors.blueGreyMat.shade900,
-        padding: padding_H16_V12,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: AppColors.greyMat.shade800),
         shape: roundRectBorder8,
-        padding: padding_H16_V12,
+        padding: padding_16,
         foregroundColor: AppColors.greyMat.shade300,
       ),
     ),
