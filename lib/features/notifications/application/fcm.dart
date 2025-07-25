@@ -1,14 +1,15 @@
 part of 'notification_service.dart';
 
-final _firebaseMessaging = FirebaseMessaging.instance;
-
 Future<void> _setupFCM() async {
+  FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   // Get token
-  final token = await _firebaseMessaging.getToken();
-  print('FCM Token: $token');
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen((message) {});
+  
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 }
 
 // Background handler

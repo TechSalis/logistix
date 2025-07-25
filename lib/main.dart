@@ -13,7 +13,6 @@ void main() async {
       EnvConfig.extract(dotenv.env);
       return supabasePluginSetupWithEnv(EnvConfig.instance);
     }),
-    precacheAssetData(),
   ]);
   
   runApp(const MainApp());

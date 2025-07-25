@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logistix/app/widgets/buttons.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/app/widgets/text_fields.dart';
-import 'package:logistix/features/auth/application/utils/auth_network_image.dart';
+import 'package:logistix/features/auth/presentation/utils/auth_network_image.dart';
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
@@ -14,7 +14,8 @@ import 'package:logistix/features/order_create/entities/order_request_data.dart'
 import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
 import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
 import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:progress_state_button/iconed_button.dart';
 
 class NewDeliveryPage extends ConsumerStatefulWidget {
   const NewDeliveryPage({super.key});
@@ -77,7 +78,6 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                         validatorProvider: RequiredValidatorProvider,
                         label: const Text("What do you need delivered?"),
                         child: TextField(
-                          autofocus: true,
                           controller: descriptionController,
                           decoration: const InputDecoration(
                             hintText: "e.g. A package, envelope, documents",
@@ -132,25 +132,36 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
               ElevatedLoadingButton.icon(
-                controller: roundedLoadingButtonController,
+                state: buttonController,
                 resetAfterDuration: duration_3s,
                 onPressed:
                     ref.watch(imagesUploadProvider).isLoading
                         ? null
                         : () {
-                          final provider = ref.watch(imagesUploadProvider);
+                          final images =
+                              ref
+                                  .watch(imagesUploadProvider)
+                                  .requireValue
+                                  .values
+                                  .whereType<String>();
+
                           validateAndCreateOrder(
                             DeliveryRequestData(
                               description: descriptionController.text.trim(),
                               pickup: pickup,
                               dropoff: dropoff,
-                              imageUrls:
-                                  provider.requireValue.values.whereType(),
+                              imageUrls: images,
                             ),
                           );
                         },
-                icon: const Icon(Icons.check_circle_outline),
-                label: const Text("Request Delivery"),
+                button: IconedButton(
+                  color: Theme.of(context).colorScheme.secondary,
+                  icon: const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.white,
+                  ),
+                  text: "Request Delivery",
+                ),
               ),
               const SizedBox(height: 32),
             ],
@@ -195,7 +206,7 @@ class _ImagesSection extends StatelessWidget {
                         image: DecorationImage(
                           image:
                               entry.value != null
-                                  ? NetworkImageWithAuth(entry.value!)
+                                  ? AppNetworkImage(entry.value!)
                                   : FileImage(File(entry.key)),
                           fit: BoxFit.cover,
                         ),

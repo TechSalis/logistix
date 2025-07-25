@@ -5,9 +5,9 @@ part 'location_picker_params.g.dart';
 
 @JsonSerializable()
 class LocationPickerPageParams {
-  const LocationPickerPageParams({this.address, this.heroTag});
+  const LocationPickerPageParams({this.initialLocation, this.heroTag});
 
-  final Address? address;
+  final Address? initialLocation;
   final String? heroTag;
 
   factory LocationPickerPageParams.fromJson(Map<String, dynamic> json) =>

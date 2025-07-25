@@ -24,7 +24,7 @@ class GoogleMapsDatasource {
       RetryInterceptor(dio: _dio, logPrint: debugPrint),
     ]);
     _dio.options = BaseOptions(
-      baseUrl: EnvConfig.instance.googleMapApiUrl,
+      baseUrl: 'https://maps.googleapis.com/maps/api',
       headers: {
         // 'X-Goog-Api-Key': EnvConfig.instance.googleApiKey,
         'Content-Type': 'application/json',

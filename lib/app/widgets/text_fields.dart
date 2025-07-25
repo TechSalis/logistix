@@ -4,9 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/constants/objects.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/core/utils/extensions/widget_extensions.dart';
-import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
-import 'package:logistix/features/location_picker/presentation/pages/location_picker_params.dart';
+import 'package:logistix/features/location_picker/presentation/pages/location_picker_page.dart';
 
 class AddressTextField extends ConsumerStatefulWidget {
   const AddressTextField({
@@ -74,13 +73,16 @@ class _AddressTextFieldState extends ConsumerState<AddressTextField> {
 
     if (widget.showLocationPicker) {
       Future<void> openLocationPicker() async {
-        final result = await LocationPickerPageRoute(
-          LocationPickerPageParams(heroTag: widget.heroTag),
-        ).push<Address>(context);
-        if (result != null) {
-          widget.onAddressChanged(result);
-          controller.text = result.name;
-        }
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const LocationPickerPage()),
+        );
+        // final result = await LocationPickerPageRoute(
+        //   LocationPickerPageParams(heroTag: widget.heroTag),
+        // ).push<Address>(context);
+        // if (result != null) {
+        //   widget.onAddressChanged(result);
+        //   controller.text = result.name;
+        // }
       }
 
       textField = Row(
@@ -139,8 +141,7 @@ class PriceSelectorField extends StatelessWidget {
             "₦",
             style: TextStyle(
               fontSize: 20,
-              color:
-                  context.isDarkTheme ? AppColors.blueGreyMat[200] : null,
+              color: context.isDarkTheme ? AppColors.blueGreyMat[200] : null,
             ),
           ),
         ),

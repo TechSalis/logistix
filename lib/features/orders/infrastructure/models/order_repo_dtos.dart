@@ -1,6 +1,6 @@
 import 'package:logistix/features/location_core/infrastructure/dtos/address_coordinates_model.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/rider/infrastructure/models/rider_data_dto.dart';
 
 final class OrderModel extends Order {
@@ -9,7 +9,7 @@ final class OrderModel extends Order {
     required super.description,
     required super.price,
     required super.refNumber,
-    required super.orderStatus,
+    required super.status,
     super.pickup,
     super.dropoff,
     super.rider,
@@ -21,7 +21,7 @@ final class OrderModel extends Order {
       price: json['price'],
       refNumber: json['ref_number'],
       orderType: OrderType.values.byName(json['order_type']),
-      orderStatus: OrderStatus.values.byName(
+      status: OrderStatus.values.byName(
         json['order_status'] ?? OrderStatus.pending.name,
       ),
       pickup:

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/features/location_core/infrastructure/repository/google_map_geocoding_service_impl.dart';
@@ -12,9 +12,9 @@ import 'package:logistix/features/location_core/infrastructure/datasources/googl
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/location_core/domain/repository/geocoding_service.dart';
+import 'package:logistix/features/location_picker/application/location_search_rp.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
-import 'package:logistix/features/permission/application/permission_rp.dart';
-import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
+import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 
 // Dependency Injection
 
@@ -47,64 +47,6 @@ final locationPickerProvider = AsyncNotifierProvider.autoDispose(
   LocationPickerNotifier.new,
 );
 
-class LocationPickerNotifier
-    extends AutoDisposeAsyncNotifier<LocationPickerState> {
-  late PermissionNotifier _permissionProvider;
-  late UserLocationNotifier _locationProvider;
-
-  @override
-  LocationPickerState build() {
-    _permissionProvider = ref.read(
-      permissionProvider(PermissionData.location).notifier,
-    );
-    _locationProvider = ref.read(locationProvider.notifier);
-    return LocationPickerState.initial();
-  }
-
-  Future<void> setCoordinates(
-    Coordinates coordinates, {
-    double? minDistanceDeltaFromCurrentCoordinates = 500,
-  }) async {
-    if (state.value?.address?.coordinates == null) {
-      _getAddress(coordinates);
-    } else {
-      final distance = Geolocator.distanceBetween(
-        coordinates.latitude,
-        coordinates.longitude,
-        state.value!.address!.coordinates!.latitude,
-        state.value!.address!.coordinates!.longitude,
-      );
-      if (minDistanceDeltaFromCurrentCoordinates == null ||
-          distance > minDistanceDeltaFromCurrentCoordinates) {
-        _getAddress(coordinates);
-      }
-    }
-  }
-
-  Future<void> _getAddress(Coordinates coordinates) async {
-    state = const AsyncLoading();
-
-    state = await AsyncValue.guard(() async {
-      final address = await ref.watch(
-        addressFromCoordinatesProvider(coordinates).future,
-      );
-      return state.value!.copyWith(address: address);
-    });
-  }
-
-  void setAddress(Address address) {
-    state = AsyncData(state.value!.copyWith(address: address));
-  }
-
-  Future<void> getUserCoordinates() async {
-    if (!await _permissionProvider.request()) return;
-    setCoordinates(
-      await _locationProvider.getUserCoordinates(),
-      minDistanceDeltaFromCurrentCoordinates: null,
-    );
-  }
-}
-
 // UI State
 class LocationPickerState extends Equatable {
   const LocationPickerState({required this.address});
@@ -119,4 +61,49 @@ class LocationPickerState extends Equatable {
 
   @override
   List<Object?> get props => [address];
+}
+
+class LocationPickerNotifier
+    extends AutoDisposeAsyncNotifier<LocationPickerState> {
+  final searchController = TextEditingController();
+  MyMapController? map;
+
+  @override
+  LocationPickerState build() {
+    ref.onDispose(searchController.dispose);
+    return LocationPickerState.initial();
+  }
+
+  Future pickMyLocation() async {
+    final address = await ref.watch(locationProvider.notifier).getUserAddress();
+    _updateAddress(address!);
+  }
+
+  Future pickAddress(Address address) async {
+    final place = await ref.watch(searchLocationRepoProvider).place(address);
+    _updateAddress(place.address);
+  }
+
+  // void setAddress(Address address) {
+  //   state = AsyncData(state.value!.copyWith(address: address));
+  // }
+  Future pickCurrentCoordinates() async {
+    final address = await ref.watch(
+      addressFromCoordinatesProvider(map!.getCoordinates()).future,
+    );
+    _updateAddress(address!);
+  }
+
+  void _updateAddress(Address address) {
+    searchController.text = address.name;
+    state = AsyncData(state.requireValue.copyWith(address: address));
+    map!.animateTo(address.coordinates!);
+  }
+
+  void setMap(MyMapController map) => this.map = map;
+
+  void clearInput() {
+    searchController.clear();
+    ref.watch(locationSearchProvider.notifier).onInput('');
+  }
 }

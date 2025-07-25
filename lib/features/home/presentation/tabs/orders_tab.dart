@@ -32,11 +32,11 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
       if (ref
               .read(ordersProvider)
               .value
-              ?.get(OrdersState.onGoing)
+              ?.get(OrdersState.ongoing)
               ?.orders
               .isEmpty ??
           true) {
-        ref.read(ordersProvider.notifier).fetchOrdersFor(OrdersState.onGoing);
+        ref.read(ordersProvider.notifier).fetchOrdersFor(OrdersState.ongoing);
       }
     });
   }
@@ -116,7 +116,7 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
             builder: (context, ref, child) {
               final state = ref.watch(ordersProvider);
               final filter = switch (tabController.index) {
-                0 => OrdersState.onGoing,
+                0 => OrdersState.ongoing,
                 1 => OrdersState.all,
                 _ => throw FlutterError('More tabs than Tabviews'),
               };
@@ -168,7 +168,7 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
   Future<dynamic> _loadOrders([bool refresh = false]) {
     return ref.watch(ordersProvider.notifier).fetchOrdersFor(
       switch (tabController.index) {
-        0 => OrdersState.onGoing,
+        0 => OrdersState.ongoing,
         1 => OrdersState.all,
         _ => throw UnimplementedError(),
       },

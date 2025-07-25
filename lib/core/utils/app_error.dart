@@ -6,6 +6,9 @@ abstract class AppError {
 
   @override
   String toString() => 'AppError($message)';
+
+
+  static AppError unknown() => const BusinessError('Something went wrong');
 }
 
 class NetworkError extends AppError {
@@ -16,7 +19,7 @@ class NetworkError extends AppError {
 
   factory NetworkError.fromResponse(Response res) {
     return NetworkError(
-      res.data['messsage'] ?? res.data['error'] ?? 'Something went wrong',
+      res.data['messsage'] ?? res.data['error'] ?? AppError.unknown().message,
       statusCode: res.statusCode ?? -1,
     );
   }

@@ -9,7 +9,7 @@ class HivePermissionDialogRepositoryImpl extends PermissionDialogRepository {
   Future<Box> get box => Hive.openTrackedBox(HiveConstants.permissions);
 
   @override
-  Future<bool> get isGranted async => (await box).get(key, defaultValue: false);
+  Future<bool?> get isGranted async => (await box).get(key);
 
   @override
   Future<void> markAsGranted() async => (await box).put(key, true);

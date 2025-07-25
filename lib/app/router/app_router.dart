@@ -11,7 +11,7 @@ import 'package:logistix/features/location_picker/presentation/pages/location_pi
 import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/pages/new_delivery_page.dart';
 import 'package:logistix/features/order_create/presentation/order_types/food/presentation/pages/food_order_page.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_details_page.dart';
 import 'package:logistix/features/rider/presentation/pages/rider_tracker_page.dart';
 
@@ -105,8 +105,8 @@ class RiderTrackerPageRoute extends GoRouteData with _$RiderTrackerPageRoute {
 @TypedGoRoute<LocationPickerPageRoute>(path: '/pick-location')
 class LocationPickerPageRoute extends GoRouteData
     with _$LocationPickerPageRoute {
-  const LocationPickerPageRoute(this.$extra);
-  final LocationPickerPageParams $extra;
+  const LocationPickerPageRoute([this.$extra]);
+  final LocationPickerPageParams? $extra;
 
   @override
   Widget build(BuildContext context, GoRouterState state) {

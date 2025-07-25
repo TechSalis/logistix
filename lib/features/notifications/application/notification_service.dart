@@ -40,19 +40,19 @@ abstract class _AppNotificationService {
     });
   }
 
-  void showToast(String message) => toast(message);
-
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), duration: duration_3s));
-  }
-
   /// Either one of [NotificationKey? key] or [AppNotificationData? data] must be set
   void dismissNotification({NotificationKey? key, AppNotificationData? data}) {
     assert((key ?? data) != null);
 
     key ??= NotificationKey(data!);
     _activeOverlays.remove(key)?.dismiss();
+  }
+
+  void showToast(String message) => toast(message);
+
+  void showSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), duration: duration_3s));
   }
 }

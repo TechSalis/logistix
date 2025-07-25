@@ -1,17 +1,6 @@
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 
-class OrderFilter {
-  final Iterable<OrderType>? types;
-  final Iterable<OrderStatus>? statuses;
-
-  const OrderFilter({this.types, this.statuses});
-
-  Map<String, dynamic> toJson() => {
-    'order_types': types?.map((e) => e.name),
-    'order_statuses': statuses?.map((e) => e.name),
-  };
-}
 
 final class CreateOrderData extends BaseOrderData {
   final Map<String, dynamic>? extras;

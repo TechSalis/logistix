@@ -79,7 +79,7 @@ class PermissionDisclosureDialog extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             Row(
               children: [
                 // Expanded(

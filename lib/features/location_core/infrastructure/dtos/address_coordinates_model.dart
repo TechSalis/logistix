@@ -54,6 +54,6 @@ class CoordinatesModel extends Coordinates with HiveObjectMixin {
   final double longitude;
 
   factory CoordinatesModel.fromJson(Map<String, dynamic> map) {
-    return CoordinatesModel(map['latitude'], map['longitude']);
+    return CoordinatesModel(map['lat'], map['lng']);
   }
 }

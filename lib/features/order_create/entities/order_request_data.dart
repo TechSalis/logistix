@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
-import 'package:logistix/features/orders/domain/entities/create_order.dart';
+import 'package:logistix/features/order_create/entities/create_order.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 
 base class OrderRequestData extends BaseOrderData {
   const OrderRequestData({
@@ -10,7 +11,7 @@ base class OrderRequestData extends BaseOrderData {
     required super.orderType,
   });
 
-  CreateOrderData toNewOrder() {
+  CreateOrderData toCreateOrder() {
     return CreateOrderData(
       description: description,
       pickup: pickup,
@@ -18,26 +19,38 @@ base class OrderRequestData extends BaseOrderData {
       orderType: orderType,
     );
   }
+
+  Order toOrder({required int refNumber}) => Order(
+    refNumber: refNumber,
+    orderType: orderType,
+    description: description,
+    pickup: pickup,
+    dropoff: dropoff,
+    price: price,
+    status: OrderStatus.pending,
+    rider: null,
+  );
 }
 
 final class DeliveryRequestData extends OrderRequestData with EquatableMixin {
-  final Iterable<String> imageUrls;
+  final Iterable<String>? imageUrls;
 
   const DeliveryRequestData({
     required super.description,
     required super.pickup,
     required super.dropoff,
-    this.imageUrls = const [],
+    this.imageUrls,
   }) : super(orderType: OrderType.delivery);
 
   @override
   List<Object?> get props => [...super.props, imageUrls];
 
   @override
-  CreateOrderData toNewOrder() {
-    return super.toNewOrder().copyWith(
-      extras: {'image_urls': imageUrls.toList()},
+  CreateOrderData toCreateOrder() {
+    return super.toCreateOrder().copyWith(
+      extras: {
+        if (imageUrls?.isNotEmpty ?? false) 'image_urls': imageUrls!.toList(),
+      },
     );
   }
 }
-

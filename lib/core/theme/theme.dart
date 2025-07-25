@@ -29,15 +29,16 @@ class MyTheme {
       secondary: AppColors.blueGreyMat.shade900,
       tertiary: AppColors.redAccent,
       surface: Colors.white,
-      onPrimary: AppColors.greyMat.shade800,
-      onSecondary: AppColors.greyMat.shade800,
-      onSurface: AppColors.greyMat.shade800,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      onSurface: Colors.black,
       primaryContainer: AppColors.blueGreyMat,
     ),
+    dialogTheme: const DialogThemeData(shape: roundRectBorder24),
     cardTheme: const CardThemeData(
       elevation: 1,
       margin: EdgeInsets.zero,
-      shadowColor: Colors.black38,
+      shadowColor: Colors.black54,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius_16,
         // side: BorderSide(color: AppColors.greyMat.shade300),
@@ -82,25 +83,31 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 2,
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
         foregroundColor: Colors.white,
         backgroundColor: AppColors.blueGreyMat.shade900,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: padding_H16_V12,
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: buttonRectBorder,
+        padding: padding_H16_V12,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFF9E9E9E)),
-        foregroundColor: AppColors.blueGreyMat,
+        // side: const BorderSide(color: AppColors.orangeMat),
+        // foregroundColor: AppColors.orangeMat,
         padding: padding_H16_V12,
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         padding: padding_H16_V12,
         textStyle: const TextStyle(fontSize: 15),
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
@@ -124,6 +131,7 @@ class MyTheme {
     ),
     dialogTheme: DialogThemeData(
       barrierColor: AppColors.greyMat.shade900.withAlpha(150),
+      shape: roundRectBorder24,
     ),
     colorScheme: ColorScheme.dark(
       primary: AppColors.orangeMat,
@@ -182,16 +190,22 @@ class MyTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         elevation: 4,
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
         foregroundColor: AppColors.greyMat.shade300,
         backgroundColor: AppColors.blueGreyMat.shade900,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: padding_H16_V12,
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        shape: buttonRectBorder,
+        padding: padding_H16_V12,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: AppColors.greyMat.shade800),
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
         padding: padding_16,
         foregroundColor: AppColors.greyMat.shade300,
       ),
@@ -219,7 +233,7 @@ class MyTheme {
       style: TextButton.styleFrom(
         textStyle: const TextStyle(fontSize: 15),
         padding: padding_H16_V12,
-        shape: roundRectBorder8,
+        shape: buttonRectBorder,
       ),
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(

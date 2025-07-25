@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/features/auth/application/utils/auth_network_image.dart';
+import 'package:logistix/features/auth/presentation/utils/auth_network_image.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 
 class UserAvatar extends StatelessWidget {
@@ -16,7 +16,7 @@ class UserAvatar extends StatelessWidget {
       backgroundImage:
           user.imageUrl?.isEmpty ?? true
               ? null
-              : NetworkImageWithAuth(user.imageUrl!),
+              : AppNetworkImage(user.imageUrl!),
       backgroundColor: theme.colorScheme.onSecondary.withAlpha(30),
       child:
           user.name?.isEmpty ?? true

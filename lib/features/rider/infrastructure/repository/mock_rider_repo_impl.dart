@@ -1,11 +1,13 @@
 import 'dart:math';
 
+import 'package:logistix/core/utils/app_error.dart';
+import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/map/application/marker_animator_rp.dart';
 import 'package:logistix/features/rider/domain/repository/rider_repo.dart';
 
-class RandomRiderRepoImpl extends RiderRepo {
+class MockRiderRepoImpl extends RiderRepo {
   @override
   Stream<Coordinates> listenToRiderCoordinates(RiderData rider) async* {
     double lat = 6.5244, long = 3.3792;
@@ -19,5 +21,13 @@ class RandomRiderRepoImpl extends RiderRepo {
         long += (Random().nextInt(10) - 5) / 10000,
       );
     });
+  }
+
+  @override
+  Future<Either<AppError, Iterable<RiderData>>> findRiders([
+    Coordinates? location,
+  ]) {
+    // TODO: implement findRiders
+    throw UnimplementedError();
   }
 }

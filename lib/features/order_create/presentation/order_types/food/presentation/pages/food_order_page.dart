@@ -7,10 +7,12 @@ import 'package:logistix/features/form_validator/widgets/text_field_with_heading
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
 import 'package:logistix/features/order_create/presentation/order_types/food/application/logic/food_description_order_rp.dart';
 import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:progress_state_button/iconed_button.dart';
 
 class FoodOrderPage extends ConsumerStatefulWidget {
   const FoodOrderPage({super.key});
@@ -36,7 +38,7 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
 
   @override
   void onOrderCreated(Order order) {
-    throw UnimplementedError();
+    showOrderSummarySheet(context, order);
   }
 
   @override
@@ -87,7 +89,8 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
               SizedBox(
                 width: double.infinity,
                 child: ElevatedLoadingButton.icon(
-                  controller: roundedLoadingButtonController,
+                  state: buttonController,
+                  resetAfterDuration: duration_3s,
                   onPressed: () {
                     validateAndCreateOrder(
                       OrderRequestData(
@@ -98,8 +101,14 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
                       ),
                     );
                   },
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text("Place Order"),
+                  button: IconedButton(
+                    color: Theme.of(context).colorScheme.secondary,
+                    icon: const Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.white,
+                    ),
+                    text: "Place Order",
+                  ),
                 ),
               ),
               const SizedBox(height: 40),

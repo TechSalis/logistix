@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:logistix/app/widgets/text_fields.dart';
+import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/app/widgets/user_avatar.dart';
+import 'package:logistix/app/widgets/user_map_view.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
+import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rating.dart';
 
@@ -20,12 +24,10 @@ Future showFindRiderDialog(BuildContext context) {
     builder: (context) => const FindRiderDialog(),
   ).then((value) {
     final riderState = ref.read(findRiderProvider);
-    
+
     if (riderState is FindRiderContacted) {
       NotificationService.inApp.showNotification(
-        RiderFoundNotification(
-          rider: (riderState as FindRiderContacted).rider!,
-        ),
+        RiderFoundNotification(rider: (riderState as FindRiderContacted).rider),
       );
       final riderProvider = ref.read(findRiderProvider.notifier);
       Future.delayed(Durations.medium3, riderProvider.ref.invalidateSelf);
@@ -39,56 +41,52 @@ class FindRiderDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: roundRectBorder16,
       insetPadding: padding_24,
       child: Padding(
         padding: padding_24,
-        child: SizedBox(
-          height: 274,
-          width: double.infinity,
-          child: Center(
-            child: Consumer(
-              builder: (context, ref, child) {
-                ref.listen(findRiderProvider, (p, n) {
-                  if (n.hasError && n.error is AppError) {
-                    NotificationService.inApp.showToast(
-                      (n.error! as AppError).message,
-                    );
-                  }
-                });
-                final state = ref.watch(findRiderProvider).requireValue;
-                if (ref.watch(findRiderProvider).isLoading) {
-                  switch (state) {
-                    case FindRiderInitialState():
-                      return const FindingRiderView();
-                    case FindRiderReturnedWith():
-                      return const FindingRiderView();
-                    default:
-                  }
-                } else {
-                  switch (state) {
-                    case FindRiderInitialState():
-                      return const FindRiderView();
-                    case FindRiderReturnedWith():
-                      if (state.rider != null) {
-                        return RiderFoundView(
-                          rider: state.rider!,
-                          onContact: () {
-                            // ChatPageRoute(state.rider!).push(context);
-                          },
-                        );
-                      }
-                      return NoRiderFoundView(
-                        onRetry: () {
-                          ref.read(findRiderProvider.notifier).findRider();
+        child: AnimatedSwitcher(
+          duration: Durations.long4,
+          child: Consumer(
+            builder: (context, ref, child) {
+              ref.listen(findRiderProvider, (p, n) {
+                if (n.hasError && n.error is AppError) {
+                  NotificationService.inApp.showToast(
+                    (n.error! as AppError).message,
+                  );
+                }
+              });
+              final state = ref.watch(findRiderProvider).requireValue;
+              if (ref.watch(findRiderProvider).isLoading) {
+                switch (state) {
+                  case FindRiderInitialState():
+                    return const FindingRiderView();
+                  case FindRiderReturnedWith():
+                    return const FindingRiderView();
+                  default:
+                }
+              } else {
+                switch (state) {
+                  case FindRiderInitialState():
+                    return const FindRiderView();
+                  case FindRiderReturnedWith():
+                    if (state.rider != null) {
+                      return RiderFoundView(
+                        rider: state.rider!,
+                        onContact: () {
+                          // ChatPageRoute(state.rider!).push(context);
                         },
                       );
-                    default:
-                  }
+                    }
+                    return NoRiderFoundView(
+                      onRetry: () {
+                        ref.read(findRiderProvider.notifier).findRider();
+                      },
+                    );
+                  default:
                 }
-                return const SizedBox.shrink();
-              },
-            ),
+              }
+              return const SizedBox.shrink();
+            },
           ),
         ),
       ),
@@ -100,40 +98,33 @@ class FindRiderView extends ConsumerStatefulWidget {
   const FindRiderView({super.key});
 
   @override
-  ConsumerState<FindRiderView> createState() => _FindRiderDialogState();
+  ConsumerState<FindRiderView> createState() => _FindRiderViewState();
 }
 
-class _FindRiderDialogState extends ConsumerState<FindRiderView> {
-  bool useCurrent = false;
-  Address? address;
+class _FindRiderViewState extends ConsumerState<FindRiderView> {
+  bool _checkPermission() {
+    return ref.read(permissionProvider(PermissionData.location)).isGranted ??
+        false;
+  }
 
-  void _toggleUseCurrent(_) async {
-    if (!useCurrent) {
-      final newAddress =
-          await ref.watch(locationProvider.notifier).getUserAddress();
-      address = newAddress;
-    }
-    setState(() => useCurrent = !useCurrent);
+  Future useCurrentLocation() async {
+    final coordinates =
+        await ref.read(locationServiceProvider).getUserCoordinates();
+    findRider(coordinates);
+  }
+
+  Future findRider(Coordinates coordinates) {
+    return ref.read(findRiderProvider.notifier).findRider(coordinates);
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentlocationColor = Color.lerp(
-      Theme.of(context).colorScheme.tertiary,
-      Theme.of(context).colorScheme.surface,
-      0.7,
-    );
-    final labelColor =
-        useCurrent ? Theme.of(context).colorScheme.tertiary : null;
+    final color = Theme.of(context).colorScheme;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.flash_on,
-          size: 32,
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
         const SizedBox(height: 8),
+        // Title
         Text(
           "Find a Nearby Rider",
           style: Theme.of(
@@ -141,57 +132,44 @@ class _FindRiderDialogState extends ConsumerState<FindRiderView> {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 24),
-        AddressTextField(
-          enabled: !useCurrent,
-          address: address,
-          onAddressChanged: (value) => address = value,
-          decoration: const InputDecoration(
-            labelText: "Enter your location",
-            // prefixIcon: Icon(Icons.my_location),
-            border: OutlineInputBorder(borderRadius: borderRadius_12),
+        // Map preview card
+        const SizedBox(
+          height: 140,
+          child: Card(
+            elevation: 4,
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            child: UserMapView(),
           ),
         ),
-        // Location Field
-        const SizedBox(height: 8),
-        // Use current location chip
-        Align(
-          alignment: Alignment.centerLeft,
-          child: ChoiceChip(
-            selected: useCurrent,
-            showCheckmark: false,
-            label: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.my_location, size: 18, color: labelColor),
-                const SizedBox(width: 6),
-                const Text("Use my location"),
-              ],
-            ),
-            onSelected: _toggleUseCurrent,
-            selectedColor: currentlocationColor,
-            labelStyle: TextStyle(color: labelColor),
-            backgroundColor: Theme.of(context).highlightColor,
+        const SizedBox(height: 16),
+        // Use current location button
+        ElevatedButton.icon(
+          onPressed: _checkPermission() ? useCurrentLocation : null,
+          icon: const Icon(Icons.my_location),
+          label: const Text("Use current location"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color.tertiary,
+            padding: padding_H16_V12,
           ),
         ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            icon: const Icon(Icons.search),
-            label: const Text("Find Rider"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-            ),
-            onPressed: () {
-              if (address?.name.isEmpty ?? true) {
-                NotificationService.inApp.showToast(
-                  "Please provide a location",
-                );
-              } else {
-                ref.read(findRiderProvider.notifier).setLocation(address!);
-                ref.read(findRiderProvider.notifier).findRider();
-              }
-            },
+        const SizedBox(height: 24),
+        // Pick on map card
+        ElevatedButton.icon(
+          onPressed: () async {
+            final Address? address = await const LocationPickerPageRoute().push(
+              context,
+            );
+            if (address?.coordinates != null) findRider(address!.coordinates!);
+          },
+          style: ElevatedButton.styleFrom(padding: padding_H16_V12),
+          icon: const Icon(Icons.add_location_alt_rounded),
+          label: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Pick a location from map"),
+              SizedBox(width: 8),
+              Icon(Icons.chevron_right, size: 24),
+            ],
           ),
         ),
       ],
@@ -204,21 +182,24 @@ class FindingRiderView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SpinKitRipple(size: 80, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(height: 40),
-        Text(
-          "Looking for nearby riders...",
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          "This usually takes a few minutes.",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SpinKitRipple(size: 80, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(height: 40),
+          Text(
+            "Looking for nearby riders...",
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "This usually takes a few minutes.",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
     );
   }
 }

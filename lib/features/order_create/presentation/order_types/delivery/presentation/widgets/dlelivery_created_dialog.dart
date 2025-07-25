@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix/core/constants/objects.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 
 Future<void> showOrderSummarySheet(BuildContext context, Order order) async {
   await showModalBottomSheet(
     context: context,
-    useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (context) => _SummaryDialog(order: order),
@@ -40,7 +40,11 @@ class _SummaryDialog extends StatelessWidget {
             style: TextStyle(color: Colors.grey[600]),
           ),
           const SizedBox(height: 24),
-          _premiumRow(Icons.receipt_long, 'Reference Number #', order.refNumber.toString()),
+          _premiumRow(
+            Icons.receipt_long,
+            'Reference Number #',
+            '# ${order.refNumber}',
+          ),
           if (order.pickup != null)
             _premiumRow(
               Icons.store_mall_directory,
@@ -62,12 +66,13 @@ class _SummaryDialog extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Sheet
-                Navigator.of(context).pop(); // Order Page
+                context.pop();
+                context.pop();
               },
               child: const Text('Continue'),
             ),
           ),
+          const SizedBox(height: 32),
         ],
       ),
     );

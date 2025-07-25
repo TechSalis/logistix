@@ -1,8 +1,8 @@
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/core/utils/page.dart';
-import 'package:logistix/features/orders/domain/entities/create_order.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 
 abstract class OrdersRepository {
   Future<Either<AppError, Order>> getOrder(String id);

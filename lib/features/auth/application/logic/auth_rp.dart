@@ -22,6 +22,10 @@ final class AuthLoggedOutState extends AuthState {
   const AuthLoggedOutState();
 }
 
+final class AuthUnknownState extends AuthState {
+  const AuthUnknownState();
+}
+
 final class AuthLoggedInState extends AuthState {
   final AuthUser user;
   AuthLoggedInState({required this.user});
@@ -30,15 +34,17 @@ final class AuthLoggedInState extends AuthState {
 class AuthNotifier extends AutoDisposeNotifier<AuthState> {
   @override
   AuthState build() {
-    final session = AuthLocalStore.instance.getSession();
-    if (session != null) {
-      final user = AuthLocalStore.instance.getUser();
-      if (user != null) {
-        DioClient.updateSession(session);
-        return AuthLoggedInState(user: user);
+    Future.microtask(() {
+      final session = AuthLocalStore.instance.getSession();
+      if (session != null) {
+        final user = AuthLocalStore.instance.getUser();
+        if (user != null) {
+          DioClient.updateSession(session);
+          state = AuthLoggedInState(user: user);
+        }
       }
-    }
-    return const AuthLoggedOutState();
+    });
+    return const AuthUnknownState();
   }
 
   bool canLoginAnonymously() {

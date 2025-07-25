@@ -14,7 +14,7 @@ final _placesApi = Provider.autoDispose<GooglePlacesDatasource>(
   (ref) => GooglePlacesDatasource(ref.autoDisposeDio()),
 );
 
-final _searchLocationProvider = Provider.autoDispose<SearchLocationService>(
+final searchLocationRepoProvider = Provider.autoDispose<SearchLocationService>(
   (ref) => GooglePlacesSearchLocationServiceImpl(
     ref.watch(_placesApi),
     ref.watch(locationServiceProvider),
@@ -55,29 +55,21 @@ class LocationSearchNotifier
   }
 
   void onInput(String text) async {
-    if (text.length > 2) {
+    if (text.isEmpty) {
+      state = const AsyncData(LocationSearchState());
+    } else if (text.length > 2) {
       debouncer.debounce(
-        duration: Durations.medium3,
-        onDebounce: () => getAddress(text),
+        duration: Durations.long2,
+        onDebounce: () => _getAddress(text),
       );
     }
   }
 
-  Future<void> getAddress(String text) async {
+  Future<void> _getAddress(String text) async {
     state = const AsyncValue.loading();
-
     state = await AsyncValue.guard(() async {
-      final result = await ref.watch(_searchLocationProvider).search(text);
+      final result = await ref.watch(searchLocationRepoProvider).search(text);
       return LocationSearchState(addresses: result, input: text);
-    });
-  }
-
-  Future<void> getPlaceData(Address address) async {
-    state = const AsyncValue.loading();
-    
-    state = await AsyncValue.guard(() async {
-      final place = await ref.watch(_searchLocationProvider).place(address);
-      return state.requireValue.copyWith(place: place);
     });
   }
 }

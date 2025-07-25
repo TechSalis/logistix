@@ -8,7 +8,7 @@ import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 import 'package:logistix/features/map/presentation/widgets/flutter_map_widget.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
-import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
+import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class UserMapView extends ConsumerWidget {
@@ -17,26 +17,21 @@ class UserMapView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(
-      permissionProvider(
-        PermissionData.location,
-      ).select((v) => v.status == null),
-      (p, n) {
-        if (n) {
-          showDialog(
-            context: context,
-            builder: (_) {
-              return PermissionDisclosureDialog(
-                data: PermissionData.location,
-                openSettingsCallback: () {
-                  ref.read(locationSettingsProvider).open();
-                },
-              );
-            },
-          );
-        }
-      },
-    );
+    ref.listen(permissionProvider(PermissionData.location), (p, n) {
+      if (n.isGranted == false && n.status == null) {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return PermissionDisclosureDialog(
+              data: PermissionData.location,
+              openSettingsCallback: () {
+                ref.read(locationSettingsProvider).open();
+              },
+            );
+          },
+        );
+      }
+    });
     final permission = ref.watch(permissionProvider(PermissionData.location));
 
     if (permission.isGranted == null) {

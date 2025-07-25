@@ -1,173 +1,214 @@
 import 'package:flutter/material.dart';
-import 'package:logistix/app/router/app_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:logistix/app/widgets/buttons.dart';
+import 'package:logistix/app/widgets/status_dialogs.dart';
 import 'package:logistix/core/constants/objects.dart';
-import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/auth/presentation/utils/auth_network_image.dart';
+import 'package:logistix/features/home/domain/entities/rider_data.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
+import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
 
-class OrderDetailsPage extends StatelessWidget {
-  const OrderDetailsPage({super.key, required this.order});
-  final Order order;
+class RiderInfoCard extends StatelessWidget {
+  final RiderData rider;
+
+  const RiderInfoCard({super.key, required this.rider});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final rider = order.rider;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Order Details')),
-      body: ListView(
-        padding: padding_16,
-        children: [
-          // Order Summary
-          Card(
-            shape: const RoundedRectangleBorder(borderRadius: borderRadius_12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        order.orderType.icon,
-                        color: order.orderType.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Order #${order.refNumber}",
-                        style: theme.textTheme.titleMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Status:",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      OrderStatusChip(status: order.orderStatus),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(order.description),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Pickup & Dropoff
-          if (order.pickup != null || order.dropoff != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Locations", style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                if (order.pickup != null)
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.store),
-                      title: const Text("Pickup"),
-                      subtitle: Text(order.pickup!.name),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                if (order.dropoff != null)
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.location_on_outlined),
-                      title: const Text("Drop-off"),
-                      subtitle: Text(order.dropoff!.name),
-                    ),
-                  ),
-              ],
-            ),
-
-          const SizedBox(height: 20),
-
-          // Rider Details
-          if (rider != null)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Rider", style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Card(
-                  child: ListTile(
-                    leading: UserAvatar(user: rider),
-                    title: Text(rider.name),
-                    subtitle: Text(rider.phone ?? 'No Phone'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            ChatPageRoute(rider).push(context);
-                          },
-                          icon: const Icon(Icons.message),
-                        ),
-                      ],
-                    ),
-                    // trailing:
-                    //     rider.rating != null
-                    //         ? Row(
-                    //           mainAxisSize: MainAxisSize.min,
-                    //           children: [
-                    //             Text(rider.rating!.toStringAsFixed(1)),
-                    //             const Icon(
-                    //               Icons.star,
-                    //               color: Colors.amber,
-                    //               size: 16,
-                    //             ),
-                    //           ],
-                    //         )
-                    //         : null,
-                  ),
-                ),
-              ],
-            ),
-
-          const SizedBox(height: 20),
-
-          // Price Summary
-          Text("Payment", style: theme.textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Card(
-            shape: const RoundedRectangleBorder(borderRadius: borderRadius_12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: _CostRow(
-                label: "Total",
-                value:
-                    order.price == null
-                        ? "N/A"
-                        : currencyFormatter.format(order.price),
-              ),
-            ),
-          ),
-        ],
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage:
+              rider.imageUrl != null ? AppNetworkImage(rider.imageUrl!) : null,
+          child: rider.imageUrl == null ? const Icon(Icons.person) : null,
+        ),
+        title: Text(rider.name),
+        subtitle: Text(rider.phone ?? 'No contact'),
+        trailing: IconButton(
+          icon: const Icon(Icons.call),
+          onPressed: () {
+            // Implement phone call
+          },
+        ),
       ),
     );
   }
 }
 
-class _CostRow extends StatelessWidget {
-  final String label;
-  final String value;
+class OrderSummaryCard extends StatelessWidget {
+  final Order order;
 
-  const _CostRow({required this.label, required this.value});
+  const OrderSummaryCard({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ],
+    final theme = Theme.of(context);
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: padding_H16_V12,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Order  ", style: theme.textTheme.titleMedium),
+                OrderRefNumberChip(refNumber: order.refNumber),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(order.description, style: theme.textTheme.bodyMedium),
+            const Divider(height: 24),
+            Row(
+              children: [
+                if (order.price != null)
+                  Text(
+                    currencyFormatter.format(order.price!),
+                    style: theme.textTheme.titleLarge,
+                  ),
+                const Spacer(),
+                OrderStatusChip(status: order.status),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LocationTile extends StatelessWidget {
+  final String label;
+  final String? address;
+  final IconData icon;
+
+  const LocationTile({
+    super.key,
+    required this.label,
+    this.address,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      subtitle: Text(address ?? "Not set"),
+    );
+  }
+}
+
+class OrderDetailsPage extends StatelessWidget {
+  final Order order;
+  const OrderDetailsPage({super.key, required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final state = ValueNotifier(ButtonState.idle);
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          if (order.rider == null)
+            const SliverAppBar(pinned: true, title: Text("Order Details"))
+          else
+            SliverAppBar(
+              pinned: true,
+              expandedHeight: 220,
+              flexibleSpace: FlexibleSpaceBar(
+                title: const Text("Order Details"),
+                background: RiderTrackerMapWidget(rider: order.rider!),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: padding_16,
+              child: Column(
+                children: [
+                  OrderSummaryCard(order: order),
+                  const SizedBox(height: 12),
+                  LocationTile(
+                    label: "Pickup",
+                    icon: Icons.my_location,
+                    address: order.pickup?.name,
+                  ),
+                  LocationTile(
+                    label: "Drop-off",
+                    icon: Icons.location_on,
+                    address: order.dropoff?.name,
+                  ),
+                  if (order.rider != null) RiderInfoCard(rider: order.rider!),
+                  if (order.status == OrderStatus.pending)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 32),
+                      child: Consumer(
+                        builder: (context, ref, _) {
+                          ref.listen(cancelOrderProvider, (p, n) {
+                            switch (n) {
+                              case AsyncLoading():
+                                state.value = ButtonState.loading;
+                                break;
+                              case AsyncData():
+                                state.value = ButtonState.success;
+                                break;
+                              case AsyncError():
+                                state.value = ButtonState.fail;
+                                break;
+                            }
+                          });
+                          // }
+                          return ElevatedLoadingButton.icon(
+                            onPressed: () {
+                              showConfirmDialog(
+                                context,
+                                title: "Cancel Order",
+                                message:
+                                    "Are you sure you want to cancel this order?",
+                                confirmButton: FilledButton(
+                                  onPressed: () {
+                                    ref
+                                        .read(cancelOrderProvider.notifier)
+                                        .cancelOrder(order);
+                                    context.pop();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.error,
+                                    foregroundColor: theme.colorScheme.onError,
+                                  ),
+                                  child: const Text("Cancel Order"),
+                                ),
+                              );
+                            },
+                            state: state,
+                            button: IconedButton(
+                              color: theme.colorScheme.error,
+                              icon: const Icon(
+                                Icons.cancel,
+                                color: Colors.white,
+                              ),
+                              text: "Cancel Order",
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

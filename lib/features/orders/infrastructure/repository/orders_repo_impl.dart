@@ -3,8 +3,8 @@ import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/utils/app_error.dart';
 import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/core/utils/page.dart';
-import 'package:logistix/features/orders/domain/entities/create_order.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/application/logic/orders_rp.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/domain/repository/orders_repository.dart';
 import 'package:logistix/features/orders/infrastructure/models/order_repo_dtos.dart';
 

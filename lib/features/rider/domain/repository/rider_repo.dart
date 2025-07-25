@@ -1,17 +1,11 @@
-import 'dart:math';
-
+import 'package:logistix/core/utils/app_error.dart';
+import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/features/location_core/domain/entities/coordinate.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
-import 'package:logistix/features/map/application/marker_animator_rp.dart';
 
 abstract class RiderRepo {
-  Stream<Coordinates> listenToRiderCoordinates(RiderData rider) {
-    double lat = Random().nextInt(180) - 90, long = Random().nextInt(360) - 180;
-    return Stream.periodic(kMapStreamPeriodDuration, (computationCount) {
-      return Coordinates(
-        lat + (Random().nextInt(10) - 5) / 10000,
-        long + (Random().nextInt(10) - 5) / 10000,
-      );
-    });
-  }
+  Future<Either<AppError, Iterable<RiderData>>> findRiders([
+    Coordinates? location,
+  ]);
+  Stream<Coordinates> listenToRiderCoordinates(RiderData rider);
 }

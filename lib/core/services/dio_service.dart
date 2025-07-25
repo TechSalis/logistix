@@ -108,6 +108,7 @@ extension ResExt on Response {
 
     try {
       if (data is AppError) return Either.fail(data);
+      if (data == null) return Either.fail(AppError.unknown());
       return Either.fail(NetworkError.fromResponse(this));
     } catch (e) {
       return Either.fail(NetworkError(e.toString()));

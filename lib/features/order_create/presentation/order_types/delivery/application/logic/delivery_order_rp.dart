@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/services/dio_service.dart';
 import 'package:logistix/core/usecases/pick_image.dart';
 import 'package:logistix/core/utils/cache_image_to_url.dart';
-import 'package:logistix/features/auth/application/utils/auth_network_image.dart';
+import 'package:logistix/features/auth/presentation/utils/auth_network_image.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/domain/repository/create_order_repo.dart';
 import 'package:logistix/features/order_create/infrastructure/repository/create_order_repo_impl.dart';
@@ -17,7 +17,7 @@ final createOrderProvider = FutureProvider.family.autoDispose((
 ) async {
   final res = await ref
       .watch(_createOrderRepoProvider)
-      .createOrder(arg.toNewOrder());
+      .createOrder(arg.toCreateOrder());
 
   return res.fold((l) => throw l, (r) => r);
 });
@@ -60,7 +60,7 @@ class ImagesUploadNotifier
 
         await cacheImageFromBytes(
           await file.readAsBytes(),
-          NetworkImageWithAuth(url),
+          AppNetworkImage(url),
         );
 
         return Map.from(state.requireValue)..[file.path] = url;

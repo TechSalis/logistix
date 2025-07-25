@@ -29,12 +29,16 @@ const borderRadius_8 = BorderRadius.all(Radius.circular(8));
 const borderRadius_12 = BorderRadius.all(radius_12);
 const borderRadius_16 = BorderRadius.all(Radius.circular(16));
 const borderRadius_24 = BorderRadius.all(Radius.circular(24));
-const borderRadius_32 = BorderRadius.all(Radius.circular(32));
+// const borderRadius_32 = BorderRadius.all(Radius.circular(32));
 
 const roundRectBorder8 = RoundedRectangleBorder(borderRadius: borderRadius_8);
 const roundRectBorder12 = RoundedRectangleBorder(borderRadius: borderRadius_12);
 const roundRectBorder16 = RoundedRectangleBorder(borderRadius: borderRadius_16);
+const roundRectBorder24 = RoundedRectangleBorder(borderRadius: borderRadius_24);
 
 const duration_5s = Duration(seconds: 5);
 const duration_10s = Duration(seconds: 5);
 const duration_3s = Duration(seconds: 5);
+
+const buttonRectBorder = roundRectBorder12;
+const buttonRadius = radius_12;

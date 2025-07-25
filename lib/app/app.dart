@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logistix/app/observers/provider_event_handler.dart';
@@ -9,6 +8,7 @@ import 'package:logistix/core/env_config.dart';
 import 'package:logistix/core/utils/extensions/hive.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
+import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 // ignore: depend_on_referenced_packages
@@ -26,7 +26,6 @@ class MainApp extends StatelessWidget {
         child: AppProviderScope(
           child: MaterialApp.router(
             restorationScopeId: 'app',
-            // showPerformanceOverlay: kDebugMode,
             routerConfig: router,
             theme: MyTheme.light,
             darkTheme: MyTheme.dark,
@@ -38,19 +37,12 @@ class MainApp extends StatelessWidget {
   }
 }
 
-Future precacheAssetData() {
-  return Future.wait([
-    rootBundle.loadString('assets/json/google_map_theme.dark.json'),
-    rootBundle.loadString('assets/json/google_map_theme.light.json'),
-  ]);
-}
-
-Future appPluginsSetup() {
+Future appPluginsSetup() async {
   final imagePickerImplementation = ImagePickerPlatform.instance;
   if (imagePickerImplementation is ImagePickerAndroid) {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
-  return Future.wait([
+  await Future.wait([
     Hive.initFlutter().then((_) {
       return Future.wait([
         Hive.openRequiredBoxes(),
@@ -59,11 +51,12 @@ Future appPluginsSetup() {
     }),
     Firebase.initializeApp(),
   ]);
+  NotificationService.setup();
 }
 
 Future supabasePluginSetupWithEnv(EnvConfig config) {
   return Supabase.initialize(
-    url: config.supabaseUrl,
+    url: 'https://rrlvhszexjszxcoesilp.supabase.co',
     anonKey: config.supabaseAnonKey,
     accessToken: () async => AuthLocalStore.instance.getSession()?.token,
   );

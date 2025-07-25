@@ -5,12 +5,11 @@ import 'package:logistix/app/widgets/user_avatar.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/auth/domain/entities/user_data.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
-import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 
 class OrderStatusChip extends StatelessWidget {
-  final OrderStatus status;
   const OrderStatusChip({super.key, required this.status});
+  final OrderStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -28,20 +27,26 @@ class OrderStatusChip extends StatelessWidget {
   }
 }
 
-class _OrderRefNumberChip extends StatelessWidget {
-  const _OrderRefNumberChip({required this.refNumber});
+class OrderRefNumberChip extends StatelessWidget {
+  const OrderRefNumberChip({super.key, required this.refNumber});
   final int refNumber;
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip(
-      backgroundColor: Theme.of(context).colorScheme.onSurface.withAlpha(30),
-      label: Text(
-        "# $refNumber",
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-        ),
+    return ActionChip.elevated(
+      backgroundColor: Theme.of(context).colorScheme.onSurface.withAlpha(15),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "# $refNumber ",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1,
+            ),
+          ),
+          const Icon(Icons.copy, size: 16),
+        ],
       ),
       visualDensity: const VisualDensity(vertical: -3),
       onPressed: () {
@@ -146,8 +151,7 @@ class OrderPreviewCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "Start your first order. Tap on any button above.",
-                  style: TextStyle(color: Colors.grey),
+                  "Start your first order. Tap on a button above.",
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -171,9 +175,9 @@ class OrderPreviewCard extends StatelessWidget {
                   color: Theme.of(context).colorScheme.secondary,
                 ),
                 const SizedBox(width: 12),
-                _OrderRefNumberChip(refNumber: order!.refNumber),
+                OrderRefNumberChip(refNumber: order!.refNumber),
                 const Spacer(),
-                OrderStatusChip(status: order!.orderStatus),
+                OrderStatusChip(status: order!.status),
               ],
             ),
             SizedBox(height: 12.h),
@@ -181,21 +185,26 @@ class OrderPreviewCard extends StatelessWidget {
               _OrderLocationRow(icon: Icons.store, label: order!.pickup!.name),
             if (order!.dropoff != null)
               _OrderLocationRow(
-                icon: Icons.location_on_outlined,
+                icon: Icons.location_on,
                 label: order!.dropoff!.name,
               ),
-            //  Text(
-            //     '"${order!.description}"',
-            //     style: Theme.of(
-            //       context,
-            //     ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
-            //   ),
             const Spacer(),
-            const Divider(height: 16),
-            // SizedBox(height: 8),
+            Divider(height: 16.h),
             SizedBox(
               height: 40,
-              child: _RiderSectionWidget(rider: order!.rider),
+              child:
+                  order!.rider != null
+                      ? _RiderSectionWidget(rider: order!.rider)
+                      : Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '"${order!.description * 3}"',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(fontStyle: FontStyle.italic),
+                        ),
+                      ),
             ),
           ],
         ),
@@ -219,7 +228,7 @@ class OrderCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: borderRadius_16,
         child: Padding(
-          padding: padding_16,
+          padding: padding_H16_V12,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -227,12 +236,10 @@ class OrderCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 4),
+                    padding: const EdgeInsets.only(top: 6),
                     child: Icon(
                       order.orderType.icon,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondary.withAlpha(100),
+                      color: order.orderType.color.withAlpha(150),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -240,53 +247,59 @@ class OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _OrderRefNumberChip(refNumber: order.refNumber),
-                        const SizedBox(height: 8),
+                        OrderRefNumberChip(refNumber: order.refNumber),
+                        const SizedBox(height: 12),
+                        Text(
+                          '"${order.description}"',
+                          maxLines: 2,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(fontStyle: FontStyle.italic),
+                        ),
 
                         /// Pickup and Dropoff
-                        if (order.pickup != null)
-                          _OrderLocationRow(
-                            icon: Icons.store,
-                            label: order.pickup!.name,
-                          ),
-                        if (order.dropoff != null)
-                          _OrderLocationRow(
-                            icon: Icons.location_on_outlined,
-                            label: order.dropoff!.name,
-                          ),
+                        // if (order.pickup != null)
+                        //   _OrderLocationRow(
+                        //     icon: Icons.store,
+                        //     label: order.pickup!.name,
+                        //   ),
+                        // if (order.dropoff != null)
+                        //   _OrderLocationRow(
+                        //     icon: Icons.location_on_outlined,
+                        //     label: order.dropoff!.name,
+                        //   ),
                       ],
                     ),
                   ),
                   Column(
                     children: [
-                      OrderStatusChip(status: order.orderStatus),
+                      OrderStatusChip(status: order.status),
                       const Chip(label: Text('8 min')),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    const TextSpan(
-                      text: 'Description: ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: '"${order.description}"',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
-                maxLines: 1,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
-              ),
-              const SizedBox(height: 4),
+              // const SizedBox(height: 16),
+              // Text.rich(
+              //   TextSpan(
+              //     children: [
+              //       const TextSpan(
+              //         text: 'Description: ',
+              //         style: TextStyle(fontWeight: FontWeight.bold),
+              //       ),
+              //       TextSpan(
+              //         text: '"${order.description}"',
+              //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              //           fontStyle: FontStyle.italic,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              //   maxLines: 1,
+              //   style: Theme.of(
+              //     context,
+              //   ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+              // ),
+              // const SizedBox(height: 4),
               if (order.rider != null) ...[
                 const Divider(height: 32),
                 SizedBox(

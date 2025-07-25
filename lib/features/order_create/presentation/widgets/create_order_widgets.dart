@@ -6,15 +6,15 @@ import 'package:logistix/features/notifications/application/notification_service
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
 import 'package:logistix/features/orders/application/logic/orders_rp.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
+import 'package:progress_state_button/progress_button.dart';
 
 mixin CreateOrderWidgetMixin<
   D extends OrderRequestData,
   W extends ConsumerStatefulWidget
 >
     on ConsumerState<W> {
-  RoundedLoadingButtonController get roundedLoadingButtonController;
+  ValueNotifier<ButtonState> get buttonController;
   ProviderSubscription<AsyncValue<int>>? _providerSub;
 
   D? _data;
@@ -28,19 +28,18 @@ mixin CreateOrderWidgetMixin<
 
     final validation = onValidate();
     if (validation == null) {
-      roundedLoadingButtonController.start();
+      buttonController.value = ButtonState.loading;
 
       _data = newData;
       _providerSub = ref.listenManual(createOrderProvider(_data!), (p, n) {
         switch (n) {
           case AsyncError():
-            roundedLoadingButtonController.error();
+            buttonController.value = ButtonState.fail;
             _clearSub();
           case AsyncData():
-            roundedLoadingButtonController.success();
-            final order = ref
-                .read(ordersProvider.notifier)
-                .addOrderFromRequest(n.requireValue, _data!);
+            buttonController.value = ButtonState.success;
+            final order = _data!.toOrder(refNumber: n.requireValue);
+            ref.read(ordersProvider.notifier).addLocalOrder(order);
             onOrderCreated(order);
         }
       });
@@ -67,7 +66,7 @@ mixin BaseCreateOrderTemplateMixin<
 >
     on CreateOrderWidgetMixin<D, W> {
   @override
-  final roundedLoadingButtonController = RoundedLoadingButtonController();
+  final buttonController = ValueNotifier<ButtonState>(ButtonState.idle);
 
   final validatorKey = GlobalKey<FormValidatorGroupState>();
 

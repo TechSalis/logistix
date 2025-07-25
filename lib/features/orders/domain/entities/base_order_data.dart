@@ -3,29 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:logistix/core/theme/colors.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 
-/// In sync with data values in the backend
-enum OrderStatus {
-  pending,
-  accepted,
-  onTheWay,
-  delivered,
-  cancelled;
-
-  String get label => switch (this) {
-    OrderStatus.pending => 'Pending',
-    OrderStatus.accepted => 'Accepted',
-    OrderStatus.onTheWay => 'On the way',
-    OrderStatus.delivered => 'Delivered',
-    OrderStatus.cancelled => 'Cancelled',
-  };
-  Color get color => switch (this) {
-    OrderStatus.pending => AppColors.blueGreyMat,
-    OrderStatus.accepted => Colors.blue,
-    OrderStatus.onTheWay => Colors.blue,
-    OrderStatus.delivered => Colors.green,
-    OrderStatus.cancelled => Colors.red,
-  };
-}
 
 /// In sync with data values in the backend
 enum OrderType {

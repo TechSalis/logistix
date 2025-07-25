@@ -25,7 +25,7 @@ class GooglePlacesDatasource {
       RetryInterceptor(dio: _dio, logPrint: debugPrint),
     ]);
     _dio.options = BaseOptions(
-      baseUrl: EnvConfig.instance.googlePlaceApiUrl,
+      baseUrl: 'https://places.googleapis.com/v1/places',
       connectTimeout: duration_10s,
       receiveTimeout: duration_10s,
       headers: {

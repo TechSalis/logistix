@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
+import 'package:logistix/features/home/application/home_rp.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
-import 'package:logistix/features/map/application/user_location_rp.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -21,18 +21,26 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (ref.read(authProvider.notifier).canLoginAnonymously()) {
       ref.read(authProvider.notifier).loginAnonymously();
     }
+    if (ref.read(authProvider) is AuthLoggedInState) {
+      Future.microtask(ref.read(homeProvider.notifier).fetchOrderPreview);
+    }
     super.initState();
   }
 
   @override
   void dispose() {
+    ref.invalidate(homeProvider);
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(locationProvider, (previous, next) {});
+    ref.listen(authProvider, (p, n) {
+      if (n is AuthLoggedInState) {
+        ref.read(homeProvider.notifier).fetchOrderPreview();
+      }
+    });
     ref.listen(navBarIndexProvider, (p, n) {
       controller.animateToPage(
         n,

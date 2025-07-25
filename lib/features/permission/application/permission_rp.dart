@@ -7,7 +7,7 @@ import 'package:logistix/features/permission/domain/repository/settings_service.
 import 'package:logistix/features/permission/infrastructure/repository/location_settings_service_impl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/infrastructure/repository/dialog_repo_impl.dart';
-import 'package:logistix/features/permission/presentation/widgets/permission_dialog.dart';
+import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 
 final _dialogHiveRepository = Provider.autoDispose
     .family<PermissionDialogRepository, String>((ref, key) {
@@ -22,17 +22,11 @@ class PermissionState extends Equatable {
   const PermissionState({this.isGranted, this.status});
 
   final bool? isGranted;
-  // final bool? canShow;
   final PermissionStatus? status;
 
-  PermissionState copyWith({
-    bool? isGranted,
-    // bool? canShow,
-    PermissionStatus? status,
-  }) {
+  PermissionState copyWith({bool? isGranted, PermissionStatus? status}) {
     return PermissionState(
       isGranted: isGranted ?? this.isGranted,
-      // canShow: canShow ?? this.canShow,
       status: status ?? this.status,
     );
   }
@@ -50,13 +44,12 @@ class PermissionNotifier
 
   @override
   PermissionState build(PermissionData arg) {
-    () async {
+    ref.watch(_dialogHiveRepository(arg.name)).isGranted.then((value) async {
       state = PermissionState(
-        isGranted: await ref.read(_dialogHiveRepository(arg.name)).isGranted,
-        // canShow: await ref.read(_dialogHiveRepository(arg.name)).canShow,
+        isGranted: value ?? false,
+        status: value != null ? await arg.permission.status : null,
       );
-    }();
-
+    });
     return const PermissionState();
   }
 
@@ -64,10 +57,6 @@ class PermissionNotifier
     state = state.copyWith(isGranted: true);
     ref.read(_dialogHiveRepository(arg.name)).markAsGranted();
   }
-
-  // void wasCanclled() {
-  //   ref.read(_dialogHiveRepository(arg.name)).wasCancelled();
-  // }
 
   Future<bool> request() async {
     final status = await arg.permission.request();

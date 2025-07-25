@@ -4,14 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
 
-class NetworkImageWithAuth extends ImageProvider<NetworkImageWithAuth> {
+class AppNetworkImage extends ImageProvider<AppNetworkImage> {
   final String url;
-
-  const NetworkImageWithAuth(this.url);
+  const AppNetworkImage(this.url);
 
   @override
   ImageStreamCompleter loadImage(
-    NetworkImageWithAuth key,
+    AppNetworkImage key,
     ImageDecoderCallback decode,
   ) {
     final image = NetworkImage(
@@ -25,14 +24,14 @@ class NetworkImageWithAuth extends ImageProvider<NetworkImageWithAuth> {
   }
 
   @override
-  Future<NetworkImageWithAuth> obtainKey(ImageConfiguration configuration) {
-    return SynchronousFuture<NetworkImageWithAuth>(this);
+  Future<AppNetworkImage> obtainKey(ImageConfiguration configuration) {
+    return SynchronousFuture<AppNetworkImage>(this);
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NetworkImageWithAuth &&
+      other is AppNetworkImage &&
           runtimeType == other.runtimeType &&
           url == other.url;
 

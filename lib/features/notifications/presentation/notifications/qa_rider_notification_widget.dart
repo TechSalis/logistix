@@ -4,7 +4,7 @@ import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/core/theme/styling.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/domain/entities/notification_data.dart';
-import 'package:logistix/features/orders/domain/entities/order_responses.dart';
+import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/home/domain/entities/rider_data.dart';
 

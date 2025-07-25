@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:logistix/core/theme/styling.dart';
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
 
 class CustomTextButton extends StatelessWidget {
   const CustomTextButton({super.key, required this.child, this.onPressed});
@@ -25,28 +27,16 @@ class CustomTextButton extends StatelessWidget {
 }
 
 class ElevatedLoadingButton extends StatefulWidget {
-  const ElevatedLoadingButton({
+  const ElevatedLoadingButton.icon({
     super.key,
     this.onPressed,
-    required this.controller,
-    required this.child,
+    required this.button,
     this.resetAfterDuration,
+    this.state,
   });
 
-  ElevatedLoadingButton.icon({
-    super.key,
-    this.onPressed,
-    required this.controller,
-    required Widget icon,
-    required Widget label,
-    this.resetAfterDuration,
-  }) : child = Row(
-         mainAxisSize: MainAxisSize.min,
-         children: [icon, const SizedBox(width: 8), label],
-       );
-
-  final Widget child;
-  final RoundedLoadingButtonController controller;
+  final ValueNotifier<ButtonState>? state;
+  final IconedButton button;
   final Duration? resetAfterDuration;
   final void Function()? onPressed;
 
@@ -55,15 +45,14 @@ class ElevatedLoadingButton extends StatefulWidget {
 }
 
 class _ElevatedLoadingButtonState extends State<ElevatedLoadingButton> {
-  StreamSubscription? _sub;
-
   @override
   void initState() {
     if (widget.resetAfterDuration != null) {
-      _sub = widget.controller.stateStream.listen((event) {
-        if (event == ButtonState.error || event == ButtonState.success) {
+      widget.state?.addListener(() {
+        if (widget.state!.value == ButtonState.fail ||
+            widget.state!.value == ButtonState.success) {
           Future.delayed(widget.resetAfterDuration!, () {
-            if (mounted) widget.controller.reset();
+            if (mounted) setState(() => widget.state!.value = ButtonState.idle);
           });
         }
       });
@@ -72,28 +61,34 @@ class _ElevatedLoadingButtonState extends State<ElevatedLoadingButton> {
   }
 
   @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, consts) {
-        return RoundedLoadingButton(
-          height: 46,
-          width: consts.maxWidth,
-          borderRadius: 8,
-          animateOnTap: false,
-          resetDuration: Durations.extralong4,
-          color: Theme.of(context).elevatedButtonTheme.style?.foregroundColor
-              ?.resolve({WidgetState.selected}),
-          controller: widget.controller,
-          onPressed: widget.onPressed,
-          child: widget.child,
-        );
+    return ProgressButton.icon(
+      onPressed: widget.onPressed,
+      iconedButtons: {
+        ButtonState.idle: widget.button,
+        ButtonState.loading: IconedButton(color: widget.button.color),
+        ButtonState.fail: IconedButton(
+          // text: "Failed",
+          icon: const Icon(Icons.cancel, color: Colors.white),
+          color: Theme.of(context).colorScheme.error,
+        ),
+        ButtonState.success: IconedButton(
+          // text: "Success",
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+          color: Colors.green.shade400,
+        ),
       },
+      height: 46.0,
+      radius: buttonRadius.x,
+      textStyle: Theme.of(
+        context,
+      ).elevatedButtonTheme.style!.textStyle?.resolve({WidgetState.selected}),
+      state: widget.state?.value ?? ButtonState.idle,
+      minWidthStates: const [
+        ButtonState.loading,
+        ButtonState.fail,
+        ButtonState.success,
+      ],
     );
   }
 }

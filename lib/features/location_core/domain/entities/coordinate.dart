@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'coordinate.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: true, createFactory: false)
 class Coordinates extends Equatable {
   @JsonKey(name: 'lat')
   final double latitude;

@@ -6,7 +6,7 @@ class PageData {
   const PageData({
     required this.index,
     required this.size,
-    required this.isLast,
+    this.isLast = false,
   });
 
   const PageData.pageOne([int? size])
