@@ -31,5 +31,6 @@ A dispatch app for vendors and users built with Flutter, Riverpod, and Clean Arc
 
 ## App Run / Build Commands
 
-- flutter <run/build> -t lib/main.dev.dart
-- flutter <run/build> -t lib/main.prod.dart
+- flutter run --flavor dev -t lib/main.dev.dart
+- flutter run --flavor prod -t lib/main.dart
+

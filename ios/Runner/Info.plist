@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Logistix</string>
+	<string>$(INFOPLIST_KEY_CFBundleDisplayName)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -29,11 +29,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow $(CFBundleDisplayName) access to your camera, to take pictures of Delivery items and parcels</string>
+	<string>Allow $(INFOPLIST_KEY_CFBundleDisplayName) access to your camera, to take pictures of Delivery items and parcels</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>$(CFBundleDisplayName) wants to retrieve locations and addresses on the map</string>
+	<string>$(INFOPLIST_KEY_CFBundleDisplayName) wants to retrieve locations and addresses on the map</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow $(CFBundleDisplayName) access to your gallery, to select pictures of delivery items and parcels </string>
+	<string>Allow $(INFOPLIST_KEY_CFBundleDisplayName) access to your gallery, to select pictures of delivery items and parcels </string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

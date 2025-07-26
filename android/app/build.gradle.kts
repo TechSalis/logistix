@@ -41,6 +41,19 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    flavorDimensions "env"
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            resValue "string", "app_name", "Logistix Dev"
+        }
+        prod {
+            dimension "env"
+        }
+    }
 }
 
 flutter {
