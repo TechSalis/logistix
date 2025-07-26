@@ -1,4 +1,3 @@
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/services/dio_service.dart';
@@ -23,25 +22,21 @@ class AccountNotifier extends AutoDisposeNotifier<AccountState> {
     return AccountState(data: AuthLocalStore.instance.getUser()!.data);
   }
 
-  Future<String?> getToken() {
+  Future<String?> _getToken() {
     //TODO: Remove this
     // if (kDebugMode && Platform.isIOS) return Future.value(uuid.v1());
     return FirebaseMessaging.instance.getToken();
   }
 
-
   Future uploadFCM() async {
-    final token = await getToken();
+    final token = await _getToken();
     await ref.watch(accountRepoProvider).updateFCM(token!);
   }
 
   Future clearFCM() async {
-    await Future.wait([
-      getToken().then((token) {
-        return ref.watch(accountRepoProvider).removeFCM(token!);
-      }),
-      FirebaseMessaging.instance.deleteToken(),
-    ]);
+    final token = await _getToken();
+    await ref.watch(accountRepoProvider).removeFCM(token!);
+    await FirebaseMessaging.instance.deleteToken();
   }
 }
 

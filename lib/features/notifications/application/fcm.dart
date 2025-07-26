@@ -6,9 +6,9 @@ Future<void> _setupFCM() async {
     badge: true,
     sound: true,
   );
+
   // Get token
   FirebaseMessaging.onMessage.listen((message) {});
-  
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 }
 

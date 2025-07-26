@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/features/account/application/account_rp.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 
 class AppProviderScope extends StatefulWidget {
   const AppProviderScope({super.key, required this.child});
@@ -21,15 +23,22 @@ class _AppProviderScopeState extends State<AppProviderScope> {
       key: _providerScopeKey,
       child: Consumer(
         builder: (context, ref, child) {
-          ref.listen(authProvider, (p, n) {
-            switch (n) {
+          ref.listen(authProvider, (p, auth) {
+            final notificationPermission = ref.read(
+              permissionProvider(PermissionData.notifications),
+            );
+            switch (auth) {
               case AuthLoggedOutState _:
                 AuthLocalStore.instance.clear();
-                ref.read(accountProvider.notifier).clearFCM();
+                if (notificationPermission.isGranted == true) {
+                  ref.read(accountProvider.notifier).clearFCM();
+                }
                 setState(() => _providerScopeKey = UniqueKey());
               case AuthLoggedInState _:
-                AuthLocalStore.instance.saveUser(n.user);
-                ref.read(accountProvider.notifier).uploadFCM();
+                AuthLocalStore.instance.saveUser(auth.user);
+                if (notificationPermission.isGranted == true) {
+                  ref.read(accountProvider.notifier).uploadFCM();
+                }
               case AuthUnknownState _:
             }
           });
