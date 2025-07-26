@@ -33,4 +33,3 @@ A dispatch app for vendors and users built with Flutter, Riverpod, and Clean Arc
 
 - flutter run --flavor dev -t lib/main.dev.dart
 - flutter run --flavor prod -t lib/main.dart
-

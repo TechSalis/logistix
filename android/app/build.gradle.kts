@@ -42,16 +42,17 @@ android {
         }
     }
 
-    flavorDimensions "env"
+    flavorDimensions += "default"
     productFlavors {
-        dev {
-            dimension "env"
-            applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
-            resValue "string", "app_name", "Logistix Dev"
+        create("dev") {
+            dimension = "default"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Logistix Dev")
         }
-        prod {
-            dimension "env"
+        create("prod") {
+            dimension = "default"
+            resValue("string", "app_name", "Logistix")
         }
     }
 }

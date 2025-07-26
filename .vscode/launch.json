@@ -6,10 +6,12 @@
     "configurations": [
 
         {
-            "name": "logistix",
+            "name": "logistix dev",
             "request": "launch",
             "type": "dart",
+            "flutterMode": "debug",
             "program": "lib/main.dev.dart",
+            "args": ["--flavor", "dev"]
         },
         {
             "name": "logistix (profile mode)",
@@ -17,6 +19,7 @@
             "type": "dart",
             "flutterMode": "profile",
             "program": "lib/main.dev.dart",
+            "args": ["--flavor", "dev"]
         },
         {
             "name": "logistix (release mode)",
@@ -24,6 +27,7 @@
             "type": "dart",
             "flutterMode": "release",
             "program": "lib/main.dart",
+            "args": ["--flavor", "dev"]
         }
     ]
 }
