@@ -17,7 +17,14 @@
                 }
             },
             "dart": {
-                "lib/firebase_options.dart": {
+                "lib/firebase_options_dev.dart": {
+                    "projectId": "logistix-dev-14c28",
+                    "configurations": {
+                        "android": "1:233662444222:android:339e109abb4d8a9c2de4ef",
+                        "ios": "1:233662444222:ios:6bb685df852c986d2de4ef"
+                    }
+                },
+                "lib/firebase_options_prod.dart": {
                     "projectId": "logistix-83bee",
                     "configurations": {
                         "android": "1:1054763309342:android:ef76852dff0639d6f2d10f",

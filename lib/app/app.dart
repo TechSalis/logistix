@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -8,7 +7,6 @@ import 'package:logistix/core/env_config.dart';
 import 'package:logistix/core/utils/extensions/hive.dart';
 import 'package:logistix/app/router/app_router.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
-import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 
 // ignore: depend_on_referenced_packages
@@ -42,16 +40,9 @@ Future appPluginsSetup() async {
   if (imagePickerImplementation is ImagePickerAndroid) {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
-  await Future.wait([
-    Hive.initFlutter().then((_) {
-      return Future.wait([
-        Hive.openRequiredBoxes(),
-        Hive.openAllTrackedBoxes(),
-      ]);
-    }),
-    Firebase.initializeApp(),
-  ]);
-  NotificationService.setup();
+  await Hive.initFlutter().then((_) {
+    return Future.wait([Hive.openRequiredBoxes(), Hive.openAllTrackedBoxes()]);
+  });
 }
 
 Future supabasePluginSetupWithEnv(EnvConfig config) {

@@ -27,7 +27,7 @@
             "type": "dart",
             "flutterMode": "release",
             "program": "lib/main.dart",
-            "args": ["--flavor", "dev"]
+            "args": ["--flavor", "prod"]
         }
     ]
 }
