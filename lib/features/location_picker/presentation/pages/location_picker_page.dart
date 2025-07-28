@@ -36,13 +36,13 @@ class _AddressTileWidget extends ConsumerWidget {
 }
 
 class _LocationPin extends StatelessWidget {
-  const _LocationPin({this.size = 32});
+  const _LocationPin({this.size});
 
-  final double size;
+  final double? size;
   @override
   Widget build(BuildContext context) {
     return Icon(
-      Icons.location_on,
+      Icons.my_location,
       size: size,
       color: Theme.of(context).colorScheme.primary,
     );
@@ -93,7 +93,7 @@ class _SearchSection extends ConsumerWidget {
             if (addresses == null || addresses.isEmpty)
               _AddressTileWidget(
                 address: const Address("My location"),
-                leading: const Icon(Icons.my_location),
+                leading: const MyLocationPin(size: 24),
                 onTap: ref.read(locationPickerProvider.notifier).pickMyLocation,
               )
             else
@@ -141,16 +141,13 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
             },
           ),
           Center(
-            child: Transform.translate(
-              offset: const Offset(0, -18),
-              child:
-                  widget.params?.heroTag == null
-                      ? const _LocationPin(size: 42)
-                      : Hero(
-                        tag: widget.params!.heroTag!,
-                        child: const _LocationPin(size: 42),
-                      ),
-            ),
+            child:
+                widget.params?.heroTag == null
+                    ? const _LocationPin(size: 42)
+                    : Hero(
+                      tag: widget.params!.heroTag!,
+                      child: const _LocationPin(size: 42),
+                    ),
           ),
           Padding(
             padding: padding_16,
@@ -158,11 +155,12 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               children: [
                 Consumer(
                   builder: (context, ref, child) {
+                    final controller =
+                        ref
+                            .read(locationPickerProvider.notifier)
+                            .searchController;
                     return TextField(
-                      controller:
-                          ref
-                              .read(locationPickerProvider.notifier)
-                              .searchController,
+                      controller: controller,
                       onTap: () {
                         setState(() => _isSearching = true);
                       },
@@ -186,12 +184,17 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                                     ),
                                   ),
                                 )
+                                : controller.text.isEmpty
+                                ? null
                                 : IconButton(
-                                  onPressed:
-                                      ref
-                                          .read(locationPickerProvider.notifier)
-                                          .clearInput,
-
+                                  onPressed: () {
+                                    ref
+                                        .read(locationPickerProvider.notifier)
+                                        .clearInput();
+                                    ref
+                                        .watch(locationSearchProvider.notifier)
+                                        .onInput('');
+                                  },
                                   icon: const Icon(Icons.close),
                                 ),
                       ),
@@ -205,8 +208,8 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 32),
                       child: ElevatedButton.icon(
-                        icon: const Icon(Icons.location_on),
-                        label: const Text("Use Location"),
+                        icon: const _LocationPin(),
+                        label: const Text("Select location"),
                         onPressed:
                             ref
                                 .read(locationPickerProvider.notifier)

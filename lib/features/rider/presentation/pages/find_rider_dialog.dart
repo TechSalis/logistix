@@ -13,7 +13,7 @@ import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/notifications/presentation/notifications/rider_found_notification_widget.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
-import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
+import 'package:logistix/features/permission/domain/entities/permission_data.dart';
 import 'package:logistix/features/rider/application/find_rider_rp.dart';
 import 'package:logistix/features/rider/presentation/widgets/rating.dart';
 
@@ -137,8 +137,9 @@ class _FindRiderViewState extends ConsumerState<FindRiderView> {
           height: 140,
           child: Card(
             elevation: 4,
-            clipBehavior: Clip.antiAliasWithSaveLayer,
-            child: UserMapView(),
+            margin: padding_H16,
+            clipBehavior: Clip.hardEdge,
+            child: IgnorePointer(child: UserMapView()),
           ),
         ),
         const SizedBox(height: 16),

@@ -4,11 +4,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logistix/core/constants/hive_constants.dart';
 
 extension HiveExt on HiveInterface {
-  Future<void> openRequiredBoxes<T>() async {
+  Future<void> openStartupBoxes<T>() async {
     await Future.wait(HiveConstants.startupBoxes.map(Hive.openBox));
   }
 
-  Future<void> openAllTrackedBoxes<T>() async {
+  Future<void> openTrackedBoxes<T>() async {
     final boxNames = await Hive.openBox(
       HiveConstants.trackedBoxes,
     ).then<Iterable<String>>((box) => box.keys.cast<String>());

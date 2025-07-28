@@ -7,8 +7,10 @@ import 'package:logistix/features/orders/domain/entities/order.dart';
 Future<void> showOrderSummarySheet(BuildContext context, Order order) async {
   await showModalBottomSheet(
     context: context,
+    enableDrag: false,
     showDragHandle: true,
     isScrollControlled: true,
+    isDismissible: false,
     builder: (context) => _SummaryDialog(order: order),
   );
 }
@@ -43,7 +45,7 @@ class _SummaryDialog extends StatelessWidget {
           _premiumRow(
             Icons.receipt_long,
             'Reference Number #',
-            '# ${order.refNumber}',
+            '#${order.refNumber}',
           ),
           if (order.pickup != null)
             _premiumRow(

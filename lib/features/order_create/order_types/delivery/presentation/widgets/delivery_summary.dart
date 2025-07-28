@@ -125,7 +125,7 @@ class _MapLocationCard extends StatelessWidget {
     return Card(
       elevation: 2,
       color: Theme.of(context).inputDecorationTheme.fillColor,
-      shape: roundRectBorder8,
+      // shape: roundRectBorder8,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

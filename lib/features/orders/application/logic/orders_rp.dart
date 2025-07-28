@@ -123,11 +123,12 @@ class OrdersNotifier extends AutoDisposeAsyncNotifier<OrdersState> {
   }
 }
 
-final cancelOrderProvider = AsyncNotifierProvider<CancelOrderController, void>(
-  CancelOrderController.new,
+final cancelOrderProvider =
+    AsyncNotifierProvider.autoDispose<CancelOrderNotifier, void>(
+      CancelOrderNotifier.new,
 );
 
-class CancelOrderController extends AsyncNotifier<void> {
+class CancelOrderNotifier extends AutoDisposeAsyncNotifier<void> {
   @override
   FutureOr<void> build() {}
 

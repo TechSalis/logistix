@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/features/permission/domain/entities/permission_data.dart';
 import 'package:logistix/features/permission/domain/repository/dialog_repo.dart';
 import 'package:logistix/features/permission/domain/repository/settings_service.dart';
 import 'package:logistix/features/permission/infrastructure/repository/location_settings_service_impl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logistix/features/permission/infrastructure/repository/dialog_repo_impl.dart';
-import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 
 final _dialogHiveRepository = Provider.autoDispose
     .family<PermissionDialogRepository, String>((ref, key) {
@@ -40,9 +40,6 @@ class PermissionNotifier
   PermissionNotifier();
 
   @override
-  bool updateShouldNotify(previous, next) => previous != next;
-
-  @override
   PermissionState build(PermissionData arg) {
     ref.watch(_dialogHiveRepository(arg.name)).isGranted.then((value) async {
       state = PermissionState(
@@ -72,3 +69,7 @@ class PermissionNotifier
 final permissionProvider = NotifierProvider.autoDispose.family(
   PermissionNotifier.new,
 );
+
+extension PermissionStateExt on PermissionState {
+  bool canShowDialog() => isGranted != null && status == null;
+}

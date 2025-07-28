@@ -7,12 +7,11 @@ import 'package:logistix/features/form_validator/widgets/text_field_with_heading
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
-import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
-import 'package:logistix/features/order_create/presentation/order_types/food/application/logic/food_description_order_rp.dart';
-import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
+import 'package:logistix/features/order_create/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
+import 'package:logistix/features/order_create/order_types/food/application/logic/food_description_order_rp.dart';
+import 'package:logistix/features/order_create/widgets/create_order_widgets.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:progress_state_button/iconed_button.dart';
 
 class FoodOrderPage extends ConsumerStatefulWidget {
   const FoodOrderPage({super.key});
@@ -22,14 +21,11 @@ class FoodOrderPage extends ConsumerStatefulWidget {
 }
 
 class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
-    with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
+    with BaseCreateOrderTemplateMixin, CreateOrderWidgetMixin {
   @override
   String? onValidate() {
     /// Validates the form fields and checks if all images are uploaded
-    final fieldsValidated =
-        validatorKey.currentState!.validateAndCheck() &&
-        (pickup != null && dropoff != null);
-    if (!fieldsValidated) {
+    if (!fieldsValid) {
       // Fields are not valid
       return 'Please fill all required fields.';
     }
@@ -37,9 +33,7 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
   }
 
   @override
-  void onOrderCreated(Order order) {
-    showOrderSummarySheet(context, order);
-  }
+  void onOrderCreated(Order order) => showOrderSummarySheet(context, order);
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +41,13 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
       resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("Craving something?")),
       body: Padding(
-        padding: padding_H16,
+        padding: padding_H20,
         child: FormValidatorGroupWidget(
           key: validatorKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               _CustomOrderHero(orderTemplateMixin: this),
               const SizedBox(height: 32),
               Text("Popular", style: Theme.of(context).textTheme.titleMedium),
@@ -86,29 +80,26 @@ class _FoodOrderPageState extends ConsumerState<FoodOrderPage>
                   },
                 ),
               ),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedLoadingButton.icon(
-                  state: buttonController,
-                  resetAfterDuration: duration_3s,
-                  onPressed: () {
-                    validateAndCreateOrder(
-                      OrderRequestData(
-                        description: descriptionController.text.trim(),
-                        pickup: pickup,
-                        dropoff: dropoff,
-                        orderType: OrderType.food,
-                      ),
-                    );
-                  },
-                  button: IconedButton(
-                    color: Theme.of(context).colorScheme.secondary,
-                    icon: const Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.white,
+              ElevatedLoadingButton(
+                state: buttonController,
+                resetAfterDuration: duration_3s,
+                onPressed: () {
+                  validateAndCreateOrder(
+                    OrderRequestData(
+                      description: descriptionController.text.trim(),
+                      pickup: pickup,
+                      dropoff: dropoff,
+                      orderType: OrderType.food,
                     ),
-                    text: "Place Order",
-                  ),
+                  );
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle_outline),
+                    SizedBox(width: 8),
+                    Text("Place Order"),
+                  ],
                 ),
               ),
               const SizedBox(height: 40),

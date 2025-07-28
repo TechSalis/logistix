@@ -23,7 +23,6 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
   @override
   HomeState build() => const HomeState();
 
-
   Future fetchOrderPreview() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -36,6 +35,10 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
         (r) => HomeState(orderPreview: r.first),
       );
     });
+  }
+
+  void updateOrderPreview(Order orderPreview) {
+    state = AsyncData(state.requireValue.copyWith(orderPreview: orderPreview));
   }
 }
 

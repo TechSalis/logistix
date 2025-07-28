@@ -58,7 +58,6 @@ class AppDialog extends StatelessWidget {
   }
 }
 
-
 Future<void> showConfirmDialog(
   BuildContext context, {
   required String title,
@@ -91,18 +90,19 @@ Future<void> showSuccessDialog(
 }) {
   return showDialog(
     context: context,
-    builder:
-        (_) => AppDialog(
-          icon: const Icon(Icons.check_circle, size: 48, color: Colors.green),
-          title: title,
-          message: message,
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
+    builder: (_) {
+      return AppDialog(
+        icon: const Icon(Icons.check_circle, size: 48, color: Colors.green),
+        title: title,
+        message: message,
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -113,18 +113,19 @@ Future<void> showErrorDialog(
 }) {
   return showDialog(
     context: context,
-    builder:
-        (_) => AppDialog(
-          icon: const Icon(Icons.error, size: 48, color: Colors.red),
-          title: title,
-          message: message,
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
+    builder: (_) {
+      return AppDialog(
+        icon: const Icon(Icons.error, size: 48, color: Colors.red),
+        title: title,
+        message: message,
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
   );
 }
 

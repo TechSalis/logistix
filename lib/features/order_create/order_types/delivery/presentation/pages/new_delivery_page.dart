@@ -11,11 +11,10 @@ import 'package:logistix/features/form_validator/widgets/text_field_with_heading
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
 import 'package:logistix/features/order_create/entities/order_request_data.dart';
-import 'package:logistix/features/order_create/presentation/order_types/delivery/application/logic/delivery_order_rp.dart';
-import 'package:logistix/features/order_create/presentation/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
-import 'package:logistix/features/order_create/presentation/widgets/create_order_widgets.dart';
+import 'package:logistix/features/order_create/order_types/delivery/application/logic/delivery_order_rp.dart';
+import 'package:logistix/features/order_create/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
+import 'package:logistix/features/order_create/widgets/create_order_widgets.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
-import 'package:progress_state_button/iconed_button.dart';
 
 class NewDeliveryPage extends ConsumerStatefulWidget {
   const NewDeliveryPage({super.key});
@@ -25,21 +24,16 @@ class NewDeliveryPage extends ConsumerStatefulWidget {
 }
 
 class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
-    with CreateOrderWidgetMixin, BaseCreateOrderTemplateMixin {
+    with BaseCreateOrderTemplateMixin, CreateOrderWidgetMixin {
   @override
   String? onValidate() {
     /// Validates the form fields and checks if all images are uploaded
-    final fieldsValidated =
-        validatorKey.currentState!.validateAndCheck() &&
-        (pickup != null && dropoff != null);
-
-    if (fieldsValidated) {
+    if (fieldsValid) {
       for (final path in ref.read(imagesUploadProvider).requireValue.keys) {
-        final uploading = ref
-            .read(imagesUploadProvider.notifier)
-            .isUploading(path);
         // Check if image is still uploading
-        if (uploading) return "Please wait for your image uploads.";
+        if (ref.read(imagesUploadProvider.notifier).isUploading(path)) {
+          return "Please wait for your image uploads.";
+        }
       }
       // return ref.read(orderImagesProvider).isLoading ||
       //     ref.read(orderImagesProvider).hasError;
@@ -61,7 +55,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
     return Scaffold(
       appBar: AppBar(title: const Text("New Delivery")),
       body: Padding(
-        padding: padding_H16,
+        padding: padding_H20,
         child: FormValidatorGroupWidget(
           key: validatorKey,
           child: ListView(
@@ -131,7 +125,7 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
               const SizedBox(height: 32),
               const _DeliveryFareWidget(),
               const SizedBox(height: 32),
-              ElevatedLoadingButton.icon(
+              ElevatedLoadingButton(
                 state: buttonController,
                 resetAfterDuration: duration_3s,
                 onPressed:
@@ -154,13 +148,13 @@ class _NewDeliveryPageState extends ConsumerState<NewDeliveryPage>
                             ),
                           );
                         },
-                button: IconedButton(
-                  color: Theme.of(context).colorScheme.secondary,
-                  icon: const Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.white,
-                  ),
-                  text: "Request Delivery",
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle_outline),
+                    SizedBox(width: 8),
+                    Text("Request Delivery"),
+                  ],
                 ),
               ),
               const SizedBox(height: 32),

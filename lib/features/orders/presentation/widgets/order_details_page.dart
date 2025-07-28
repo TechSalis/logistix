@@ -11,7 +11,6 @@ import 'package:logistix/features/orders/application/logic/orders_rp.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/rider/presentation/widgets/rider_tracker_widget.dart';
-import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 
 class RiderInfoCard extends StatelessWidget {
@@ -60,8 +59,7 @@ class OrderSummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  "Order  ", style: theme.textTheme.titleMedium),
+                Text("Order  ", style: theme.textTheme.titleMedium),
                 OrderRefNumberChip(refNumber: order.refNumber),
               ],
             ),
@@ -167,7 +165,7 @@ class OrderDetailsPage extends StatelessWidget {
                             }
                           });
                           // }
-                          return ElevatedLoadingButton.icon(
+                          return ElevatedLoadingButton(
                             onPressed: () {
                               showConfirmDialog(
                                 context,
@@ -190,13 +188,13 @@ class OrderDetailsPage extends StatelessWidget {
                               );
                             },
                             state: state,
-                            button: IconedButton(
-                              color: theme.colorScheme.error,
-                              icon: const Icon(
-                                Icons.cancel,
-                                color: Colors.white,
-                              ),
-                              text: "Cancel Order",
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.check_circle_outline),
+                                SizedBox(width: 8),
+                                Text("Cancel Order"),
+                              ],
                             ),
                           );
                         },

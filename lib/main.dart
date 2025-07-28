@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logistix/app/app.dart';
 import 'package:logistix/core/env_config.dart';
-import 'package:logistix/firebase_options.dart';
+import 'package:logistix/firebase_options_prod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

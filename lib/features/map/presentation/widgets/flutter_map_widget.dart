@@ -103,7 +103,7 @@ class _MapViewWidgetState extends State<MapViewWidget>
           //   },
           //   userAgentPackageName: 'com.techsalis.logistix',
           // ),
-          fm.MarkerLayer(markers: widget.markers),
+          fm.MarkerLayer(markers: widget.markers, rotate: true),
         ],
       ),
     );

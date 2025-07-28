@@ -41,7 +41,7 @@ Future appPluginsSetup() async {
     imagePickerImplementation.useAndroidPhotoPicker = true;
   }
   await Hive.initFlutter().then((_) {
-    return Future.wait([Hive.openRequiredBoxes(), Hive.openAllTrackedBoxes()]);
+    return Future.wait([Hive.openStartupBoxes(), Hive.openTrackedBoxes()]);
   });
 }
 
@@ -49,6 +49,8 @@ Future supabasePluginSetupWithEnv(EnvConfig config) {
   return Supabase.initialize(
     url: 'https://rrlvhszexjszxcoesilp.supabase.co',
     anonKey: config.supabaseAnonKey,
-    accessToken: () async => AuthLocalStore.instance.getSession()?.token,
+    accessToken: () {
+      return Future.value(AuthLocalStore.instance.getSession()?.token);
+    },
   );
 }

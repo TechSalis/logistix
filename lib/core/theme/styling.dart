@@ -15,10 +15,12 @@ extension StylingData on BuildContext {
 }
 
 const padding_8 = EdgeInsets.all(8);
+const padding_12 = EdgeInsets.all(12);
 const padding_16 = EdgeInsets.all(16);
 const padding_24 = EdgeInsets.all(24);
 const padding_H12 = EdgeInsets.symmetric(horizontal: 12);
 const padding_H16 = EdgeInsets.symmetric(horizontal: 16);
+const padding_H20 = EdgeInsets.symmetric(horizontal: 20);
 const padding_H16_V8 = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 const padding_H16_V12 = EdgeInsets.symmetric(horizontal: 16, vertical: 12);
 
@@ -31,8 +33,8 @@ const borderRadius_16 = BorderRadius.all(Radius.circular(16));
 const borderRadius_24 = BorderRadius.all(Radius.circular(24));
 // const borderRadius_32 = BorderRadius.all(Radius.circular(32));
 
-const roundRectBorder8 = RoundedRectangleBorder(borderRadius: borderRadius_8);
-const roundRectBorder12 = RoundedRectangleBorder(borderRadius: borderRadius_12);
+// const roundRectBorder8 = RoundedRectangleBorder(borderRadius: borderRadius_8);
+// const roundRectBorder12 = RoundedRectangleBorder(borderRadius: borderRadius_12);
 const roundRectBorder16 = RoundedRectangleBorder(borderRadius: borderRadius_16);
 const roundRectBorder24 = RoundedRectangleBorder(borderRadius: borderRadius_24);
 
@@ -40,5 +42,5 @@ const duration_5s = Duration(seconds: 5);
 const duration_10s = Duration(seconds: 5);
 const duration_3s = Duration(seconds: 5);
 
-const buttonRectBorder = roundRectBorder12;
+const buttonRectBorder = roundRectBorder16;
 const buttonRadius = radius_12;

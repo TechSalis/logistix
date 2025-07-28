@@ -74,12 +74,15 @@ class LocationPickerNotifier
     return LocationPickerState.initial();
   }
 
+  void setMap(MyMapController map) => this.map = map;
+
   Future pickMyLocation() async {
-    final address = await ref.watch(locationProvider.notifier).getUserAddress();
-    _updateAddress(address!);
+    final address = await ref.read(locationProvider.notifier).getUserAddress();
+    if (address != null) _updateAddress(address);
   }
 
   Future pickAddress(Address address) async {
+    assert(map != null, 'You need to set the map first. Use setMap()');
     final place = await ref.watch(searchLocationRepoProvider).place(address);
     _updateAddress(place.address);
   }
@@ -88,6 +91,7 @@ class LocationPickerNotifier
   //   state = AsyncData(state.value!.copyWith(address: address));
   // }
   Future pickCurrentCoordinates() async {
+    assert(map != null, 'You need to set the map first. Use setMap()');
     final address = await ref.watch(
       addressFromCoordinatesProvider(map!.getCoordinates()).future,
     );
@@ -95,15 +99,13 @@ class LocationPickerNotifier
   }
 
   void _updateAddress(Address address) {
+    map!.animateTo(address.coordinates!);
     searchController.text = address.name;
     state = AsyncData(state.requireValue.copyWith(address: address));
-    map!.animateTo(address.coordinates!);
   }
 
-  void setMap(MyMapController map) => this.map = map;
-
   void clearInput() {
+    state = AsyncData(LocationPickerState.initial());
     searchController.clear();
-    ref.watch(locationSearchProvider.notifier).onInput('');
   }
 }

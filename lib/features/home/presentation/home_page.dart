@@ -18,12 +18,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   void initState() {
-    if (ref.read(authProvider.notifier).canLoginAnonymously()) {
-      ref.read(authProvider.notifier).loginAnonymously();
-    }
-    if (ref.read(authProvider) is AuthLoggedInState) {
-      Future.microtask(ref.read(homeProvider.notifier).fetchOrderPreview);
-    }
+    Future.microtask(() {
+      if (ref.read(authProvider.notifier).canLoginAnonymously()) {
+        ref.read(authProvider.notifier).loginAnonymously();
+      } else if (ref.read(authProvider) is AuthLoggedInState) {
+        Future.microtask(ref.read(homeProvider.notifier).fetchOrderPreview);
+      }
+    });
     super.initState();
   }
 
@@ -36,11 +37,22 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authProvider, (p, n) {
-      if (n is AuthLoggedInState) {
-        ref.read(homeProvider.notifier).fetchOrderPreview();
-      }
-    });
+    // ref.listen(authProvider, (p, n) {
+    //   if (n is AuthLoggedInState) {
+    //     ref.read(homeProvider.notifier).fetchOrderPreview();
+    //   }
+    // });
+    // ref.listen(
+    //   ordersProvider.select((p) {
+    //     return p.value?.data[OrdersState.ongoing]?.orders.firstOrNull;
+    //   }),
+    //   (p, n) {
+    //     if (n != null) ref.read(homeProvider.notifier).updateOrderPreview(n);
+    //   },
+    // );
+    // ref.listen(homeProvider.select((p) => p.value?.orderPreview), (p, n) {
+    //   if (n != null) ref.read(ordersProvider.notifier).addLocalOrder(n);
+    // });
     ref.listen(navBarIndexProvider, (p, n) {
       controller.animateToPage(
         n,
@@ -55,7 +67,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         onPageChanged: (value) {
           ref.read(navBarIndexProvider.notifier).state = value;
         },
-        // physics: const NeverScrollableScrollPhysics(),
         children: const [HomeTab(), OrdersTab()],
       ),
       bottomNavigationBar: const _NavBar(),
@@ -79,7 +90,7 @@ class _NavBar extends ConsumerWidget {
         } else {
           final controller = PrimaryScrollController.maybeOf(context);
           if (controller?.hasClients ?? false) {
-            controller?.animateTo(
+            controller!.animateTo(
               0,
               duration: kTabScrollDuration,
               curve: Curves.easeInOut,

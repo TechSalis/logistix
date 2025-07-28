@@ -62,6 +62,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.4"
+  app_settings:
+    dependency: "direct main"
+    description:
+      name: app_settings
+      sha256: "3e46c561441e5820d3a25339bf8b51b9e45a5f686873851a20c257a530917795"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
   args:
     dependency: transitive
     description:
@@ -1128,10 +1136,9 @@ packages:
   progress_state_button:
     dependency: "direct main"
     description:
-      name: progress_state_button
-      sha256: "8efbe7978995d3e20f3987022d4851d6615b25d227c17c3eb22f4dfc0c08811e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/progress-state-button"
+      relative: true
+    source: path
     version: "1.0.4"
   proj4dart:
     dependency: transitive

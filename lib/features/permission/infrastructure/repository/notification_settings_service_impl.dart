@@ -4,6 +4,6 @@ import 'package:logistix/features/permission/domain/repository/settings_service.
 class LocationSettingsImpl extends SettingsService {
   @override
   Future<void> open() {
-    return AppSettings.openAppSettings(type: AppSettingsType.location);
+    return AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 }

@@ -29,13 +29,8 @@ class _OrdersPageState extends ConsumerState<OrdersTab>
     super.initState();
     tabController = TabController(length: 2, vsync: this);
     Future.microtask(() {
-      if (ref
-              .read(ordersProvider)
-              .value
-              ?.get(OrdersState.ongoing)
-              ?.orders
-              .isEmpty ??
-          true) {
+      final ongoing = ref.read(ordersProvider).value?.get(OrdersState.ongoing);
+      if (ongoing?.orders.isEmpty ?? true) {
         ref.read(ordersProvider.notifier).fetchOrdersFor(OrdersState.ongoing);
       }
     });

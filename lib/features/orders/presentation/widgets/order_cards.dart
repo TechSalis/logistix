@@ -33,16 +33,16 @@ class OrderRefNumberChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ActionChip.elevated(
+    return ActionChip(
       backgroundColor: Theme.of(context).colorScheme.onSurface.withAlpha(15),
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            "# $refNumber ",
+            "#$refNumber ",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              letterSpacing: 1,
+              letterSpacing: 1.5,
             ),
           ),
           const Icon(Icons.copy, size: 16),
@@ -69,14 +69,16 @@ class _OrderLocationRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          Icon(icon, size: 18),
+          Icon(icon, size: 18, color: Colors.black87),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall,
-              maxLines: 1,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.black87),
               overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
           ),
         ],
@@ -172,7 +174,7 @@ class OrderPreviewCard extends StatelessWidget {
               children: [
                 Icon(
                   order!.orderType.icon,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: order!.orderType.color.withAlpha(200),
                 ),
                 const SizedBox(width: 12),
                 OrderRefNumberChip(refNumber: order!.refNumber),
@@ -181,29 +183,35 @@ class OrderPreviewCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 12.h),
-            if (order!.pickup != null)
-              _OrderLocationRow(icon: Icons.store, label: order!.pickup!.name),
-            if (order!.dropoff != null)
-              _OrderLocationRow(
-                icon: Icons.location_on,
-                label: order!.dropoff!.name,
-              ),
+            Text(
+              '"${order!.description}"',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+            ),
             const Spacer(),
             Divider(height: 16.h),
             SizedBox(
-              height: 40,
+              height: 48,
               child:
                   order!.rider != null
                       ? _RiderSectionWidget(rider: order!.rider)
-                      : Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '"${order!.description * 3}"',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(fontStyle: FontStyle.italic),
-                        ),
+                      : Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (order!.pickup != null)
+                            _OrderLocationRow(
+                              icon: Icons.store,
+                              label: order!.pickup!.name,
+                            ),
+                          if (order!.dropoff != null)
+                            _OrderLocationRow(
+                              icon: Icons.location_on,
+                              label: order!.dropoff!.name,
+                            ),
+                        ],
                       ),
             ),
           ],
@@ -239,7 +247,7 @@ class OrderCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 6),
                     child: Icon(
                       order.orderType.icon,
-                      color: order.orderType.color.withAlpha(150),
+                      color: order.orderType.color.withAlpha(200),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -255,18 +263,6 @@ class OrderCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(fontStyle: FontStyle.italic),
                         ),
-
-                        /// Pickup and Dropoff
-                        // if (order.pickup != null)
-                        //   _OrderLocationRow(
-                        //     icon: Icons.store,
-                        //     label: order.pickup!.name,
-                        //   ),
-                        // if (order.dropoff != null)
-                        //   _OrderLocationRow(
-                        //     icon: Icons.location_on_outlined,
-                        //     label: order.dropoff!.name,
-                        //   ),
                       ],
                     ),
                   ),
@@ -278,28 +274,6 @@ class OrderCard extends StatelessWidget {
                   ),
                 ],
               ),
-              // const SizedBox(height: 16),
-              // Text.rich(
-              //   TextSpan(
-              //     children: [
-              //       const TextSpan(
-              //         text: 'Description: ',
-              //         style: TextStyle(fontWeight: FontWeight.bold),
-              //       ),
-              //       TextSpan(
-              //         text: '"${order.description}"',
-              //         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              //           fontStyle: FontStyle.italic,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              //   maxLines: 1,
-              //   style: Theme.of(
-              //     context,
-              //   ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
-              // ),
-              // const SizedBox(height: 4),
               if (order.rider != null) ...[
                 const Divider(height: 32),
                 SizedBox(

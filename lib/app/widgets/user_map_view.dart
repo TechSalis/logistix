@@ -8,6 +8,7 @@ import 'package:logistix/features/map/application/user_location_rp.dart';
 import 'package:logistix/features/map/presentation/controllers/map_controller.dart';
 import 'package:logistix/features/map/presentation/widgets/flutter_map_widget.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/domain/entities/permission_data.dart';
 import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -17,26 +18,30 @@ class UserMapView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(permissionProvider(PermissionData.location), (p, n) {
-      if (n.isGranted == false && n.status == null) {
-        showDialog(
-          context: context,
-          builder: (_) {
-            return PermissionDisclosureDialog(
-              data: PermissionData.location,
-              openSettingsCallback: () {
-                ref.read(locationSettingsProvider).open();
-              },
-            );
-          },
-        );
+    final permission = permissionProvider(PermissionData.location);
+    ref.listen(permission, (p, n) {
+      if (n.canShowDialog()) {
+        final ref = ProviderScope.containerOf(context);
+        Future.delayed(Durations.long2, () {
+          if (!context.mounted) return;
+          showDialog(
+            context: context,
+            builder: (_) {
+              return PermissionDisclosureDialog(
+                data: PermissionData.location,
+                openSettingsCallback: () {
+                  ref.read(locationSettingsProvider).open();
+                },
+              );
+            },
+          );
+        });
       }
     });
-    final permission = ref.watch(permissionProvider(PermissionData.location));
-
-    if (permission.isGranted == null) {
+    final permissionState = ref.watch(permission);
+    if (permissionState.isGranted == null) {
       return const SizedBox.shrink();
-    } else if (permission.isGranted!) {
+    } else if (permissionState.isGranted!) {
       return _buildMap(context, ref);
     } else {
       return const _PermissionDeniedOverlay();
@@ -57,15 +62,25 @@ class UserMapView extends ConsumerWidget {
             width: 42,
             height: 42,
             child: Transform.translate(
-              offset: const Offset(0, -19),
-              child: Icon(
-                Icons.location_on,
-                size: 42,
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
+              offset: const Offset(0, -20),
+              child: const MyLocationPin(size: 42),
             ),
           ),
       ],
+    );
+  }
+}
+
+class MyLocationPin extends StatelessWidget {
+  const MyLocationPin({super.key, required this.size});
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.location_pin,
+      size: size,
+      color: Theme.of(context).colorScheme.tertiary,
     );
   }
 }

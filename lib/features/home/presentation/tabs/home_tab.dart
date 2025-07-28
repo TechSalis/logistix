@@ -13,6 +13,7 @@ import 'package:logistix/features/orders/presentation/widgets/order_cards.dart';
 import 'package:logistix/features/orders/presentation/widgets/order_icon.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
 import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/domain/entities/permission_data.dart';
 import 'package:logistix/features/permission/presentation/widgets/base_permission_dialog.dart';
 import 'package:logistix/features/rider/presentation/pages/find_rider_dialog.dart';
 
@@ -43,7 +44,7 @@ class HomeTab extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: padding_H16,
+        padding: padding_H20,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -62,8 +63,8 @@ class HomeTab extends StatelessWidget {
             SizedBox(height: 12.h),
             const _QuickActionGrid(),
             SizedBox(height: 32.h),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 150.h),
+            SizedBox(
+              height: 150.h,
               child: Consumer(
                 builder: (context, ref, child) {
                   final provider = ref.watch(homeProvider);
@@ -125,15 +126,38 @@ class _QuickActionGrid extends StatelessWidget {
                 InkWell(
                   borderRadius: borderRadius_16,
                   onTap: () {
+                    final ref = ProviderScope.containerOf(context);
                     // TODO: Create other order type pages
-                    GoRouter.of(context).push(
-                      switch (action) {
-                        OrderType.food => const FoodOrderPageRoute(),
-                        OrderType.grocery => const NewDeliveryPageRoute(),
-                        OrderType.errands => const NewDeliveryPageRoute(),
-                        OrderType.delivery => const NewDeliveryPageRoute(),
-                      }.location,
-                    );
+                    GoRouter.of(context)
+                        .push(
+                          switch (action) {
+                            OrderType.food => const FoodOrderPageRoute(),
+                            OrderType.grocery => const NewDeliveryPageRoute(),
+                            OrderType.errands => const NewDeliveryPageRoute(),
+                            OrderType.delivery => const NewDeliveryPageRoute(),
+                          }.location,
+                        )
+                        .then((value) {
+                          Future.delayed(Durations.long2, () {
+                            if (!context.mounted) return;
+                            final permission = ref.read(
+                              permissionProvider(PermissionData.notifications),
+                            );
+                            if (permission.canShowDialog()) {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return PermissionDisclosureDialog(
+                                    data: PermissionData.notifications,
+                                    openSettingsCallback: () {
+                                      ref.read(locationSettingsProvider).open();
+                                    },
+                                  );
+                                },
+                              );
+                            }
+                          });
+                        });
                   },
                   child: OrderIcon(
                     type: action,
@@ -159,8 +183,7 @@ class _FindRiderCTA extends ConsumerWidget {
         ref.watch(permissionProvider(PermissionData.location)).isGranted;
 
     if (isGranted == null) return const SizedBox.shrink();
-
-    ref.watch(locationProvider.notifier).getUserCoordinates();
+    if (isGranted) ref.watch(locationProvider.notifier).getUserCoordinates();
     return Center(
       child: ElevatedButton.icon(
         onPressed: isGranted ? () => showFindRiderDialog(context) : null,
@@ -181,7 +204,8 @@ class _MiniMapWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: context.isLightTheme ? 4 : 0,
+      elevation: context.isLightTheme ? 2 : 0,
+      shadowColor: Colors.black87,
       clipBehavior: Clip.hardEdge,
       // shape: RoundedRectangleBorder(
       //   side: BorderSide(
