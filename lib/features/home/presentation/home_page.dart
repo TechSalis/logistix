@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logistix/features/account/application/account_rp.dart';
 import 'package:logistix/features/auth/application/logic/auth_rp.dart';
 import 'package:logistix/features/home/application/home_rp.dart';
 import 'package:logistix/features/home/application/navigation_bar_rp.dart';
 import 'package:logistix/features/home/presentation/tabs/home_tab.dart';
 import 'package:logistix/features/home/presentation/tabs/orders_tab.dart';
+import 'package:logistix/features/permission/application/permission_rp.dart';
+import 'package:logistix/features/permission/domain/entities/permission_data.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -53,6 +56,14 @@ class _HomePageState extends ConsumerState<HomePage> {
     // ref.listen(homeProvider.select((p) => p.value?.orderPreview), (p, n) {
     //   if (n != null) ref.read(ordersProvider.notifier).addLocalOrder(n);
     // });
+    ref.listen(
+      permissionProvider(PermissionData.notifications).select((value) {
+        return value.isGranted ?? false;
+      }),
+      (p, isGranted) {
+        if (isGranted) ref.read(accountProvider.notifier).uploadFCM();
+      },
+    );
     ref.listen(navBarIndexProvider, (p, n) {
       controller.animateToPage(
         n,

@@ -35,7 +35,7 @@ class _AppProviderScopeState extends State<AppProviderScope> {
             NotificationService.setup();
             notifyListener?.close();
             notifyListener = null;
-          } else {}
+          }
         },
       );
     });
@@ -56,7 +56,7 @@ class _AppProviderScopeState extends State<AppProviderScope> {
       child: Consumer(
         builder: (_, ref, _) {
           postProviderRef = ref;
-          ref.listen(authProvider, (p, auth) {
+          ref.listen(authProvider, (p, auth) async {
             if (auth is AuthUnknownState) return;
             final canNotify =
                 ref
@@ -65,13 +65,13 @@ class _AppProviderScopeState extends State<AppProviderScope> {
             if (auth is AuthLoggedOutState) {
               AuthLocalStore.instance.clear();
               if (canNotify == true) {
-                ref.read(accountProvider.notifier).clearFCM();
+                await ref.read(accountProvider.notifier).clearFCM();
               }
-              setState(() => _providerScopeKey = UniqueKey());
+              if (mounted) setState(() => _providerScopeKey = UniqueKey());
             } else if (auth is AuthLoggedInState) {
               AuthLocalStore.instance.saveUser(auth.user);
               if (canNotify == true) {
-                ref.read(accountProvider.notifier).uploadFCM();
+                await ref.read(accountProvider.notifier).uploadFCM();
               }
             }
           });

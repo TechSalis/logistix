@@ -138,6 +138,7 @@ class _QuickActionGrid extends StatelessWidget {
                           }.location,
                         )
                         .then((value) {
+                          if (value != true) return;
                           Future.delayed(Durations.long2, () {
                             if (!context.mounted) return;
                             final permission = ref.read(

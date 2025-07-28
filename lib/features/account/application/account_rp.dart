@@ -22,9 +22,8 @@ class AccountNotifier extends AutoDisposeNotifier<AccountState> {
     return AccountState(data: AuthLocalStore.instance.getUser()!.data);
   }
 
-  Future<String?> _getToken() {
-    //TODO: Remove this
-    // if (kDebugMode && Platform.isIOS) return Future.value(uuid.v1());
+  Future<String?> _getToken() async {
+    // if (Platform.isIOS) await FirebaseMessaging.instance.getAPNSToken();
     return FirebaseMessaging.instance.getToken();
   }
 

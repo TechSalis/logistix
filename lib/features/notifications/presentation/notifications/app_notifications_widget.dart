@@ -10,15 +10,6 @@ class AppNotificationsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: Add Notification Permission
-    // if (!(ref
-    //         .read(permissionProvider(PermissionData.notifications))
-    //         .isGranted ??
-    //     true)) {
-    //   ref
-    //       .read(permissionProvider(PermissionData.notifications).notifier)
-    //       .request();
-    // }
     return switch (data) {
       QARiderNotification() => QARiderNotificationWidget(
         data: data as QARiderNotification,

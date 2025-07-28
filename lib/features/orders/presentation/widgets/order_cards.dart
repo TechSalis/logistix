@@ -182,7 +182,7 @@ class OrderPreviewCard extends StatelessWidget {
                 OrderStatusChip(status: order!.status),
               ],
             ),
-            SizedBox(height: 12.h),
+            const SizedBox(height: 16),
             Text(
               '"${order!.description}"',
               maxLines: 2,
@@ -250,7 +250,7 @@ class OrderCard extends StatelessWidget {
                       color: order.orderType.color.withAlpha(200),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

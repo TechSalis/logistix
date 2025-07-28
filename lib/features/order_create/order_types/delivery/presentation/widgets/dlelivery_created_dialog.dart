@@ -68,8 +68,8 @@ class _SummaryDialog extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                context.pop();
-                context.pop();
+                context.pop(true);
+                context.pop(true);
               },
               child: const Text('Continue'),
             ),
