@@ -4,14 +4,16 @@ import 'package:flutter/foundation.dart';
 ///Ensure the [EnvConfig.extract] function is called before the class is used
 class EnvConfig {
   final String ENV;
-  final String apiUrl;
+  final String supabaseUrl;
+  final String cloudflareUrl;
   final String googleApiKey;
   final String supabaseAnonKey;
   final String mapboxApiKey;
 
   EnvConfig._internal({
     required this.ENV,
-    required this.apiUrl,
+    required this.supabaseUrl,
+    required this.cloudflareUrl,
     required this.googleApiKey,
     required this.supabaseAnonKey,
     required this.mapboxApiKey,
@@ -27,7 +29,8 @@ class EnvConfig {
   static void extract(Map<String, String> variables) {
     _instance = EnvConfig._internal(
       ENV: variables['ENV']!,
-      apiUrl: variables['API_URL']!,
+      supabaseUrl: variables['SUPABASE_URL']!,
+      cloudflareUrl: variables['CLOUDFLARE_URL']!,
       mapboxApiKey: variables['MAPBOX_API_KEY']!,
       googleApiKey: variables['GOOGLE_MAP_API_KEY']!,
       supabaseAnonKey: variables['SUPABASE_ANON_KEY']!,

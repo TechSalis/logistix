@@ -5,6 +5,7 @@ import 'package:logistix/features/rider/infrastructure/models/rider_data_dto.dar
 
 final class OrderModel extends Order {
   const OrderModel({
+    required super.orderId,
     required super.orderType,
     required super.description,
     required super.price,
@@ -17,12 +18,13 @@ final class OrderModel extends Order {
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
+      orderId: json['order_id'],
       description: json['description'],
       price: json['price'],
       refNumber: json['ref_number'],
       orderType: OrderType.values.byName(json['order_type']),
       status: OrderStatus.values.byName(
-        json['order_status'] ?? OrderStatus.pending.name,
+        json['status'] ?? OrderStatus.pending.name,
       ),
       pickup:
           json['pickup'] != null ? AddressModel.fromJson(json['pickup']) : null,

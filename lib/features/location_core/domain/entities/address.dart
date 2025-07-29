@@ -4,7 +4,7 @@ import 'package:logistix/features/location_core/domain/entities/coordinate.dart'
 
 part 'address.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class Address extends Equatable {
   final String name;
   final Coordinates? coordinates;
@@ -21,9 +21,6 @@ class Address extends Equatable {
 
   @override
   List<Object?> get props => [name, coordinates];
-
-  factory Address.fromJson(Map<String, dynamic> json) =>
-      _$AddressFromJson(json);
 
   Map<String, dynamic> toJson() => _$AddressToJson(this);
 }

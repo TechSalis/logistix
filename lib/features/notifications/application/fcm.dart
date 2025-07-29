@@ -8,7 +8,9 @@ Future<void> _setupFCM() async {
   );
 
   // Get token
-  FirebaseMessaging.onMessage.listen((message) {});
+  FirebaseMessaging.onMessage.listen((message) {
+    print("Foreground message: $message");
+  });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 }
 
@@ -16,5 +18,5 @@ Future<void> _setupFCM() async {
 @pragma("vm:entry-point")
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print("Background message: ${message.messageId}");
+  print("Background message: $message");
 }

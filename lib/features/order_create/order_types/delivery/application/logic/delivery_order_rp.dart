@@ -1,15 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logistix/core/usecases/pick_image.dart';
 import 'package:logistix/core/utils/cache_image_to_url.dart';
+import 'package:logistix/core/utils/extensions/dio.dart';
 import 'package:logistix/features/auth/presentation/utils/auth_network_image.dart';
-import 'package:logistix/features/order_create/application/create_order_rp.dart';
+import 'package:logistix/features/order_create/domain/repository/upload_image_repo.dart';
+import 'package:logistix/features/order_create/infrastructure/repository/upload_image_repo_impl.dart';
 
+final _uploadImageRepoProvider = Provider.autoDispose<UploadImageRepo>((ref) {
+  return UploadImageRepoImpl(client: ref.autoDisposeDio());
+});
 
 final uploadImageRequestProvider = FutureProvider.family.autoDispose((
   ref,
   String path,
 ) async {
-  final res = await ref.watch(createOrderRepoProvider).uploadImage(path);
+  final res = await ref.watch(_uploadImageRepoProvider).uploadImage(path);
   return res.fold((l) => throw l, (r) => r);
 });
 

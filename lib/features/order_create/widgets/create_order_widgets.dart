@@ -5,7 +5,8 @@ import 'package:logistix/features/home/application/home_rp.dart';
 import 'package:logistix/features/location_core/domain/entities/address.dart';
 import 'package:logistix/features/notifications/application/notification_service.dart';
 import 'package:logistix/features/order_create/application/create_order_rp.dart';
-import 'package:logistix/features/order_create/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/domain/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/infrastructure/dtos/create_order_dto.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 import 'package:progress_state_button/progress_button.dart';
 
@@ -14,7 +15,7 @@ mixin CreateOrderWidgetMixin<
   Widget extends ConsumerStatefulWidget
 >
     on ConsumerState<Widget>, BaseCreateOrderTemplateMixin {
-  ProviderSubscription<AsyncValue<int>>? _providerSub;
+  ProviderSubscription<AsyncValue<CreateOrderResponse>>? _providerSub;
 
   Request? _data;
   String? onValidate();
@@ -40,7 +41,11 @@ mixin CreateOrderWidgetMixin<
           case AsyncData():
             buttonController.value = ButtonState.success;
 
-            final order = _data!.toOrder(refNumber: n.requireValue);
+            final order = _data!.toOrder(
+              orderId: n.requireValue.orderId,
+              refNumber: n.requireValue.refNumber,
+            );
+            
             ref.read(homeProvider.notifier).updateOrderPreview(order);
             onOrderCreated(order);
         }

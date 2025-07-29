@@ -10,7 +10,7 @@ import 'package:logistix/features/auth/presentation/utils/auth_network_image.dar
 import 'package:logistix/features/form_validator/widgets/text_field_with_heading.dart';
 import 'package:logistix/features/form_validator/application/textfield_validators.dart';
 import 'package:logistix/features/form_validator/widgets/text_validator_provider_forn.dart';
-import 'package:logistix/features/order_create/entities/order_request_data.dart';
+import 'package:logistix/features/order_create/domain/entities/order_request_data.dart';
 import 'package:logistix/features/order_create/order_types/delivery/application/logic/delivery_order_rp.dart';
 import 'package:logistix/features/order_create/order_types/delivery/presentation/widgets/dlelivery_created_dialog.dart';
 import 'package:logistix/features/order_create/widgets/create_order_widgets.dart';

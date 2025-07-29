@@ -137,13 +137,13 @@ class CancelOrderNotifier extends AutoDisposeAsyncNotifier<void> {
     state = await AsyncValue.guard(() async {
       final response = await ref
           .read(ordersRepoProvider)
-          .cancelOrder(order.refNumber.toString());
+          .cancelOrder(order.orderId);
 
       response.fold((l) => throw l, (_) {
         final state = ref.read(ordersProvider).requireValue;
         var ongoing = state._getNewIfAbsent(OrdersState.ongoing);
         ongoing = ongoing.copyWith(
-          orders: ongoing.orders.where((e) => e.refNumber != order.refNumber),
+          orders: ongoing.orders.toList()..remove(order),
         );
 
         return state.copyWith(

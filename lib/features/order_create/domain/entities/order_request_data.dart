@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:logistix/features/orders/domain/entities/base_order_data.dart';
-import 'package:logistix/features/order_create/entities/create_order.dart';
+import 'package:logistix/features/order_create/domain/entities/create_order.dart';
 import 'package:logistix/features/orders/domain/entities/order.dart';
 
 base class OrderRequestData extends BaseOrderData {
@@ -20,7 +20,8 @@ base class OrderRequestData extends BaseOrderData {
     );
   }
 
-  Order toOrder({required int refNumber}) => Order(
+  Order toOrder({required String orderId, required int refNumber}) => Order(
+    orderId: orderId,
     refNumber: refNumber,
     orderType: orderType,
     description: description,

@@ -13,31 +13,48 @@ import 'package:logistix/core/utils/either.dart';
 import 'package:logistix/features/auth/domain/entities/user_session.dart';
 import 'package:logistix/features/auth/infrastructure/repository/auth_local_store.dart';
 
+Future<OAuth2Token> _onRefreshToken(OAuth2Token? token, Dio dio) async {
+  final res = await dio.post(
+    '${EnvConfig.instance.supabaseUrl}/auth/refresh',
+    data: {'refresh_token': token?.refreshToken},
+    options: Options(
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer ${token?.accessToken}',
+      },
+    ),
+  );
+  final session = AuthSessionModel.fromJson(res.data);
+  AuthLocalStore.instance.saveSession(session);
+  return session.toOAuth2Token();
+}
+
+final _tokenStore = InMemoryTokenStorage<OAuth2Token>();
+
+final refreshInterceptor = Fresh.oAuth2(
+  tokenStorage: _tokenStore,
+  tokenHeader: (token) {
+    return {HttpHeaders.authorizationHeader: 'Bearer ${token.accessToken}'};
+  },
+  refreshToken: _onRefreshToken,
+);
+
 class DioClient {
   late final Dio _dio;
   static final DioClient _instance = DioClient._internal();
 
   static Dio get instance => _instance._dio;
 
-  static final _tokenStore = InMemoryTokenStorage<OAuth2Token>();
   DioClient._internal() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: EnvConfig.instance.apiUrl,
+        baseUrl: EnvConfig.instance.supabaseUrl,
         connectTimeout: duration_10s,
         receiveTimeout: duration_10s,
       ),
     );
+
     _dio.interceptors.addAll([
-      Fresh.oAuth2(
-        tokenStorage: _tokenStore,
-        tokenHeader: (token) {
-          return {
-            HttpHeaders.authorizationHeader: 'Bearer ${token.accessToken}',
-          };
-        },
-        refreshToken: _onRefreshToken,
-      ),
+      refreshInterceptor,
       RetryInterceptor(dio: _dio, logPrint: debugPrint),
       LogInterceptor(
         requestHeader: true,
@@ -62,21 +79,6 @@ class DioClient {
         },
       ),
     ]);
-  }
-
-  Future<OAuth2Token> _onRefreshToken(OAuth2Token? token, Dio dio) async {
-    final res = await dio.post(
-      '${EnvConfig.instance.apiUrl}/auth/refresh',
-      data: {'refresh_token': token?.refreshToken},
-      options: Options(
-        headers: {
-          HttpHeaders.authorizationHeader: 'Bearer ${token?.accessToken}',
-        },
-      ),
-    );
-    final session = AuthSessionModel.fromJson(res.data);
-    AuthLocalStore.instance.saveSession(session);
-    return session.toOAuth2Token();
   }
 
   static void updateSession(AuthSession? session) {
