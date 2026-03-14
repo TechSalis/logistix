@@ -1,0 +1,36 @@
+name: workspace
+publish_to: none
+
+environment:
+  sdk: ^3.9.2
+
+workspace:
+  - app/
+  - packages/logistix_ux/
+  - packages/shared/
+
+  - modules/auth/
+  - modules/dispatcher/
+  - modules/onboarding/
+  - modules/rider/
+
+dev_dependencies:
+  melos: ^7.3.0
+
+melos:
+  scripts:
+    setup:
+      description: "Bootstrap workspace (link packages + deps) and then run build"
+      run: |
+        melos bootstrap
+        melos build
+
+    build:
+      description: "Run package build where applicable"
+      exec: dart run build_runner build --delete-conflicting-outputs
+      packageFilters:
+        dependsOn: [build_runner]
+
+    pubupgrade:
+      exec: flutter pub upgrade
+      description: Run "flutter pub upgrade" in all packages.

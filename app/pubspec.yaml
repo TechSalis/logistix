@@ -1,0 +1,65 @@
+name: logistix
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.0.1
+resolution: workspace
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Modules
+  auth:
+    path: ../modules/auth
+  onboarding:
+    path: ../modules/onboarding
+  dispatcher:
+    path: ../modules/dispatcher
+  rider:
+    path: ../modules/rider
+  logistix_ux:
+    path: ../packages/logistix_ux
+  shared:
+    path: ../packages/shared
+
+  # Core dependencies
+  adapters:
+    git: 
+      url: https://github.com/Enri-code/flutter-bootstrap-adapters
+      ref: v0.1.4
+
+  bootstrap:
+    git: 
+      url: https://github.com/Enri-code/flutter-bootstrap
+      ref: v0.2.4
+
+  flutter_bloc: ^8.1.3
+  hydrated_bloc: ^9.1.2
+  go_router: ^17.0.1
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+  path_provider: ^2.1.5
+  flutter_secure_storage: ^10.0.0
+  graphql_flutter: ^5.2.1
+  sentry_flutter: 
+
+  firebase_core: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: ^2.4.6
+  freezed: ^2.4.5
+  json_serializable: ^6.7.1
+  very_good_analysis: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+sentry:
+  project: flutter
+  org: logistix

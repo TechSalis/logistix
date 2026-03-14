@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "233662444222",
+    "project_id": "logistix-dev-14c28",
+    "storage_bucket": "logistix-dev-14c28.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233662444222:android:5e3fd43c7b3e6c262de4ef",
+        "android_client_info": {
+          "package_name": "com.techsalis.logistix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcJsTRooSnCd3H9ToQWKg9yvwFwBCNQtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
