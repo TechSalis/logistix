@@ -13,4 +13,9 @@ class AppState with _$AppState {
     required User user,
     required UserRole role,
   }) = _Authenticated;
+  const factory AppState.error(String message) = _Error;
+
+  const AppState._();
+
+  bool get isInitializing => this is _Initializing;
 }

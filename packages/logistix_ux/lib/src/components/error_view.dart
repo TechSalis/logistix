@@ -74,19 +74,6 @@ class LogistixErrorView extends StatelessWidget {
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
             label: const Text('Try Again'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: LogistixColors.surface,
-              foregroundColor: LogistixColors.primary,
-              elevation: 0,
-              side: const BorderSide(color: LogistixColors.border),
-              padding: const EdgeInsets.symmetric(
-                horizontal: LogistixSpacing.xl,
-                vertical: LogistixSpacing.md,
-              ),
-              shape: const RoundedRectangleBorder(
-                borderRadius: LogistixRadii.borderRadiusButton,
-              ),
-            ),
           ),
         ],
       ],
@@ -95,7 +82,7 @@ class LogistixErrorView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.all(
-          isSmall ? LogistixSpacing.md : LogistixSpacing.xl,
+          isSmall ? LogistixSpacing.md : LogistixSpacing.lg,
         ),
         child: isSmall && onRetry != null
             ? AnimatedScaleTap(onTap: onRetry, child: content)

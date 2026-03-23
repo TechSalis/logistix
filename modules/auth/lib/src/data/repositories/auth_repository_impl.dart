@@ -74,11 +74,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AppError, void>> logout() async {
-    return Result.tryCatch<AppError, void>(_tokenStore.delete);
-  }
-
-  @override
   Future<Result<AppError, void>> updateFcmToken(String token) async {
     return Result.tryCatch<AppError, void>(() async {
       await _dataSource.updateFcmToken(token);

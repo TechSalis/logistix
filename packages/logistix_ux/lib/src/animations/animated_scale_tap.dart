@@ -74,6 +74,7 @@ class _AnimatedScaleTapState extends State<AnimatedScaleTap>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: widget.enabled ? widget.onTap : null,
       onLongPress: widget.enabled ? widget.onLongPress : null,
       onTapDown: _onTapDown,

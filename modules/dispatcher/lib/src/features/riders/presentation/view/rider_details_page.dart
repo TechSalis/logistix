@@ -1,3 +1,5 @@
+import 'package:bootstrap/interfaces/toast/toast_service.dart';
+import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:collection/collection.dart';
 
 import 'package:dispatcher/src/features/riders/presentation/cubit/riders_cubit.dart';
@@ -28,37 +30,40 @@ class RiderDetailsPage extends StatelessWidget {
           );
         }
 
-        final hasLocation = rider.hasLocation;
-
+        final hasLocation = rider.hasPosition;
         return Scaffold(
           backgroundColor: LogistixColors.background,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
             elevation: 0,
             centerTitle: true,
+            backgroundColor: Colors.transparent,
             iconTheme: const IconThemeData(color: LogistixColors.text),
-            title: Text(rider.fullName),
+            title: Text(
+              'Rider Details',
+              style: context.textTheme.titleMedium?.bold,
+            ),
             actions: [
               if (!rider.isAccepted)
                 Padding(
-                  padding: const EdgeInsets.only(right: 16),
+                  padding: const EdgeInsets.only(right: LogistixSpacing.md),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                        horizontal: LogistixSpacing.sm,
+                        vertical: LogistixSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
                         color: LogistixColors.warning.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: LogistixColors.warning.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
                         'PENDING',
-                        style: context.textTheme.labelMedium?.bold.copyWith(
+                        style: context.textTheme.labelSmall?.bold.copyWith(
                           color: LogistixColors.warning,
+                          fontSize: 10,
                         ),
                       ),
                     ),
@@ -67,54 +72,45 @@ class RiderDetailsPage extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            padding: const EdgeInsets.symmetric(
+              horizontal: LogistixSpacing.lg,
+              vertical: LogistixSpacing.xs,
+            ),
+            child: LogistixEntrance(
               children: [
                 _RiderProfileHeader(rider: rider),
-                const SizedBox(height: 24),
-                if (rider.phoneNumber != null && rider.phoneNumber!.isNotEmpty)
+                const SizedBox(height: LogistixSpacing.xl),
+                if (rider.user?.phoneNumber != null &&
+                    rider.user!.phoneNumber!.isNotEmpty)
                   _QuickActionsRow(rider: rider),
-                const SizedBox(height: 32),
-                SizedBox(
-                  height: 54,
-                  child: ElevatedButton.icon(
-                    onPressed: hasLocation ? () => context.pop(rider) : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: LogistixColors.primary,
-                      foregroundColor: Colors.white,
-                      disabledBackgroundColor: LogistixColors.border,
-                      disabledForegroundColor: LogistixColors.textTertiary,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    icon: const Icon(Icons.map_rounded),
-                    label: Text(
-                      hasLocation ? 'View on Map' : 'Location Unavailable',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                const SizedBox(height: LogistixSpacing.xl),
+                LogistixButton(
+                  onPressed: hasLocation
+                      ? () {
+                          context.go(
+                            DispatcherRoutes.ridersMap,
+                            extra: rider.id,
+                          );
+                        }
+                      : null,
+                  label: hasLocation ? 'VIEW ON MAP' : 'LOCATION UNAVAILABLE',
+                  icon: Icons.map_rounded,
                 ),
                 if (rider.activeOrder != null) ...[
-                  const SizedBox(height: 32),
-                  const _SectionTitle(title: 'Current Delivery'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: LogistixSpacing.xl),
+                  const _SectionTitle(title: 'CURRENT DELIVERY'),
+                  const SizedBox(height: LogistixSpacing.sm),
                   _ClickableOrderCard(order: rider.activeOrder!),
                 ],
-                const SizedBox(height: 32),
-                const _SectionTitle(title: 'Contact Information'),
-                const SizedBox(height: 16),
+                const SizedBox(height: LogistixSpacing.xl),
+                const _SectionTitle(title: 'CONTACT INFORMATION'),
+                const SizedBox(height: LogistixSpacing.sm),
                 _ContactCard(rider: rider),
                 if (!rider.isAccepted) ...[
-                  const SizedBox(height: 48),
+                  const SizedBox(height: LogistixSpacing.xxl),
                   _ApprovalActions(rider: rider),
                 ],
-                const SizedBox(height: 100),
+                const SizedBox(height: LogistixSpacing.xxxl),
               ],
             ),
           ),
@@ -131,11 +127,11 @@ class _SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      title.toUpperCase(),
-      style: context.textTheme.labelMedium?.copyWith(
-        fontWeight: FontWeight.w900,
+      title,
+      style: context.textTheme.labelSmall?.bold.copyWith(
         color: LogistixColors.textTertiary,
-        letterSpacing: 1,
+        letterSpacing: 1.2,
+        fontSize: 11,
       ),
     );
   }
@@ -149,49 +145,36 @@ class _RiderProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: LogistixColors.primary.withValues(alpha: 0.1),
-            border: Border.all(
-              color: LogistixColors.primary.withValues(alpha: 0.2),
-              width: 3,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: LogistixColors.primary.withValues(alpha: 0.15),
-                blurRadius: 20,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              rider.fullName.isNotEmpty ? rider.fullName[0].toUpperCase() : '?',
-              style: context.textTheme.displaySmall?.bold.copyWith(
-                color: LogistixColors.primary,
-              ),
-            ),
-          ),
+        LogistixAvatar(
+          name: rider.user?.fullName,
+          size: 100,
+          statusColor: rider.status.color,
+          useGradient: true,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: LogistixSpacing.lg),
+        Text(
+          rider.user?.fullName ?? '',
+          style: context.textTheme.headlineSmall?.bold,
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: LogistixSpacing.xs),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _ProminentStatusBadge(status: rider.status),
             if (rider.batteryLevel != null) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: LogistixSpacing.sm),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
+                  horizontal: LogistixSpacing.sm,
+                  vertical: LogistixSpacing.xs,
                 ),
                 decoration: BoxDecoration(
                   color: LogistixColors.surfaceDim,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: LogistixColors.border),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: LogistixColors.border.withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -204,12 +187,11 @@ class _RiderProfileHeader extends StatelessWidget {
                           ? LogistixColors.success
                           : LogistixColors.error,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: LogistixSpacing.xs),
                     Text(
                       '${rider.batteryLevel}%',
-                      style: context.textTheme.labelMedium?.copyWith(
+                      style: context.textTheme.labelSmall?.bold.copyWith(
                         color: LogistixColors.textSecondary,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -241,22 +223,26 @@ class _ProminentStatusBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: LogistixSpacing.md,
+        vertical: LogistixSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 14),
-          const SizedBox(width: 6),
+          const SizedBox(width: LogistixSpacing.xs),
           Text(
             status.name.toUpperCase(),
-            style: context.textTheme.labelMedium?.bold.copyWith(
+            style: context.textTheme.labelSmall?.bold.copyWith(
               color: color,
               letterSpacing: 0.5,
+              fontSize: 10,
             ),
           ),
         ],
@@ -276,21 +262,23 @@ class _QuickActionsRow extends StatelessWidget {
         Expanded(
           child: _QuickActionButton(
             icon: Icons.phone_rounded,
-            label: 'Call',
+            label: 'Voice Call',
             color: LogistixColors.primary,
             onPressed: () {
-              context.read<RidersCubit>().callRunner.call(rider.phoneNumber);
+              context.read<RidersCubit>().callRunner(rider.user?.phoneNumber);
             },
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: LogistixSpacing.md),
         Expanded(
           child: _QuickActionButton(
             icon: Icons.chat_bubble_rounded,
             label: 'WhatsApp',
             color: const Color(0xFF25D366),
             onPressed: () {
-              context.read<RidersCubit>().whatsappRunner(rider.phoneNumber);
+              context.read<RidersCubit>().whatsappRunner(
+                rider.user?.phoneNumber,
+              );
             },
           ),
         ),
@@ -314,27 +302,24 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: context.textTheme.titleSmall?.bold.copyWith(
-                  color: color,
-                ),
-              ),
-            ],
-          ),
+    return AnimatedScaleTap(
+      onTap: onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: LogistixSpacing.xs),
+            Text(
+              label,
+              style: context.textTheme.labelMedium?.bold.copyWith(color: color),
+            ),
+          ],
         ),
       ),
     );
@@ -350,36 +335,36 @@ class _ClickableOrderCard extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: () => context.push(DispatcherRoutes.orderDetails(order.id)),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(LogistixSpacing.lg),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: LogistixColors.primary.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
           ],
           border: Border.all(
-            color: LogistixColors.primary.withValues(alpha: 0.1),
+            color: LogistixColors.primary.withValues(alpha: 0.05),
           ),
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(LogistixSpacing.sm),
               decoration: BoxDecoration(
                 color: LogistixColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(
-                Icons.outbox_rounded,
+                Icons.local_shipping_rounded,
                 color: LogistixColors.primary,
                 size: 24,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: LogistixSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,30 +373,31 @@ class _ClickableOrderCard extends StatelessWidget {
                     'Order #${order.trackingNumber}',
                     style: context.textTheme.titleMedium?.bold,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: LogistixSpacing.xxs),
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                          horizontal: LogistixSpacing.xs,
+                          vertical: LogistixSpacing.xxs,
                         ),
                         decoration: BoxDecoration(
                           color: order.status.color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          order.status.value,
+                          order.status.label.toUpperCase(),
                           style: context.textTheme.labelSmall?.bold.copyWith(
                             color: order.status.color,
+                            fontSize: 9,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: LogistixSpacing.xs),
                       Expanded(
                         child: Text(
-                          order.pickupAddress,
-                          style: context.textTheme.bodySmall?.copyWith(
+                          order.dropOffAddress,
+                          style: context.textTheme.bodySmall?.semiBold.copyWith(
                             color: LogistixColors.textSecondary,
                           ),
                           maxLines: 1,
@@ -423,18 +409,10 @@ class _ClickableOrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: LogistixColors.surfaceDim,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: LogistixColors.textTertiary,
-              ),
+            const SizedBox(width: LogistixSpacing.sm),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: LogistixColors.textTertiary.withValues(alpha: 0.5),
             ),
           ],
         ),
@@ -450,78 +428,17 @@ class _ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(color: LogistixColors.border.withValues(alpha: 0.4)),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _InfoRow(
-            icon: Icons.phone_outlined,
-            title: 'Phone',
-            value: rider.phoneNumber ?? 'Not provided',
-          ),
-          const Divider(height: 32, indent: 40),
-          _InfoRow(
-            icon: Icons.email_outlined,
-            title: 'Email',
-            value: rider.email,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({
-    required this.icon,
-    required this.title,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+    return LogistixSettingsCard(
       children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: LogistixColors.background,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(icon, size: 20, color: LogistixColors.textSecondary),
+        LogistixSettingsTile(
+          icon: Icons.phone_rounded,
+          title: 'Phone Number',
+          subtitle: rider.user?.phoneNumber ?? 'Not provided',
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: context.textTheme.labelMedium?.copyWith(
-                  color: LogistixColors.textTertiary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(value, style: context.textTheme.bodyMedium?.semiBold),
-            ],
-          ),
+        LogistixSettingsTile(
+          icon: Icons.email_rounded,
+          title: 'Email Address',
+          subtitle: rider.user?.email ?? 'Not provided',
         ),
       ],
     );
@@ -534,45 +451,42 @@ class _ApprovalActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () => context.read<RidersCubit>().rejectRider(rider.id),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              side: const BorderSide(color: LogistixColors.error),
-              foregroundColor: LogistixColors.error,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return BlocConsumer<RidersCubit, RidersState>(
+      listener: (context, state) {
+        if (state.error != null) {
+          context.toast.showToast(state.error!, type: ToastType.error);
+        }
+      },
+      builder: (context, state) {
+        final isAccepting = state.acceptingRiderIds.contains(rider.id);
+        final isRejecting = state.rejectingRiderIds.contains(rider.id);
+        final isAnyProcessing = isAccepting || isRejecting;
+
+        return Row(
+          children: [
+            Expanded(
+              child: LogistixButton(
+                onPressed: isAnyProcessing
+                    ? null
+                    : () => context.read<RidersCubit>().rejectRider(rider.id),
+                label: 'REJECT',
+                type: LogistixButtonType.outline,
+                isLoading: isRejecting,
               ),
             ),
-            child: Text(
-              'Reject Rider',
-              style: context.textTheme.titleSmall?.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () => context.read<RidersCubit>().acceptRider(rider.id),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              backgroundColor: LogistixColors.success,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+            const SizedBox(width: LogistixSpacing.md),
+            Expanded(
+              child: LogistixButton(
+                onPressed: isAnyProcessing
+                    ? null
+                    : () => context.read<RidersCubit>().acceptRider(rider.id),
+                label: 'ACCEPT RIDER',
+                isLoading: isAccepting,
               ),
             ),
-            child: Text(
-              'Accept Rider',
-              style: context.textTheme.titleSmall?.bold,
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

@@ -19,13 +19,25 @@ class StartupRemoteDataSourceImpl implements StartupRemoteDataSource {
             email
             fullName
             role
+            phoneNumber
             isOnboarded
             companyId
+            riderProfile {
+              ${GqlFragments.riderFields}
+            }
+            companyProfile {
+              id
+              name
+              address
+            }
+            customerProfile {
+              ${GqlFragments.customerFields}
+            }
           }
         }
       ''';
 
-      final result = await _graphql.query(query);
+      final result = await _graphql.query<Map<String, dynamic>>(query);
 
       if (result.hasException) {
         throw ErrorHandler.fromException(result.exception);

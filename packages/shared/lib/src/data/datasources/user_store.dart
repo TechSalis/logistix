@@ -1,28 +1,44 @@
-import 'package:bootstrap/interfaces/store/primitive_store.dart';
+import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:shared/shared.dart';
 
 /// Local storage for user data
 abstract class UserStore {
-  /// Save user to local storage
+  /// Synchronous access to the currently cached user
+  User? get user;
+
+  /// Save user to local storage and update cache
   Future<void> saveUser(User user);
 
-  /// Get user from local storage
+  /// Get user from local storage and populate cache
   Future<User?> getUser();
 
-  /// Clear user from local storage
+  /// Clear user from local storage and cache
   Future<void> clearUser();
 }
 
 class UserStoreImpl implements UserStore {
   UserStoreImpl(this._store);
   final ObjectStore<UserDto> _store;
+  User? _cachedUser;
 
   @override
-  Future<void> saveUser(User user) => _store.set(UserDto.fromEntity(user));
+  User? get user => _cachedUser;
 
   @override
-  Future<User?> getUser() => _store.get().then((user) => user?.toEntity());
+  Future<void> saveUser(User user) async {
+    _cachedUser = user;
+    await _store.set(UserDto.fromEntity(user));
+  }
 
   @override
-  Future<void> clearUser() => _store.delete();
+  Future<User?> getUser() async {
+    final dto = await _store.get();
+    return _cachedUser = dto?.toEntity();
+  }
+
+  @override
+  Future<void> clearUser() async {
+    _cachedUser = null;
+    await _store.delete();
+  }
 }

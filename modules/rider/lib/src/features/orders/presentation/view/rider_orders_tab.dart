@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
 import 'package:rider/src/features/orders/presentation/widgets/rider_metrics_card.dart';
-import 'package:rider/src/presentation/bloc/rider_bloc.dart';
-import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:rider/src/presentation/router/rider_routes.dart';
 import 'package:shared/shared.dart';
 
@@ -18,253 +16,288 @@ class RiderOrdersTab extends StatefulWidget {
 }
 
 class _RiderOrdersTabState extends State<RiderOrdersTab> {
+  late RiderOrdersCubit ordersCubit;
+
   @override
   void initState() {
     super.initState();
-    // Load initial orders and metrics when tab is first opened
-    final ordersCubit = context.read<RiderOrdersCubit>();
-    final riderBloc = context.read<RiderBloc>();
-
-    // Set up metrics callback
-    riderBloc.onMetricsUpdated = ordersCubit.handleMetricsUpdate;
-
-    if (ordersCubit.state.orders.isEmpty && !ordersCubit.state.isLoading) {
-      ordersCubit.loadInitial();
-    } else if (ordersCubit.state.metrics == null &&
-        !ordersCubit.state.isLoadingMetrics) {
-      // Load metrics even if orders are already loaded
-      ordersCubit.loadMetrics();
-    }
+    ordersCubit = context.read<RiderOrdersCubit>();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<RiderBloc, RiderState>(
-        listenWhen: (previous, current) {
-          // Listen to order updates from RiderBloc
-          final prevOrders = previous.mapOrNull(loaded: (s) => s.orders);
-          final currOrders = current.mapOrNull(loaded: (s) => s.orders);
-          return prevOrders != currOrders;
-        },
-        listener: (context, state) {
-          // Propagate order updates to RiderOrdersCubit
-          state.mapOrNull(
-            loaded: (s) {
-              if (s.orders.isNotEmpty) {
-                final lastOrder = s.orders.first;
-                context.read<RiderOrdersCubit>().handleOrderUpdate(lastOrder);
-              }
-            },
-          );
-        },
-        child: BlocBuilder<RiderOrdersCubit, RiderOrdersState>(
-          builder: (context, state) {
-            final ordersCubit = context.read<RiderOrdersCubit>();
-            final isAssignedFilter = state.selectedStatuses.contains(
-              OrderStatus.assigned,
-            );
-
-            return CustomScrollView(
-              controller: ordersCubit.scrollController,
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  toolbarHeight: 0,
-                  collapsedHeight: 0,
-                  expandedHeight: 140,
-                  backgroundColor: LogistixColors.primary,
-                  systemOverlayStyle: SystemUiOverlayStyle.light,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        const DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                LogistixColors.primary,
-                                Color(0xFF6366F1),
-                              ],
-                            ),
+      body: BlocBuilder<RiderOrdersCubit, RiderOrdersState>(
+        builder: (context, state) {
+          return CustomScrollView(
+            controller: ordersCubit.scrollController,
+            slivers: [
+              SliverAppBar(
+                pinned: true,
+                toolbarHeight: 0,
+                collapsedHeight: 0,
+                expandedHeight: 160,
+                backgroundColor: LogistixColors.primary,
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [LogistixColors.primary, Color(0xFF4F46E5)],
                           ),
                         ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 16,
-                          top: MediaQuery.viewPaddingOf(context).top + 8,
-                          child: RiderMetricsCard(
-                            onRetry: ordersCubit.loadMetrics,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                PinnedHeaderSliver(
-                  child: Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        _FilterTab(
-                          title: 'Assigned',
-                          isSelected: isAssignedFilter,
-                          onTap: () => ordersCubit.filterByStatus([
-                            OrderStatus.assigned,
-                            OrderStatus.enRoute,
-                          ]),
-                        ),
-                        const SizedBox(width: 12),
-                        _FilterTab(
-                          title: 'History',
-                          isSelected: !isAssignedFilter,
-                          onTap: () => ordersCubit.filterByStatus([
-                            OrderStatus.delivered,
-                            OrderStatus.cancelled,
-                          ]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (state.isLoading && state.orders.isEmpty)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: LogistixShimmer(
-                            width: double.infinity,
-                            height: 120,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        );
-                      }, childCount: 5),
-                    ),
-                  )
-                else if (state.error != null)
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: LogistixErrorView(
-                      message: state.error!,
-                      onRetry: ordersCubit.loadInitial,
-                    ),
-                  )
-                else if (state.orders.isEmpty)
-                  const SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.list_alt_rounded,
-                            size: 64,
-                            color: LogistixColors.textTertiary,
-                          ),
-                          SizedBox(height: 16),
-                          Text('No orders found'),
-                        ],
                       ),
-                    ),
-                  )
-                else
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 8,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          if (index == state.orders.length) {
+                      Positioned(
+                        right: -20,
+                        top: -20,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      const Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: RiderMetricsCard(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              PinnedHeaderSliver(
+                child: Container(
+                  color: LogistixColors.background,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: LogistixSpacing.lg,
+                        ),
+                        child: _SearchField(
+                          onChanged: ordersCubit.searchOrders,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const _StatusFilterList(),
+                    ],
+                  ),
+                ),
+              ),
+              if (state.orders.isEmpty && !state.isLoading)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: (state.searchQuery?.isEmpty ?? true)
+                      ? const LogistixEmptyView(
+                          icon: Icons.list_alt_rounded,
+                          title: 'No Active Orders',
+                          description:
+                              'You have no assigned orders at the moment.',
+                        )
+                      : const LogistixEmptyView(
+                          icon: Icons.search_off_rounded,
+                          title: 'No orders found',
+                          description: 'Try adjusting your search filters.',
+                        ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                    LogistixSpacing.lg,
+                    0,
+                    LogistixSpacing.lg,
+                    100,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index == state.orders.length) {
+                          if (state.isLoadingMore) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              padding: const EdgeInsets.all(
+                                LogistixSpacing.md,
+                              ),
                               child: LogistixShimmer(
                                 width: double.infinity,
                                 height: 120,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(24),
                               ),
                             );
                           }
-                          final order = state.orders[index];
-                          return SlideFadeTransition(
-                            child: OrderPreviewCard(
+
+                          return const SizedBox.shrink();
+                        }
+
+                        final order = state.orders[index];
+                        return LogistixEntrance(
+                          delay: Duration(milliseconds: index * 50),
+                          children: [
+                            OrderPreviewCard(
                               order: order,
                               onTap: () => context.push(
                                 RiderRoutes.orderDetails(order.id),
                                 extra: order,
                               ),
                             ),
-                          );
-                        },
-                        childCount:
-                            state.orders.length + (state.hasMore ? 1 : 0),
-                      ),
+                          ],
+                        );
+                      },
+                      childCount:
+                          state.orders.length +
+                          (state.isLoadingMore && state.hasMore ? 1 : 0),
                     ),
                   ),
-              ],
-            );
-          },
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _SearchField extends StatelessWidget {
+  const _SearchField({required this.onChanged});
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        onChanged: onChanged,
+        style: context.textTheme.bodyMedium?.bold,
+        decoration: InputDecoration(
+          hintText: 'Search or track orders...',
+          hintStyle: context.textTheme.bodyMedium?.copyWith(
+            color: LogistixColors.textTertiary,
+            fontWeight: FontWeight.normal,
+          ),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: LogistixColors.primary,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
     );
   }
 }
 
-class _FilterTab extends StatelessWidget {
-  const _FilterTab({
-    required this.title,
+class _StatusFilterList extends StatelessWidget {
+  const _StatusFilterList();
+
+  @override
+  Widget build(BuildContext context) {
+    final ordersCubit = context.read<RiderOrdersCubit>();
+    return BlocBuilder<RiderOrdersCubit, RiderOrdersState>(
+      builder: (context, state) {
+        final riderStatuses = [
+          OrderStatus.UNASSIGNED,
+          OrderStatus.ASSIGNED,
+          OrderStatus.EN_ROUTE,
+          OrderStatus.DELIVERED,
+        ];
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
+          child: Row(
+            children: [
+              _StatusChip(
+                label: 'ALL',
+                isSelected: state.selectedStatus == null,
+                onTap: () => ordersCubit.filterByStatus(null),
+              ),
+              ...riderStatuses.map((status) {
+                final isSelected = state.selectedStatus == status;
+                return _StatusChip(
+                  label: status.label.toUpperCase(),
+                  isSelected: isSelected,
+                  onTap: () => ordersCubit.filterByStatus(status),
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.label,
     required this.isSelected,
     required this.onTap,
   });
 
-  final String title;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: AnimatedScaleTap(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
+    return AnimatedScaleTap(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? LogistixColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
             color: isSelected
                 ? LogistixColors.primary
-                : LogistixColors.background,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? LogistixColors.primary
-                  : LogistixColors.border,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: LogistixColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
+                : LogistixColors.border.withValues(alpha: 0.5),
           ),
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: context.textTheme.labelLarge?.copyWith(
-              color: isSelected ? Colors.white : LogistixColors.textSecondary,
-              fontWeight: FontWeight.bold,
-            ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: LogistixColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Text(
+          label,
+          style: context.textTheme.labelSmall?.bold.copyWith(
+            color: isSelected ? Colors.white : LogistixColors.textSecondary,
+            letterSpacing: 0.5,
           ),
         ),
       ),

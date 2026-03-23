@@ -5,7 +5,6 @@ environment:
   sdk: ^3.9.2
 
 workspace:
-  - app/
   - packages/logistix_ux/
   - packages/shared/
 
@@ -13,6 +12,8 @@ workspace:
   - modules/dispatcher/
   - modules/onboarding/
   - modules/rider/
+
+  - app/
 
 dev_dependencies:
   melos: ^7.3.0

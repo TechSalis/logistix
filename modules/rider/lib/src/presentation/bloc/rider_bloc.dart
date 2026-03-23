@@ -4,82 +4,26 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
-import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
-import 'package:shared/shared.dart' hide RiderEvent;
+import 'package:shared/shared.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RiderBloc extends Bloc<RiderEvent, RiderState> {
-  RiderBloc(this._repository, this._sessionUseCase, this._logoutUseCase)
+  RiderBloc(this._repository, this._authStatusRepository, this._userStore)
     : super(const RiderState.initial()) {
     on<FetchProfile>(_onFetchProfile);
-    on<RefreshStatus>(_onRefreshStatus);
-    on<FetchOrders>(_onFetchOrders);
-    on<OrderAssigned>(_onOrderAssigned);
-    on<OrderUpdated>(_onOrderUpdated);
-    on<OrderUnassigned>(_onOrderUnassigned);
-    on<MetricsUpdated>(_onMetricsUpdated);
+    on<WatchProfile>(_onWatchProfile);
     on<LocationUpdated>(_onLocationUpdated);
+    on<UpdateRiderEvent>(_onUpdateRider);
+    on<StatusChanged>(_onStatusChanged);
   }
 
+  final UserStore _userStore;
   final RiderRepository _repository;
-  final RiderSessionManager _sessionUseCase;
-  final LogoutUseCase _logoutUseCase;
+  final AuthStatusRepository _authStatusRepository;
 
-  // Callback for metrics updates
-  void Function(RiderMetrics)? onMetricsUpdated;
-
-  Future<void> _onOrderAssigned(
-    OrderAssigned event,
-    Emitter<RiderState> emit,
-  ) async {
-    state.mapOrNull(
-      loaded: (s) {
-        final newOrders = List<Order>.from(s.orders)..insert(0, event.order);
-        emit(s.copyWith(orders: newOrders));
-      },
-    );
-  }
-
-  Future<void> _onOrderUpdated(
-    OrderUpdated event,
-    Emitter<RiderState> emit,
-  ) async {
-    state.mapOrNull(
-      loaded: (s) {
-        final newOrders = List<Order>.from(s.orders);
-        final idx = newOrders.indexWhere((o) => o.id == event.order.id);
-        if (idx != -1) {
-          newOrders[idx] = event.order;
-        } else {
-          newOrders.insert(0, event.order);
-        }
-        emit(s.copyWith(orders: newOrders));
-      },
-    );
-  }
-
-  Future<void> _onOrderUnassigned(
-    OrderUnassigned event,
-    Emitter<RiderState> emit,
-  ) async {
-    state.mapOrNull(
-      loaded: (s) {
-        final newOrders = List<Order>.from(s.orders)
-          ..removeWhere((o) => o.id == event.orderId);
-        emit(s.copyWith(orders: newOrders));
-      },
-    );
-  }
-
-  Future<void> _onMetricsUpdated(
-    MetricsUpdated event,
-    Emitter<RiderState> emit,
-  ) async {
-    // Forward metrics to RiderOrdersCubit via callback
-    onMetricsUpdated?.call(event.metrics);
-  }
+  StreamSubscription<Rider?>? _profileSubscription;
 
   Future<void> _onLocationUpdated(
     LocationUpdated event,
@@ -88,26 +32,15 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     state.mapOrNull(loaded: (s) => emit(s.copyWith(location: event.position)));
   }
 
-  Future<void> _onFetchOrders(
-    FetchOrders event,
+  Future<void> _onStatusChanged(
+    StatusChanged event,
     Emitter<RiderState> emit,
   ) async {
-    await state.mapOrNull(
-      loaded: (state) async {
-        emit(state.copyWith(isOrdersLoading: true));
-
-        final result = await _repository.getRiderOrders(
-          status: event.status,
-          limit: event.limit,
-          offset: event.offset,
-        );
-
-        result.when(
-          data: (orders) {
-            emit(state.copyWith(orders: orders, isOrdersLoading: false));
-          },
-          error: (_) => emit(state.copyWith(isOrdersLoading: false)),
-        );
+    state.mapOrNull(
+      loaded: (s) {
+        // Update rider's status from backend event
+        final updatedRider = s.rider.copyWith(status: event.status);
+        emit(s.copyWith(rider: updatedRider));
       },
     );
   }
@@ -116,59 +49,42 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     FetchProfile event,
     Emitter<RiderState> emit,
   ) async {
-    emit(const RiderState.loading());
+    final rider = (await _userStore.getUser())?.riderProfile;
 
-    final result = await _repository.getRiderProfile();
-    result.when(
-      data: (rider) {
-        emit(RiderState.loaded(rider));
+    emit(RiderState.loading(rider));
 
-        _sessionUseCase.start(
-          riderId: rider.id,
-          onOrderAssigned: (order) {
-            if (!isClosed) add(OrderAssigned(order));
-          },
-          onOrderUpdated: (order) {
-            if (!isClosed) add(OrderUpdated(order));
-          },
-          onOrderUnassigned: (orderId) {
-            if (!isClosed) add(OrderUnassigned(orderId));
-          },
-          onMetricsUpdated: (metrics) {
-            if (!isClosed) add(MetricsUpdated(metrics));
-          },
-          onLocationUpdated: (position) {
-            if (!isClosed) add(LocationUpdated(position));
-          },
-        );
-      },
-      error: (error) {
-        emit(
-          RiderState.error(
-            (error is UserError ? error.message : null) ??
-                'Failed to fetch profile',
-          ),
-        );
-      },
-    );
-  }
+    final result = await _repository.fetchProfile();
 
-  Future<void> _onRefreshStatus(
-    RefreshStatus event,
-    Emitter<RiderState> emit,
-  ) async {
-    state.maybeMap(
-      loaded: (state) => emit(state.copyWith(isRefreshing: true)),
-      orElse: () => emit(const RiderState.loading()),
-    );
-
-    final result = await _repository.getRiderProfile();
-    result.map((error) {
-      emit(RiderState.error(error.message ?? 'Failed to refresh status'));
+    await result.map<FutureOr<void>>((error) async {
+      if (rider == null) {
+        emit(const RiderState.error('Rider profile not found state'));
+      }
     }, (rider) => emit(RiderState.loaded(rider)));
   }
 
-  late final logoutEvent = AsyncRunner<AppError, void>(_logoutUseCase.call);
+  Future<void> _onWatchProfile(
+    WatchProfile event,
+    Emitter<RiderState> emit,
+  ) async {
+    unawaited(_profileSubscription?.cancel());
+    _profileSubscription = _repository
+        .watchRiderProfile(event.riderId)
+        .listen(
+          (rider) => add(RiderEvent.updateRider(rider)),
+          onError: (Object error) {
+            emit(
+              RiderState.error(
+                (error is UserError ? error.message : null) ??
+                    'Failed to watch profile',
+              ),
+            );
+          },
+        );
+  }
+
+  void logout() {
+    _authStatusRepository.setUnauthenticated();
+  }
 
   late final supportRunner = AsyncRunner.withArg<String, AppError, void>(
     _launchSupportUrl,
@@ -183,9 +99,20 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     }
   }
 
+  FutureOr<void> _onUpdateRider(
+    UpdateRiderEvent event,
+    Emitter<RiderState> emit,
+  ) {
+    if (event.rider != null) {
+      emit(RiderState.loaded(event.rider!));
+    } else {
+      emit(const RiderState.error('Failed to fetch rider data'));
+    }
+  }
+
   @override
   Future<void> close() {
-    _sessionUseCase.stop();
+    _profileSubscription?.cancel();
     return super.close();
   }
 }

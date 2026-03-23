@@ -1,4 +1,3 @@
-import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/orders_cubit.dart';
 import 'package:dispatcher/src/features/orders/presentation/widgets/order_summary_card.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
@@ -15,14 +14,11 @@ class OrdersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ordersCubit = context.read<OrdersCubit>();
-    if (ordersCubit.state.orders.isEmpty && !ordersCubit.state.isLoading) {
-      ordersCubit.loadInitial();
-      context.read<MetricsCubit>().loadMetrics();
-    }
 
     return BlocBuilder<OrdersCubit, OrdersState>(
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: LogistixColors.background,
           body: CustomScrollView(
             controller: ordersCubit.scrollController,
             slivers: [
@@ -30,7 +26,7 @@ class OrdersTab extends StatelessWidget {
                 pinned: true,
                 toolbarHeight: 0,
                 collapsedHeight: 0,
-                expandedHeight: 140,
+                expandedHeight: 160,
                 backgroundColor: LogistixColors.primary,
                 systemOverlayStyle: SystemUiOverlayStyle.light,
                 flexibleSpace: FlexibleSpaceBar(
@@ -42,17 +38,27 @@ class OrdersTab extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [LogistixColors.primary, Color(0xFF6366F1)],
+                            colors: [LogistixColors.primary, Color(0xFF4F46E5)],
                           ),
                         ),
                       ),
                       Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 16,
-                        top: MediaQuery.viewPaddingOf(context).top + 8,
-                        child: OrderSummaryCard(
-                          onRetry: context.read<MetricsCubit>().loadMetrics,
+                        right: -20,
+                        top: -20,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      const Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: OrderSummaryCard(),
                         ),
                       ),
                     ],
@@ -60,13 +66,16 @@ class OrdersTab extends StatelessWidget {
                 ),
               ),
               PinnedHeaderSliver(
-                child: Padding(
+                child: Container(
+                  color: LogistixColors.background,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: LogistixSpacing.lg,
+                        ),
                         child: _SearchField(
                           onChanged: ordersCubit.searchOrders,
                         ),
@@ -77,94 +86,64 @@ class OrdersTab extends StatelessWidget {
                   ),
                 ),
               ),
-              if (state.isLoading && state.orders.isEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: LogistixShimmer(
-                          width: double.infinity,
-                          height: 120,
-                          borderRadius: BorderRadius.circular(20),
+              if (state.orders.isEmpty && !state.isLoading)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: (state.searchQuery?.isEmpty ?? true)
+                      ? const LogistixEmptyView(
+                          icon: Icons.list_alt_rounded,
+                          title: 'No Orders Found',
+                          description:
+                              'Create your first order to get started!',
+                        )
+                      : const LogistixEmptyView(
+                          icon: Icons.search_off_rounded,
+                          title: 'No results matching your query',
+                          description: 'Try adjusting your search or filters.',
                         ),
-                      );
-                    }, childCount: 5),
-                  ),
-                )
-              else if (state.error != null)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: LogistixErrorView(
-                    message: state.error!,
-                    onRetry: ordersCubit.loadInitial,
-                  ),
-                )
-              else if (state.orders.isEmpty)
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: (state.searchQuery?.isEmpty ?? true)
-                        ? const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.list_alt_rounded,
-                                size: 64,
-                                color: LogistixColors.textTertiary,
-                              ),
-                              SizedBox(height: 16),
-                              Text('You have no orders yet'),
-                            ],
-                          )
-                        : const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.search_off_rounded,
-                                size: 64,
-                                color: LogistixColors.textTertiary,
-                              ),
-                              SizedBox(height: 16),
-                              Text('No orders matching your criteria'),
-                            ],
-                          ),
-                  ),
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 8,
+                  padding: const EdgeInsets.fromLTRB(
+                    LogistixSpacing.lg,
+                    0,
+                    LogistixSpacing.lg,
+                    100,
                   ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         if (index == state.orders.length) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: LogistixShimmer(
-                              width: double.infinity,
-                              height: 120,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          );
+                          if (state.isLoadingMore) {
+                            return Padding(
+                              padding: const EdgeInsets.all(
+                                LogistixSpacing.md,
+                              ),
+                              child: LogistixShimmer(
+                                width: double.infinity,
+                                height: 120,
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
                         }
                         final order = state.orders[index];
-                        return SlideFadeTransition(
-                          child: OrderPreviewCard(
-                            order: order,
-                            onTap: () => context.push(
-                              DispatcherRoutes.orderDetails(order.id),
+                        return LogistixEntrance(
+                          delay: Duration(milliseconds: index * 50),
+                          children: [
+                            OrderPreviewCard(
+                              order: order,
+                              onTap: () => context.push(
+                                DispatcherRoutes.orderDetails(order.id),
+                              ),
                             ),
-                          ),
+                          ],
                         );
                       },
-                      childCount: state.orders.length + (state.hasMore ? 1 : 0),
+                      childCount:
+                          state.orders.length +
+                          (state.isLoadingMore && state.hasMore ? 1 : 0),
                     ),
                   ),
                 ),
@@ -173,7 +152,11 @@ class OrdersTab extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             onPressed: () => context.push(DispatcherRoutes.createOrder),
             backgroundColor: LogistixColors.primary,
-            child: const Icon(Icons.add_rounded, color: Colors.white),
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
           ),
         );
       },
@@ -193,27 +176,30 @@ class _SearchField extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: TextField(
         onChanged: onChanged,
+        style: context.textTheme.bodyMedium?.bold,
         decoration: InputDecoration(
-          hintText: 'Search tracking number, address...',
+          hintText: 'Search orders or trackings...',
           hintStyle: context.textTheme.bodyMedium?.copyWith(
             color: LogistixColors.textTertiary,
+            fontWeight: FontWeight.normal,
           ),
           prefixIcon: const Icon(
             Icons.search_rounded,
             color: LogistixColors.primary,
+            size: 22,
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
-            vertical: 12,
+            vertical: 14,
           ),
         ),
       ),
@@ -232,29 +218,20 @@ class _StatusFilterList extends StatelessWidget {
         const allStatuses = OrderStatus.values;
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
           child: Row(
             children: [
               _StatusChip(
-                label: 'All',
-                isSelected: state.selectedStatuses.isEmpty,
-                onTap: () => ordersCubit.filterByStatus([]),
+                label: 'ALL',
+                isSelected: state.selectedStatus == null,
+                onTap: () => ordersCubit.filterByStatus(null),
               ),
-              ...allStatuses.map((s) {
-                final status = s.value;
-                final isSelected = state.selectedStatuses.contains(status);
+              ...allStatuses.map((status) {
+                final isSelected = state.selectedStatus == status;
                 return _StatusChip(
-                  label: s.name.capitalize,
+                  label: status.label.toUpperCase(),
                   isSelected: isSelected,
-                  onTap: () {
-                    final newList = List<String>.from(state.selectedStatuses);
-                    if (isSelected) {
-                      newList.remove(status);
-                    } else {
-                      newList.add(status);
-                    }
-                    ordersCubit.filterByStatus(newList);
-                  },
+                  onTap: () => ordersCubit.filterByStatus(status),
                 );
               }),
             ],
@@ -282,28 +259,36 @@ class _StatusChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? LogistixColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? LogistixColors.primary : LogistixColors.border,
+            color: isSelected
+                ? LogistixColors.primary
+                : LogistixColors.border.withValues(alpha: 0.5),
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: LogistixColors.primary.withValues(alpha: 0.35),
+                    color: LogistixColors.primary.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ]
-              : null,
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Text(
           label,
-          style: context.textTheme.labelMedium?.copyWith(
+          style: context.textTheme.labelSmall?.bold.copyWith(
             color: isSelected ? Colors.white : LogistixColors.textSecondary,
-            fontWeight: FontWeight.bold,
+            letterSpacing: 0.5,
           ),
         ),
       ),

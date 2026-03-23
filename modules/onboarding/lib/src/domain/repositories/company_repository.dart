@@ -6,7 +6,7 @@ import 'package:shared/shared.dart';
 abstract class CompanyRepository {
   Future<Result<AppError, PaginatedResult<Company>>> getCompanies({
     String? search,
-    int page = 1,
-    int perPage = 20,
+    int limit = 20,
+    int offset = 0,
   });
 }

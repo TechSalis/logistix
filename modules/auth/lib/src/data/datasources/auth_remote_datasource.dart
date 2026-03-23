@@ -29,38 +29,32 @@ abstract class AuthRemoteDataSource {
   Future<void> updateFcmToken(String token);
 }
 
-class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  AuthRemoteDataSourceImpl(this._graphql);
-  final GraphQLService _graphql;
+class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
+    implements AuthRemoteDataSource {
+  AuthRemoteDataSourceImpl(super.graphql);
 
   @override
   Future<void> updateFcmToken(String token) async {
-    try {
-      const mutation = r'''
+    const mutation = r'''
         mutation UpdateFcmToken($token: String!) {
           updateFcmToken(token: $token)
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {'token': token},
-      );
+    final result = await gqlService.mutate<Map<String, dynamic>>(
+      mutation,
+      variables: {'token': token},
+    );
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      throw ErrorHandler.fromException(e);
-    }
+    result.throwIfException();
   }
 
   @override
   Future<(OAuthToken, UserDto)> login(String email, String password) async {
-    try {
-      const mutation = r'''
-        mutation Login($email: String!, $password: String!) {
-          login(email: $email, password: $password) {
+    const mutation =
+        '''
+        mutation Login(\$email: String!, \$password: String!) {
+          login(email: \$email, password: \$password) {
             token {
               access_token
               refresh_token
@@ -72,53 +66,47 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               email
               fullName
               role
+              phoneNumber
               isOnboarded
               companyId
+              riderProfile {
+                ${GqlFragments.riderFields}
+              }
+              companyProfile {
+                id
+                name
+                address
+              }
             }
           }
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {'email': email, 'password': password},
+    final data = await mutate<Map<String, dynamic>>(
+      mutation,
+      key: 'login',
+      variables: {'email': email, 'password': password},
+    );
+
+    final tokenData = data['token'];
+    if (tokenData == null) {
+      throw const AppError(
+        message: 'Token not found in server response',
+        code: AuthErrorCodes.missingToken,
       );
-
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-
-      final data = result.data?['login'];
-      if (data == null) {
-        throw const AppError(
-          message: 'Invalid response from server',
-          code: AuthErrorCodes.invalidResponse,
-        );
-      }
-
-      final tokenData = data['token'];
-      if (tokenData == null) {
-        throw const AppError(
-          message: 'Token not found in server response',
-          code: AuthErrorCodes.missingToken,
-        );
-      }
-
-      final token = const OAuthTokenCodec().decode(tokenData);
-      if (token == null) {
-        throw const AppError(
-          message: 'Invalid token format from server',
-          code: AuthErrorCodes.invalidToken,
-        );
-      }
-
-      final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
-
-      return (token, userDto);
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
     }
+
+    final token = const OAuthTokenCodec().decode(tokenData);
+    if (token == null) {
+      throw const AppError(
+        message: 'Invalid token format from server',
+        code: AuthErrorCodes.invalidToken,
+      );
+    }
+
+    final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
+
+    return (token, userDto);
   }
 
   @override
@@ -127,10 +115,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     String password,
     String name,
   ) async {
-    try {
-      const mutation = r'''
-        mutation Register($input: RegisterInput!) {
-          register(input: $input) {
+    const mutation =
+        '''
+        mutation Register(\$input: RegisterInput!) {
+          register(input: \$input) {
             token {
               access_token
               refresh_token
@@ -142,123 +130,96 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               email
               fullName
               role
+              phoneNumber
               isOnboarded
               companyId
+              riderProfile {
+                ${GqlFragments.riderFields}
+              }
+              companyProfile {
+                id
+                name
+                address
+              }
             }
           }
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {
-          'input': {'email': email, 'password': password, 'fullName': name},
-        },
+    final data = await mutate<Map<String, dynamic>>(
+      mutation,
+      key: 'register',
+      variables: {
+        'input': {'email': email, 'password': password, 'fullName': name},
+      },
+    );
+
+    final tokenData = data['token'];
+    if (tokenData == null) {
+      throw const AppError(
+        message: 'Token not found in server response',
+        code: AuthErrorCodes.missingToken,
       );
-
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-
-      final data = result.data?['register'];
-      if (data == null) {
-        throw const AppError(
-          message: 'Invalid response from server',
-          code: AuthErrorCodes.invalidResponse,
-        );
-      }
-
-      final tokenData = data['token'];
-      if (tokenData == null) {
-        throw const AppError(
-          message: 'Token not found in server response',
-          code: AuthErrorCodes.missingToken,
-        );
-      }
-
-      final token = const OAuthTokenCodec().decode(tokenData);
-      if (token == null) {
-        throw const AppError(
-          message: 'Invalid token format from server',
-          code: AuthErrorCodes.invalidToken,
-        );
-      }
-
-      final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
-
-      return (token, userDto);
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
     }
+
+    final token = const OAuthTokenCodec().decode(tokenData);
+    if (token == null) {
+      throw const AppError(
+        message: 'Invalid token format from server',
+        code: AuthErrorCodes.invalidToken,
+      );
+    }
+
+    final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
+
+    return (token, userDto);
   }
 
   @override
   Future<void> sendPasswordResetOtp(String email) async {
-    try {
-      const mutation = r'''
+    const mutation = r'''
         mutation SendPasswordResetOtp($email: String!) {
           sendPasswordResetOtp(email: $email)
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {'email': email},
-      );
+    final result = await gqlService.mutate<Map<String, dynamic>>(
+      mutation,
+      variables: {'email': email},
+    );
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
-    }
+    result.throwIfException();
   }
 
   @override
   Future<void> verifyOtp(String email, String otp) async {
-    try {
-      const mutation = r'''
+    const mutation = r'''
         mutation VerifyOtp($email: String!, $otp: String!) {
           verifyOtp(email: $email, otp: $otp)
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {'email': email, 'otp': otp},
-      );
+    final result = await gqlService.mutate<Map<String, dynamic>>(
+      mutation,
+      variables: {'email': email, 'otp': otp},
+    );
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
-    }
+    result.throwIfException();
   }
 
   @override
   Future<void> resetPassword(String email, String newPassword) async {
-    try {
-      const mutation = r'''
+    const mutation = r'''
         mutation ResetPassword($email: String!, $newPassword: String!) {
           resetPassword(email: $email, newPassword: $newPassword)
         }
       ''';
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {'email': email, 'newPassword': newPassword},
-      );
+    final result = await gqlService.mutate<Map<String, dynamic>>(
+      mutation,
+      variables: {'email': email, 'newPassword': newPassword},
+    );
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
-    }
+    result.throwIfException();
   }
 }

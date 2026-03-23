@@ -18,6 +18,5 @@ abstract class AuthRepository {
     required String email,
     required String newPassword,
   });
-  Future<Result<AppError, void>> logout();
   Future<Result<AppError, void>> updateFcmToken(String token);
 }

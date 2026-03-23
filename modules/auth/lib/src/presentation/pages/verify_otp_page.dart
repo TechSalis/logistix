@@ -49,16 +49,11 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
             );
             context.go('${AuthRoutes.resetPassword}?email=$email');
           },
-          unauthenticated: (message) {
+          verifyOtpError: (message) {
             setState(() {
               _isVerifying = false;
             });
-            if (message != null) {
-              context.toast.showToast(message, type: ToastType.error);
-            }
-          },
-          otpSent: (_) {
-            // Handle resend OTP success
+            context.toast.showToast(message, type: ToastType.error);
           },
         );
       },
@@ -104,11 +99,6 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                 autofocus: true,
                 length: 6,
                 onCompleted: _onOtpCompleted,
-                // defaultPinTheme: pinTheme,
-                // focusedPinTheme: pinTheme.copyDecorationWith(
-                //   border: Border.all(color: context.colorScheme.primary),
-                //   borderRadius: kBorderRadiusDefault,
-                // ),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: FormBuilderValidators.minLength(6, errorText: ''),
               ),

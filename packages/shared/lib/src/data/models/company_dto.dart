@@ -12,10 +12,19 @@ class CompanyDto with _$CompanyDto {
     String? logoUrl,
     String? cac,
     String? address,
-    String? phoneNumber,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _CompanyDto;
+
+  factory CompanyDto.fromEntity(Company company) => CompanyDto(
+    id: company.id,
+    name: company.name,
+    logoUrl: company.logoUrl,
+    cac: company.cac,
+    address: company.address,
+    createdAt: company.createdAt,
+    updatedAt: company.updatedAt,
+  );
 
   const CompanyDto._();
 
@@ -28,7 +37,6 @@ class CompanyDto with _$CompanyDto {
     logoUrl: logoUrl,
     cac: cac,
     address: address,
-    phoneNumber: phoneNumber,
     createdAt: createdAt,
     updatedAt: updatedAt,
   );

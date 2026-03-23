@@ -1,65 +1,32 @@
 import 'dart:async';
-import 'package:bootstrap/definitions/app_error.dart';
+import 'package:bootstrap/services/debouncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:shared/shared.dart';
 
-class RiderOrdersState {
-  const RiderOrdersState({
-    required this.orders,
-    required this.isLoading,
-    required this.isLoadingMore,
-    required this.hasMore,
-    required this.selectedStatuses,
-    required this.error,
-    required this.metricsError,
-    required this.metrics,
-    required this.isLoadingMetrics,
-  });
+part 'rider_orders_cubit.freezed.dart';
+
+@freezed
+class RiderOrdersState with _$RiderOrdersState {
+  const factory RiderOrdersState({
+    required List<Order> orders,
+    required bool isSearching,
+    required bool isLoading,
+    required bool isLoadingMore,
+    required bool hasMore,
+    OrderStatus? selectedStatus,
+    String? searchQuery,
+    String? error,
+  }) = _RiderOrdersState;
 
   factory RiderOrdersState.initial() => const RiderOrdersState(
     orders: [],
-    isLoading: false,
+    isSearching: false,
+    isLoading: true,
     isLoadingMore: false,
     hasMore: true,
-    selectedStatuses: [],
-    error: null,
-    metricsError: null,
-    metrics: null,
-    isLoadingMetrics: false,
-  );
-
-  final List<Order> orders;
-  final bool isLoading;
-  final bool isLoadingMore;
-  final bool hasMore;
-  final List<OrderStatus> selectedStatuses;
-  final String? error;
-  final String? metricsError;
-  final RiderMetrics? metrics;
-  final bool isLoadingMetrics;
-
-  RiderOrdersState copyWith({
-    List<Order>? orders,
-    bool? isLoading,
-    bool? isLoadingMore,
-    bool? hasMore,
-    List<OrderStatus>? selectedStatuses,
-    String? error,
-    String? metricsError,
-    RiderMetrics? metrics,
-    bool? isLoadingMetrics,
-  }) => RiderOrdersState(
-    orders: orders ?? this.orders,
-    isLoading: isLoading ?? this.isLoading,
-    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-    hasMore: hasMore ?? this.hasMore,
-    selectedStatuses: selectedStatuses ?? this.selectedStatuses,
-    metricsError: metricsError,
-    error: error,
-    metrics: metrics ?? this.metrics,
-    isLoadingMetrics: isLoadingMetrics ?? this.isLoadingMetrics,
   );
 }
 
@@ -67,133 +34,132 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
   RiderOrdersCubit(this._repo) : super(RiderOrdersState.initial()) {
     scrollController = ScrollController()..addListener(_onScroll);
   }
+  late final ScrollController scrollController;
 
   final RiderRepository _repo;
 
-  late final ScrollController scrollController;
+  final _debouncer = Debouncer();
 
+  StreamSubscription<List<Order>>? _ordersSubscription;
+
+  // Pagination
   static const int _pageSize = 20;
 
-  void loadInitial() {
-    emit(
-      state.copyWith(
-        selectedStatuses: [OrderStatus.assigned, OrderStatus.enRoute],
-        isLoading: true,
-      ),
-    );
-    _loadPage(reset: true);
-    loadMetrics();
+  /// Initialize cubit with riderId (call after rider profile is loaded)
+  void initialize() {
+    emit(state.copyWith(isLoading: true, error: null));
+    _subscribeToOrders();
   }
 
-  Future<void> loadMetrics() async {
-    emit(state.copyWith(isLoadingMetrics: true));
+  int _loadedLimit = _pageSize;
+  bool _isLoadingMore = false;
 
-    final result = await _repo.getRiderMetrics();
+  void _subscribeToOrders() {
+    _ordersSubscription?.cancel();
 
-    if (isClosed) return;
-
-    result.map(
-      (err) => emit(
-        state.copyWith(
-          isLoadingMetrics: false,
-          metricsError: err is UserError
-              ? err.message
-              : 'Failed to load metrics',
-        ),
-      ),
-      (metrics) {
-        emit(state.copyWith(metrics: metrics, isLoadingMetrics: false));
-      },
-    );
-  }
-
-  /// Handle order updates from RiderBloc
-  void handleOrderUpdate(Order order) {
-    final orders = [...state.orders];
-    final index = orders.indexWhere((o) => o.id == order.id);
-
-    if (index != -1) {
-      orders[index] = order;
-    } else {
-      // Only add new orders if they match the current filter
-      if (state.selectedStatuses.isEmpty ||
-          state.selectedStatuses.contains(order.status)) {
-        orders.insert(0, order);
-      }
-    }
-
-    emit(state.copyWith(orders: orders));
-  }
-
-  /// Handle metrics updates from RiderBloc
-  void handleMetricsUpdate(RiderMetrics metrics) {
-    emit(state.copyWith(metrics: metrics, isLoadingMetrics: false));
-  }
-
-  void filterByStatus(List<OrderStatus> statuses) {
-    emit(
-      state.copyWith(
-        selectedStatuses: statuses,
-        orders: [],
-        hasMore: true,
-        isLoading: true,
-      ),
-    );
-    _loadPage(reset: true);
-  }
-
-  Future<void> _loadPage({bool reset = false}) async {
-    if (state.isLoadingMore) return;
-
-    final offset = reset ? 0 : state.orders.length;
-    final status = state.selectedStatuses.isEmpty
+    // Use status enum directly
+    final statuses = state.selectedStatus == null
         ? null
-        : state.selectedStatuses;
+        : [state.selectedStatus!];
 
-    // Determine sort order based on selected statuses
-    // History orders (delivered, cancelled) = asc
-    // Assigned orders (assigned, enroute) = desc
-    final sortOrder = _getSortOrder(status);
+    // Priority sort for "All" tab to show active orders first
+    final isPrioritySort = state.selectedStatus == null;
 
-    final result = await _repo.getRiderOrders(
-      status: status,
-      limit: _pageSize,
-      offset: offset,
-      sortOrder: sortOrder,
+    // Subscribe to Drift stream - reactive to all changes
+    // We watch from 0 up to current loaded limit to stay reactive
+    _ordersSubscription = _repo
+        .watchRiderOrders(
+          status: statuses,
+          searchQuery: state.searchQuery,
+          limit: _loadedLimit,
+          isPrioritySort: isPrioritySort,
+        )
+        .listen(
+          (orders) {
+            if (!isClosed) {
+              final hasMore = orders.length >= _loadedLimit;
+              emit(
+                state.copyWith(
+                  orders: orders,
+                  hasMore: hasMore,
+                  isLoading: false,
+                  isLoadingMore: false, // Reset pagination loader
+                  error: null,
+                ),
+              );
+            }
+          },
+          onError: (e) {
+            if (!isClosed) {
+              emit(
+                state.copyWith(
+                  isLoading: false,
+                  error: 'Failed to load orders',
+                ),
+              );
+            }
+          },
+        );
+  }
+
+  void filterByStatus(OrderStatus? status) {
+    _loadedLimit = _pageSize; // Reset pagination
+    emit(
+      state.copyWith(
+        selectedStatus: status,
+        orders: [], // Clear current orders to show shimmers
+        isLoading: true, // Show loading state when switching tabs
+        error: null, // Clear errors when switching tabs
+      ),
+    );
+    _subscribeToOrders(); // Re-subscribe with new filters
+  }
+
+  void searchOrders(String query) {
+    emit(
+      state.copyWith(
+        isSearching: true,
+        isLoading: query.isNotEmpty,
+        // Show loading during search if query not empty
+        orders: query.isNotEmpty ? [] : state.orders,
+        error: null,
+      ),
     );
 
-    if (isClosed) return;
-
-    result.map(
-      (err) => emit(
-        state.copyWith(
-          isLoading: false,
-          isLoadingMore: false,
-          error: err is UserError ? err.message : 'Failed to load orders',
-        ),
-      ),
-      (list) {
-        final hasMore = list.length >= _pageSize;
+    _debouncer.debounce(
+      duration: const Duration(milliseconds: 500),
+      onDebounce: () {
+        if (isClosed) return;
+        _loadedLimit = _pageSize; // Reset pagination on search
         emit(
           state.copyWith(
-            orders: reset ? list : [...state.orders, ...list],
-            isLoading: false,
-            isLoadingMore: false,
-            hasMore: hasMore,
+            searchQuery: query,
+            isSearching: false,
+            orders: query.isNotEmpty ? [] : state.orders,
+            error: null,
           ),
         );
+        _subscribeToOrders(); // Re-subscribe with search query
       },
     );
   }
 
-  String _getSortOrder(List<OrderStatus>? statuses) {
-    if (statuses == null || statuses.isEmpty) return 'desc';
+  void loadMore() {
+    if (_isLoadingMore || state.isLoadingMore || !state.hasMore) {
+      return;
+    }
 
-    // If filtering by history statuses (delivered, cancelled), use asc
-    final historyStatuses = {OrderStatus.delivered, OrderStatus.cancelled};
-    final isHistoryView = statuses.every(historyStatuses.contains);
+    _isLoadingMore = true;
+    _loadedLimit += _pageSize;
 
-    return isHistoryView ? 'asc' : 'desc';
+    emit(state.copyWith(isLoadingMore: true));
+
+    // Just re-subscribe with larger limit.
+    // Reactive stream will emit new list with more items.
+    _subscribeToOrders();
+
+    // Reset loading state local flag immediately
+    _isLoadingMore = false;
   }
 
   void _onScroll() {
@@ -202,39 +168,13 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
     const threshold = 200.0;
     final position = scrollController.position;
     if (position.maxScrollExtent - position.pixels <= threshold) {
-      if (state.hasMore && !state.isLoadingMore) {
-        emit(state.copyWith(isLoadingMore: true));
-        _loadPage();
-      }
+      loadMore();
     }
-  }
-
-  Future<void> cancelOrder(String orderId) async {
-    final result = await _repo.updateOrderStatus(
-      orderId,
-      OrderStatus.cancelled,
-    );
-
-    if (isClosed) return;
-
-    result.when(
-      data: (_) {
-        // Clear error on success and refresh orders
-        emit(state.copyWith());
-        _loadPage(reset: true);
-      },
-      error: (err) {
-        emit(
-          state.copyWith(
-            error: err.message ?? 'Failed to cancel order',
-          ),
-        );
-      },
-    );
   }
 
   @override
   Future<void> close() {
+    _ordersSubscription?.cancel();
     scrollController.dispose();
     return super.close();
   }

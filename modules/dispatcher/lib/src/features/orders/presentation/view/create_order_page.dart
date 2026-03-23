@@ -1,15 +1,11 @@
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
-import 'package:bootstrap/services/equality_filter.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:dispatcher/src/data/dtos/order_create_input.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/create_order_cubit.dart';
-import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart'; // Corrected import
-import 'package:dispatcher/src/features/orders/presentation/cubit/orders_cubit.dart';
-import 'package:dispatcher/src/features/riders/presentation/widgets/rider_card.dart';
+import 'package:dispatcher/src/features/riders/presentation/widgets/rider_dropdown_search.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
@@ -23,146 +19,169 @@ class CreateOrderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AddressCubit(),
-      child: BlocConsumer<CreateOrderCubit, CreateOrderState>(
-        listener: (context, state) {
-          if (state.success) {
-            context.toast.showToast(
-              'Orders created successfully',
-              type: ToastType.success,
-            );
-            context.read<CreateOrderCubit>().reset();
-            context.read<MetricsCubit>().loadMetrics();
-            context.read<OrdersCubit>().loadInitial();
-          } else if (state.error != null) {
-            context.toast.showToast(state.error!, type: ToastType.error);
-          }
-        },
-        builder: (context, state) {
-          final createOrderCubit = context.read<CreateOrderCubit>();
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Create Orders'),
-              leading: IconButton(
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => context.pop(),
-              ),
-            ),
-            body: state.isLoading
-                ? const Center(child: LogistixInlineLoader())
-                : Form(
-                    key: _formKey,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      itemCount: state.orders.length + 2,
-                      // +1 for banner, +1 for add button
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          return _AIPromptBanner(
-                            onTap: () => context.go(DispatcherRoutes.parseText),
-                          );
-                        }
-
-                        final orderIndex = index - 1;
-                        if (orderIndex == state.orders.length) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: TextButton.icon(
-                              onPressed: createOrderCubit.addOrder,
-                              icon: const Icon(Icons.add_rounded),
-                              label: const Text('Add Another Order'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: LogistixColors.primary,
-                              ),
-                            ),
-                          );
-                        }
-
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: _OrderInputCard(
-                            index: orderIndex,
-                            input: state.orders[orderIndex],
-                            riders: state.riders,
-                            onRemoved: () {
-                              createOrderCubit.removeOrder(orderIndex);
-                            },
-                            onUpdated: (newInput) {
-                              createOrderCubit.updateOrder(
-                                orderIndex,
-                                newInput,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-            bottomNavigationBar: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: LogistixColors.border)),
-              ),
-              child: ElevatedButton(
-                onPressed: state.isLoading
-                    ? null
-                    : () {
-                        if (_formKey.currentState?.validate() != true) return;
-                        createOrderCubit.submit();
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: LogistixColors.primary,
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(
-                  state.orders.length > 1
-                      ? 'Submit ${state.orders.length} Orders'
-                      : 'Submit Order',
-                ),
-              ),
-            ),
+    final createOrderCubit = context.read<CreateOrderCubit>();
+    return BlocConsumer<CreateOrderCubit, CreateOrderState>(
+      listener: (context, orderState) {
+        if (orderState.success) {
+          context.toast.showToast(
+            'Orders created successfully',
+            type: ToastType.success,
           );
-        },
-      ),
+          createOrderCubit.reset();
+        } else if (orderState.error != null) {
+          context.toast.showToast(orderState.error!, type: ToastType.error);
+        }
+      },
+      builder: (context, orderState) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Create Orders'),
+            actions: [
+              if (orderState.orders.isNotEmpty && !orderState.isLoading)
+                LogistixButton(
+                  label: 'Clear',
+                  onPressed: () {
+                    LogistixDialog.show<void>(
+                      context: context,
+                      title: 'Clear all orders?',
+                      content: 'This will remove all orders you have prepared.',
+                      primaryActionText: 'Clear All',
+                      isDestructive: true,
+                      onPrimaryAction: (context) {
+                        createOrderCubit.reset();
+                        Navigator.pop(context);
+                      },
+                      secondaryActionText: 'Cancel',
+                    );
+                  },
+                  type: LogistixButtonType.text,
+                ),
+            ],
+          ),
+          body: Form(
+            key: _formKey,
+            child: ListView.builder(
+              key: ValueKey(orderState.formKeyVersion),
+              padding: const EdgeInsets.symmetric(
+                horizontal: LogistixSpacing.lg,
+                vertical: LogistixSpacing.xs,
+              ),
+              itemCount: orderState.orders.length + 2,
+              // +1 for banner, +1 for add button
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return _AIPromptBanner(
+                    onTap: () => context.push(DispatcherRoutes.parseText),
+                  );
+                }
+
+                final orderIndex = index - 1;
+                if (orderIndex == orderState.orders.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.lg),
+                    child: LogistixButton(
+                      onPressed: createOrderCubit.addOrder,
+                      icon: Icons.add_rounded,
+                      label: 'Add Another Order',
+                      type: LogistixButtonType.outline,
+                      height: 52,
+                    ),
+                  );
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(top: LogistixSpacing.lg),
+                  child: _OrderInputCard(
+                    index: orderIndex,
+                    input: orderState.orders[orderIndex],
+                    onRemoved: orderIndex == 0
+                        ? null
+                        : () => createOrderCubit.removeOrder(orderIndex),
+                    onUpdated: (newInput) {
+                      createOrderCubit.updateOrder(orderIndex, newInput);
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomNavigationBar: Container(
+            padding: const EdgeInsets.fromLTRB(
+              LogistixSpacing.lg,
+              LogistixSpacing.sm,
+              LogistixSpacing.lg,
+              LogistixSpacing.xl,
+            ),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              border: Border(top: BorderSide(color: LogistixColors.border)),
+            ),
+            child: LogistixButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() != true) return;
+                createOrderCubit.submitOrders();
+              },
+              isLoading: orderState.isLoading,
+              label: orderState.orders.length > 1
+                  ? 'Submit ${orderState.orders.length} Orders'
+                  : 'Submit Order',
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
-class _OrderInputCard extends StatelessWidget {
+class _OrderInputCard extends StatefulWidget {
   const _OrderInputCard({
     required this.index,
     required this.input,
-    required this.riders,
-    required this.onRemoved,
     required this.onUpdated,
+    this.onRemoved,
   });
 
   final int index;
   final OrderCreateInput input;
-  final List<Rider> riders;
-  final VoidCallback onRemoved;
+  final VoidCallback? onRemoved;
   final ValueChanged<OrderCreateInput> onUpdated;
 
   @override
+  State<_OrderInputCard> createState() => _OrderInputCardState();
+}
+
+class _OrderInputCardState extends State<_OrderInputCard> {
+  late bool _isExpanded;
+
+  bool _hasPickup() =>
+      (widget.input.pickupAddress?.isNotEmpty ?? false) ||
+      (widget.input.pickupPhone?.isNotEmpty ?? false);
+
+  @override
+  void initState() {
+    super.initState();
+    _isExpanded = _hasPickup();
+  }
+
+  @override
+  void didUpdateWidget(_OrderInputCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the input changed significantly (e.g. via AI parse), re-evaluate expansion
+    if (widget.input != oldWidget.input) {
+      if (!_isExpanded) {
+        _isExpanded = _hasPickup();
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: LogistixColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 6),
-          ),
-        ],
+    return LogistixCard(
+      padding: const EdgeInsets.fromLTRB(
+        LogistixSpacing.lg,
+        LogistixSpacing.sm,
+        LogistixSpacing.lg,
+        LogistixSpacing.lg,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,187 +190,70 @@ class _OrderInputCard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: LogistixSpacing.sm,
+                  vertical: LogistixSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
                   color: LogistixColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(LogistixRadii.sm),
                 ),
                 child: Text(
-                  'ORDER #${index + 1}',
+                  'ORDER #${widget.index + 1}',
                   style: context.textTheme.labelLarge?.bold.copyWith(
                     color: LogistixColors.primary,
                   ),
                 ),
               ),
               const Spacer(),
-              IconButton(
-                onPressed: index > 0 ? onRemoved : null,
-                color: LogistixColors.error,
-                icon: const Icon(Icons.delete_outline_rounded),
-              ),
+              if (widget.onRemoved != null)
+                IconButton(
+                  onPressed: widget.onRemoved,
+                  color: LogistixColors.error,
+                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  visualDensity: VisualDensity.compact,
+                ),
             ],
           ),
-          const SizedBox(height: 8),
-          DropdownSearch<AddressDto>(
-            items: (String filter, _) async {
-              final cubit = context.read<AddressCubit>();
-              final results = await cubit.fetchAddresses(filter);
-              if (filter.isNotEmpty &&
-                  !results.any((e) => e.address == filter)) {
-                return [...results, AddressDto(address: filter)];
-              }
-              return results;
-            },
-            itemAsString: (item) => item.address,
-            compareFn: EqualityFilter<AddressDto>(
-              (value) => value.address,
-            ).call,
-            selectedItem: input.pickupAddress.isEmpty
-                ? null
-                : AddressDto(address: input.pickupAddress),
-            onChanged: (address) {
-              if (address != null) {
-                onUpdated(input.copyWith(pickupAddress: address.address));
-              }
-            },
-            suffixProps: const DropdownSuffixProps(
-              clearButtonProps: ClearButtonProps(isVisible: true),
-              dropdownButtonProps: DropdownButtonProps(isVisible: false),
-            ),
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: LogistixColors.background,
-                labelText: 'Pickup Address',
-                hintText: 'Search pickup address...',
-                prefixIcon: const Icon(
-                  Icons.location_on_rounded,
-                  size: 18,
-                  color: LogistixColors.textTertiary,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIconConstraints: const BoxConstraints(
-                  minWidth: 40,
-                  minHeight: 48,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              loadingBuilder: (_, _) => const LogistixLoadingIndicator(),
-              searchFieldProps: TextFieldProps(
-                autofocus: true,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  hintText: 'Start typing address...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
+          const SizedBox(height: LogistixSpacing.sm),
+          LogistixAddressPicker(
+            labelText: 'Drop-off Address',
+            hintText: 'Search drop-off address...',
+            address: widget.input.dropOffAddress,
+            placeId: widget.input.dropOffPlaceId,
+            icon: Icons.flag_rounded,
+            isRequired: true,
             validator: FormBuilderValidators.required(),
-          ),
-          const SizedBox(height: 12),
-          DropdownSearch<AddressDto>(
-            items: (String filter, _) async {
-              final cubit = context.read<AddressCubit>();
-              final results = await cubit.fetchAddresses(filter);
-              if (filter.isNotEmpty &&
-                  !results.any((e) => e.address == filter)) {
-                return [...results, AddressDto(address: filter)];
-              }
-              return results;
-            },
-            itemAsString: (item) => item.address,
-            compareFn: EqualityFilter<AddressDto>(
-              (value) => value.address,
-            ).call,
-            selectedItem: (input.dropOffAddress?.isEmpty ?? true)
-                ? null
-                : AddressDto(address: input.dropOffAddress!),
             onChanged: (address) {
-              onUpdated(input.copyWith(dropOffAddress: address?.address));
+              widget.onUpdated(
+                widget.input.copyWith(
+                  dropOffAddress: address?.address ?? '',
+                  dropOffPlaceId: address?.placeId,
+                ),
+              );
             },
-            suffixProps: const DropdownSuffixProps(
-              clearButtonProps: ClearButtonProps(isVisible: true),
-              dropdownButtonProps: DropdownButtonProps(isVisible: false),
-            ),
-            decoratorProps: DropDownDecoratorProps(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: LogistixColors.background,
-                labelText: 'Drop-off Address',
-                hintText: 'Search drop-off address...',
-                prefixIcon: const Icon(
-                  Icons.flag_rounded,
-                  size: 18,
-                  color: LogistixColors.textTertiary,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                prefixIconConstraints: const BoxConstraints(
-                  minWidth: 40,
-                  minHeight: 48,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-            ),
-            popupProps: PopupProps.menu(
-              showSearchBox: true,
-              loadingBuilder: (_, _) => const LogistixLoadingIndicator(),
-              searchFieldProps: TextFieldProps(
-                autofocus: true,
-                autocorrect: false,
-                decoration: InputDecoration(
-                  hintText: 'Start typing address...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
           ),
-          const SizedBox(height: 16),
-          _InputField(
-            label: 'Order Description',
-            initialValue: input.description ?? '',
-            hintText: 'e.g. 2 x Large Pizza, fragile item...',
-            icon: Icons.description_rounded,
-            onChanged: (val) => onUpdated(input.copyWith(description: val)),
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: LogistixSpacing.md),
           Row(
             children: [
               Expanded(
                 flex: 4,
-                child: _InputField(
-                  label: 'Customer Phone',
-                  initialValue: input.customerPhone ?? '',
+                child: LogistixTextField(
+                  label: 'Drop-off Phone',
+                  initialValue: widget.input.dropOffPhone ?? '',
                   hintText: '0801 234 5678',
                   icon: Icons.phone_rounded,
                   keyboardType: TextInputType.phone,
                   onChanged: (val) {
-                    onUpdated(input.copyWith(customerPhone: val));
+                    widget.onUpdated(widget.input.copyWith(dropOffPhone: val));
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: LogistixSpacing.sm),
               Expanded(
                 flex: 3,
-                child: _InputField(
+                child: LogistixTextField(
                   label: 'COD Amount',
-                  initialValue: input.codAmount?.toString() ?? '',
+                  initialValue: widget.input.codAmount?.toString() ?? '',
                   hintText: '₦ 0.00',
                   icon: Icons.payments_rounded,
                   keyboardType: TextInputType.number,
@@ -362,18 +264,96 @@ class _OrderInputCard extends StatelessWidget {
                       decimalDigits: 0,
                     ),
                   ],
-                  onChanged: (val) => onUpdated(
-                    input.copyWith(codAmount: double.tryParse(val)),
-                  ),
+                  onChanged: (val) {
+                    final stripped = val.replaceAll(RegExp('[^0-9]'), '');
+                    widget.onUpdated(
+                      widget.input.copyWith(
+                        codAmount: double.tryParse(stripped),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: LogistixSpacing.md),
+          InkWell(
+            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.xs),
+              child: Row(
+                children: [
+                  Icon(
+                    _isExpanded
+                        ? Icons.remove_circle_outline_rounded
+                        : Icons.add_circle_outline_rounded,
+                    size: 18,
+                    color: LogistixColors.primary,
+                  ),
+                  const SizedBox(width: LogistixSpacing.xs),
+                  Text(
+                    _isExpanded ? 'Show less' : 'Add pickup',
+                    style: context.textTheme.labelMedium?.bold.copyWith(
+                      color: LogistixColors.primary,
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    size: 18,
+                    color: LogistixColors.textTertiary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isExpanded) ...[
+            const SizedBox(height: LogistixSpacing.md),
+            LogistixAddressPicker(
+              labelText: 'Pickup Address',
+              hintText: 'Search pickup address...',
+              address: widget.input.pickupAddress,
+              placeId: widget.input.pickupPlaceId,
+              icon: Icons.location_on_rounded,
+              onChanged: (address) {
+                widget.onUpdated(
+                  widget.input.copyWith(
+                    pickupAddress: address?.address ?? '',
+                    pickupPlaceId: address?.placeId,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: LogistixSpacing.md),
+            LogistixTextField(
+              label: 'Pickup Phone',
+              initialValue: widget.input.pickupPhone ?? '',
+              hintText: '0801 234 5678',
+              icon: Icons.phone_callback_rounded,
+              keyboardType: TextInputType.phone,
+              onChanged: (val) {
+                widget.onUpdated(widget.input.copyWith(pickupPhone: val));
+              },
+            ),
+          ],
+          const SizedBox(height: LogistixSpacing.md),
+          LogistixTextField(
+            label: 'Order Description',
+            initialValue: widget.input.description ?? '',
+            hintText: 'e.g. 2 x Large Pizza, fragile item...',
+            icon: Icons.description_rounded,
+            onChanged: (val) =>
+                widget.onUpdated(widget.input.copyWith(description: val)),
+          ),
+          const SizedBox(height: LogistixSpacing.md),
           _RiderSelector(
-            currentRiderId: input.riderId,
-            riders: riders,
-            onSelected: (id) => onUpdated(input.copyWith(riderId: id)),
+            selectedRider: widget.input.rider,
+            onSelected: (rider) => widget.onUpdated(
+              widget.input.copyWith(riderId: rider?.id, rider: rider),
+            ),
           ),
         ],
       ),
@@ -388,7 +368,10 @@ class _AIPromptBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: LogistixSpacing.md,
+        vertical: LogistixSpacing.sm,
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -410,7 +393,7 @@ class _AIPromptBanner extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(LogistixSpacing.sm),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
@@ -421,7 +404,7 @@ class _AIPromptBanner extends StatelessWidget {
                 size: 24,
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: LogistixSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,22 +433,13 @@ class _AIPromptBanner extends StatelessWidget {
 }
 
 class _RiderSelector extends StatelessWidget {
-  const _RiderSelector({
-    required this.currentRiderId,
-    required this.riders,
-    required this.onSelected,
-  });
+  const _RiderSelector({required this.selectedRider, required this.onSelected});
 
-  final String? currentRiderId;
-  final List<Rider> riders;
-  final ValueChanged<String?> onSelected;
+  final Rider? selectedRider;
+  final ValueChanged<Rider?> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final selectedRider = riders
-        .where((r) => r.id == currentRiderId)
-        .firstOrNull;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -475,121 +449,14 @@ class _RiderSelector extends StatelessWidget {
             color: LogistixColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 6),
-        DropdownSearch<Rider>(
-          selectedItem: selectedRider,
-          items: (filter, _) {
+        const SizedBox(height: LogistixSpacing.xs),
+        RiderDropdownSearch(
+          selectedRider: selectedRider,
+          searchRiders: (filter) {
             return context.read<CreateOrderCubit>().searchRiders(filter);
           },
-          itemAsString: (Rider r) => r.fullName,
-          onChanged: (Rider? r) => onSelected(r?.id),
-          compareFn: EqualityFilter<Rider>((state) => state.id).call,
-          decoratorProps: DropDownDecoratorProps(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: LogistixColors.background,
-              hintText: 'Search rider by name...',
-              hintStyle: context.textTheme.bodyMedium?.copyWith(
-                color: LogistixColors.textTertiary,
-              ),
-              prefixIcon: const Icon(
-                Icons.directions_bike_rounded,
-                size: 18,
-                color: LogistixColors.textTertiary,
-              ),
-              prefixIconConstraints: const BoxConstraints(
-                minWidth: 40,
-                minHeight: 48,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-          ),
-          popupProps: PopupProps.menu(
-            showSearchBox: true,
-            loadingBuilder: (_, _) => const LogistixLoadingIndicator(),
-            searchFieldProps: TextFieldProps(
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Type to search...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            itemBuilder: (context, rider, isDisabled, isSelected) {
-              return RiderInfoListTile(
-                rider: rider,
-                enabled: rider.hasLocation,
-                isSelected: isSelected,
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _InputField extends StatelessWidget {
-  const _InputField({
-    required this.label,
-    required this.initialValue,
-    required this.icon,
-    required this.onChanged,
-    this.hintText,
-    this.inputFormatters = const [],
-    this.keyboardType,
-  });
-
-  final String label;
-  final String initialValue;
-  final String? hintText;
-  final IconData icon;
-  final TextInputType? keyboardType;
-  final List<TextInputFormatter> inputFormatters;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: context.textTheme.labelSmall?.bold.copyWith(
-            color: LogistixColors.textSecondary,
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextFormField(
-          initialValue: initialValue,
-          onChanged: onChanged,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          style: context.textTheme.bodyMedium?.semiBold,
-          decoration: InputDecoration(
-            filled: true,
-            isDense: true,
-            hintText: hintText,
-            hintStyle: context.textTheme.bodyMedium?.copyWith(
-              color: LogistixColors.textTertiary,
-            ),
-            prefixIconConstraints: const BoxConstraints(
-              minWidth: 40,
-              minHeight: 48,
-            ),
-            prefixIcon: Icon(
-              icon,
-              size: 18,
-              color: LogistixColors.textTertiary,
-            ),
-            fillColor: LogistixColors.background,
-          ),
+          onChanged: onSelected,
+          label: 'Search rider by name...',
         ),
       ],
     );

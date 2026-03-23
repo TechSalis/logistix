@@ -1,57 +1,41 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
+import 'package:dispatcher/src/data/dtos/order_create_input.dart';
 import 'package:dispatcher/src/domain/repositories/order_repository.dart';
-import 'package:dispatcher/src/domain/repositories/rider_repository.dart';
+import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 
-class CreateOrderState {
-  CreateOrderState({
-    required this.orders,
-    required this.isLoading,
-    this.riders = const [],
-    this.error,
-    this.success = false,
-  });
+part 'create_order_cubit.freezed.dart';
 
-  factory CreateOrderState.initial() => CreateOrderState(
-    orders: [const OrderCreateInput(pickupAddress: '')],
-    isLoading: false,
-  );
-
-  final List<OrderCreateInput> orders;
-  final List<Rider> riders;
-  final bool isLoading;
-  final String? error;
-  final bool success;
-
-  CreateOrderState copyWith({
-    List<OrderCreateInput>? orders,
-    List<Rider>? riders,
-    bool? isLoading,
+@freezed
+class CreateOrderState with _$CreateOrderState {
+  const factory CreateOrderState({
+    required List<OrderCreateInput> orders,
+    @Default([]) List<Rider> riders,
+    @Default(false) bool isLoading,
+    @Default(0) int formKeyVersion,
     String? error,
-    bool? success,
-  }) {
-    return CreateOrderState(
-      orders: orders ?? this.orders,
-      riders: riders ?? this.riders,
-      isLoading: isLoading ?? this.isLoading,
-      error: error,
-      success: success ?? this.success,
-    );
-  }
+    @Default(false) bool success,
+  }) = _CreateOrderState;
+
+  factory CreateOrderState.initial() =>
+      const CreateOrderState(orders: [OrderCreateInput(dropOffAddress: '')]);
 }
 
 class CreateOrderCubit extends Cubit<CreateOrderState> {
-  CreateOrderCubit(this._orderRepo, this._riderRepo)
+  CreateOrderCubit(this._orderRepo, this._searchRidersUseCase)
     : super(CreateOrderState.initial());
 
   final OrderRepository _orderRepo;
-  final RiderRepository _riderRepo;
+  final SearchRidersUseCase _searchRidersUseCase;
 
   Future<List<Rider>> searchRiders(String query) async {
-    final result = await _riderRepo.getRiders(search: query, limit: 20);
-    return result.map((err) => [], (list) => list);
+    final riders = await _searchRidersUseCase(query);
+    emit(state.copyWith(riders: riders));
+    return riders;
   }
 
   void addOrder() {
@@ -59,7 +43,7 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
       state.copyWith(
         orders: [
           ...state.orders,
-          const OrderCreateInput(pickupAddress: ''),
+          const OrderCreateInput(dropOffAddress: ''),
         ],
       ),
     );
@@ -76,59 +60,74 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
     emit(state.copyWith(orders: newList));
   }
 
-  late final parseWithAi = AsyncRunner.withArg<String, AppError, void>(
-    _parseWithAI,
-  );
-
-  Future<void> _parseWithAI(String text) async {
+  late final parseWithAi = AsyncRunner.withArg<String, AppError, void>((
+    text,
+  ) async {
     if (text.trim().isEmpty) return;
-
     final result = await _orderRepo.parseTextToOrders(text);
     if (isClosed) return;
 
-    result.when(
-      data: (parsed) {
-        emit(
-          state.copyWith(
-            orders: [
-              ...state.orders.where((o) => o.pickupAddress.isNotEmpty),
-              ...parsed,
-            ],
-          ),
-        );
-      },
-      error: (err) => throw err,
-    );
-  }
+    result.map((err) => throw err, (parsed) {
+      emit(
+        state.copyWith(
+          orders: [
+            ...state.orders.where((o) => o.dropOffAddress.isNotEmpty),
+            ...parsed,
+          ],
+        ),
+      );
+    });
+  });
 
-  Future<void> submit() async {
+  Future<void> submitOrders() async {
     final validOrders = state.orders
-        .where((o) => o.pickupAddress.trim().isNotEmpty)
+        .where((o) => o.dropOffAddress.trim().isNotEmpty)
         .toList();
 
     if (validOrders.isEmpty) {
       emit(
-        state.copyWith(error: 'Please add at least one valid pickup address'),
+        state.copyWith(error: 'Please add at least one valid delivery address'),
       );
+      // Reset error after a delay if needed, or handle in UI
       return;
     }
 
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, error: null));
 
     final result = await _orderRepo.createBulkOrders(validOrders);
+
     if (isClosed) return;
-    result.map(
-      (err) => emit(
+
+    result.map((err) {
+      emit(
         state.copyWith(
           isLoading: false,
           error: err is UserError ? err.message : 'Failed to create orders',
         ),
-      ),
-      (list) => emit(state.copyWith(isLoading: false, success: true)),
-    );
+      );
+    }, (list) => emit(state.copyWith(isLoading: false, success: true)));
   }
 
   void reset() {
-    emit(CreateOrderState.initial());
+    emit(CreateOrderState.initial().copyWith(formKeyVersion: state.formKeyVersion + 1));
+  }
+
+  // Clean structured key-value template (two example orders separated by ---)
+  static const String _kOrderTemplate = '''
+Pickup: 12 Ada George Road, GRA
+Pickup Phone: 08012345678
+Dropoff: Rumuokoro Junction, PH
+Dropoff Phone: 07098765432
+Amount: 5000
+Description: 2 Large Pizzas
+''';
+
+  Future<void> copyTemplateToClipboard() {
+    return Clipboard.setData(const ClipboardData(text: _kOrderTemplate));
+  }
+
+  Future<String?> pasteFromClipboard() async {
+    final data = await Clipboard.getData('text/plain');
+    return data?.text;
   }
 }

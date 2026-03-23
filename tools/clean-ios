@@ -1,0 +1,14 @@
+cd app/ios      
+pod cache clean --all
+rm Podfile.lock
+rm -rf .symlinks/
+cd ..
+flutter clean
+flutter pub get
+cd ios
+pod update
+pod repo update
+pod install --repo-update
+pod update
+pod install
+cd ../..

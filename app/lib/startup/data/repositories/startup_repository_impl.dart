@@ -6,8 +6,14 @@ import 'package:logistix/startup/domain/repositories/startup_repository.dart';
 import 'package:shared/shared.dart';
 
 class StartupRepositoryImpl implements StartupRepository {
-  const StartupRepositoryImpl(this._dataSource, this._tokenStore);
+  const StartupRepositoryImpl(
+    this._dataSource,
+    this._tokenStore,
+    this._userStore,
+  );
+
   final TokenStore _tokenStore;
+  final UserStore _userStore;
   final StartupRemoteDataSource _dataSource;
 
   @override
@@ -16,8 +22,17 @@ class StartupRepositoryImpl implements StartupRepository {
     if (token == null) return const Result.data(null);
 
     return Result.tryCatch<AppError, User?>(() async {
-      final userDto = await _dataSource.getCurrentUser();
-      return userDto?.toEntity();
+      try {
+        final userDto = await _dataSource.getCurrentUser();
+        if (userDto != null) {
+          final userEntity = userDto.toEntity();
+          await _userStore.saveUser(userEntity);
+          return userEntity;
+        }
+        return null;
+      } on Object {
+        return _userStore.getUser();
+      }
     });
   }
 }

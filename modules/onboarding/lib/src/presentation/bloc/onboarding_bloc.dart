@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:bootstrap/definitions/app_error.dart';
-import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onboarding/src/data/models/dispatcher_profile_dto.dart';
 import 'package:onboarding/src/data/models/rider_profile_dto.dart';
@@ -11,101 +9,127 @@ import 'package:onboarding/src/presentation/bloc/onboarding_state.dart';
 import 'package:shared/shared.dart';
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
-  OnboardingBloc(this._repository, this._logoutUseCase)
-    : super(OnboardingState.initial()) {
+  OnboardingBloc(this._repository, this._authStatusRepository)
+    : super(const OnboardingState.initial()) {
     on<OnboardingEvent>((event, emit) async {
       await event.when<FutureOr<void>>(
-        updateProgress: (company) => _onUpdateProgress(company, emit),
-        submitRiderOnboarding: (phoneNumber, registrationNumber) =>
-            _onSubmitRiderOnboarding(phoneNumber, registrationNumber, emit),
-        submitDispatcherOnboarding: (companyName, phoneNumber, address, cac) =>
-            _onSubmitDispatcherOnboarding(
-              companyName,
-              phoneNumber,
-              address,
-              cac,
-              emit,
-            ),
-        backToAuth: () => _onBackToAuth(emit),
+        saveRiderOnboarding: (phoneNumber, registrationNumber, company) {
+          return _onSaveRiderOnboarding(
+            phoneNumber,
+            registrationNumber,
+            company,
+            emit,
+          );
+        },
+        saveDispatcherOnboarding: (companyName, phoneNumber, address, cac) {
+          return _onSaveDispatcherOnboarding(
+            companyName,
+            phoneNumber,
+            address,
+            cac,
+            emit,
+          );
+        },
+        saveCustomerOnboarding: () => emit(const OnboardingState.customer()),
+        submitOnboarding: () => _onSubmitOnboarding(emit),
       );
     });
   }
 
   final OnboardingRepository _repository;
-  final LogoutUseCase _logoutUseCase;
+  final AuthStatusRepository _authStatusRepository;
 
-  late final backToAuthRunner = AsyncRunner<AppError, void>(
-    _logoutUseCase.call,
-  );
+  void backToAuth() => _authStatusRepository.setUnauthenticated();
 
-  void _onUpdateProgress(
-    Company? company,
-    // bool? isIndependent,
-    // String? permitUrl,
-    Emitter<OnboardingState> emit,
-  ) {
-    emit(
-      state.copyWith(
-        company: company ?? state.company,
-        // isIndependent: isIndependent ?? state.isIndependent,
-        // permitUrl: permitUrl ?? state.permitUrl,
-      ),
-    );
-  }
-
-  Future<void> _onBackToAuth(Emitter<OnboardingState> emit) async {
-    await _logoutUseCase();
-    emit(OnboardingState.initial());
-  }
-
-  Future<void> _onSubmitRiderOnboarding(
+  Future<void> _onSaveRiderOnboarding(
     String phoneNumber,
     String registrationNumber,
+    Company company,
     Emitter<OnboardingState> emit,
   ) async {
-    emit(state.copyWith(status: OnboardingStatus.loading));
-
-    final profile = RiderProfileDto(
-      phoneNumber: phoneNumber,
-      registrationNumber: registrationNumber,
-      companyId: state.company?.id,
-      // isIndependent: state.isIndependent,
-      // permitUrl: state.permitUrl,
-    );
-
-    final result = await _repository.submitRiderProfile(profile);
-
-    result.map(
-      (error) => emit(
-        state.copyWith(status: OnboardingStatus.error, message: error.message),
+    emit(
+      OnboardingState.rider(
+        phoneNumber: phoneNumber,
+        registrationNumber: registrationNumber,
+        company: company,
       ),
-      (_) => emit(state.copyWith(status: OnboardingStatus.success)),
     );
   }
 
-  Future<void> _onSubmitDispatcherOnboarding(
+  Future<void> _onSaveDispatcherOnboarding(
     String companyName,
     String phoneNumber,
     String address,
     String cac,
     Emitter<OnboardingState> emit,
   ) async {
-    emit(state.copyWith(status: OnboardingStatus.loading));
-
-    final profile = DispatcherProfileDto(
-      companyName: companyName,
-      phoneNumber: phoneNumber,
-      address: address,
-      cac: cac,
-    );
-
-    final result = await _repository.submitDispatcherProfile(profile);
-
-    result.when(
-      data: (_) => emit(state.copyWith(status: OnboardingStatus.success)),
-      error: (error) => emit(
-        state.copyWith(status: OnboardingStatus.error, message: error.message),
+    emit(
+      OnboardingState.dispatcher(
+        companyName: companyName,
+        phoneNumber: phoneNumber,
+        address: address,
+        cac: cac,
       ),
+    );
+  }
+
+  Future<void> _onSubmitOnboarding(Emitter<OnboardingState> emit) async {
+    await state.map<FutureOr<void>>(
+      initial: (value) {},
+      rider: (state) async {
+        final profile = RiderProfileDto(
+          phoneNumber: state.phoneNumber,
+          registrationNumber: state.registrationNumber,
+          companyId: state.company.id,
+        );
+
+        final result = await _repository.submitRiderProfile(profile);
+
+        result.map(
+          (error) => emit(
+            state.copyWith(
+              status: OnboardingStatus.error,
+              message: error.message,
+            ),
+          ),
+          (_) => emit(state.copyWith(status: OnboardingStatus.success)),
+        );
+      },
+      dispatcher: (state) async {
+        final profile = DispatcherProfileDto(
+          companyName: state.companyName,
+          phoneNumber: state.phoneNumber,
+          address: state.address,
+          cac: state.cac,
+        );
+
+        final result = await _repository.submitDispatcherProfile(profile);
+
+        result.when(
+          data: (_) {
+            emit(state.copyWith(status: OnboardingStatus.success));
+          },
+          error: (error) => emit(
+            state.copyWith(
+              status: OnboardingStatus.error,
+              message: error.message,
+            ),
+          ),
+        );
+      },
+      customer: (state) async {
+        final result = await _repository.submitCustomerProfile();
+
+        result.when(
+          data: (_) => emit(state.copyWith(status: OnboardingStatus.success)),
+          error: (error) => emit(
+            state.copyWith(
+              status: OnboardingStatus.error,
+              message: error.message,
+            ),
+          ),
+        );
+      },
     );
   }
 }

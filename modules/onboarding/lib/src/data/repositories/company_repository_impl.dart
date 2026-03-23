@@ -11,21 +11,21 @@ class CompanyRepositoryImpl implements CompanyRepository {
   @override
   Future<Result<AppError, PaginatedResult<Company>>> getCompanies({
     String? search,
-    int page = 1,
-    int perPage = 20,
+    int limit = 20,
+    int offset = 0,
   }) async {
     return await Result.tryCatch<AppError, PaginatedResult<Company>>(() async {
       final (:items, :total) = await _dataSource.getCompanies(
         search: search,
-        page: page,
-        perPage: perPage,
+        limit: limit,
+        offset: offset,
       );
 
       return PaginatedResult(
         items: items.map((dto) => dto.toEntity()).toList(),
         total: total,
-        page: page,
-        perPage: perPage,
+        limit: limit,
+        offset: offset,
       );
     });
   }

@@ -1,71 +1,162 @@
 import 'dart:async';
 
+import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:dispatcher/src/core/network/sync/dispatcher_subscription_handler.dart';
+import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:shared/shared.dart';
 
+/// Manages dispatcher session with real-time subscriptions
+///
+/// Architecture:
+/// - Subscriptions write to Drift via SubscriptionHandler
+/// - Cubits subscribe to Drift streams for reactive updates
+/// - No manual callbacks needed
 class DispatcherSessionManager {
-  DispatcherSessionManager(this._eventStreamManager);
+  DispatcherSessionManager(
+    this._dataSource,
+    this._subscriptionHandler,
+    this._orderDao,
+    this._riderDao,
+    this._metricsStore,
+    this._database,
+  );
 
-  final AppEventStreamManager _eventStreamManager;
+  final DispatcherSessionRemoteDataSource _dataSource;
+  final ObjectStore<DispatcherMetricsDto> _metricsStore;
+  final DispatcherSubscriptionHandler _subscriptionHandler;
+  final LogistixDatabase _database;
+  final OrderDao _orderDao;
+  final RiderDao _riderDao;
 
-  StreamSubscription<void>? _orderCreatedSubscription;
-  StreamSubscription<void>? _orderUpdatedSubscription;
-  StreamSubscription<void>? _riderLocationSubscription;
-  StreamSubscription<void>? _riderStatusSubscription;
-  StreamSubscription<void>? _metricsSubscription;
+  SyncManager? _orderSyncManager;
+  SyncManager? _riderSyncManager;
+  Timer? _syncTimer;
+  bool _isSyncing = false;
 
-  Future<void> start({
-    required String companyId,
-    required void Function(Order) onOrderCreated,
-    required void Function(Order) onOrderUpdated,
-    required void Function(String riderId, double lat, double lng, int? batteryLevel) onRiderLocationUpdated,
-    required void Function(String riderId, String status) onRiderStatusChanged,
-    required void Function(Metrics) onMetricsUpdated,
-  }) async {
-    // Start the unified event stream for this dispatcher
-    await _eventStreamManager.startDispatcherStream(companyId);
-
-    // Subscribe to order created events
-    await _orderCreatedSubscription?.cancel();
-    _orderCreatedSubscription = _eventStreamManager.orderCreated.listen(
-      (event) => onOrderCreated(event.order),
+  Future<void> start({required String companyId}) async {
+    // 1. Subscribe to order updates (performs sync on connection and reconnection)
+    _orderSyncManager = await _dataSource.subscribeToOrderUpdates(
+      companyId: companyId,
+      onData: (orderDto, eventType, metrics) async {
+        await _subscriptionHandler.handleOrderUpdate(
+          orderDto,
+          eventType,
+          dispatcherMetrics: metrics,
+        );
+      },
+      onSync: _performSync,
     );
 
-    // Subscribe to order updated events
-    await _orderUpdatedSubscription?.cancel();
-    _orderUpdatedSubscription = _eventStreamManager.dispatcherOrderUpdated.listen(
-      (event) => onOrderUpdated(event.order),
+    // 2. Subscribe to rider updates (performs sync on connection and reconnection)
+    _riderSyncManager = await _dataSource.subscribeToRiderUpdates(
+      companyId: companyId,
+      onData: (riderDto, eventType, metrics) async {
+        await _subscriptionHandler.handleRiderUpdate(
+          riderDto,
+          eventType,
+          dispatcherMetrics: metrics,
+        );
+      },
     );
 
-    // Subscribe to rider location updates
-    await _riderLocationSubscription?.cancel();
-    _riderLocationSubscription = _eventStreamManager.riderLocationUpdated.listen(
-      (event) => onRiderLocationUpdated(
-        event.riderId,
-        event.lat,
-        event.lng,
-        event.batteryLevel,
-      ),
-    );
-
-    // Subscribe to rider status changes
-    await _riderStatusSubscription?.cancel();
-    _riderStatusSubscription = _eventStreamManager.riderStatusChanged.listen(
-      (event) => onRiderStatusChanged(event.riderId, event.status),
-    );
-
-    // Subscribe to metrics updates
-    await _metricsSubscription?.cancel();
-    _metricsSubscription = _eventStreamManager.metricsUpdated.listen(
-      (event) => onMetricsUpdated(event.metrics),
+    // 3. Start periodic sync every 5 minutes
+    _syncTimer?.cancel();
+    _syncTimer = Timer.periodic(
+      const Duration(minutes: 5),
+      (_) => _performSync(),
     );
   }
 
+  Future<void> _performSync() async {
+    if (_isSyncing) return;
+    _isSyncing = true;
+
+    try {
+      final lastSyncTime = await _database.getLastSyncTime(
+        'dispatcher_last_sync',
+      );
+
+      final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
+
+      var offset = 0;
+      const limit = 50;
+      var hasMore = true;
+      int? lastUpdated;
+
+      while (hasMore) {
+        try {
+          final syncDto = await _dataSource.syncData(
+            since: since,
+            limit: limit,
+            offset: offset,
+          );
+
+          lastUpdated = syncDto.lastUpdated;
+
+          // Upsert orders in batch
+          if (syncDto.orders.isNotEmpty) {
+            await _orderDao.upsertOrders(
+              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
+            );
+          }
+
+          // Upsert riders in batch
+          if (syncDto.riders.isNotEmpty) {
+            await _riderDao.upsertRiders(
+              syncDto.riders.map((e) => e.toDriftCompanion()).toList(),
+            );
+          }
+
+          // Save metrics to ObjectStore (usually from first page is enough)
+          if (offset == 0) {
+            await _metricsStore.set(syncDto.metrics);
+          }
+
+          // Handle deleted orders
+          if (syncDto.deletedOrderIds.isNotEmpty) {
+            await _orderDao.deleteOrders(syncDto.deletedOrderIds);
+          }
+
+          // Handle deleted riders
+          if (syncDto.deletedRiderIds.isNotEmpty) {
+            await _riderDao.deleteRiders(syncDto.deletedRiderIds);
+          }
+
+          if (syncDto.orders.length < limit && syncDto.riders.length < limit) {
+            hasMore = false;
+          } else {
+            offset += limit;
+          }
+        } catch (e) {
+          // Log page error but allow the next page or retry to handle it.
+          // For crucial syncs, we might want to throw or retry here.
+          // In a real app, we'd log to Sentry.
+          hasMore = false; // Stop this sync cycle if a page fails
+          rethrow;
+        }
+      }
+
+      // Update last sync time immediately after a successful page fetch
+      if (lastUpdated != null) {
+        await _database.updateLastSyncTime(
+          'dispatcher_last_sync',
+          DateTime.fromMillisecondsSinceEpoch(lastUpdated),
+          null,
+        );
+      }
+    } catch (e) {
+      // Handle overall sync error
+    } finally {
+      _isSyncing = false;
+    }
+  }
+
   void stop() {
-    _orderCreatedSubscription?.cancel();
-    _orderUpdatedSubscription?.cancel();
-    _riderLocationSubscription?.cancel();
-    _riderStatusSubscription?.cancel();
-    _metricsSubscription?.cancel();
-    _eventStreamManager.stop();
+    _orderSyncManager?.stop();
+    _orderSyncManager = null;
+    _riderSyncManager?.stop();
+    _riderSyncManager = null;
+    _syncTimer?.cancel();
+    _syncTimer = null;
   }
 }

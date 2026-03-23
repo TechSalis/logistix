@@ -6,25 +6,25 @@ import 'package:shared/shared.dart';
 abstract class CompanyRemoteDataSource {
   Future<({List<CompanyDto> items, int total})> getCompanies({
     String? search,
-    int page = 1,
-    int perPage = 20,
+    int limit = 20,
+    int offset = 0,
   });
 }
 
-class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
-  CompanyRemoteDataSourceImpl(this._graphql);
-  final GraphQLService _graphql;
+class CompanyRemoteDataSourceImpl extends BaseRemoteDataSource
+    implements CompanyRemoteDataSource {
+  CompanyRemoteDataSourceImpl(super.graphql);
 
   @override
   Future<({List<CompanyDto> items, int total})> getCompanies({
     String? search,
-    int page = 1,
-    int perPage = 20,
+    int limit = 20,
+    int offset = 0,
   }) async {
     try {
-      const query = r'''
-        query GetCompanies($search: String, $page: Int!, $perPage: Int!) {
-          companies(search: $search, page: $page, perPage: $perPage) {
+      const queryDocument = r'''
+        query GetCompanies($search: String, $limit: Int!, $offset: Int!) {
+          companies(search: $search, limit: $limit, offset: $offset) {
             items {
               id
               name
@@ -35,18 +35,14 @@ class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
         }
       ''';
 
-      final result = await _graphql.query(
-        query,
-        variables: {'search': search, 'page': page, 'perPage': perPage},
+      final data = await query<Map<String, dynamic>>(
+        queryDocument,
+        variables: {'search': search, 'limit': limit, 'offset': offset},
+        key: 'companies',
       );
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-
-      final data = result.data?['companies'];
-      final rawItems = (data?['items'] as List).cast<Map<String, dynamic>?>();
-      final total = (data?['total'] as num?)?.toInt() ?? 0;
+      final rawItems = (data['items'] as List).cast<Map<String, dynamic>?>();
+      final total = (data['total'] as num?)?.toInt() ?? 0;
 
       return (
         items: rawItems.nonNulls.map(CompanyDto.fromJson).toList(),

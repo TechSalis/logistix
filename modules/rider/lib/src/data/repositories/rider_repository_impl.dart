@@ -1,21 +1,64 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
+import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:shared/shared.dart';
 
 class RiderRepositoryImpl implements RiderRepository {
-  RiderRepositoryImpl(this._dataSource);
-  final RiderRemoteDataSource _dataSource;
+  RiderRepositoryImpl({
+    required RiderRemoteDataSource remoteDataSource,
+    required OrderDao orderDao,
+    required RiderDao riderDao,
+    required StreamableObjectStore<RiderMetricsDto> metricsStore,
+  }) : _remoteDataSource = remoteDataSource,
+       _orderDao = orderDao,
+       _riderDao = riderDao,
+       _metricsStore = metricsStore;
 
+  final RiderRemoteDataSource _remoteDataSource;
+  final OrderDao _orderDao;
+  final RiderDao _riderDao;
+  final StreamableObjectStore<RiderMetricsDto> _metricsStore;
+
+  // READ operations - stream from local DB
   @override
-  Future<Result<AppError, Rider>> getRiderProfile() async {
-    return await Result.tryCatch<AppError, Rider>(() async {
-      final dto = await _dataSource.getMeRider();
-      return dto.toEntity();
-    });
+  Stream<Rider?> watchRiderProfile(String riderId) {
+    return _riderDao.watchRider(riderId);
   }
 
+  @override
+  Stream<Order?> watchOrder(String orderId) {
+    return _orderDao.watchOrder(orderId);
+  }
+
+  @override
+  Stream<List<Order>> watchRiderOrders({
+    List<OrderStatus>? status,
+    String? searchQuery,
+    int limit = 20,
+    int offset = 0,
+    bool isPrioritySort = false,
+  }) {
+    final isAll = status == null || status.isEmpty;
+
+    return _orderDao.watchOrders(
+      statuses: status,
+      searchQuery: searchQuery,
+      includeUnassigned: isAll,
+      limit: limit,
+      offset: offset,
+      isPrioritySort: isPrioritySort,
+    );
+  }
+
+  @override
+  Stream<RiderMetricsDto?> watchRiderMetrics() async* {
+    yield await _metricsStore.get();
+    yield* _metricsStore.watch();
+  }
+
+  // WRITE operations - go to server
   @override
   Future<Result<AppError, Rider>> updateRiderLocation(
     String riderId,
@@ -23,57 +66,72 @@ class RiderRepositoryImpl implements RiderRepository {
     double lng, {
     int? batteryLevel,
   }) async {
-    return await Result.tryCatch<AppError, Rider>(() async {
-      final dto = await _dataSource.updateLocation(
+    return Result.tryCatch(() async {
+      final dto = await _remoteDataSource.updateLocation(
         riderId,
         lat,
         lng,
         batteryLevel,
       );
+
+      // Update local DB
+      await _riderDao.upsertRider(dto.toDriftCompanion());
+
       return dto.toEntity();
     });
   }
 
   @override
-  Future<Result<AppError, Order>> getOrder(String orderId) async {
-    return await Result.tryCatch<AppError, Order>(() async {
-      final dto = await _dataSource.getOrder(orderId);
+  Future<Result<AppError, Rider?>> getRider(String riderId) async {
+    return Result.tryCatch(() async {
+      return _riderDao.getRider(riderId);
+    });
+  }
+
+  @override
+  Future<Result<AppError, Rider>> fetchProfile() async {
+    return Result.tryCatch(() async {
+      final dto = await _remoteDataSource.fetchProfile();
+      await _riderDao.upsertRider(dto.toDriftCompanion());
       return dto.toEntity();
     });
   }
 
   @override
-  Future<Result<AppError, List<Order>>> getRiderOrders({
-    List<OrderStatus>? status,
-    int? limit,
-    int? offset,
-    String? sortOrder,
-  }) async {
-    return await Result.tryCatch<AppError, List<Order>>(() async {
-      final dtos = await _dataSource.getOrders(
-        status: status?.map((e) => e.value).toList(),
-        limit: limit,
-        offset: offset,
-        sortOrder: sortOrder,
-      );
-      return dtos.map((dto) => dto.toEntity()).toList();
-    });
-  }
-
-  @override
-  Future<Result<AppError, void>> updateOrderStatus(
+  Future<Result<AppError, Order>> updateOrderStatus(
     String orderId,
     OrderStatus status,
   ) async {
-    return await Result.tryCatch<AppError, void>(() async {
-      await _dataSource.updateOrderStatus(orderId, status.value);
+    return Result.tryCatch(() async {
+      final dto = await _remoteDataSource.updateOrderStatus(
+        orderId,
+        status.value,
+      );
+
+      // Update local DB immediately to reflect changes in UI
+      // (since backend filters out current session in subscriptions)
+      await _orderDao.upsertOrder(dto.toDriftCompanion());
+
+      return dto.toEntity();
     });
   }
 
   @override
-  Future<Result<AppError, RiderMetrics>> getRiderMetrics() async {
-    return await Result.tryCatch<AppError, RiderMetrics>(() async {
-      final dto = await _dataSource.getRiderMetrics();
+  Future<Result<AppError, Rider>> sendHeartbeat({
+    required double lat,
+    required double lng,
+    int? batteryLevel,
+  }) async {
+    return Result.tryCatch(() async {
+      final dto = await _remoteDataSource.sendHeartbeat(
+        lat: lat,
+        lng: lng,
+        batteryLevel: batteryLevel,
+      );
+
+      // Update local DB with latest rider info (including status)
+      await _riderDao.upsertRider(dto.toDriftCompanion());
+
       return dto.toEntity();
     });
   }

@@ -1,4 +1,3 @@
-import 'package:adapters/adapters.dart';
 import 'package:auth/auth.dart';
 import 'package:auth/src/presentation/router/auth_routes.dart';
 import 'package:bootstrap/core.dart';
@@ -25,10 +24,8 @@ class AuthModule extends Module<RouteBase> {
             create: (context) {
               return AuthBloc(
                 context.read<AuthRepository>(),
-                UserStoreImpl(
-                  SharedPrefsObjectStore(UserDto.fromJson, UserDto.toJsonFunc),
-                ),
-                injector.get<LogoutUseCase>(),
+                injector.get<UserStore>(),
+                injector.get<AuthStatusRepository>(),
               );
             },
             child: ToastServiceWidget(child: child),

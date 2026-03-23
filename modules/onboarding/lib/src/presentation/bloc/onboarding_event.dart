@@ -5,23 +5,21 @@ part 'onboarding_event.freezed.dart';
 
 @freezed
 class OnboardingEvent with _$OnboardingEvent {
-  const factory OnboardingEvent.submitRiderOnboarding({
+  const factory OnboardingEvent.saveRiderOnboarding({
     required String phoneNumber,
     required String registrationNumber,
-  }) = _SubmitRiderOnboarding;
+    required Company company,
+  }) = _SaveRiderOnboarding;
 
-  const factory OnboardingEvent.updateProgress({
-    Company? company,
-    // bool? isIndependent,
-    // String? permitUrl,
-  }) = _UpdateProgress;
-
-  const factory OnboardingEvent.submitDispatcherOnboarding({
+  const factory OnboardingEvent.saveDispatcherOnboarding({
     required String companyName,
     required String phoneNumber,
     required String address,
     required String cac,
-  }) = _SubmitDispatcherOnboarding;
+  }) = _SaveDispatcherOnboarding;
 
-  const factory OnboardingEvent.backToAuth() = _BackToAuth;
+  const factory OnboardingEvent.saveCustomerOnboarding() =
+      _SaveCustomerOnboarding;
+
+  const factory OnboardingEvent.submitOnboarding() = _SubmitOnboarding;
 }

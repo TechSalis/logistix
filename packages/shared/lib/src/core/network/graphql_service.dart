@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:bootstrap/interfaces/connectivity/connectivity.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/codec.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/oauth_token.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';
@@ -13,16 +14,33 @@ typedef RefreshTokenHandler =
 class GraphQLService {
   GraphQLService(
     this.tokenStore, {
+    required UserStore userStore,
+    required IConnectivityService connectivity,
     required RefreshTokenHandler onRefreshToken,
+    required AuthStatusRepository authStatus,
     Logger? logger,
-  }) : _onRefreshToken = onRefreshToken,
+  }) : _userStore = userStore,
+       _connectivity = connectivity,
+       _onRefreshToken = onRefreshToken,
+       _authStatus = authStatus,
        _logger = logger;
 
   final TokenStore tokenStore;
+  final UserStore _userStore;
+  final IConnectivityService _connectivity;
   final RefreshTokenHandler _onRefreshToken;
+  final AuthStatusRepository _authStatus;
   final Logger? _logger;
 
+  Future<String?> get sessionId async {
+    return (await _userStore.getUser())?.sessionId;
+  }
+
   late final GraphQLClient client;
+  WebSocketLink? _wsLink;
+
+  StreamController<void>? _reconnectController;
+  StreamSubscription<bool>? _connectivitySubscription;
 
   bool _isRefreshing = false;
   Completer<void>? _refreshCompleter;
@@ -37,11 +55,13 @@ class GraphQLService {
       },
     );
 
-    var link = authLink.concat(httpLink).concat(DedupeLink());
+    late final Link link;
 
-    if (wsUrl != null && wsUrl.isNotEmpty) {
-      final wsLink = WebSocketLink(
+    // If WebSocket URL is provided, create split link
+    if (wsUrl != null) {
+      _wsLink = WebSocketLink(
         wsUrl,
+        subProtocol: GraphQLProtocol.graphqlTransportWs,
         config: SocketClientConfig(
           initialPayload: () async {
             final tokenObj = await tokenStore.read();
@@ -50,8 +70,25 @@ class GraphQLService {
         ),
       );
 
-      link = Link.split((request) => request.isSubscription, wsLink, link);
+      // Split: WebSocket for subscriptions, HTTP for queries/mutations
+      link = authLink
+          .concat(
+            Link.split((request) => request.isSubscription, _wsLink!, httpLink),
+          )
+          .concat(DedupeLink());
+    } else {
+      link = authLink.concat(httpLink).concat(DedupeLink());
     }
+
+    // Listen to connectivity changes to trigger catch-up syncs
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+      connected,
+    ) {
+      if (connected) {
+        _logger?.info('Network reachable, triggering reconnection sync');
+        _reconnectController?.add(null);
+      }
+    });
 
     client = GraphQLClient(
       link: link,
@@ -60,7 +97,13 @@ class GraphQLService {
     );
   }
 
-  Stream<QueryResult> subscribe(
+  void dispose() {
+    _wsLink?.dispose();
+    _connectivitySubscription?.cancel();
+    _reconnectController?.close();
+  }
+
+  Stream<QueryResult<T>> subscribe<T>(
     String document, {
     Map<String, dynamic>? variables,
   }) {
@@ -68,9 +111,31 @@ class GraphQLService {
       'Starting GraphQL subscription',
       extra: {'document': document, 'variables': variables},
     );
-    return client.subscribe(
-      SubscriptionOptions(document: gql(document), variables: variables ?? {}),
+    return client.subscribe<T>(
+      SubscriptionOptions<T>(
+        document: gql(document),
+        variables: variables ?? {},
+      ),
     );
+  }
+
+  /// Starts a GraphQL subscription and executes [onSync] catch-up logic
+  /// whenever the connection is established or restored.
+  Stream<QueryResult<T>> subscribeWithSync<T>(
+    String document, {
+    required Future<void> Function() onSync,
+    Map<String, dynamic>? variables,
+  }) {
+    // 2. Listen to internal reconnection events (socket or network)
+    // We use a separate subscription because we don't want to cancel the main one
+    // when this method is called multiple times.
+    _reconnectController ??= StreamController<void>.broadcast();
+    _reconnectController?.stream.listen((_) {
+      _logger?.info('Subscription catch-up sync triggered');
+      onSync();
+    });
+
+    return subscribe<T>(document, variables: variables);
   }
 
   Future<void> refreshAccessToken(OAuthToken token) async {
@@ -88,12 +153,25 @@ class GraphQLService {
         await tokenStore.write(newToken);
         _logger?.info('Token refreshed successfully');
       } else {
+        _logger?.warn('Token refresh returned null, clearing local tokens');
         await tokenStore.delete();
-        _logger?.warn('Token refresh failed, clearing token');
       }
-    } catch (e) {
+    } on Object catch (e) {
       _logger?.error('Token refresh error: $e');
-      await tokenStore.delete();
+      // Only delete on authentication failure, not transient network errors
+      if (e is OperationException) {
+        if (_isAuthenticationError(
+          QueryResult(
+            exception: e,
+            source: QueryResultSource.network,
+            options: QueryOptions(document: gql('')),
+          ),
+        )) {
+          _logger?.warn('Authentication failed during refresh, clearing token');
+          await tokenStore.delete();
+          _authStatus.setUnauthenticated();
+        }
+      }
       rethrow;
     } finally {
       _isRefreshing = false;
@@ -102,7 +180,7 @@ class GraphQLService {
     }
   }
 
-  Future<QueryResult> query(
+  Future<QueryResult<T>> query<T>(
     String document, {
     Map<String, dynamic>? variables,
     int maxRetries = 2,
@@ -115,67 +193,43 @@ class GraphQLService {
     );
 
     // Try network first, fallback to cache on failure
-    try {
-      final result = await _executeWithRetry(
-        () => client.query(
-          QueryOptions(
-            document: gql(document),
-            variables: variables ?? {},
-            fetchPolicy: FetchPolicy.cacheAndNetwork,
-          ),
+    final result = await _executeWithRetry<T>(
+      () => client.query<T>(
+        QueryOptions<T>(
+          document: gql(document),
+          variables: variables ?? {},
+          fetchPolicy: FetchPolicy.networkOnly,
         ),
-        maxRetries: maxRetries,
-        retryDelay: retryDelay,
+      ),
+      maxRetries: maxRetries,
+      retryDelay: retryDelay,
+    );
+
+    // If network succeeded, return result
+    if (!result.hasException) return result;
+
+    // Network failed, try cache if enabled
+    if (useCache) {
+      _logger?.info('Network failed, trying cache fallback');
+      final cacheResult = await client.query<T>(
+        QueryOptions<T>(
+          document: gql(document),
+          variables: variables ?? {},
+          fetchPolicy: FetchPolicy.cacheOnly,
+        ),
       );
 
-      // If network succeeded, return result
-      if (!result.hasException) return result;
-
-      // Network failed, try cache if enabled
-      if (useCache) {
-        _logger?.info('Network failed, trying cache fallback');
-        final cacheResult = await client.query(
-          QueryOptions(
-            document: gql(document),
-            variables: variables ?? {},
-            fetchPolicy: FetchPolicy.cacheOnly,
-          ),
-        );
-
-        // Return cache result if it has data, otherwise return network error
-        if (cacheResult.data != null && !cacheResult.hasException) {
-          _logger?.info('Cache fallback successful');
-          return cacheResult;
-        }
+      // Return cache result if it has data, otherwise return network error
+      if (cacheResult.data != null && !cacheResult.hasException) {
+        _logger?.info('Cache fallback successful');
+        return cacheResult;
       }
-
-      return result;
-    } catch (e) {
-      // On exception, try cache fallback if enabled
-      if (useCache) {
-        _logger?.info('Exception occurred, trying cache fallback');
-        try {
-          final cacheResult = await client.query(
-            QueryOptions(
-              document: gql(document),
-              variables: variables ?? {},
-              fetchPolicy: FetchPolicy.cacheOnly,
-            ),
-          );
-
-          if (cacheResult.data != null && !cacheResult.hasException) {
-            _logger?.info('Cache fallback successful after exception');
-            return cacheResult;
-          }
-        } catch (_) {
-          // Cache also failed, rethrow original exception
-        }
-      }
-      rethrow;
     }
+
+    return result;
   }
 
-  Future<QueryResult> mutate(
+  Future<QueryResult<T>> mutate<T>(
     String document, {
     Map<String, dynamic>? variables,
     int maxRetries = 2,
@@ -185,22 +239,22 @@ class GraphQLService {
       'Executing GraphQL mutation',
       extra: {'document': document, 'variables': variables},
     );
-    return _executeWithRetry(
-      () => client.mutate(
-        MutationOptions(document: gql(document), variables: variables ?? {}),
+    return _executeWithRetry<T>(
+      () => client.mutate<T>(
+        MutationOptions<T>(document: gql(document), variables: variables ?? {}),
       ),
       maxRetries: maxRetries,
       retryDelay: retryDelay,
     );
   }
 
-  Future<QueryResult> _executeWithRetry(
-    Future<QueryResult> Function() operation, {
+  Future<QueryResult<T>> _executeWithRetry<T>(
+    Future<QueryResult<T>> Function() operation, {
     required int maxRetries,
     required Duration retryDelay,
   }) async {
     var attempts = 0;
-    QueryResult? lastError;
+    QueryResult<T>? lastError;
 
     while (attempts <= maxRetries) {
       try {
@@ -215,22 +269,17 @@ class GraphQLService {
               final token = await tokenStore.read();
               if (token == null) return result;
 
-              // Check if token is actually expired before refreshing
-              if (_isTokenExpired(token)) {
-                _logger?.info('Token expired, attempting refresh');
-                await refreshAccessToken(token);
-                // Retry immediately after refresh
-                continue;
-              } else {
-                // Token is not expired, so this is a genuine auth error
-                _logger?.warn(
-                  'Auth error with non-expired token, not refreshing',
-                );
-                return result;
-              }
+              // Try to refresh even if not expired because permissions/roles might have changed
+              _logger?.info(
+                'Auth error detected, attempting refresh to sync latest roles',
+              );
+              await refreshAccessToken(token);
+              // Retry immediately after refresh
+              continue;
             } catch (_) {
               // Refresh failed, let the error bubble up
               _logger?.error('Token refresh failed during retry');
+              _authStatus.setUnauthenticated();
               return result;
             }
           }
@@ -323,18 +372,6 @@ class GraphQLService {
     return false;
   }
 
-  bool _isTokenExpired(OAuthToken token) {
-    // If expiresAt is null, we can't determine expiration, so we assume not expired
-    final expiresAt = token.expiresAt;
-    if (expiresAt == null) return false;
-
-    // Add a small buffer (30 seconds) to refresh before actual expiration
-    final now = DateTime.now();
-    const bufferTime = Duration(seconds: 30);
-
-    return now.add(bufferTime).isAfter(expiresAt);
-  }
-
   static Future<OAuthToken?> defaultRefreshToken(
     OAuthToken? currentToken,
     GraphQLClient _,
@@ -347,8 +384,8 @@ class GraphQLService {
       cache: GraphQLCache(),
     );
 
-    final result = await refreshClient.mutate(
-      MutationOptions(
+    final result = await refreshClient.mutate<Map<String, dynamic>>(
+      MutationOptions<Map<String, dynamic>>(
         document: gql(r'''
                   mutation RefreshToken($token: String!) {
                     refreshToken(token: $token) {
@@ -363,10 +400,14 @@ class GraphQLService {
       ),
     );
 
-    if (result.hasException) return null;
+    if (result.hasException) {
+      throw result.exception!;
+    }
 
     final data = result.data?['refreshToken'];
-    if (data == null) return null;
+    if (data == null) {
+      return null;
+    }
 
     return const OAuthTokenCodec().decode(data as Map<String, dynamic>);
   }

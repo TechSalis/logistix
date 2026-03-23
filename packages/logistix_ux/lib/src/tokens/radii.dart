@@ -12,10 +12,10 @@ abstract class LogistixRadii {
   static const double full = 9999;
 
   // Semantic radius
-  static const double button = md;
-  static const double input = md;
-  static const double card = lg;
-  static const double dialog = xl;
+  static const double button = xl; // Was md (8) -> now xl (16)
+  static const double input = lg;   // Was md (8) -> now lg (12)
+  static const double card = xxl;  // Was lg (12) -> now xxl (24)
+  static const double dialog = xxl;
   static const double sheet = xxl;
 
   // BorderRadius constants
@@ -42,9 +42,9 @@ abstract class LogistixRadii {
   );
 
   // Component-specific
-  static const BorderRadius borderRadiusButton = borderRadiusMd;
-  static const BorderRadius borderRadiusInput = borderRadiusMd;
-  static const BorderRadius borderRadiusCard = borderRadiusLg;
-  static const BorderRadius borderRadiusDialog = borderRadiusXl;
+  static const BorderRadius borderRadiusButton = borderRadiusXl;
+  static const BorderRadius borderRadiusInput = borderRadiusLg;
+  static const BorderRadius borderRadiusCard = borderRadiusXxl;
+  static const BorderRadius borderRadiusDialog = borderRadiusXxl;
   static const BorderRadius borderRadiusSheet = borderRadiusXxl;
 }

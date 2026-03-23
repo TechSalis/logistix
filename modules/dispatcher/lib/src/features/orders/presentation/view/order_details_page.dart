@@ -1,5 +1,10 @@
+import 'package:bootstrap/interfaces/toast/toast_service.dart';
+import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
+import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/domain/repositories/order_repository.dart';
+import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/order_details_cubit.dart';
+import 'package:dispatcher/src/features/riders/presentation/widgets/rider_dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -15,9 +20,10 @@ class OrderDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          OrderDetailsCubit(context.read<OrderRepository>())
-            ..loadOrder(orderId),
+      create: (context) {
+        return OrderDetailsCubit(context.read<OrderRepository>())
+          ..loadOrder(orderId);
+      },
       child: _OrderDetailsView(orderId),
     );
   }
@@ -31,17 +37,12 @@ class _OrderDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: LogistixColors.background,
       body: BlocBuilder<OrderDetailsCubit, OrderDetailsState>(
         builder: (context, state) {
           return state.when(
             initial: () => const SizedBox.shrink(),
             loading: () => const _OrderDetailsShimmer(),
-            error: (message) => LogistixErrorView(
-              message: message,
-              onRetry: () =>
-                  context.read<OrderDetailsCubit>().loadOrder(orderId),
-            ),
+            error: (message) => LogistixErrorView(message: message),
             loaded: (order) => _OrderLoadedContent(order: order),
           );
         },
@@ -65,10 +66,10 @@ class _OrderLoadedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final orderDetailsCubit = context.read<OrderDetailsCubit>();
     final dateFormat = DateFormat('MMM dd, yyyy • hh:mm a');
 
     return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
       slivers: [
         _SliverAppBar(order: order),
         SliverToBoxAdapter(
@@ -86,62 +87,90 @@ class _OrderLoadedContent extends StatelessWidget {
                 const SizedBox(height: LogistixSpacing.xl),
                 const _SectionTitle(title: 'DELIVERY DETAILS'),
                 const SizedBox(height: LogistixSpacing.md),
-                _InfoCard(
-                  title: 'Pickup Address',
-                  content: order.pickupAddress,
-                  icon: Icons.trip_origin_rounded,
-                  iconColor: LogistixColors.primary,
-                ),
-                const SizedBox(height: LogistixSpacing.md),
-                if (order.dropOffAddress != null) ...[
-                  _InfoCard(
-                    title: 'Drop-off Address',
-                    content: order.dropOffAddress!,
-                    icon: Icons.flag_rounded,
-                    iconColor: Colors.orange,
+                if (order.pickupAddress?.isNotEmpty ?? false) ...[
+                  LogistixInfoTile(
+                    icon: Icons.trip_origin_rounded,
+                    iconColor: LogistixColors.primary,
+                    title: 'Pickup',
+                    value: order.pickupAddress!,
+                    onTap: order.hasPickupPosition
+                        ? () => LauncherUtils.openMap(
+                            order.pickupLat!,
+                            order.pickupLng!,
+                          )
+                        : null,
                   ),
-                  const SizedBox(height: LogistixSpacing.md),
-                ],
-                if (order.items != null) ...[
-                  _InfoCard(
-                    title: 'Package Items',
-                    content: order.items!,
-                    icon: Icons.inventory_2_rounded,
-                  ),
-                  const SizedBox(height: LogistixSpacing.md),
-                ],
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: _InfoCard(
-                        title: 'Customer',
-                        content: order.customerName ?? 'Unknown Customer',
-                        icon: Icons.person_rounded,
-                        onIconTap: order.customerPhone != null
-                            ? () => context
-                                  .read<OrderDetailsCubit>()
-                                  .callRunner
-                                  .call(order.customerPhone)
-                            : null,
+                  if (order.pickupPhone?.isNotEmpty ?? false)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 32),
+                      child: LogistixInfoTile(
+                        icon: Icons.phone_rounded,
+                        iconColor: LogistixColors.primary,
+                        title: 'Call Sender',
+                        value: order.pickupPhone!,
+                        onTap: () {
+                          LauncherUtils.callNumber(order.pickupPhone!);
+                        },
                       ),
                     ),
-                    const SizedBox(width: LogistixSpacing.md),
-                    Expanded(
-                      flex: 2,
-                      child: _InfoCard(
-                        title: 'COD',
-                        content: order.codAmount != null
-                            ? '₩${order.codAmount!.toStringAsFixed(0)}'
-                            : 'None',
-                        icon: Icons.payments_rounded,
-                        iconColor: Colors.green,
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 12),
+                ],
+                LogistixInfoTile(
+                  icon: Icons.flag_rounded,
+                  iconColor: Colors.orange,
+                  title: 'Drop-off',
+                  value: order.dropOffAddress,
+                  isBold: true,
+                  onTap: order.hasDropOffPosition
+                      ? () => LauncherUtils.openMap(
+                          order.dropOffLat!,
+                          order.dropOffLng!,
+                        )
+                      : null,
                 ),
+                if (order.dropOffPhone?.isNotEmpty ?? false)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 32),
+                    child: LogistixInfoTile(
+                      icon: Icons.phone_forwarded_rounded,
+                      iconColor: Colors.orange,
+                      title: 'Call Receiver',
+                      value: order.dropOffPhone!,
+                      onTap: () {
+                        LauncherUtils.callNumber(order.dropOffPhone!);
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                LogistixInfoTile(
+                  icon: Icons.payments_rounded,
+                  iconColor: Colors.green,
+                  title: 'COD',
+                  value: order.codAmount != null && order.codAmount! > 0
+                      ? '₩${order.codAmount!.toStringAsFixed(0)}'
+                      : 'None',
+                ),
+                if (order.description != null &&
+                    order.description!.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  LogistixInfoTile(
+                    icon: Icons.description_rounded,
+                    iconColor: LogistixColors.textTertiary,
+                    title: 'Description',
+                    value: order.description!,
+                  ),
+                ],
                 const SizedBox(height: LogistixSpacing.xl),
                 _RiderSection(order: order),
+                const SizedBox(height: LogistixSpacing.xl),
+                Center(
+                  child: LogistixButton(
+                    onPressed: () => orderDetailsCubit.shareOrder(order),
+                    label: 'SHARE TRACKING LINK',
+                    icon: Icons.share_rounded,
+                    width: 280,
+                  ),
+                ),
               ],
             ),
           ),
@@ -159,8 +188,8 @@ class _SliverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRiderAssigned = order.rider != null;
-    final hasRiderLocation = order.rider?.hasLocation ?? false;
-    final isEnRoute = order.status == OrderStatus.enRoute;
+    final hasRiderLocation = order.rider?.hasPosition ?? false;
+    final isEnRoute = order.status == OrderStatus.EN_ROUTE;
 
     // Show rider location when rider is assigned and order is en route
     final shouldShowRiderLocation =
@@ -170,17 +199,20 @@ class _SliverAppBar extends StatelessWidget {
         ? LatLng(order.rider!.lastLat!, order.rider!.lastLng!)
         : null;
 
+    final expandedHeight = displayLocation != null ? 260.0 : 160.0;
+
     return SliverAppBar(
-      expandedHeight: 260,
       pinned: true,
       stretch: true,
-      backgroundColor: LogistixColors.background,
       elevation: 0,
+      expandedHeight: expandedHeight,
+      backgroundColor: LogistixColors.background,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
             if (displayLocation != null)
               GoogleMap(
+                key: ValueKey('map_${order.id}'),
                 initialCameraPosition: CameraPosition(
                   target: displayLocation,
                   zoom: 15,
@@ -191,14 +223,13 @@ class _SliverAppBar extends StatelessWidget {
                     markerId: const MarkerId('rider_with_order'),
                     position: displayLocation,
                     infoWindow: InfoWindow(
-                      title: '${order.rider!.fullName} - En Route',
+                      title: '${order.rider?.user?.fullName ?? ''} - En Route',
                       snippet:
                           'Delivering to '
-                          '${order.dropOffAddress ?? order.pickupAddress}',
+                          '${order.dropOffAddress}',
                     ),
                     icon: BitmapDescriptor.defaultMarkerWithHue(
                       BitmapDescriptor.hueOrange,
-                      // Use orange for order/delivery
                     ),
                   ),
                 },
@@ -215,35 +246,40 @@ class _SliverAppBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: LogistixColors.primary.withValues(alpha: 0.05),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        shouldShowRiderLocation
+                        isRiderAssigned && isEnRoute
                             ? Icons.location_searching_rounded
-                            : Icons.map_outlined,
-                        size: 48,
+                            : isRiderAssigned
+                            ? Icons.timer_outlined
+                            : Icons.person_add_outlined,
+                        size: 32,
                         color: LogistixColors.textTertiary,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     Text(
-                      shouldShowRiderLocation
-                          ? 'Rider Location Unavailable'
-                          : isRiderAssigned
+                      !isRiderAssigned
+                          ? 'No Rider Assigned'
+                          : order.status == OrderStatus.ASSIGNED
                           ? 'Waiting for Rider to Start'
-                          : 'No Rider Assigned',
-                      style: context.textTheme.labelLarge?.copyWith(
+                          : isEnRoute
+                          ? 'Rider Location Unavailable'
+                          : 'Order ${order.status.name.capitalize}',
+                      style: context.textTheme.labelLarge?.bold.copyWith(
                         color: LogistixColors.textSecondary,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
-                      'Delivery Address: ${order.pickupAddress}',
+                      'Pickup: ${order.pickupAddress ?? 'Lagos, Nigeria'}',
                       textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: context.textTheme.bodySmall?.copyWith(
                         color: LogistixColors.textTertiary,
                       ),
@@ -344,12 +380,36 @@ class _OrderHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                '#${order.trackingNumber}',
-                style: context.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: LogistixColors.text,
-                ),
+              Row(
+                children: [
+                  Text(
+                    '#${order.trackingNumber}',
+                    style: context.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      color: LogistixColors.text,
+                    ),
+                  ),
+                  if (order.companyId == null) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: LogistixColors.secondary,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'APP',
+                        style: context.textTheme.labelSmall?.bold.copyWith(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               const SizedBox(height: 8),
               Row(
@@ -402,197 +462,28 @@ class _RiderSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rider = order.rider;
+    if (order.rider == null && order.status.isCompleted) {
+      return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _SectionTitle(title: 'RIDER ASSIGNMENT'),
         const SizedBox(height: LogistixSpacing.md),
-        if (rider != null)
-          AnimatedScaleTap(
-            onTap: () {
-              // Navigate to rider profile
-            },
-            child: Container(
-              padding: const EdgeInsets.all(LogistixSpacing.md),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(LogistixRadii.lg),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(
-                  color: LogistixColors.border.withValues(alpha: 0.5),
-                ),
-              ),
-              child: Row(
-                children: [
-                  _AvatarWithName(rider: rider),
-                  const SizedBox(width: LogistixSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          rider.fullName,
-                          style: context.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        _RiderStatusIndicator(status: rider.status),
-                      ],
-                    ),
-                  ),
-                  if (rider.phoneNumber != null)
-                    IconButton.filledTonal(
-                      onPressed: () => context
-                          .read<OrderDetailsCubit>()
-                          .callRunner(rider.phoneNumber),
-                      icon: const Icon(Icons.phone_rounded),
-                      style: IconButton.styleFrom(
-                        backgroundColor: LogistixColors.primary.withValues(
-                          alpha: 0.1,
-                        ),
-                        foregroundColor: LogistixColors.primary,
-                      ),
-                    ),
-                  const SizedBox(width: 4),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: LogistixColors.textTertiary,
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          AnimatedScaleTap(
-            onTap: () => _showAssignRiderDialog(context),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: BoxDecoration(
-                color: LogistixColors.primary.withValues(alpha: 0.02),
-                borderRadius: BorderRadius.circular(LogistixRadii.lg),
-                border: Border.all(
-                  color: LogistixColors.primary.withValues(alpha: 0.15),
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: LogistixColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.person_add_rounded,
-                      color: LogistixColors.primary,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Assign a Rider',
-                          style: context.textTheme.titleMedium?.copyWith(
-                            color: LogistixColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Tap to select a professional rider',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: LogistixColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 16,
-                    color: LogistixColors.primary,
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _AvatarWithName extends StatelessWidget {
-  const _AvatarWithName({required this.rider});
-  final Rider rider;
-
-  @override
-  Widget build(BuildContext context) {
-    // Check if there's a profile image, else show initials or icon
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            LogistixColors.primary,
-            LogistixColors.primary.withValues(alpha: 0.8),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Icon(Icons.person_rounded, color: Colors.white, size: 30),
-    );
-  }
-}
-
-class _RiderStatusIndicator extends StatelessWidget {
-  const _RiderStatusIndicator({required this.status});
-  final RiderStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = status == RiderStatus.online ? Colors.green : Colors.grey;
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-            boxShadow: [
-              if (status == RiderStatus.online)
-                BoxShadow(
-                  color: color.withValues(alpha: 0.4),
-                  blurRadius: 4,
-                  spreadRadius: 1,
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          status.name.toUpperCase(),
-          style: context.textTheme.labelSmall?.copyWith(
-            color: LogistixColors.textSecondary,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
-          ),
+        RiderDropdownSearch(
+          selectedRider: order.rider,
+          searchRiders: (filter) {
+            return context.read<SearchRidersUseCase>().call(filter);
+          },
+          onChanged: (rider) {
+            if (rider != null) {
+              context.read<OrderDetailsCubit>().assignRunner(rider);
+            }
+          },
+          onUnassign: () => context.read<OrderDetailsCubit>().unassignRunner(),
+          showUnassign: order.rider != null,
+          isCompleted: order.status.isCompleted,
         ),
       ],
     );
@@ -614,7 +505,7 @@ class _StatusBadge extends StatelessWidget {
         border: Border.all(color: status.color.withValues(alpha: 0.2)),
       ),
       child: Text(
-        status.value.toUpperCase(),
+        status.label,
         style: context.textTheme.labelMedium?.copyWith(
           color: status.color,
           fontWeight: FontWeight.w900,
@@ -625,111 +516,137 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({
-    required this.title,
-    required this.content,
-    required this.icon,
-    this.iconColor,
-    this.onIconTap,
-  });
 
-  final String title;
-  final String content;
-  final IconData icon;
-  final Color? iconColor;
-  final VoidCallback? onIconTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(LogistixSpacing.md),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(LogistixRadii.lg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(color: LogistixColors.border.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: (iconColor ?? LogistixColors.textTertiary).withValues(
-                alpha: 0.1,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: iconColor ?? LogistixColors.textSecondary,
-            ),
-          ),
-          const SizedBox(width: LogistixSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: LogistixColors.textSecondary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  content,
-                  style: context.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: LogistixColors.text,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (onIconTap != null)
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onIconTap,
-                borderRadius: BorderRadius.circular(LogistixRadii.sm),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.call_rounded,
-                    size: 20,
-                    color: LogistixColors.primary,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
 
 class _BottomActionCta extends StatelessWidget {
   const _BottomActionCta({required this.order});
   final Order order;
 
+  Widget cancelButton(BuildContext context) {
+    final cubit = context.read<OrderDetailsCubit>();
+    return AsyncRunnerListener(
+      runner: cubit.cancelRunner,
+      listener: (context, state) {
+        if (state.status.isSuccess) {
+          context.toast.showToast(
+            'Order cancelled successfully',
+            type: ToastType.success,
+          );
+          // Stream will auto-update via Drift
+        } else if (state.status.isFailure) {
+          final error = state.result?.error;
+          context.toast.showToast(
+            error?.message ?? 'Failed to cancel order',
+            type: ToastType.error,
+          );
+        }
+      },
+      child: AsyncRunnerBuilder(
+        runner: cubit.cancelRunner,
+        builder: (context, state, _) {
+          return LogistixButton(
+            onPressed: cubit.cancelRunner.call,
+            isLoading: state.status.isRunning,
+            label: 'Cancel',
+            type: LogistixButtonType.danger,
+            icon: Icons.cancel_rounded,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget markDeliveredButton(BuildContext context) {
+    final cubit = context.read<OrderDetailsCubit>();
+    return AsyncRunnerListener(
+      runner: cubit.markDeliveredRunner,
+      listener: (context, state) {
+        if (state.status.isSuccess) {
+          context.toast.showToast('Order delivered', type: ToastType.success);
+        } else if (state.status.isFailure) {
+          context.toast.showToast(
+            state.result?.error.message ?? 'Failed to mark delivered',
+            type: ToastType.error,
+          );
+        }
+      },
+      child: AsyncRunnerBuilder(
+        runner: cubit.markDeliveredRunner,
+        builder: (context, state, _) {
+          return LogistixButton(
+            onPressed: cubit.markDeliveredRunner.call,
+            isLoading: state.status.isRunning,
+            label: 'Mark Delivered',
+            icon: Icons.check_circle_rounded,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget rejectButton(BuildContext context) {
+    final cubit = context.read<OrderDetailsCubit>();
+    return AsyncRunnerListener(
+      runner: cubit.rejectRunner,
+      listener: (context, state) {
+        if (state.status.isSuccess) {
+          context.toast.showToast(
+            'Order rejected successfully',
+            type: ToastType.success,
+          );
+        } else if (state.status.isFailure) {
+          final error = state.result?.error;
+          context.toast.showToast(
+            error?.message ?? 'Failed to reject order',
+            type: ToastType.error,
+          );
+        }
+      },
+      child: AsyncRunnerBuilder(
+        runner: cubit.rejectRunner,
+        builder: (context, state, _) {
+          return LogistixButton(
+            onPressed: cubit.rejectRunner.call,
+            isLoading: state.status.isRunning,
+            label: 'Reject Order',
+            type: LogistixButtonType.outline,
+            icon: Icons.close_rounded,
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    Widget? actionButton;
+    final isExternalLogistixApp = order.companyId == null;
+
+    switch (order.status) {
+      case OrderStatus.UNASSIGNED:
+        actionButton = isExternalLogistixApp
+            ? rejectButton(context)
+            : cancelButton(context);
+      case OrderStatus.ASSIGNED:
+      case OrderStatus.EN_ROUTE:
+        actionButton = Row(
+          children: [
+            Expanded(flex: 2, child: cancelButton(context)),
+            const SizedBox(width: 12),
+            Expanded(flex: 3, child: markDeliveredButton(context)),
+          ],
+        );
+      case OrderStatus.DELIVERED:
+      case OrderStatus.CANCELLED:
+        actionButton = null;
+    }
+
+    if (actionButton == null) return const SizedBox.shrink();
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        LogistixSpacing.lg,
-        LogistixSpacing.md,
-        LogistixSpacing.lg,
-        LogistixSpacing.md,
+      padding: const EdgeInsets.symmetric(
+        horizontal: LogistixSpacing.lg,
+        vertical: LogistixSpacing.md,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -745,21 +662,7 @@ class _BottomActionCta extends StatelessWidget {
           topRight: Radius.circular(LogistixRadii.xl),
         ),
       ),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          // Share tracking link
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: LogistixColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(LogistixRadii.lg),
-          ),
-        ),
-        label: const Text('Share Tracking Link'),
-        icon: const Icon(Icons.share_rounded),
-      ),
+      child: actionButton,
     );
   }
 }
@@ -835,13 +738,4 @@ class _OrderDetailsShimmer extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showAssignRiderDialog(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Rider assignment coming soon!'),
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
 }

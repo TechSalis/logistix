@@ -11,7 +11,7 @@ abstract class UploadRemoteDataSource {
 }
 
 class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
-  UploadRemoteDataSourceImpl(this._graphQLService);
+  const UploadRemoteDataSourceImpl(this._graphQLService);
   final GraphQLService _graphQLService;
 
   @override
@@ -27,7 +27,7 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
 
     final contentType = lookupMimeType(fileName);
 
-    final result = await _graphQLService.mutate(
+    final result = await _graphQLService.mutate<Map<String, dynamic>>(
       mutation,
       variables: {'fileName': fileName, 'contentType': contentType},
     );
@@ -39,7 +39,8 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
     final data = result.data?['getPresignedUploadUrl'];
     if (data == null) {
       throw const AppError(
-        message: 'Failed to get presigned URL: No data returned',
+        message: 'Failed to get presigned URL',
+        error: 'No data returned'
       );
     }
 
@@ -52,7 +53,7 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
       // Validate file exists
       final exists = file.existsSync();
       if (!exists) {
-        throw const AppError(message: 'File not found', code: 'FILE_NOT_FOUND');
+        throw const UserError(message: 'File not found');
       }
 
       final bytes = await file.readAsBytes();
@@ -63,37 +64,27 @@ class UploadRemoteDataSourceImpl implements UploadRemoteDataSource {
           .put(
             Uri.parse(url),
             body: bytes,
-            headers: {'Content-Type': contentType},
+            headers: {HttpHeaders.contentTypeHeader: contentType},
           )
           .timeout(const Duration(seconds: 60));
 
       if (response.statusCode != 200) {
         throw AppError(
           message: 'File upload failed with status ${response.statusCode}',
-          code: 'UPLOAD_FAILED',
+          error: response.body,
         );
       }
     } on TimeoutException catch (_) {
-      throw const AppError(
-        message: 'Upload timed out after 60 seconds',
-        code: 'UPLOAD_TIMEOUT',
-      );
+      throw const AppError(message: 'Upload timed out after 60 seconds');
     } on SocketException catch (_) {
-      throw const AppError(
-        message: 'Network error during upload',
-        code: 'NETWORK_ERROR',
-      );
+      throw const AppError(message: 'Network error during upload');
     } on HttpException catch (e) {
-      throw AppError(message: 'HTTP error: ${e.message}', code: 'HTTP_ERROR');
+      throw AppError(message: 'HTTP error: ${e.message}');
     } on FileSystemException catch (e) {
-      throw AppError(
-        message: 'Failed to read file: ${e.message}',
-        code: 'FILE_READ_ERROR',
-      );
+      throw AppError(message: 'Failed to read file: ${e.message}');
     } catch (e) {
       if (e is AppError) rethrow;
-      throw AppError(message: 'Upload failed: $e', code: 'UPLOAD_ERROR',
-      );
+      throw AppError(message: 'Upload failed: $e');
     }
   }
 }
