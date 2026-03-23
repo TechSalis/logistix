@@ -49,16 +49,11 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
             );
             context.go('${AuthRoutes.resetPassword}?email=$email');
           },
-          unauthenticated: (message) {
+          verifyOtpError: (message) {
             setState(() {
               _isVerifying = false;
             });
-            if (message != null) {
-              context.toast.showToast(message, type: ToastType.error);
-            }
-          },
-          otpSent: (_) {
-            // Handle resend OTP success
+            context.toast.showToast(message, type: ToastType.error);
           },
         );
       },

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:onboarding/src/domain/repositories/company_repository.dart';
@@ -60,221 +61,205 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<OnboardingBloc, OnboardingState>(
-          listenWhen: (previous, current) => previous.status != current.status,
-          listener: (context, state) {
-            if (state.status == OnboardingStatus.success) {
-              context.toast.showToast(
-                'Profile setup complete!',
-                type: ToastType.success,
-              );
-              context.go(ModuleRoutePaths.rider);
-            } else if (state.status == OnboardingStatus.error) {
-              context.toast.showToast(
-                state.message ?? 'An error occurred',
-                type: ToastType.error,
-              );
-            }
-          },
-        ),
-        // BlocListener<UploadCubit, UploadState>(
-        //   listener: (context, state) {
-        //     state.whenOrNull(
-        //       success: (key) {
-        //         context.read<OnboardingBloc>().add(
-        //           OnboardingEvent.updateProgress(permitUrl: key),
-        //         );
-        //         context.toast.showToast(
-        //           'Permit uploaded successfully',
-        //           type: ToastType.success,
-        //         );
-        //       },
-        //       error: (message) {
-        //         context.toast.showToast(
-        //           message ?? 'Upload failed',
-        //           type: ToastType.error,
-        //         );
-        //       },
-        //     );
-        //   },
-        // ),
-      ],
+    return BlocListener<OnboardingBloc, OnboardingState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+      listener: (context, state) {
+        if (state.status == OnboardingStatus.success) {
+          context.go(ModuleRoutePaths.rider);
+        } else if (state.status == OnboardingStatus.error) {
+          context.toast.showToast(
+            state.message ?? 'An error occurred',
+            type: ToastType.error,
+          );
+        }
+      },
       child: BlocBuilder<OnboardingBloc, OnboardingState>(
         builder: (context, onboardingState) {
-          // final isIndependent = onboardingState.isIndependent;
-          // final permitUrl = onboardingState.permitUrl;
           final selectedCompany = onboardingState.company;
-
           return Scaffold(
-            appBar: AppBar(title: const Text('Rider Information')),
-            body: SafeArea(
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  children: [
-                    Icon(
-                      Icons.motorcycle,
-                      size: 80,
-                      color: context.colorScheme.primary,
+            backgroundColor: LogistixColors.background,
+            body: Stack(
+              children: [
+                // Decorative Background
+                Positioned(
+                  top: -60,
+                  right: -60,
+                  child: Container(
+                    width: 240,
+                    height: 240,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: LogistixColors.primary.withValues(alpha: 0.04),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Complete Your Profile',
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'We need some information to set up your rider account',
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: LogistixColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    PhoneTextField(
-                      initialCountryCode: 'ng',
-                      onChanged: (value) => _phoneNumber = value,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone Number',
-                        prefixIcon: Icon(Icons.phone_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _registrationNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'Vehicle Reg No',
-                        prefixIcon: Icon(Icons.pin_outlined),
-                        hintText: 'e.g., ABC-1234',
-                      ),
-                      validator: FormBuilderValidators.required(),
-                      textCapitalization: TextCapitalization.characters,
-                    ),
-                    const SizedBox(height: 16),
-                    // CheckboxListTile(
-                    //   title: const Text('I am an Independent Rider'),
-                    //   value: isIndependent,
-                    //   onChanged: (val) {
-                    //     val ??= false;
-                    //     context.read<OnboardingBloc>().add(
-                    //       OnboardingEvent.updateProgress(
-                    //         isIndependent: val,
-                    //         company: val ? null : onboardingState.company,
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
-                    // const SizedBox(height: 16),
-                    // if (isIndependent)
-                    //   BlocBuilder<UploadCubit, UploadState>(
-                    //     builder: (context, state) {
-                    //       final isUploading = state.maybeWhen(
-                    //         loading: () => true,
-                    //         orElse: () => false,
-                    //       );
-                    //       return ElevatedButton.icon(
-                    //         onPressed: isUploading
-                    //             ? null
-                    //             : context.read<UploadCubit>().pickAndUploadFile,
-                    //         icon: isUploading
-                    //             ? const SizedBox(
-                    //                 width: 20,
-                    //                 height: 20,
-                    //                 child: CircularProgressIndicator(
-                    //                   strokeWidth: 2,
-                    //                 ),
-                    //               )
-                    //             : Icon(
-                    //                 permitUrl != null
-                    //                     ? Icons.check_circle
-                    //                     : Icons.upload_file,
-                    //               ),
-                    //         label: Text(
-                    //           isUploading
-                    //               ? 'Uploading...'
-                    //               : (permitUrl != null
-                    //                     ? 'Permit Uploaded'
-                    //                     : 'Upload Solo-Rider Permit'),
-                    //         ),
-                    //         style: ElevatedButton.styleFrom(
-                    //           backgroundColor: permitUrl != null
-                    //               ? LogistixColors.success
-                    //               : null,
-                    //         ),
-                    //       );
-                    //     },
-                    //   )
-                    // else
-                    DropdownSearch<Company>(
-                      items: (String filter, _) async {
-                        final repo = context.read<CompanyRepository>();
-                        final result = await repo.getCompanies(search: filter);
-                        return result.map((_) => const [], (r) => r.items);
-                      },
-                      compareFn: EqualityFilter<Company>(
-                        (state) => state.id,
-                      ).call,
-                      itemAsString: (company) => company.name,
-                      selectedItem: selectedCompany,
-                      suffixProps: const DropdownSuffixProps(
-                        clearButtonProps: ClearButtonProps(isVisible: true),
-                        dropdownButtonProps: DropdownButtonProps(
-                          isVisible: false,
+                  ),
+                ),
+                SafeArea(
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverAppBar(
+                        floating: true,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        leading: IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                          onPressed: () => context.pop(),
                         ),
                       ),
-                      onChanged: (company) {
-                        context.read<OnboardingBloc>().add(
-                          OnboardingEvent.updateProgress(company: company),
-                        );
-                      },
-                      decoratorProps: const DropDownDecoratorProps(
-                        decoration: InputDecoration(
-                          labelText: 'Associated Company',
-                          hintText: 'Search for your company',
-                          prefixIcon: Icon(Icons.business_outlined),
-                        ),
-                      ),
-                      popupProps: PopupProps.menu(
-                        showSearchBox: true,
-                        loadingBuilder: (_, _) {
-                          return const LogistixLoadingIndicator();
-                        },
-                        searchFieldProps: const TextFieldProps(
-                          autofocus: true,
-                          autocorrect: false,
-                          decoration: InputDecoration(
-                            hintText: 'Type to search...',
-                            prefixIcon: Icon(Icons.search),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 8),
+                              Center(
+                                child: Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: LogistixColors.primary
+                                        .withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.motorcycle_rounded,
+                                    size: 40,
+                                    color: LogistixColors.primary,
+                                  ),
+                                ),
+                              ).animate().fade(duration: 350.ms).scale(
+                                    begin: const Offset(0.85, 0.85),
+                                    curve: Curves.easeOutBack,
+                                  ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Finalize Rider Profile',
+                                textAlign: TextAlign.center,
+                                style: context.textTheme.headlineSmall?.bold
+                                    .copyWith(
+                                  color: LogistixColors.text,
+                                ),
+                              ).animate(delay: 80.ms).fade().slideY(begin: 0.12),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Complete your account setup to start delivering packages.',
+                                textAlign: TextAlign.center,
+                                style: context.textTheme.bodyMedium?.copyWith(
+                                  color: LogistixColors.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 40),
+                              LogistixCard(
+                                padding: const EdgeInsets.all(24),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      PhoneTextField(
+                                        initialCountryCode: 'ng',
+                                        onChanged: (value) =>
+                                            _phoneNumber = value,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Phone Number',
+                                          prefixIcon:
+                                              Icon(Icons.phone_outlined),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      TextFormField(
+                                        controller:
+                                            _registrationNumberController,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Vehicle Reg Number',
+                                          prefixIcon: Icon(Icons.pin_outlined),
+                                          hintText: 'e.g., KJA-1234',
+                                        ),
+                                        validator:
+                                            FormBuilderValidators.required(),
+                                        textCapitalization:
+                                            TextCapitalization.characters,
+                                      ),
+                                      const SizedBox(height: 20),
+                                      DropdownSearch<Company>(
+                                        items: (String filter, _) async {
+                                          final repo =
+                                              context.read<CompanyRepository>();
+                                          final result = await repo
+                                              .getCompanies(search: filter);
+                                          return result.map(
+                                              (_) => const [], (r) => r.items);
+                                        },
+                                        compareFn: EqualityFilter<Company>(
+                                          (state) => state.id,
+                                        ).call,
+                                        itemAsString: (company) => company.name,
+                                        selectedItem: selectedCompany,
+                                        suffixProps: const DropdownSuffixProps(
+                                          clearButtonProps:
+                                              ClearButtonProps(isVisible: true),
+                                          dropdownButtonProps:
+                                              DropdownButtonProps(
+                                            isVisible: false,
+                                          ),
+                                        ),
+                                        onChanged: (company) {
+                                          context.read<OnboardingBloc>().add(
+                                                OnboardingEvent.updateProgress(
+                                                    company: company),
+                                              );
+                                        },
+                                        decoratorProps:
+                                            const DropDownDecoratorProps(
+                                          decoration: InputDecoration(
+                                            labelText: 'Associated Company',
+                                            hintText: 'Select company...',
+                                            prefixIcon:
+                                                Icon(Icons.business_outlined),
+                                          ),
+                                        ),
+                                        popupProps: PopupProps.menu(
+                                          showSearchBox: true,
+                                          loadingBuilder: (_, _) =>
+                                              const LogistixLoadingIndicator(),
+                                          searchFieldProps: const TextFieldProps(
+                                            autofocus: true,
+                                            autocorrect: false,
+                                            decoration: InputDecoration(
+                                              hintText: 'Search companies...',
+                                              prefixIcon: Icon(Icons.search),
+                                            ),
+                                          ),
+                                        ),
+                                        validator: (val) => val == null
+                                            ? 'Please select your company'
+                                            : null,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              BlocBuilder<OnboardingBloc, OnboardingState>(
+                                builder: (context, state) {
+                                  final isLoading = state.status ==
+                                      OnboardingStatus.loading;
+                                  return LogistixButton(
+                                    label: 'COMPLETE SETUP',
+                                    isLoading: isLoading,
+                                    onPressed: _submitOnboarding,
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                            ],
                           ),
                         ),
                       ),
-                      validator: (address) {
-                        return address == null
-                            ? 'Please select your company'
-                            : null;
-                      },
-                    ),
-
-                    const SizedBox(height: 32),
-                    BlocBuilder<OnboardingBloc, OnboardingState>(
-                      builder: (context, state) {
-                        final isLoading =
-                            state.status == OnboardingStatus.loading;
-                        return ElevatedButton(
-                          onPressed: isLoading ? null : _submitOnboarding,
-                          child: isLoading
-                              ? const LogistixInlineLoader()
-                              : const Text('Complete Setup'),
-                        );
-                      },
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         },

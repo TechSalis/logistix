@@ -1,3 +1,4 @@
+import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
 import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/create_order_page.dart';
@@ -13,26 +14,31 @@ import 'package:shared/shared.dart';
 
 /// Private relative route paths (without parent prefix)
 abstract class _DispatcherPaths {
-  static const String orders = '/orders';
-  static const String riders = '/riders';
-  static const String more = '/more';
-  static const String createOrder = '/create';
-  static const String parseText = '/parse';
+  static const String orders = 'orders';
+  static const String riders = 'riders';
+  static const String more = 'more';
+  static const String createOrder = 'create';
+  static const String parseText = 'parse';
+  static const String list = 'list';
+  static const String map = 'map';
 }
 
 /// Public dispatcher module route paths (with /dispatcher prefix)
 abstract class DispatcherRoutes {
   static const String rootPath = ModuleRoutePaths.dispatcher;
 
-  static const String orders = '$rootPath${_DispatcherPaths.orders}';
+  static const String orders = '$rootPath/${_DispatcherPaths.orders}';
   static String orderDetails(String id) => '$orders/$id';
-  static const String createOrder = '$orders${_DispatcherPaths.createOrder}';
-  static const String parseText = '$createOrder${_DispatcherPaths.parseText}';
 
-  static const String riders = '$rootPath${_DispatcherPaths.riders}';
+  static const String createOrder = '$orders/${_DispatcherPaths.createOrder}';
+  static const String parseText = ModuleRoutePaths.dispatcherParseText;
+
+  static const String riders = '$rootPath/${_DispatcherPaths.riders}';
+  static const String ridersList = '$riders/${_DispatcherPaths.list}';
+  static const String ridersMap = '$riders/${_DispatcherPaths.map}';
   static String riderDetails(String id) => '$riders/$id';
 
-  static const String more = '$rootPath${_DispatcherPaths.more}';
+  static const String more = '$rootPath/${_DispatcherPaths.more}';
 }
 
 /// Dispatcher module route configuration using StatefulShellRoute
@@ -63,19 +69,21 @@ List<RouteBase> get dispatcherRoutes => [
                         barrierDismissible: true,
                         barrierColor: Colors.black54,
                         transitionsBuilder: (context, animation, _, child) {
-                          return SlideTransition(
-                            position: animation.drive(
-                              Tween<Offset>(
-                                begin: const Offset(0, 1),
-                                end: Offset.zero,
+                          return ScaleTransition(
+                            scale: animation.drive(
+                              Tween<double>(
+                                begin: 0.9,
+                                end: 1,
                               ).chain(CurveTween(curve: Curves.easeOutQuart)),
                             ),
-                            child: child,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
                           );
                         },
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: AIOrderParserBottomSheet(
+                        child: Center(
+                          child: AIOrderParserDialog(
                             initialValue: initialValue,
                           ),
                         ),
@@ -99,8 +107,21 @@ List<RouteBase> get dispatcherRoutes => [
         routes: [
           GoRoute(
             path: _DispatcherPaths.riders,
-            builder: (context, state) => const RidersTab(),
+            redirect: (context, state) => const RedirectGuard(
+              DispatcherRoutes.ridersList,
+              from: DispatcherRoutes.riders,
+            ).redirect(context, state.fullPath),
             routes: [
+              GoRoute(
+                path: _DispatcherPaths.list,
+                builder: (context, state) => const RidersListView(),
+              ),
+              GoRoute(
+                path: _DispatcherPaths.map,
+                builder: (context, state) {
+                  return RidersMapView(riderId: state.extra as String?);
+                },
+              ),
               GoRoute(
                 path: ':id',
                 builder: (context, state) {

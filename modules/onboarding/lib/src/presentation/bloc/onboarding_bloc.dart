@@ -16,16 +16,22 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     on<OnboardingEvent>((event, emit) async {
       await event.when<FutureOr<void>>(
         updateProgress: (company) => _onUpdateProgress(company, emit),
-        submitRiderOnboarding: (phoneNumber, registrationNumber) =>
-            _onSubmitRiderOnboarding(phoneNumber, registrationNumber, emit),
-        submitDispatcherOnboarding: (companyName, phoneNumber, address, cac) =>
-            _onSubmitDispatcherOnboarding(
-              companyName,
-              phoneNumber,
-              address,
-              cac,
-              emit,
-            ),
+        submitRiderOnboarding: (phoneNumber, registrationNumber) {
+          return _onSubmitRiderOnboarding(
+            phoneNumber,
+            registrationNumber,
+            emit,
+          );
+        },
+        submitDispatcherOnboarding: (companyName, phoneNumber, address, cac) {
+          return _onSubmitDispatcherOnboarding(
+            companyName,
+            phoneNumber,
+            address,
+            cac,
+            emit,
+          );
+        },
         backToAuth: () => _onBackToAuth(emit),
       );
     });

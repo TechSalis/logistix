@@ -1,4 +1,5 @@
-import 'package:bootstrap/definitions/app_error.dart';
+import 'package:bootstrap/interfaces/http/oauth_token/models/codec.dart';
+import 'package:bootstrap/interfaces/http/oauth_token/models/oauth_token.dart';
 import 'package:onboarding/src/data/models/dispatcher_profile_dto.dart';
 import 'package:onboarding/src/data/models/rider_profile_dto.dart';
 import 'package:shared/shared.dart';
@@ -6,100 +7,139 @@ import 'package:shared/shared.dart';
 /// Remote data source for onboarding operations
 abstract class OnboardingRemoteDataSource {
   /// Submit rider profile
-  Future<void> submitRiderProfile(RiderProfileDto profile);
+  Future<(OAuthToken, UserDto)> submitRiderProfile(RiderProfileDto profile);
 
   /// Submit dispatcher profile
-  Future<void> submitDispatcherProfile(DispatcherProfileDto profile);
+  Future<(OAuthToken, UserDto)> submitDispatcherProfile(
+    DispatcherProfileDto profile,
+  );
 }
 
-class OnboardingRemoteDataSourceImpl implements OnboardingRemoteDataSource {
-  OnboardingRemoteDataSourceImpl(this._graphql);
-  final GraphQLService _graphql;
+class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
+    implements OnboardingRemoteDataSource {
+  OnboardingRemoteDataSourceImpl(super.graphql);
 
   @override
-  Future<void> submitRiderProfile(RiderProfileDto profile) async {
-    try {
-      const mutation = r'''
+  Future<(OAuthToken, UserDto)> submitRiderProfile(
+    RiderProfileDto profile,
+  ) async {
+    const mutation =
+        '''
         mutation SubmitRiderProfile(
-          $phoneNumber: String!
-          $registrationNumber: String!
-          $companyId: ID
-          $isIndependent: Boolean
-          $permitUrl: String
+          \$phoneNumber: String!
+          \$registrationNumber: String!
+          \$companyId: ID
         ) {
           submitRiderProfile(
             input: {
-              phoneNumber: $phoneNumber
-              registrationNumber: $registrationNumber
-              companyId: $companyId
-              isIndependent: $isIndependent
-              permitUrl: $permitUrl
+              phoneNumber: \$phoneNumber
+              registrationNumber: \$registrationNumber
+              companyId: \$companyId
             }
           ) {
-            success
+            token {
+              access_token
+              refresh_token
+              token_type
+              expires_in
+            }
+            user {
+              id
+              email
+              fullName
+              role
+              phoneNumber
+              isOnboarded
+              companyId
+              riderProfile {
+                ${GqlFragments.riderFields}
+              }
+              companyProfile {
+                id
+                name
+                address
+              }
+            }
           }
         }
       ''';
+    final data = await mutate<Map<String, dynamic>>(
+      mutation,
+      key: 'submitRiderProfile',
+      variables: {
+        'phoneNumber': profile.phoneNumber,
+        'registrationNumber': profile.registrationNumber,
+        'companyId': profile.companyId,
+      },
+    );
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {
-          'phoneNumber': profile.phoneNumber,
-          'registrationNumber': profile.registrationNumber,
-          'companyId': profile.companyId,
-          'isIndependent': profile.isIndependent,
-          'permitUrl': profile.permitUrl,
-        },
-      );
+    final token = const OAuthTokenCodec().decode(data['token']);
+    final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
-    }
+    return (token!, userDto);
   }
 
   @override
-  Future<void> submitDispatcherProfile(DispatcherProfileDto profile) async {
-    try {
-      const mutation = r'''
+  Future<(OAuthToken, UserDto)> submitDispatcherProfile(
+    DispatcherProfileDto profile,
+  ) async {
+    const mutation =
+        '''
         mutation SubmitDispatcherProfile(
-          $companyName: String!
-          $phoneNumber: String!
-          $address: String!
-          $cac: String!
+          \$companyName: String!
+          \$phoneNumber: String!
+          \$address: String!
+          \$cac: String!
         ) {
           submitDispatcherProfile(
             input: {
-              companyName: $companyName
-              phoneNumber: $phoneNumber
-              address: $address
-              cac: $cac
+              companyName: \$companyName
+              phoneNumber: \$phoneNumber
+              address: \$address
+              cac: \$cac
             }
           ) {
-            success
+            token {
+              access_token
+              refresh_token
+              token_type
+              expires_in
+            }
+            user {
+              id
+              email
+              fullName
+              role
+              phoneNumber
+              isOnboarded
+              companyId
+              riderProfile {
+                ${GqlFragments.riderFields}
+              }
+              companyProfile {
+                id
+                name
+                address
+              }
+            }
           }
         }
       ''';
+      
+    final data = await mutate<Map<String, dynamic>>(
+      mutation,
+      key: 'submitDispatcherProfile',
+      variables: {
+        'companyName': profile.companyName,
+        'phoneNumber': profile.phoneNumber,
+        'address': profile.address,
+        'cac': profile.cac,
+      },
+    );
 
-      final result = await _graphql.mutate(
-        mutation,
-        variables: {
-          'companyName': profile.companyName,
-          'phoneNumber': profile.phoneNumber,
-          'address': profile.address,
-          'cac': profile.cac,
-        },
-      );
+    final token = const OAuthTokenCodec().decode(data['token']);
+    final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
 
-      if (result.hasException) {
-        throw ErrorHandler.fromException(result.exception);
-      }
-    } catch (e) {
-      if (e is AppError) rethrow;
-      throw ErrorHandler.fromException(e);
-    }
+    return (token!, userDto);
   }
 }

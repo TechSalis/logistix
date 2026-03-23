@@ -1,15 +1,20 @@
+import 'package:bootstrap/services/async_runner/async_runner.dart';
+import 'package:bootstrap/services/run_once.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
+import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
+import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:rider/src/presentation/pages/rider_locked_page.dart';
+import 'package:shared/shared.dart';
 
 class RiderPage extends StatefulWidget {
   const RiderPage({required this.navigationShell, super.key});
-
   final StatefulNavigationShell navigationShell;
 
   @override
@@ -17,92 +22,146 @@ class RiderPage extends StatefulWidget {
 }
 
 class _RiderPageState extends State<RiderPage> {
-  static const List<BottomNavigationBarItem> _navItems = [
-    BottomNavigationBarItem(
+  static const List<NavigationDestination> _navItems = [
+    NavigationDestination(
       icon: Icon(Icons.map_outlined),
-      activeIcon: Icon(Icons.map_rounded, color: LogistixColors.primary),
+      selectedIcon: Icon(Icons.map_rounded),
       label: 'Home',
     ),
-    BottomNavigationBarItem(
+    NavigationDestination(
       icon: Icon(Icons.list_alt_rounded),
-      activeIcon: Icon(Icons.list_alt_rounded, color: LogistixColors.primary),
+      selectedIcon: Icon(Icons.list_alt_rounded),
       label: 'Orders',
     ),
-    BottomNavigationBarItem(
+    NavigationDestination(
       icon: Icon(Icons.person_outline_rounded),
-      activeIcon: Icon(Icons.person_rounded, color: LogistixColors.primary),
+      selectedIcon: Icon(Icons.person_rounded),
       label: 'Profile',
     ),
   ];
 
+  late final riderBloc = context.read<RiderBloc>();
+  RiderSessionManager? _sessionUseCase;
+
   @override
   void initState() {
     super.initState();
-    context.read<RiderBloc>().add(const RiderEvent.fetchProfile());
+    riderBloc.add(const RiderEvent.fetchProfile());
+  }
+
+  late final _startSessionIfNeeded = RunOnce.withArg((String riderId) {
+    // Initialize cubits with riderId
+    context.read<RiderOrdersCubit>().initialize();
+    context.read<RiderMapOrdersCubit>().initialize();
+    riderBloc.add(RiderEvent.watchProfile(riderId));
+
+    // Start session
+    _sessionUseCase = context.read<RiderSessionManager>()
+      ..startSession(riderId);
+  });
+
+  @override
+  void dispose() {
+    _sessionUseCase?.stopSession();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RiderBloc, RiderState>(
-      builder: (context, state) {
-        return state.when(
-          initial: () => const Scaffold(body: LogistixLoadingIndicator()),
-          loading: () => const Scaffold(body: LogistixLoadingIndicator()),
-          error: (message) => Scaffold(
-            body: LogistixErrorView(
-              message: message,
-              onRetry: () => context.read<RiderBloc>().add(
-                const RiderEvent.fetchProfile(),
-              ),
-            ),
-          ),
-          loaded: (rider, orders, isRefreshing, isOrdersLoading, loc) {
-            if (!rider.isAccepted) {
-              return RiderLockedPage(
-                isRefreshing: isRefreshing,
-                onRefresh: () => context.read<RiderBloc>().add(
-                  const RiderEvent.refreshStatus(),
-                ),
+    return Scaffold(
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<RiderBloc, RiderState>(
+            listener: (context, state) {
+              state.mapOrNull(
+                loaded: (state) {
+                  if (state.rider.isAccepted) {
+                    _startSessionIfNeeded(state.rider.id);
+                  }
+                },
               );
-            }
-
-            return Scaffold(
-              body: widget.navigationShell,
-              bottomNavigationBar: Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
+            },
+          ),
+          BlocListener<MapCubit, MapState>(
+            listener: (context, state) {
+              state.whenOrNull(
+                ready: (position) {
+                  riderBloc.state.mapOrNull(
+                    loaded: (s) {
+                      if (s.rider.isAccepted) {
+                        _sessionUseCase?.startHeartbeat(s.rider.id);
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ],
+        child: BlocBuilder<RiderBloc, RiderState>(
+          builder: (context, state) {
+            return state.when(
+              initial: () => const SizedBox(),
+              error: (message) {
+                final logoutEvent = riderBloc.logoutEvent;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LogistixErrorView(
+                      message: message,
+                      onRetry: () {
+                        riderBloc.add(const RiderEvent.fetchProfile());
+                      },
+                    ),
+                    AsyncRunnerListener(
+                      runner: logoutEvent,
+                      listener: (context, state) {
+                        if (state.status.isSuccess) {
+                          context.go(ModuleRoutePaths.auth);
+                        }
+                      },
+                      child: LogistixButton(
+                        label: 'Logout',
+                        onPressed: logoutEvent.call,
+                        type: LogistixButtonType.danger,
+                        icon: Icons.logout,
+                      ),
                     ),
                   ],
-                ),
-                child: BottomNavigationBar(
-                  items: _navItems,
-                  currentIndex: widget.navigationShell.currentIndex,
-                  onTap: (index) {
-                    widget.navigationShell.goBranch(
-                      index,
-                      initialLocation:
-                          index == widget.navigationShell.currentIndex,
-                    );
-                  },
-                  selectedItemColor: LogistixColors.primary,
-                  unselectedItemColor: LogistixColors.textSecondary,
-                  showSelectedLabels: true,
-                  showUnselectedLabels: true,
-                  elevation: 0,
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.white,
-                  selectedLabelStyle: context.textTheme.labelMedium?.semiBold,
-                  unselectedLabelStyle: context.textTheme.labelMedium?.medium,
-                ),
-              ),
+                );
+              },
+              loading: (rider) {
+                if (rider != null && !rider.isAccepted) {
+                  return RiderLockedPage(
+                    onRefresh: () =>
+                        riderBloc.add(const RiderEvent.fetchProfile()),
+                  );
+                }
+
+                return const Center(child: LogistixInlineLoader());
+              },
+              loaded: (rider, orders, isLoading, loc) {
+                if (!rider.isAccepted) {
+                  return RiderLockedPage(
+                    onRefresh: () =>
+                        riderBloc.add(const RiderEvent.fetchProfile()),
+                  );
+                }
+
+                return widget.navigationShell;
+              },
             );
           },
-        );
-      },
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: widget.navigationShell.currentIndex,
+        onDestinationSelected: (index) => widget.navigationShell.goBranch(
+          index,
+          initialLocation: index == widget.navigationShell.currentIndex,
+        ),
+        destinations: _navItems,
+      ),
     );
   }
 }

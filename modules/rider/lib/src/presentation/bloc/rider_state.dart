@@ -7,11 +7,10 @@ part 'rider_state.freezed.dart';
 @freezed
 class RiderState with _$RiderState {
   const factory RiderState.initial() = _Initial;
-  const factory RiderState.loading() = _Loading;
+  const factory RiderState.loading([Rider? rider]) = _Loading;
   const factory RiderState.loaded(
     Rider rider, {
     @Default([]) List<Order> orders,
-    @Default(false) bool isRefreshing,
     @Default(false) bool isOrdersLoading,
     Position? location,
   }) = _Loaded;

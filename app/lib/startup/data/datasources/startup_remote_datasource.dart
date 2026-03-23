@@ -19,8 +19,17 @@ class StartupRemoteDataSourceImpl implements StartupRemoteDataSource {
             email
             fullName
             role
+            phoneNumber
             isOnboarded
             companyId
+            riderProfile {
+              ${GqlFragments.riderFields}
+            }
+            companyProfile {
+              id
+              name
+              address
+            }
           }
         }
       ''';

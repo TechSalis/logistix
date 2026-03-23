@@ -1,4 +1,4 @@
-import 'package:bootstrap/interfaces/store/primitive_store.dart';
+import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:shared/shared.dart';
 
 /// Local storage for user data

@@ -1,4 +1,3 @@
-import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
@@ -11,14 +10,9 @@ import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:shared/shared.dart';
 
 class RiderLockedPage extends StatelessWidget {
-  const RiderLockedPage({
-    required this.onRefresh,
-    this.isRefreshing = false,
-    super.key,
-  });
+  const RiderLockedPage({required this.onRefresh, super.key});
 
   final VoidCallback onRefresh;
-  final bool isRefreshing;
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +25,8 @@ class RiderLockedPage extends StatelessWidget {
         );
       },
       builder: (context, state) {
-        final isLoading = state.maybeWhen(
-          loading: () => true,
+        final isLoading = state.maybeMap(
+          loading: (_) => true,
           orElse: () => false,
         );
 
@@ -65,20 +59,11 @@ class RiderLockedPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 48),
-                  SizedBox(
-                    height: 48,
-                    child: Center(
-                      child: isRefreshing
-                          ? const LogistixInlineLoader()
-                          : SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: onRefresh,
-                                icon: const Icon(Icons.refresh),
-                                label: const Text('Refresh Status'),
-                              ),
-                            ),
-                    ),
+                  LogistixButton(
+                    onPressed: onRefresh,
+                    isLoading: isLoading,
+                    icon: Icons.refresh_rounded,
+                    label: 'REFRESH STATUS',
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -87,58 +72,36 @@ class RiderLockedPage extends StatelessWidget {
                       AsyncRunnerListener(
                         runner: logoutEvent,
                         listener: (context, state) {
-                          state.result?.map((error) {
-                            if (error is UserError && error.message != null) {
-                              context.toast.showToast(
-                                error.message!,
-                                type: ToastType.error,
-                              );
-                            }
-                          }, (_) => context.go(ModuleRoutePaths.auth));
+                          if (state.status.isSuccess) {
+                            context.go(ModuleRoutePaths.auth);
+                          }
                         },
-                        child: TextButton.icon(
-                          onPressed: isLoading ? null : logoutEvent.call,
-                          icon: isLoading
-                              ? const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: LogistixColors.error,
-                                  ),
-                                )
-                              : const Icon(
-                                  Icons.logout,
-                                  color: LogistixColors.error,
-                                ),
-                          label: Text(
-                            'Logout',
-                            style: context.textTheme.labelLarge?.copyWith(
-                              color: LogistixColors.error,
-                            ),
-                          ),
+                        child: LogistixButton(
+                          onPressed: logoutEvent.call,
+                          icon: Icons.logout_rounded,
+                          label: 'LOGOUT',
+                          type: LogistixButtonType.text,
+                          width: 140,
                         ),
                       ),
                       const SizedBox(width: 8),
                       AsyncRunnerListener(
                         runner: bloc.supportRunner,
                         listener: (context, state) {
-                          state.result?.when(
-                            error: (error) {
-                              if (error is UserError && error.message != null) {
-                                context.toast.showToast(
-                                  error.message!,
-                                  type: ToastType.error,
-                                );
-                              }
-                            },
-                          );
+                          if (state.status.isFailure) {
+                            context.toast.showToast(
+                              state.result?.error.message ?? 'Support failed',
+                              type: ToastType.error,
+                            );
+                          }
                         },
-                        child: TextButton(
+                        child: LogistixButton(
                           onPressed: () {
                             bloc.supportRunner(EnvConfig.contactSupportUrl);
                           },
-                          child: const Text('Contact Support'),
+                          label: 'SUPPORT',
+                          type: LogistixButtonType.text,
+                          width: 140,
                         ),
                       ),
                     ],

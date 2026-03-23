@@ -9,22 +9,22 @@ import 'package:shared/shared.dart';
 
 /// Private relative route paths (without parent prefix)
 abstract class _AuthPaths {
-  static const String login = '/login';
-  static const String signUp = '/sign-up';
-  static const String forgotPassword = '/forgot-password';
-  static const String verifyOtp = '/verify-otp';
-  static const String resetPassword = '/reset-password';
+  static const String login = 'login';
+  static const String signUp = 'sign-up';
+  static const String forgotPassword = 'forgot-password';
+  static const String verifyOtp = 'verify-otp';
+  static const String resetPassword = 'reset-password';
 }
 
 /// Public auth module route paths (with /auth prefix)
 abstract class AuthRoutes {
   static const String rootPath = ModuleRoutePaths.auth;
 
-  static const String login = '$rootPath${_AuthPaths.login}';
-  static const String signUp = '$rootPath${_AuthPaths.signUp}';
-  static const String forgotPassword = '$rootPath${_AuthPaths.forgotPassword}';
-  static const String verifyOtp = '$rootPath${_AuthPaths.verifyOtp}';
-  static const String resetPassword = '$rootPath${_AuthPaths.resetPassword}';
+  static const String login = '$rootPath/${_AuthPaths.login}';
+  static const String signUp = '$rootPath/${_AuthPaths.signUp}';
+  static const String forgotPassword = '$rootPath/${_AuthPaths.forgotPassword}';
+  static const String verifyOtp = '$rootPath/${_AuthPaths.verifyOtp}';
+  static const String resetPassword = '$rootPath/${_AuthPaths.resetPassword}';
 }
 
 /// Auth module route configuration

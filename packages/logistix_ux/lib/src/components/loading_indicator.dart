@@ -19,6 +19,7 @@ class LogistixLoadingIndicator extends StatelessWidget {
             width: size,
             height: size,
             child: const CircularProgressIndicator(
+              strokeWidth: 3,
               valueColor: AlwaysStoppedAnimation<Color>(LogistixColors.primary),
             ),
           ),

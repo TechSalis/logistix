@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
-import 'package:shared/shared.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -43,69 +42,66 @@ class _SignUpPageState extends State<SignUpPage> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         state.whenOrNull(
-          pendingOnboarding: (_) => context.go(ModuleRoutePaths.onboarding),
-          unauthenticated: (message) {
-            if (message != null) {
-              context.toast.showToast(message, type: ToastType.error);
-            }
+          signUpError: (message) {
+            context.toast.showToast(message, type: ToastType.error);
           },
         );
       },
       child: Scaffold(
-        body: Align(
-          alignment: const Alignment(0, -.5),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              clipBehavior: Clip.none,
-              padding: const EdgeInsets.all(32),
-              children: [
-                Hero(
-                  tag: 'logo',
-                  child: LogistixAssets.images.icon.image(height: 64),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Join Logistix',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Create your account to get started',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: LogistixColors.textSecondary,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(32),
+            child: Form(
+              key: _formKey,
+              child: LogistixEntrance(
+                children: [
+                  Hero(
+                    tag: 'logo',
+                    child: LogistixAssets.images.icon.image(height: 64),
                   ),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    prefixIcon: Icon(Icons.person_outline),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Join Logistix',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.headlineMedium?.bold,
                   ),
-                  textCapitalization: TextCapitalization.words,
-                  validator: FormBuilderValidators.required(),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  autocorrect: false,
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Create your account to get started',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: LogistixColors.textSecondary,
+                    ),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: FormBuilderValidators.email(),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                  const SizedBox(height: 32),
+                  LogistixTextField(
+                    label: 'Full Name',
+                    controller: _nameController,
+                    icon: Icons.person_outline,
+                    textCapitalization: TextCapitalization.words,
+                    validator: FormBuilderValidators.required(),
+                  ),
+                  const SizedBox(height: 16),
+                  LogistixTextField(
+                    label: 'Email',
+                    controller: _emailController,
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: FormBuilderValidators.email(),
+                  ),
+                  const SizedBox(height: 16),
+                  LogistixTextField(
+                    label: 'Password',
+                    controller: _passwordController,
+                    icon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.minLength(
+                        8,
+                        errorText: 'Password must be at least 8 characters',
+                      ),
+                    ]),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -117,21 +113,21 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     ),
                   ),
-                  obscureText: _obscurePassword,
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                    FormBuilderValidators.minLength(
-                      8,
-                      errorText: 'Password must be at least 8 characters',
-                    ),
-                  ]),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                  const SizedBox(height: 16),
+                  LogistixTextField(
+                    label: 'Confirm Password',
+                    controller: _confirmPasswordController,
+                    icon: Icons.lock_outline,
+                    obscureText: _obscureConfirmPassword,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
@@ -145,60 +141,47 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     ),
                   ),
-                  obscureText: _obscureConfirmPassword,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state.maybeWhen(
-                      loading: () => true,
-                      orElse: () => false,
-                    );
-
-                    return ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              if (_formKey.currentState!.validate()) {
-                                context.read<AuthBloc>().add(
-                                  AuthEvent.signUp(
-                                    email: _emailController.text.trim(),
-                                    password: _passwordController.text,
-                                    name: _nameController.text.trim(),
-                                  ),
-                                );
-                              }
-                            },
-                      child: isLoading
-                          ? const LogistixInlineLoader()
-                          : const Text('Create Account'),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Already have an account? ',
-                      style: context.textTheme.bodyMedium,
-                    ),
-                    TextButton(
-                      onPressed: () => context.go(AuthRoutes.login),
-                      child: const Text('Sign In'),
-                    ),
-                  ],
-                ),
-              ],
+                  const SizedBox(height: 32),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state.maybeWhen(
+                        signUpLoading: () => true,
+                        orElse: () => false,
+                      );
+                      return LogistixButton(
+                        label: 'Create Account',
+                        isLoading: isLoading,
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            context.read<AuthBloc>().add(
+                              AuthEvent.signUp(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text,
+                                name: _nameController.text.trim(),
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account? ',
+                        style: context.textTheme.bodyMedium,
+                      ),
+                      LogistixButton(
+                        label: 'Sign In',
+                        onPressed: () => context.go(AuthRoutes.login),
+                        type: LogistixButtonType.text,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

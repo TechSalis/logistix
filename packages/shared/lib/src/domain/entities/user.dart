@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shared/shared.dart';
 
 part 'user.freezed.dart';
 
@@ -11,6 +12,10 @@ abstract class User with _$User {
     required bool isOnboarded,
     UserRole? role,
     String? companyId,
+    String? phoneNumber,
+    Rider? riderProfile,
+    Company? companyProfile,
+    String? sessionId,
   }) = _User;
 }
 

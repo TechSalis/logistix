@@ -1,107 +1,189 @@
 import 'dart:async';
 
+import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:rider/src/domain/repositories/rider_repository.dart';
+import 'package:rider/src/core/network/sync/rider_subscription_handler.dart';
+import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
+import 'package:rider/src/presentation/bloc/rider_bloc.dart';
+import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:shared/shared.dart';
 
+/// Manages rider session with real-time subscriptions
+///
+/// Architecture:
+/// - Subscriptions write to Drift via SubscriptionHandler
+/// - Heartbeat updates location and syncs data to Drift
+/// - Cubits subscribe to Drift streams for reactive updates
 class RiderSessionManager {
   RiderSessionManager(
-    this._riderRepository,
-    this._eventStreamManager,
+    this._dataSource,
+    this._subscriptionHandler,
+    this._orderDao,
+    this._riderDao,
+    this._metricsStore,
+    this._database,
+    this.riderBloc,
   );
 
-  final RiderRepository _riderRepository;
-  final AppEventStreamManager _eventStreamManager;
+  final RiderRemoteDataSource _dataSource;
+  final RiderSubscriptionHandler _subscriptionHandler;
+  final OrderDao _orderDao;
+  final RiderDao _riderDao;
+  final ObjectStore<RiderMetricsDto> _metricsStore;
+  final LogistixDatabase _database;
+  final RiderBloc riderBloc;
 
-  StreamSubscription<void>? _orderAssignedSubscription;
-  StreamSubscription<void>? _orderUpdatedSubscription;
-  StreamSubscription<void>? _orderUnassignedSubscription;
-  StreamSubscription<void>? _metricsSubscription;
-  StreamSubscription<Position>? _locationSubscription;
+  SyncManager? _assignmentSyncManager;
+  Timer? _heartbeatTimer;
+  Timer? _syncTimer;
+  bool _isSyncing = false;
 
-  Timer? _rateLimitTimer;
-  Position? _pendingPosition;
-
-  Future<void> start({
-    required String riderId,
-    required void Function(Order) onOrderAssigned,
-    required void Function(Order) onOrderUpdated,
-    required void Function(String orderId) onOrderUnassigned,
-    required void Function(RiderMetrics) onMetricsUpdated,
-    required void Function(Position) onLocationUpdated,
-  }) async {
-    // Start the unified event stream for this rider
-    await _eventStreamManager.startRiderStream(riderId);
-
-    // Subscribe to order assigned events
-    await _orderAssignedSubscription?.cancel();
-    _orderAssignedSubscription = _eventStreamManager.orderAssigned.listen(
-      (event) => onOrderAssigned(event.order),
+  Future<void> startSession(String riderId) async {
+    // 1. Subscribe to order updates
+    _assignmentSyncManager = await _dataSource.subscribeToAssignmentUpdates(
+      riderId: riderId,
+      onData:
+          (
+            OrderDto orderDto,
+            RiderDto? riderDto,
+            String eventType,
+            RiderMetricsDto? metrics,
+          ) async {
+            // Write to Drift via SubscriptionHandler
+            await _subscriptionHandler.handleOrderUpdate(
+              orderDto,
+              eventType,
+              riderDto: riderDto,
+              riderMetrics: metrics,
+            );
+          },
+      onSync: _performSync,
     );
 
-    // Subscribe to order updated events
-    await _orderUpdatedSubscription?.cancel();
-    _orderUpdatedSubscription = _eventStreamManager.riderOrderUpdated.listen(
-      (event) => onOrderUpdated(event.order),
+    // Initial sync
+    unawaited(_performSync());
+
+    // Start partial sync every 5 minutes
+    _syncTimer?.cancel();
+    _syncTimer = Timer.periodic(
+      const Duration(minutes: 5),
+      (_) => _performSync(),
+    );
+  }
+
+  /// Start or resume the heartbeat (location updates)
+  void startHeartbeat(String riderId) {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = Timer.periodic(
+      const Duration(seconds: 20),
+      (_) => _sendHeartbeat(riderId),
     );
 
-    // Subscribe to order unassigned events
-    await _orderUnassignedSubscription?.cancel();
-    _orderUnassignedSubscription = _eventStreamManager.orderUnassigned.listen(
-      (event) => onOrderUnassigned(event.orderId),
-    );
+    // Immediate heartbeat to set correct online/busy status on server
+    unawaited(_sendHeartbeat(riderId));
+  }
 
-    // Subscribe to metrics updates
-    await _metricsSubscription?.cancel();
-    _metricsSubscription = _eventStreamManager.riderMetricsUpdated.listen(
-      (event) => onMetricsUpdated(event.metrics),
-    );
+  /// Stop only the heartbeat
+  void stopHeartbeat() {
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+  }
 
-    // Start location tracking
-    await Geolocator.checkPermission();
+  Future<void> _performSync() async {
+    if (_isSyncing) return;
+    _isSyncing = true;
 
-    unawaited(_locationSubscription?.cancel());
-    _locationSubscription =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
-          ),
-        ).listen((position) {
-          onLocationUpdated(position);
+    try {
+      final lastSyncTime = await _database.getLastSyncTime('rider_last_sync');
+      final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 
-          if (_rateLimitTimer?.isActive ?? false) {
-            _pendingPosition = position;
-            return;
+      var offset = 0;
+      const limit = 50;
+      var hasMore = true;
+
+      while (hasMore) {
+        try {
+          final syncDto = await _dataSource.syncData(
+            since: since,
+            limit: limit,
+            offset: offset,
+          );
+
+          if (riderBloc.isClosed) return;
+
+          // Update last sync time immediately after a successful page fetch
+          await _database.updateLastSyncTime(
+            'rider_last_sync',
+            DateTime.fromMillisecondsSinceEpoch(syncDto.lastUpdated),
+            null,
+          );
+
+          // Upsert full list of active/available orders
+          if (syncDto.orders.isNotEmpty) {
+            await _orderDao.upsertOrders(
+              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
+            );
           }
 
-          _sendLocation(riderId, position);
+          // Upsert metrics
+          await _metricsStore.set(syncDto.metrics);
 
-          _rateLimitTimer = Timer(const Duration(seconds: 15), () {
-            if (_pendingPosition != null) {
-              _sendLocation(riderId, _pendingPosition!);
-              _pendingPosition = null;
-            }
-          });
-        });
+          // If there are deleted orders, remove them
+          if (syncDto.deletedOrderIds.isNotEmpty) {
+            await _orderDao.deleteOrders(syncDto.deletedOrderIds);
+          }
+
+          if (syncDto.orders.length < limit) {
+            hasMore = false;
+          } else {
+            offset += limit;
+          }
+        } catch (e) {
+          hasMore = false;
+          rethrow;
+        }
+      }
+    } catch (_) {
+      // Handle overall sync error
+    } finally {
+      _isSyncing = false;
+    }
   }
 
-  void _sendLocation(String riderId, Position position) {
-    _riderRepository.updateRiderLocation(
-      riderId,
-      position.latitude,
-      position.longitude,
-    );
+  Future<RiderDto?> _sendHeartbeat(String riderId) async {
+    try {
+      final position = await Geolocator.getCurrentPosition();
+
+      final riderDto = await _dataSource.sendHeartbeat(
+        lat: position.latitude,
+        lng: position.longitude,
+      );
+
+      if (riderBloc.isClosed) return null;
+
+      riderBloc.add(RiderEvent.locationUpdated(position));
+
+      // Update local DB with latest rider info (including status)
+      await _riderDao.upsertRider(riderDto.toDriftCompanion());
+
+      // Update bloc status from heartbeat result
+      final status = RiderStatusX.fromString(riderDto.status);
+      riderBloc.add(RiderEvent.statusChanged(status));
+
+      return riderDto;
+    } catch (_) {
+      // Permission or service issue - ignore
+      return null;
+    }
   }
 
-  void stop() {
-    _orderAssignedSubscription?.cancel();
-    _orderUpdatedSubscription?.cancel();
-    _orderUnassignedSubscription?.cancel();
-    _metricsSubscription?.cancel();
-    _locationSubscription?.cancel();
-    _rateLimitTimer?.cancel();
-    _eventStreamManager.stop();
-    _pendingPosition = null;
+  /// Stop the session
+  void stopSession() {
+    _assignmentSyncManager?.stop();
+    _assignmentSyncManager = null;
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+    _syncTimer?.cancel();
+    _syncTimer = null;
   }
 }

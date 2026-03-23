@@ -1,464 +1,552 @@
-import 'package:bootstrap/services/equality_filter.dart';
 import 'package:collection/collection.dart';
-
+import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
 import 'package:dispatcher/src/features/riders/presentation/cubit/riders_cubit.dart';
+import 'package:dispatcher/src/features/riders/presentation/utils/rider_map_utils.dart';
 import 'package:dispatcher/src/features/riders/presentation/widgets/rider_card.dart';
+import 'package:dispatcher/src/features/riders/presentation/widgets/rider_dropdown_search.dart';
+import 'package:dispatcher/src/features/riders/presentation/widgets/rider_summary_card.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
-class RidersTab extends StatefulWidget {
-  const RidersTab({super.key});
+class _SearchField extends StatelessWidget {
+  const _SearchField({required this.onChanged});
+
+  final ValueChanged<String> onChanged;
 
   @override
-  State<RidersTab> createState() => _RidersTabState();
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        onChanged: onChanged,
+        style: context.textTheme.bodyMedium?.bold,
+        decoration: InputDecoration(
+          hintText: 'Search riders...',
+          hintStyle: context.textTheme.bodyMedium?.copyWith(
+            color: LogistixColors.textTertiary,
+            fontWeight: FontWeight.normal,
+          ),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
+            color: LogistixColors.primary,
+            size: 22,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _RidersTabState extends State<RidersTab> {
-  bool _isMapView = false;
-  GoogleMapController? _mapController;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkAndLoadData(_isMapView);
-    });
-  }
-
-  void _onToggleView() {
-    setState(() => _isMapView = !_isMapView);
-    _checkAndLoadData(_isMapView);
-  }
-
-  void _checkAndLoadData(bool isMapView) {
-    final cubit = context.read<RidersCubit>();
-    if (isMapView) {
-      if (cubit.state.mapRiders.isEmpty && !cubit.state.isLoading) {
-        cubit.loadMapRiders();
-      }
-    } else {
-      if ((cubit.state.riders.isEmpty || cubit.state.pendingRiders.isEmpty) &&
-          !cubit.state.isLoading) {
-        cubit.loadAll();
-      }
-    }
-  }
-
-  void _selectRiderOnMap(RiderLocationInfo? rider) {
-    if (rider != null) {
-      if (rider.hasLocation) {
-        _mapController?.animateCamera(
-          CameraUpdate.newLatLngZoom(
-            LatLng(rider.lastLat!, rider.lastLng!),
-            15,
-          ),
-        );
-      } else {
-        // Show snackbar that rider has no location
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${rider.fullName} has no active location.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _openRiderDetails(Rider rider) async {
-    final result = await context.push(DispatcherRoutes.riderDetails(rider.id));
-    if (result is Rider) {
-      // "View on Map" was pressed
-      if (!_isMapView) {
-        setState(() => _isMapView = true);
-      }
-
-      _selectRiderOnMap(result.toLocationInfo());
-    }
-  }
+class _RiderStatusFilterList extends StatelessWidget {
+  const _RiderStatusFilterList();
 
   @override
   Widget build(BuildContext context) {
     final ridersCubit = context.read<RidersCubit>();
-
     return BlocBuilder<RidersCubit, RidersState>(
       builder: (context, state) {
-        return Scaffold(
-          backgroundColor: LogistixColors.background,
-          body: _isMapView
-              ? _RidersMapView(
-                  state: state,
-                  onRiderSelected: _selectRiderOnMap,
-                  onToggleView: _onToggleView,
-                  onSearchRiders: ridersCubit.searchMapRiders,
-                  onMapCreated: (c) => _mapController = c,
-                )
-              : _RidersListView(
-                  state: state,
-                  onToggleView: _onToggleView,
-                  onRefresh: ridersCubit.loadAll,
-                  onSearchChanged: ridersCubit.searchRiders,
-                  onRiderTapped: _openRiderDetails,
-                ),
+        const allStatuses = RiderStatus.values;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              _StatusChip(
+                label: 'ALL',
+                isSelected: state.selectedStatus == null,
+                onTap: () => ridersCubit.filterByStatus(null),
+              ),
+              ...allStatuses.map((status) {
+                final isSelected = state.selectedStatus == status;
+                return _StatusChip(
+                  label: status.label.toUpperCase(),
+                  isSelected: isSelected,
+                  onTap: () => ridersCubit.filterByStatus(status),
+                );
+              }),
+            ],
+          ),
         );
       },
     );
   }
 }
 
-class _RidersListView extends StatelessWidget {
-  const _RidersListView({
-    required this.state,
-    required this.onToggleView,
-    required this.onRefresh,
-    required this.onSearchChanged,
-    required this.onRiderTapped,
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
   });
 
-  final RidersState state;
-  final VoidCallback onToggleView;
-  final Future<void> Function() onRefresh;
-  final ValueChanged<String> onSearchChanged;
-  final ValueChanged<Rider> onRiderTapped;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final filteredActive = state.filteredRiders;
-    final filteredPending = state.filteredPendingRiders;
-    final hasSearch = state.searchQuery.isNotEmpty;
-    final isEmpty = filteredActive.isEmpty && filteredPending.isEmpty;
+    return AnimatedScaleTap(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? LogistixColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected
+                ? LogistixColors.primary
+                : LogistixColors.border.withValues(alpha: 0.5),
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: LogistixColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Text(
+          label,
+          style: context.textTheme.labelSmall?.bold.copyWith(
+            color: isSelected ? Colors.white : LogistixColors.textSecondary,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: CustomScrollView(
+class RidersListView extends StatelessWidget {
+  const RidersListView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ridersCubit = context.read<RidersCubit>();
+
+    return Scaffold(
+      backgroundColor: LogistixColors.background,
+      body: CustomScrollView(
         slivers: [
-          SliverSafeArea(
-            bottom: false,
-            sliver: SliverAppBar(
-              toolbarHeight: 80,
-              floating: true,
-              backgroundColor: LogistixColors.background,
-              title: TextField(
-                onChanged: onSearchChanged,
-                decoration: InputDecoration(
-                  hintText: 'Search riders...',
-                  hintStyle: context.textTheme.bodyMedium?.copyWith(
-                    color: LogistixColors.textTertiary,
+          SliverAppBar(
+            pinned: true,
+            toolbarHeight: 0,
+            collapsedHeight: 0,
+            expandedHeight: 160,
+            backgroundColor: LogistixColors.primary,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+                      ),
+                    ),
                   ),
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-                    color: LogistixColors.primary,
+                  Positioned(
+                    right: -20,
+                    top: -20,
+                    child: Container(
+                      width: 140,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
+                  const Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 24),
+                      child: RiderSummaryCard(),
+                    ),
+                  ),
+                ],
               ),
-              actions: [
-                IconButton(
-                  onPressed: onToggleView,
-                  icon: const Icon(
-                    Icons.map_rounded,
-                    color: LogistixColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
             ),
           ),
-          if (state.isLoading &&
-              state.riders.isEmpty &&
-              state.pendingRiders.isEmpty)
-            _buildLoadingState()
-          else if (state.error != null)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: LogistixErrorView(
-                message: state.error!,
-                onRetry: onRefresh,
-              ),
-            )
-          else if (isEmpty)
-            _buildEmptyState(context, hasSearch)
-          else ...[
-            if (filteredPending.isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                  child: Text(
-                    'Pending Approval (${filteredPending.length})',
-                    style: context.textTheme.titleSmall?.bold.copyWith(
-                      color: LogistixColors.warning,
+          PinnedHeaderSliver(
+            child: Container(
+              color: LogistixColors.background,
+              padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Hero(
+                      tag: 'rider-search-tag',
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _SearchField(
+                              onChanged: ridersCubit.searchRiders,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          AnimatedScaleTap(
+                            onTap: () => context.go(DispatcherRoutes.ridersMap),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.map_rounded,
+                                color: LogistixColors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  const _RiderStatusFilterList(),
+                ],
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final rider = filteredPending[index];
-                  return AnimatedScaleTap(
-                    onTap: () => onRiderTapped(rider),
-                    child: SlideFadeTransition(
-                      child: RiderCard(rider: rider, isPending: true),
-                    ),
-                  );
-                }, childCount: filteredPending.length),
-              ),
-            ],
-            if (filteredActive.isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                  child: Text(
-                    'Active Riders (${filteredActive.length})',
-                    style: context.textTheme.titleSmall?.bold,
+            ),
+          ),
+          BlocBuilder<RidersCubit, RidersState>(
+            builder: (context, state) {
+              final filteredActive = state.filteredRiders;
+              final filteredPending = state.filteredPendingRiders;
+              final isEmpty = filteredActive.isEmpty && filteredPending.isEmpty;
+
+              if (state.isLoading &&
+                  state.riders.isEmpty &&
+                  state.pendingRiders.isEmpty) {
+                return SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: LogistixShimmer(
+                          width: double.infinity,
+                          height: 120,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      );
+                    }, childCount: 5),
                   ),
-                ),
-              ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final rider = filteredActive[index];
-                  return AnimatedScaleTap(
-                    onTap: () => onRiderTapped(rider),
-                    child: SlideFadeTransition(
-                      child: RiderCard(rider: rider, isPending: false),
+                );
+              }
+
+              if (state.error != null && state.riders.isEmpty) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: LogistixErrorView(message: state.error!),
+                );
+              }
+
+              if (isEmpty) {
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          state.searchQuery.isNotEmpty
+                              ? Icons.search_off_rounded
+                              : Icons.directions_bike_rounded,
+                          size: 64,
+                          color: LogistixColors.textTertiary.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          state.searchQuery.isNotEmpty
+                              ? 'No riders matching your search'
+                              : 'No riders found',
+                          style: context.textTheme.bodyLarge?.copyWith(
+                            color: LogistixColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }, childCount: filteredActive.length),
-              ),
-            ],
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+                  ),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.only(bottom: 100),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    if (filteredPending.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        child: Text(
+                          'PENDING APPROVAL (${filteredPending.length})',
+                          style: context.textTheme.labelSmall?.bold.copyWith(
+                            color: LogistixColors.warning,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      ...filteredPending.mapIndexed(
+                        (idx, rider) => LogistixEntrance(
+                          delay: Duration(milliseconds: idx * 50),
+                          children: [RiderCard(rider: rider, isPending: true)],
+                        ),
+                      ),
+                    ],
+                    if (filteredActive.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        child: Text(
+                          'ACTIVE RIDERS (${filteredActive.length})',
+                          style: context.textTheme.labelSmall?.bold.copyWith(
+                            color: LogistixColors.textSecondary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      ...filteredActive.mapIndexed(
+                        (idx, rider) => LogistixEntrance(
+                          delay: Duration(
+                            milliseconds: (filteredPending.length + idx) * 50,
+                          ),
+                          children: [RiderCard(rider: rider, isPending: false)],
+                        ),
+                      ),
+                    ],
+                  ]),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
-
-  Widget _buildLoadingState() {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      sliver: SliverList(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: LogistixShimmer(
-              width: double.infinity,
-              height: 100,
-              borderRadius: BorderRadius.circular(16),
-            ),
-          );
-        }, childCount: 5),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context, bool hasSearch) {
-    return SliverFillRemaining(
-      hasScrollBody: false,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              hasSearch
-                  ? Icons.search_off_rounded
-                  : Icons.directions_bike_rounded,
-              size: 64,
-              color: LogistixColors.textTertiary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              hasSearch ? 'No riders matching your search' : 'No riders found',
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: LogistixColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
-class _RidersMapView extends StatelessWidget {
-  const _RidersMapView({
-    required this.state,
-    required this.onRiderSelected,
-    required this.onToggleView,
-    required this.onMapCreated,
-    required this.onSearchRiders,
-  });
+class RidersMapView extends StatefulWidget {
+  const RidersMapView({super.key, this.riderId});
 
-  final RidersState state;
-  final ValueChanged<RiderLocationInfo?> onRiderSelected;
-  final VoidCallback onToggleView;
-  final ValueChanged<GoogleMapController> onMapCreated;
-  final Future<List<Rider>> Function(String) onSearchRiders;
+  final String? riderId;
+
+  @override
+  State<RidersMapView> createState() => _RidersMapViewState();
+}
+
+class _RidersMapViewState extends State<RidersMapView> {
+  late final ridersCubit = context.read<RidersCubit>();
+  GoogleMapController? _mapController;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<MapCubit>().requestLocationPermission();
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+
+    if (widget.riderId != null) {
+      _focusRider(widget.riderId!);
+    }
+  }
+
+  void _focusRider(String riderId) => ridersCubit.selectRider(riderId);
 
   @override
   Widget build(BuildContext context) {
-    final ridersWithLocation = state.mapRiders
-        .where((r) => r.hasLocation)
-        .toList();
-
-    var initialPos = const LatLng(6.5244, 3.3792);
-    if (ridersWithLocation.isNotEmpty) {
-      final avgLat = ridersWithLocation.map((r) => r.lastLat!).average;
-      final avgLng = ridersWithLocation.map((r) => r.lastLng!).average;
-      initialPos = LatLng(avgLat, avgLng);
-    }
-
-    final topPadding = MediaQuery.viewPaddingOf(context).top;
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: ColoredBox(
-            color: LogistixColors.surfaceDim,
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              zoomControlsEnabled: false,
-              initialCameraPosition: CameraPosition(
-                target: initialPos,
-                zoom: 12,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: BlocConsumer<RidersCubit, RidersState>(
+        listenWhen: (prev, next) =>
+            prev.selectedRider?.id != next.selectedRider?.id,
+        listener: (context, state) {
+          final rider = state.selectedRider;
+          if (rider != null && rider.hasPosition) {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLngZoom(
+                LatLng(rider.lastLat!, rider.lastLng!),
+                15,
               ),
-              onMapCreated: onMapCreated,
-              markers: ridersWithLocation.map((r) {
-                return Marker(
-                  markerId: MarkerId(r.id),
-                  position: LatLng(r.lastLat!, r.lastLng!),
-                  infoWindow: InfoWindow(title: r.fullName),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueGreen,
+            );
+          }
+        },
+        builder: (context, state) {
+          var initialPos = const LatLng(6.5244, 3.3792);
+
+          final ridersWithLocation = state.mapRiders
+              .where((r) => r.hasLocation)
+              .toList();
+
+          if (ridersWithLocation.isNotEmpty) {
+            final avgLat = ridersWithLocation.map((r) => r.lastLat!).average;
+            final avgLng = ridersWithLocation.map((r) => r.lastLng!).average;
+            initialPos = LatLng(avgLat, avgLng);
+          }
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: GoogleMap(
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    target: initialPos,
+                    zoom: 15,
                   ),
-                  onTap: () => onRiderSelected(r),
-                );
-              }).toSet(),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: EdgeInsets.fromLTRB(16, topPadding + 16, 8, 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.5),
-                  Colors.black.withValues(alpha: 0.15),
-                  Colors.transparent,
-                ],
-                stops: const [0.0, 0.7, 1.0],
+                  onMapCreated: _onMapCreated,
+                  onTap: (_) {
+                    FocusScope.of(context).unfocus();
+                    ridersCubit.selectRider(null);
+                  },
+                  markers: ridersWithLocation.mapIndexed((i, r) {
+                    return Marker(
+                      zIndexInt: r.id == state.selectedRider?.id ? 100000 : i,
+                      markerId: MarkerId(r.id),
+                      position: LatLng(r.lastLat!, r.lastLng!),
+                      onTap: () {
+                        ridersCubit.selectRider(r.id);
+                      },
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                        RiderMapUtils.getHue(r.id),
+                      ),
+                    );
+                  }).toSet(),
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: DropdownSearch<Rider>(
-                    items: (String filter, _) => onSearchRiders(filter),
-                    compareFn: EqualityFilter<Rider>((state) => state.id).call,
-                    onChanged: (rider) {
-                      return onRiderSelected(rider?.toLocationInfo());
-                    },
-                    suffixProps: const DropdownSuffixProps(
-                      clearButtonProps: ClearButtonProps(isVisible: true),
-                      dropdownButtonProps: DropdownButtonProps(
-                        isVisible: false,
+              if (state.selectedRider != null)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 32,
+                  child: Center(
+                    child: RiderMapInfoCard(
+                      rider: state.selectedRider!,
+                      onClose: () => ridersCubit.selectRider(null),
+                      onTap: () => context.push(
+                        DispatcherRoutes.riderDetails(state.selectedRider!.id),
                       ),
                     ),
-                    popupProps: PopupProps.menu(
-                      showSearchBox: true,
-                      loadingBuilder: (_, _) {
-                        return const LogistixLoadingIndicator();
-                      },
-                      searchFieldProps: TextFieldProps(
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          hintText: 'Search rider...',
-                          prefixIcon: const Icon(Icons.search_rounded),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                          ),
-                        ),
-                      ),
-                      itemBuilder: (context, rider, isDisabled, isSelected) {
-                        return RiderInfoListTile(
-                          rider: rider,
-                          enabled: rider.hasLocation,
-                          isSelected: isSelected,
-                        );
-                      },
-                    ),
-                    decoratorProps: DropDownDecoratorProps(
-                      decoration: InputDecoration(
-                        hintText: 'Search rider on map...',
-                        hintStyle: context.textTheme.bodyMedium?.copyWith(
-                          color: LogistixColors.textTertiary,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.location_pin,
-                          color: LogistixColors.primary,
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.all(16),
-                      ),
-                    ),
-                    dropdownBuilder: (context, selectedItem) {
-                      if (selectedItem == null) {
-                        return Text(
-                          'Search rider on map...',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: LogistixColors.textTertiary,
-                          ),
-                        );
-                      }
-                      return Text(
-                        selectedItem.fullName,
-                        style: context.textTheme.bodyMedium?.bold.copyWith(
-                          color: selectedItem.hasLocation
-                              ? null
-                              : LogistixColors.textTertiary,
-                        ),
-                      );
-                    },
                   ),
                 ),
-                const SizedBox(width: 16),
-                IconButton(
-                  onPressed: onToggleView,
-                  icon: const Icon(
-                    Icons.list_rounded,
-                    color: LogistixColors.primary,
+              // Search and Overlays
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      Hero(
+                        tag: 'rider-search-tag',
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _MapSearchOverlay(
+                                onRiderSelected: (r) {
+                                  if (r != null) {
+                                    ridersCubit.selectRider(r.id);
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            AnimatedScaleTap(
+                              onTap: () =>
+                                  context.go(DispatcherRoutes.ridersList),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.list_rounded,
+                                  color: LogistixColors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ],
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
 
-extension on Rider {
-  RiderLocationInfo toLocationInfo() {
-    return RiderLocationInfo(
-      id: id,
-      fullName: fullName,
-      lastLat: lastLng,
-      lastLng: lastLng,
+class _MapSearchOverlay extends StatelessWidget {
+  const _MapSearchOverlay({required this.onRiderSelected});
+
+  final ValueChanged<Rider?> onRiderSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return RiderDropdownSearch(
+      selectedRider: null,
+      searchRiders: (filter) =>
+          context.read<SearchRidersUseCase>().call(filter),
+      onChanged: onRiderSelected,
+      label: 'Search rider on map...',
     );
   }
 }

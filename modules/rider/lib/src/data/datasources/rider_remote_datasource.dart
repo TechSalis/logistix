@@ -1,9 +1,7 @@
-import 'package:bootstrap/definitions/app_error.dart';
+import 'package:rider/src/data/dtos/rider_sync_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRemoteDataSource {
-  Future<RiderDto> getMeRider();
-
   Future<RiderDto> updateLocation(
     String riderId,
     double lat,
@@ -11,56 +9,50 @@ abstract class RiderRemoteDataSource {
     int? batteryLevel,
   );
 
-  Future<OrderDto> getOrder(String orderId);
-  
-  Future<List<OrderDto>> getOrders({
-    List<String>? status,
-    int? limit,
-    int? offset,
-    String? sortOrder,
+  Future<OrderDto> updateOrderStatus(String orderId, String status);
+
+  Future<RiderDto> sendHeartbeat({
+    required double lat,
+    required double lng,
+    int? batteryLevel,
   });
 
-  Future<void> updateOrderStatus(String orderId, String status);
+  Future<RiderSyncDto> syncData({double? since, int? limit, int? offset});
 
-  Future<RiderMetricsDto> getRiderMetrics();
+  Future<SyncManager> subscribeToAssignmentUpdates({
+    required String riderId,
+    required void Function(
+      OrderDto order,
+      RiderDto? rider,
+      String eventType,
+      RiderMetricsDto? metrics,
+    )
+    onData,
+    required Future<void> Function() onSync,
+  });
+
+  Future<RiderDto> fetchProfile();
 }
 
-class RiderRemoteDataSourceImpl implements RiderRemoteDataSource {
-  RiderRemoteDataSourceImpl(this._graphQLService);
-  final GraphQLService _graphQLService;
+class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
+    implements RiderRemoteDataSource {
+  RiderRemoteDataSourceImpl(super.gqlService);
 
   @override
-  Future<RiderDto> getMeRider() async {
-    const query = '''
-      query GetMeRider {
+  Future<RiderDto> fetchProfile() async {
+    const queryDocument =
+        '''
+      query MeRider {
         meRider {
-          id
-          email
-          phoneNumber
-          fullName
-          companyId
-          status
-          lastLat
-          lastLng
-          batteryLevel
-          isAccepted
-          isIndependent
-          permitUrl
-          createdAt
-          updatedAt
+          ${GqlFragments.riderFields}
         }
       }
     ''';
 
-    final result = await _graphQLService.query(query);
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
-    }
-
-    final data = result.data?['meRider'] as Map<String, dynamic>?;
-    if (data == null) {
-      throw const AppError(message: 'Rider profile not found');
-    }
+    final data = await query<Map<String, dynamic>>(
+      queryDocument,
+      key: 'meRider',
+    );
 
     return RiderDto.fromJson(data);
   }
@@ -72,27 +64,18 @@ class RiderRemoteDataSourceImpl implements RiderRemoteDataSource {
     double lng,
     int? batteryLevel,
   ) async {
-    const mutation = r'''
-      mutation UpdateRiderLocation($riderId: ID!, $lat: Float!, $lng: Float!, $batteryLevel: Int) {
-        updateRiderLocation(riderId: $riderId, lat: $lat, lng: $lng, batteryLevel: $batteryLevel) {
-          id
-          fullName
-          companyId
-          status
-          lastLat
-          lastLng
-          batteryLevel
-          isAccepted
-          isIndependent
-          permitUrl
-          createdAt
-          updatedAt
+    const mutation =
+        '''
+      mutation UpdateRiderLocation(\$riderId: ID!, \$lat: Float!, \$lng: Float!, \$batteryLevel: Int) {
+        updateRiderLocation(riderId: \$riderId, lat: \$lat, lng: \$lng, batteryLevel: \$batteryLevel) {
+          ${GqlFragments.riderFields}
         }
       }
     ''';
 
-    final result = await _graphQLService.mutate(
+    final data = await mutate<Map<String, dynamic>>(
       mutation,
+      key: 'updateRiderLocation',
       variables: {
         'riderId': riderId,
         'lat': lat,
@@ -101,152 +84,138 @@ class RiderRemoteDataSourceImpl implements RiderRemoteDataSource {
       },
     );
 
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
-    }
+    return RiderDto.fromJson(data);
+  }
 
-    final data = result.data?['updateRiderLocation'] as Map<String, dynamic>?;
-    if (data == null) {
-      throw const AppError(message: 'Failed to update rider location');
-    }
+  @override
+  Future<OrderDto> updateOrderStatus(String orderId, String status) async {
+    final result = await gqlService.mutate(
+      '''
+      mutation UpdateOrderStatus(\$orderId: ID!, \$status: String!, \$sessionId: String) {
+        updateOrderStatus(orderId: \$orderId, status: \$status, sessionId: \$sessionId) {
+          ${GqlFragments.orderFields}
+        }
+      }
+    ''',
+      variables: {
+        'orderId': orderId,
+        'status': status,
+        'sessionId': await gqlService.sessionId,
+      },
+    );
+
+    result.throwIfException();
+    return OrderDto.fromJson(
+      result.data!['updateOrderStatus'] as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<RiderDto> sendHeartbeat({
+    required double lat,
+    required double lng,
+    int? batteryLevel,
+  }) async {
+    const mutation =
+        '''
+      mutation RiderHeartbeat(\$lat: Float!, \$lng: Float!, \$batteryLevel: Int) {
+        riderHeartbeat(lat: \$lat, lng: \$lng, batteryLevel: \$batteryLevel) {
+          ${GqlFragments.riderFields}
+        }
+      }
+    ''';
+
+    final data = await mutate<Map<String, dynamic>>(
+      mutation,
+      key: 'riderHeartbeat',
+      variables: {'lat': lat, 'lng': lng, 'batteryLevel': batteryLevel},
+    );
 
     return RiderDto.fromJson(data);
   }
 
   @override
-  Future<List<OrderDto>> getOrders({
-    List<String>? status,
+  Future<RiderSyncDto> syncData({
+    double? since,
     int? limit,
     int? offset,
-    String? sortOrder,
   }) async {
-    const query = r'''
-      query GetRiderOrders($status: [String!], $limit: Int, $offset: Int, $sortOrder: String) {
-        myOrders(status: $status, limit: $limit, offset: $offset, sortOrder: $sortOrder) {
-          id
-          companyId
-          riderId
-          pickupAddress
-          dropOffAddress
-          items
-          codAmount
-          sequenceNumber
-          trackingNumber
-          status
-          deliveredAt
-          createdAt
-          updatedAt
+    const queryDocument =
+        '''
+      query RiderSync(\$since: Float, \$limit: Int, \$offset: Int) {
+        riderSync(since: \$since, limit: \$limit, offset: \$offset) {
+          orders {
+            ${GqlFragments.orderFields}
+          }
+          metrics {
+            ${GqlFragments.riderMetricsFields}
+          }
+          deletedOrderIds
+          lastUpdated
         }
       }
     ''';
 
-    final result = await _graphQLService.query(
-      query,
-      variables: {
-        if (status != null) 'status': status,
-        if (limit != null) 'limit': limit,
-        if (offset != null) 'offset': offset,
-        if (sortOrder != null) 'sortOrder': sortOrder,
+    final data = await query<Map<String, dynamic>>(
+      queryDocument,
+      variables: {'since': since, 'limit': limit, 'offset': offset},
+      key: 'riderSync',
+    );
+
+    return RiderSyncDto.fromJson(data);
+  }
+
+  @override
+  Future<SyncManager> subscribeToAssignmentUpdates({
+    required String riderId,
+    required void Function(
+      OrderDto order,
+      RiderDto? rider,
+      String eventType,
+      RiderMetricsDto? metrics,
+    )
+    onData,
+    required Future<void> Function() onSync,
+  }) async {
+    final syncManager = SyncManager(gqlService);
+    await syncManager.startSubscription(
+      subscriptionDocument: _riderAssignmentSubscription,
+      variables: {'riderId': riderId, 'sessionId': await gqlService.sessionId},
+      onData: (data) async {
+        final updateData =
+            data['riderAssignmentUpdated'] as Map<String, dynamic>;
+        final orderData = updateData['order'] as Map<String, dynamic>;
+        final riderData = updateData['rider'] as Map<String, dynamic>?;
+        final eventType = updateData['eventType'] as String;
+        final metricsData = updateData['metrics'] as Map<String, dynamic>?;
+
+        onData(
+          OrderDto.fromJson(orderData),
+          riderData != null ? RiderDto.fromJson(riderData) : null,
+          eventType,
+          metricsData != null ? RiderMetricsDto.fromJson(metricsData) : null,
+        );
       },
+      onSync: onSync,
     );
-
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
-    }
-
-    final data = result.data?['myOrders'] as List<dynamic>?;
-    return data
-            ?.map((e) => OrderDto.fromJson(e as Map<String, dynamic>))
-            .toList() ??
-        [];
+    return syncManager;
   }
 
-  @override
-  Future<OrderDto> getOrder(String orderId) async {
-    const query = r'''
-      query GetOrder($id: ID!) {
-        order(id: $id) {
-          id
-          companyId
-          riderId
-          pickupAddress
-          dropOffAddress
-          items
-          codAmount
-          sequenceNumber
-          trackingNumber
-          status
-          deliveredAt
-          createdAt
-          updatedAt
+  static const String _riderAssignmentSubscription =
+      '''
+    subscription RiderAssignmentUpdated(\$riderId: ID!, \$sessionId: String) {
+      riderAssignmentUpdated(riderId: \$riderId, sessionId: \$sessionId) {
+        order {
+          ${GqlFragments.orderFields}
+        }
+        rider {
+          ${GqlFragments.riderFields}
+        }
+        eventType
+        metrics {
+          ${GqlFragments.riderMetricsFields}
         }
       }
-    ''';
-
-    final result = await _graphQLService.query(
-      query,
-      variables: {'id': orderId},
-    );
-
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
     }
-
-    final data = result.data?['order'] as Map<String, dynamic>?;
-    if (data == null) {
-      throw const AppError(message: 'Order not found');
-    }
-
-    return OrderDto.fromJson(data);
-  }
-
-  @override
-  Future<void> updateOrderStatus(String orderId, String status) async {
-    const mutation = r'''
-      mutation UpdateOrderStatus($orderId: ID!, $status: String!) {
-        updateOrderStatus(orderId: $orderId, status: $status) {
-          id
-          status
-        }
-      }
-    ''';
-
-    final result = await _graphQLService.mutate(
-      mutation,
-      variables: {'orderId': orderId, 'status': status},
-    );
-
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
-    }
-  }
-
-  @override
-  Future<RiderMetricsDto> getRiderMetrics() async {
-    const query = '''
-      query GetRiderMetrics {
-        deliveryMetrics {
-          totalOrders
-          pendingOrders
-          inProgressOrders
-          deliveredOrders
-          codExpectedToday
-          onlineRiders
-          avgDeliveryTime
-        }
-      }
-    ''';
-
-    final result = await _graphQLService.query(query);
-    if (result.hasException) {
-      throw ErrorHandler.fromException(result.exception);
-    }
-
-    final data = result.data?['deliveryMetrics'] as Map<String, dynamic>?;
-    if (data == null) {
-      throw const AppError(message: 'Rider metrics not found');
-    }
-
-    return RiderMetricsDto.fromJson(data);
-  }
+  ''';
 }

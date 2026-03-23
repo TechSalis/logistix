@@ -1,4 +1,5 @@
 import 'package:bootstrap/core.dart';
+import 'package:bootstrap/interfaces/http/token_store.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -36,6 +37,8 @@ class OnboardingModule extends Module<RouteBase> {
           RepositoryProvider<OnboardingRepository>(
             create: (context) => OnboardingRepositoryImpl(
               context.read<OnboardingRemoteDataSource>(),
+              injector.get<TokenStore>(),
+              injector.get<UserStore>(),
             ),
           ),
           RepositoryProvider<UploadRepository>(
@@ -54,7 +57,9 @@ class OnboardingModule extends Module<RouteBase> {
                 );
               },
             ),
-            BlocProvider<AddressCubit>(create: (context) => AddressCubit()),
+            BlocProvider<AddressCubit>(
+              create: (context) => AddressCubit(injector.get<PlacesService>()),
+            ),
             BlocProvider<UploadCubit>(
               create: (context) =>
                   UploadCubit(context.read<UploadRepository>()),
@@ -64,16 +69,14 @@ class OnboardingModule extends Module<RouteBase> {
         ),
       ),
       routes: [
-        // Redirect route without children
         GoRoute(
           path: OnboardingRoutes.rootPath,
-          redirect: (context, state) => OnboardingRoutes.roleSelection,
+          redirect: (context, state) => const RedirectGuard(
+            OnboardingRoutes.roleSelection,
+            from: OnboardingRoutes.rootPath,
+          ).redirect(context, state.fullPath),
+          routes: onboardingRoutes
         ),
-        // Individual onboarding routes
-        ...onboardingRoutes.map((route) => GoRoute(
-          path: '${OnboardingRoutes.rootPath}/${(route as GoRoute).path}',
-          builder: route.builder!,
-        )),
       ],
     ),
   };

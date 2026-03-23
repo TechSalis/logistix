@@ -19,9 +19,9 @@ abstract class LogistixSpacing {
   static const double pagePadding = lg; // 24
 
   // Component-specific spacing
-  static const double cardPadding = md; // 16
-  static const double buttonPaddingVertical = sm; // 12
-  static const double buttonPaddingHorizontal = lg; // 24
+  static const double cardPadding = lg; // Increased to 24px
+  static const double buttonPaddingVertical = md; // Increased to 16px
+  static const double buttonPaddingHorizontal = xl; // Increased to 32px
   static const double inputPaddingVertical = sm; // 12
   static const double inputPaddingHorizontal = md; // 16
   static const double listItemPadding = md; // 16

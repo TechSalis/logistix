@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:logistix_ux/logistix_ux.dart';
-import 'package:shared/src/domain/entities/order.dart';
+import 'package:shared/shared.dart';
 
 part 'rider.freezed.dart';
 
@@ -8,27 +7,27 @@ part 'rider.freezed.dart';
 abstract class Rider with _$Rider {
   const factory Rider({
     required String id,
-    required String fullName,
     required String email,
+    required String fullName,
     required RiderStatus status,
     required String companyId,
     String? phoneNumber,
+    String? fcmToken,
+    User? user, // Nested for UI convenience
     Order? activeOrder,
     double? lastLat,
     double? lastLng,
     int? batteryLevel,
     @Default(false) bool isAccepted,
-    // @Default(false) bool isIndependent,
-    // String? permitUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _Rider;
 }
 
-enum RiderStatus { offline, online, busy }
+enum RiderStatus { online, busy, offline }
 
 extension RiderStatusX on RiderStatus {
-  String get value => name.capitalize;
+  String get value => name.toUpperCase();
 
   static RiderStatus fromString(String status) {
     switch (status.toUpperCase()) {
@@ -36,6 +35,7 @@ extension RiderStatusX on RiderStatus {
         return RiderStatus.online;
       case 'BUSY':
         return RiderStatus.busy;
+      case 'OFFLINE':
       default:
         return RiderStatus.offline;
     }
@@ -43,5 +43,5 @@ extension RiderStatusX on RiderStatus {
 }
 
 extension RiderX on Rider {
-  bool get hasLocation => lastLat != null && lastLng != null;
+  bool get hasPosition => lastLat != null && lastLng != null;
 }

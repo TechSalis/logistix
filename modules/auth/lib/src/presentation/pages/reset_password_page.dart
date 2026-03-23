@@ -46,10 +46,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             );
             context.go(AuthRoutes.login);
           },
-          unauthenticated: (message) {
-            if (message != null) {
-              context.toast.showToast(message, type: ToastType.error);
-            }
+          resetPasswordError: (message) {
+            context.toast.showToast(message, type: ToastType.error);
           },
         );
       },
@@ -139,7 +137,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state.maybeWhen(
-                      loading: () => true,
+                      resetPasswordLoading: () => true,
                       orElse: () => false,
                     );
 

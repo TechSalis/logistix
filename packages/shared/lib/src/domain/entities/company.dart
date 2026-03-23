@@ -10,7 +10,6 @@ abstract class Company with _$Company {
     String? logoUrl,
     String? cac,
     String? address,
-    String? phoneNumber,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) = _Company;

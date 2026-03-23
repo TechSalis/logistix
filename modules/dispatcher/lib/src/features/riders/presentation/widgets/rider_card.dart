@@ -1,6 +1,6 @@
 import 'package:bootstrap/extensions/string_extension.dart';
-
 import 'package:dispatcher/src/features/riders/presentation/cubit/riders_cubit.dart';
+import 'package:dispatcher/src/features/riders/presentation/utils/rider_map_utils.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,27 +17,27 @@ class RiderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = rider.status.color;
     final activeOrder = rider.activeOrder;
+    final riderColor = RiderMapUtils.getColor(rider.id);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: LogistixColors.border.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         child: InkWell(
           onTap: () => context.push(DispatcherRoutes.riderDetails(rider.id)),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -45,44 +45,12 @@ class RiderCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Stack(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                LogistixColors.primary.withValues(alpha: 0.1),
-                                LogistixColors.primary.withValues(alpha: 0.05),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            rider.fullName.characters.firstOrNull
-                                    ?.toUpperCase() ??
-                                '',
-                            style: context.textTheme.titleMedium?.bold.copyWith(
-                              color: LogistixColors.primary,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              color: statusColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                          ),
-                        ),
-                      ],
+                    LogistixAvatar(
+                      name: rider.user?.fullName,
+                      size: 52,
+                      statusColor: statusColor,
+                      backgroundColor: riderColor.withValues(alpha: 0.1),
+                      foregroundColor: riderColor,
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -90,70 +58,108 @@ class RiderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            rider.fullName,
-                            style: context.textTheme.titleMedium?.bold,
+                            rider.user?.fullName ?? '',
+                            style: context.textTheme.titleMedium?.bold.copyWith(
+                              letterSpacing: -0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 2),
-                          Text.rich(
-                            TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: rider.status.value.capitalizeFirst(),
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: statusColor,
+                                  shape: BoxShape.circle,
                                 ),
-                                if (rider.phoneNumber != null) ...[
-                                  const TextSpan(
-                                    text: ' • ',
-                                    style: TextStyle(
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  rider.status.value.capitalizeFirst().toUpperCase(),
+                                  style: context.textTheme.labelSmall?.bold.copyWith(
+                                    color: statusColor,
+                                    letterSpacing: 0.5,
+                                    fontSize: 10,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (rider.user?.phoneNumber != null) ...[
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    '  •  ${rider.user?.phoneNumber}',
+                                    style: context.textTheme.labelSmall?.copyWith(
                                       color: LogistixColors.textTertiary,
                                     ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  TextSpan(
-                                    text: rider.phoneNumber,
-                                    style: context.textTheme.labelMedium
-                                        ?.copyWith(
-                                          color: LogistixColors.textSecondary,
-                                        ),
-                                  ),
-                                ],
+                                ),
                               ],
-                            ),
-                            style: context.textTheme.labelMedium?.copyWith(
-                              color: statusColor,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                     if (isPending)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.check_circle_rounded,
-                              color: LogistixColors.success,
-                            ),
-                            onPressed: () => context
-                                .read<RidersCubit>()
-                                .acceptRider(rider.id),
-                          ),
-                          IconButton(
-                            icon: const Icon(
-                              Icons.cancel_rounded,
-                              color: LogistixColors.error,
-                            ),
-                            onPressed: () => context
-                                .read<RidersCubit>()
-                                .rejectRider(rider.id),
-                          ),
-                        ],
+                      BlocBuilder<RidersCubit, RidersState>(
+                        builder: (context, state) {
+                          final isAccepting =
+                              state.acceptingRiderIds.contains(rider.id);
+                          final isRejecting =
+                              state.rejectingRiderIds.contains(rider.id);
+                          final isProcessing = isAccepting || isRejecting;
+
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _ActionButton(
+                                icon: Icons.check_rounded,
+                                color: LogistixColors.success,
+                                isLoading: isAccepting,
+                                onPressed: isProcessing
+                                    ? null
+                                    : () => context
+                                        .read<RidersCubit>()
+                                        .acceptRider(rider.id),
+                              ),
+                              const SizedBox(width: 8),
+                              _ActionButton(
+                                icon: Icons.close_rounded,
+                                color: LogistixColors.error,
+                                isLoading: isRejecting,
+                                onPressed: isProcessing
+                                    ? null
+                                    : () => context
+                                        .read<RidersCubit>()
+                                        .rejectRider(rider.id),
+                              ),
+                            ],
+                          );
+                        },
                       )
-                    else
-                      const Icon(
+                    else ...[
+                      if (rider.hasPosition)
+                        _ActionButton(
+                          icon: Icons.location_on_rounded,
+                          color: riderColor,
+                          onPressed: () => context.go(
+                            DispatcherRoutes.ridersMap,
+                            extra: rider.id,
+                          ),
+                        ),
+                      const SizedBox(width: 4),
+                      Icon(
                         Icons.chevron_right_rounded,
-                        color: LogistixColors.textTertiary,
+                        color: LogistixColors.textTertiary.withValues(alpha: 0.5),
                       ),
+                    ],
                   ],
                 ),
                 if (activeOrder != null) ...[
@@ -161,19 +167,27 @@ class RiderCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: LogistixColors.background,
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          LogistixColors.primary.withValues(alpha: 0.06),
+                          LogistixColors.primary.withValues(alpha: 0.02),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: LogistixColors.primary.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
+                            color: LogistixColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Icon(
-                            Icons.local_shipping_outlined,
+                            Icons.local_shipping_rounded,
                             size: 18,
                             color: LogistixColors.primary,
                           ),
@@ -185,27 +199,43 @@ class RiderCard extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  Text(
-                                    'Active Order',
-                                    style: context.textTheme.labelSmall?.bold
-                                        .copyWith(
-                                          color: LogistixColors.textTertiary,
-                                        ),
+                                  Flexible(
+                                    child: Text(
+                                      'ACTIVE ORDER',
+                                      style: context.textTheme.labelSmall?.bold.copyWith(
+                                        color: LogistixColors.textTertiary,
+                                        letterSpacing: 0.5,
+                                        fontSize: 10,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
+                                  const SizedBox(width: 8),
                                   const Spacer(),
-                                  Text(
-                                    activeOrder.status.value,
-                                    style: context.textTheme.labelSmall?.bold
-                                        .copyWith(
-                                          color: LogistixColors.primary,
-                                        ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: LogistixColors.primary.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      activeOrder.status.label.toUpperCase(),
+                                      style: context.textTheme.labelSmall?.bold.copyWith(
+                                        color: LogistixColors.primary,
+                                        fontSize: 9,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 2),
+                              const SizedBox(height: 4),
                               Text(
-                                activeOrder.pickupAddress,
-                                style: context.textTheme.bodySmall?.semiBold,
+                                activeOrder.dropOffAddress,
+                                style: context.textTheme.bodySmall?.bold,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -225,37 +255,44 @@ class RiderCard extends StatelessWidget {
   }
 }
 
-class RiderInfoListTile extends StatelessWidget {
-  const RiderInfoListTile({
-    required this.rider,
-    required this.enabled,
-    required this.isSelected,
-    super.key,
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+    this.isLoading = false,
   });
 
-  final Rider rider;
-  final bool enabled;
-  final bool isSelected;
+  final IconData icon;
+  final Color color;
+  final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      enabled: enabled,
-      leading: CircleAvatar(
-        backgroundColor: LogistixColors.primary.withValues(alpha: 0.1),
-        child: Text(
-          rider.fullName.isNotEmpty ? rider.fullName[0].toUpperCase() : '?',
-          style: const TextStyle(
-            color: LogistixColors.primary,
-            fontWeight: FontWeight.bold,
-          ),
+    return AnimatedScaleTap(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: isLoading
+            ? Center(
+                child: SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  ),
+                ),
+              )
+            : Icon(icon, color: color, size: 20),
       ),
-      title: Text(
-        rider.fullName,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      selected: isSelected,
     );
   }
 }

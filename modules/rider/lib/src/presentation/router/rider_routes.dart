@@ -9,21 +9,22 @@ import 'package:shared/shared.dart';
 
 /// Private relative route paths (without parent prefix)
 abstract class _RiderPaths {
-  static const String map = '/map';
-  static const String orders = '/orders';
-  static const String profile = '/profile';
+  static const String map = 'map';
+  static const String orders = 'orders';
+  static const String profile = 'profile';
 }
 
 /// Public rider module route paths (with /rider prefix)
 abstract class RiderRoutes {
   static const String rootPath = ModuleRoutePaths.rider;
 
-  static const String map = '$rootPath${_RiderPaths.map}';
+  static const String map = '$rootPath/${_RiderPaths.map}';
 
-  static const String orders = '$rootPath${_RiderPaths.orders}';
+  static const String orders = '$rootPath/${_RiderPaths.orders}';
+
   static String orderDetails(String id) => '$orders/$id';
 
-  static const String profile = '$rootPath${_RiderPaths.profile}';
+  static const String profile = '$rootPath/${_RiderPaths.profile}';
 }
 
 /// Rider module route configuration using StatefulShellRoute

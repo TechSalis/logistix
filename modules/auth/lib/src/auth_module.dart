@@ -29,6 +29,7 @@ class AuthModule extends Module<RouteBase> {
                   SharedPrefsObjectStore(UserDto.fromJson, UserDto.toJsonFunc),
                 ),
                 injector.get<LogoutUseCase>(),
+                injector.get<AuthStatusRepository>(),
               );
             },
             child: ToastServiceWidget(child: child),

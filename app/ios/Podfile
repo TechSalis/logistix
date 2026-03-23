@@ -30,8 +30,26 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
 
+  # Surgical fix for Google Maps with use_frameworks!
+  $static_framework = ['GoogleMaps', 'Google-Maps-iOS-Utils', 'GooglePlaces']
+
+  pre_install do |installer|
+    Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+    installer.pod_targets.each do |pod|
+      if $static_framework.include?(pod.name)
+        def pod.dynamic_framework?; false end
+        def pod.build_type; Pod::BuildType.static_framework end
+      end
+    end
+  end
+
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
+    inherit! :search_paths
+  end
+  
+  # Share Extension is name of Extension which you created which is in this case 'Share Extension'
+  target 'Share Extension' do
     inherit! :search_paths
   end
 end

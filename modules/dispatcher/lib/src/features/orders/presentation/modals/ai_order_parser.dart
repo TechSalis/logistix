@@ -8,16 +8,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 
-class AIOrderParserBottomSheet extends StatefulWidget {
-  const AIOrderParserBottomSheet({super.key, this.initialValue});
+class AIOrderParserDialog extends StatefulWidget {
+  const AIOrderParserDialog({super.key, this.initialValue});
   final String? initialValue;
 
   @override
-  State<AIOrderParserBottomSheet> createState() =>
-      _AIOrderParserBottomSheetState();
+  State<AIOrderParserDialog> createState() => _AIOrderParserDialogState();
 }
 
-class _AIOrderParserBottomSheetState extends State<AIOrderParserBottomSheet> {
+class _AIOrderParserDialogState extends State<AIOrderParserDialog> {
   final _aiController = TextEditingController();
 
   @override
@@ -32,110 +31,193 @@ class _AIOrderParserBottomSheetState extends State<AIOrderParserBottomSheet> {
     super.dispose();
   }
 
+  Future<void> _copyTemplate() async {
+    await context.read<CreateOrderCubit>().copyTemplateToClipboard();
+    if (mounted) {
+      context.toast.showToast(
+        'Template copied to clipboard',
+        type: ToastType.info,
+      );
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final text = await context.read<CreateOrderCubit>().pasteFromClipboard();
+    if (text != null && mounted) {
+      setState(() {
+        _aiController.text = text;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-        20,
-        20,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.rocket_launch_rounded,
-                color: LogistixColors.primary,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'AI Order Parser',
-                style: context.textTheme.titleLarge?.bold,
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: () => context.pop(),
-                icon: const Icon(Icons.close_rounded),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Paste unstructured text from WhatsApp, email or notes, and we'll extract order details for you.",
-            style: TextStyle(color: LogistixColors.textSecondary),
-          ),
-          const SizedBox(height: 20),
-          TextField(
-            maxLines: 5,
-            controller: _aiController,
-            decoration: InputDecoration(
-              hintText:
-                  'e.g. John Doe, 08012345678, at 5 Lekki Phase 1, NGN 5000',
-              filled: true,
-              fillColor: LogistixColors.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          AsyncRunnerListener(
-            runner: context.read<CreateOrderCubit>().parseWithAi,
-            listener: (context, state) {
-              if (state.status.isSuccess) {
-                context.pop();
-              } else if (state.status.isFailure) {
-                final error = state.result?.error;
-                final message = error is UserError ? error.message : null;
-                context.toast.showToast(
-                  message ?? 'AI parsing failed',
-                  type: ToastType.error,
-                );
-                context.read<CreateOrderCubit>().parseWithAi.reset();
-              }
-            },
-            child: AsyncRunnerBuilder(
-              runner: context.read<CreateOrderCubit>().parseWithAi,
-              builder: (context, state, _) {
-                return ListenableBuilder(
-                  listenable: _aiController,
-                  builder: (context, _) {
-                    final text = _aiController.text;
-                    return SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: text.isEmpty || state.status.isRunning
-                            ? null
-                            : () => context
-                                  .read<CreateOrderCubit>()
-                                  .parseWithAi(text),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: LogistixColors.primary,
-                          foregroundColor: Colors.white,
-                        ),
-                        child: state.status.isRunning
-                            ? const LogistixInlineLoader(color: Colors.white)
-                            : const Text(
-                                'Parse Text',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+    final textTheme = context.textTheme;
+
+    return Dialog(
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: LogistixColors.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: LogistixColors.primary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Order Parser',
+                        style: textTheme.titleLarge?.bold,
                       ),
-                    );
-                  },
-                );
-              },
+                      Text(
+                        'Extract details from text',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: LogistixColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton.filledTonal(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.close_rounded),
+                  style: IconButton.styleFrom(
+                    foregroundColor: LogistixColors.text,
+                    backgroundColor: LogistixColors.neutral100,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            Stack(
+              children: [
+                TextField(
+                  maxLines: 5,
+                  controller: _aiController,
+                  style: textTheme.bodyMedium?.semiBold,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Paste WhatsApp messages, emails, or notes here...',
+                    hintStyle: textTheme.bodyMedium?.copyWith(
+                      color: LogistixColors.textTertiary,
+                    ),
+                    filled: true,
+                    fillColor: LogistixColors.background,
+                    contentPadding: const EdgeInsets.all(20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: const BorderSide(
+                        color: LogistixColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: ListenableBuilder(
+                    listenable: _aiController,
+                    builder: (context, _) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_aiController.text.isNotEmpty)
+                            IconButton(
+                              onPressed: _aiController.clear,
+                              icon: const Icon(
+                                Icons.clear_rounded,
+                                size: 18,
+                                color: LogistixColors.error,
+                              ),
+                            ),
+                          IconButton(
+                            onPressed: _pasteFromClipboard,
+                            icon: const Icon(
+                              Icons.content_paste_rounded,
+                              size: 18,
+                              color: LogistixColors.primary,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: LogistixButton(
+                onPressed: _copyTemplate,
+                icon: Icons.copy_rounded,
+                label: 'Copy Template',
+                type: LogistixButtonType.text,
+              ),
+            ),
+            const SizedBox(height: 16),
+            AsyncRunnerListener(
+              runner: context.read<CreateOrderCubit>().parseWithAi,
+              listener: (context, state) {
+                if (state.status.isSuccess) {
+                  context.pop();
+                } else if (state.status.isFailure) {
+                  final error = state.result?.error;
+                  final message = error is UserError ? error.message : null;
+                  context.toast.showToast(
+                    message ?? 'AI parsing failed',
+                    type: ToastType.error,
+                  );
+                  context.read<CreateOrderCubit>().parseWithAi.reset();
+                }
+              },
+              child: AsyncRunnerBuilder(
+                runner: context.read<CreateOrderCubit>().parseWithAi,
+                builder: (context, state, _) {
+                  return ListenableBuilder(
+                    listenable: _aiController,
+                    builder: (context, _) {
+                      final text = _aiController.text;
+                      final isRunning = state.status.isRunning;
+                      return LogistixButton(
+                        label: 'Process Text',
+                        isLoading: isRunning,
+                        onPressed: text.trim().isEmpty
+                            ? null
+                            : () {
+                                FocusScope.of(context).unfocus();
+                                context.read<CreateOrderCubit>().parseWithAi(
+                                  text,
+                                );
+                              },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

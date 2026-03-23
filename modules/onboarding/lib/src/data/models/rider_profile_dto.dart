@@ -9,8 +9,6 @@ class RiderProfileDto with _$RiderProfileDto {
     required String phoneNumber,
     required String registrationNumber,
     String? companyId,
-    @Default(false) bool isIndependent,
-    String? permitUrl,
   }) = _RiderProfileDto;
 
   factory RiderProfileDto.fromJson(Map<String, dynamic> json) =>

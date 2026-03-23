@@ -61,15 +61,7 @@ class ErrorHandler {
 
     if (graphQLErrors.isNotEmpty) {
       final firstError = graphQLErrors.first;
-      final code = firstError.extensions?['code']?.toString().toUpperCase();
-      final message = firstError.message;
-
-      return _categorizeGraphQLError(
-        code: code,
-        message: message,
-        error: error,
-        stackTrace: stackTrace,
-      );
+      return _categorizeGraphQLError(error: firstError, stackTrace: stackTrace);
     }
 
     return AppError(
@@ -81,11 +73,12 @@ class ErrorHandler {
   }
 
   static AppError _categorizeGraphQLError({
-    required String message,
-    required Object error,
-    String? code,
+    required GraphQLError error,
     StackTrace? stackTrace,
   }) {
+    final code = error.extensions?['code']?.toString().toUpperCase();
+    final message = error.message;
+
     if (code == null) {
       return AppError(
         message: message,
@@ -125,7 +118,10 @@ class ErrorHandler {
 
     // Validation errors
     if (GraphQLErrorCodes.isValidationError(code)) {
-      return ValidationError(message: message);
+      return ValidationError(
+        message: message,
+        fields: {'path': ?error.path?.join('.')},
+      );
     }
 
     // Network errors

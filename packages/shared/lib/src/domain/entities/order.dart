@@ -7,26 +7,39 @@ part 'order.freezed.dart';
 abstract class Order with _$Order {
   const factory Order({
     required String id,
-    required String companyId,
-    required String pickupAddress,
+    String? pickupAddress,
+    String? pickupPlaceId,
+    double? pickupLat,
+    double? pickupLng,
+    required String dropOffAddress,
+    String? dropOffPlaceId,
+    double? dropOffLat,
+    double? dropOffLng,
     required String trackingNumber,
     required OrderStatus status,
     required DateTime createdAt,
-    String? dropOffAddress,
     String? riderId,
     Rider? rider,
-    String? items,
     double? codAmount,
-    int? sequenceNumber,
     String? description,
-    String? customerName,
-    String? customerPhone,
+    String? pickupPhone,
+    String? dropOffPhone,
     DateTime? deliveredAt,
     DateTime? updatedAt,
   }) = _Order;
 }
 
-enum OrderStatus { unassigned, assigned, enRoute, delivered, cancelled }
+enum OrderStatus {
+  unassigned,
+  assigned,
+  enRoute,
+  delivered,
+  cancelled;
+
+  bool get isCompleted {
+    return this == OrderStatus.delivered || this == OrderStatus.cancelled;
+  }
+}
 
 extension OrderStatusX on OrderStatus {
   String get value {
@@ -44,6 +57,8 @@ extension OrderStatusX on OrderStatus {
     }
   }
 
+  String get label => value.replaceAll('_', ' ');
+
   static OrderStatus fromString(String status) {
     switch (status.toUpperCase()) {
       case 'UNASSIGNED':
@@ -60,4 +75,10 @@ extension OrderStatusX on OrderStatus {
         return OrderStatus.unassigned;
     }
   }
+}
+
+extension OrderX on Order {
+  bool get hasPickupPosition => pickupLat != null && pickupLng != null;
+  bool get hasDropOffPosition => dropOffLat != null && dropOffLng != null;
+  bool get hasPosition => hasPickupPosition || hasDropOffPosition;
 }

@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:bootstrap/definitions/app_error.dart';
+import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
-import 'package:dispatcher/src/domain/repositories/company_repository.dart';
+import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
+import 'package:dispatcher/src/domain/usecases/export_summary_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared/shared.dart';
 
 part 'more_cubit.freezed.dart';
@@ -12,10 +17,8 @@ part 'more_cubit.freezed.dart';
 class MoreState with _$MoreState {
   const factory MoreState.initial() = _Initial;
   const factory MoreState.loading() = _Loading;
-  const factory MoreState.loaded(
-    PackageInfo packageInfo,
-    Company? company,
-  ) = _Loaded;
+  const factory MoreState.loaded(PackageInfo packageInfo, Company? company) =
+      _Loaded;
   const factory MoreState.error(String message) = _Error;
 }
 
@@ -23,12 +26,14 @@ class MoreCubit extends Cubit<MoreState> {
   MoreCubit(
     this._logoutUseCase,
     this._userStore,
-    this._companyRepository,
+    this._exportAnalyticsUseCase,
+    this._exportSummaryUseCase,
   ) : super(const MoreState.initial());
 
   final LogoutUseCase _logoutUseCase;
   final UserStore _userStore;
-  final CompanyRepository _companyRepository;
+  final ExportAnalyticsUseCase _exportAnalyticsUseCase;
+  final ExportSummaryUseCase _exportSummaryUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -37,12 +42,8 @@ class MoreCubit extends Cubit<MoreState> {
       final user = await _userStore.getUser();
 
       Company? company;
-      if (user?.companyId != null) {
-        final result = await _companyRepository.getCompany(user!.companyId!);
-        company = result.map(
-          (error) => null,
-          (data) => data,
-        );
+      if (user?.companyProfile != null) {
+        company = user!.companyProfile;
       }
 
       emit(MoreState.loaded(packageInfo, company));
@@ -52,4 +53,41 @@ class MoreCubit extends Cubit<MoreState> {
   }
 
   late final logoutEvent = AsyncRunner<AppError, void>(_logoutUseCase.call);
+
+  late final exportAnalyticsRunner =
+      AsyncRunner.withArg<ExportParams, AppError, String>((params) async {
+        final result = await _exportAnalyticsUseCase(
+          startDate: params.startDate,
+          endDate: params.endDate,
+          riderId: params.riderId,
+        );
+        final csv = result.throwOrReturn();
+        return _saveToTempFile(csv, 'orders_export');
+      });
+
+  late final exportSummaryRunner =
+      AsyncRunner.withArg<ExportParams, AppError, String>((params) async {
+        final result = await _exportSummaryUseCase(
+          startDate: params.startDate,
+          endDate: params.endDate,
+        );
+        final csv = result.throwOrReturn();
+        return _saveToTempFile(csv, 'summary_export');
+      });
+
+  Future<String> _saveToTempFile(String content, String prefix) async {
+    final tempDir = await getTemporaryDirectory();
+    final file = File(
+      '${tempDir.path}/${prefix}_${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
+    await file.writeAsString(content);
+    return file.path;
+  }
+}
+
+class ExportParams {
+  ExportParams({this.startDate, this.endDate, this.riderId});
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final String? riderId;
 }

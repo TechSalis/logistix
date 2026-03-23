@@ -20,9 +20,9 @@ class LogistixDialog extends StatelessWidget {
   final String title;
   final String content;
   final String? primaryActionText;
-  final VoidCallback? onPrimaryAction;
+  final void Function(BuildContext)? onPrimaryAction;
   final String? secondaryActionText;
-  final VoidCallback? onSecondaryAction;
+  final void Function(BuildContext)? onSecondaryAction;
   final List<Widget>? actions;
   final IconData? icon;
   final Color? iconColor;
@@ -33,9 +33,9 @@ class LogistixDialog extends StatelessWidget {
     required String title,
     required String content,
     String? primaryActionText,
-    VoidCallback? onPrimaryAction,
+    void Function(BuildContext)? onPrimaryAction,
     String? secondaryActionText,
-    VoidCallback? onSecondaryAction,
+    void Function(BuildContext)? onSecondaryAction,
     List<Widget>? actions,
     IconData? icon,
     Color? iconColor,
@@ -86,113 +86,65 @@ class LogistixDialog extends StatelessWidget {
     final effectiveIconColor =
         iconColor ??
         (isDestructive ? LogistixColors.error : LogistixColors.primary);
-    final primaryButtonColor = isDestructive
-        ? LogistixColors.error
-        : LogistixColors.primary;
 
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 32,
-              offset: const Offset(0, 16),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
-                child: Column(
-                  children: [
-                    if (icon != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: effectiveIconColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(icon, size: 32, color: effectiveIconColor),
-                      ),
-                      const SizedBox(height: 24),
-                    ],
-                    Text(
-                      title,
-                      style: context.textTheme.headlineSmall?.bold.copyWith(
-                        color: LogistixColors.neutral800,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      content,
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: LogistixColors.textSecondary,
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (icon != null) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: effectiveIconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
+                child: Icon(icon, size: 32, color: effectiveIconColor),
               ),
-
-              // Actions
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (actions != null)
-                      ...actions!.map(
-                        (a) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: a,
-                        ),
-                      )
-                    else ...[
-                      if (primaryActionText != null && onPrimaryAction != null)
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryButtonColor,
-                            foregroundColor: Colors.white,
-                          ),
-                          onPressed: onPrimaryAction,
-                          child: Text(
-                            primaryActionText!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      if (secondaryActionText != null) ...[
-                        const SizedBox(height: 12),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            foregroundColor: LogistixColors.textSecondary,
-                          ),
-                          onPressed:
-                              onSecondaryAction ??
-                              () => Navigator.of(context).pop(),
-                          child: Text(secondaryActionText!),
-                        ),
-                      ],
-                    ],
-                  ],
-                ),
-              ),
+              const SizedBox(height: 24),
             ],
-          ),
+            Text(
+              title,
+              style: context.textTheme.headlineSmall?.bold.copyWith(
+                color: LogistixColors.neutral800,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              content,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: LogistixColors.textSecondary,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 16),
+            if (actions != null)
+              ...actions!
+            else ...[
+              if (primaryActionText != null && onPrimaryAction != null)
+                LogistixButton(
+                  label: primaryActionText!,
+                  onPressed: () => onPrimaryAction?.call(context),
+                  type: isDestructive
+                      ? LogistixButtonType.danger
+                      : LogistixButtonType.primary,
+                ),
+              if (secondaryActionText != null) ...[
+                const SizedBox(height: 12),
+                LogistixButton(
+                  label: secondaryActionText!,
+                  onPressed: () =>
+                      (onSecondaryAction ?? Navigator.pop)(context),
+                  type: LogistixButtonType.text,
+                ),
+              ],
+            ],
+          ],
         ),
       ),
     );

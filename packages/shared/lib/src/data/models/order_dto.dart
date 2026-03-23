@@ -1,4 +1,3 @@
-// ignore_for_file: invalid_annotation_target
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/src/data/models/rider_dto.dart';
@@ -11,20 +10,23 @@ part 'order_dto.g.dart';
 class OrderDto with _$OrderDto {
   const factory OrderDto({
     required String id,
-    required String companyId,
-    required String pickupAddress,
+    required String dropOffAddress,
     required String trackingNumber,
     required String status,
     required DateTime createdAt,
-    String? dropOffAddress,
+    String? pickupAddress,
+    String? pickupPlaceId,
+    double? pickupLat,
+    double? pickupLng,
+    String? dropOffPlaceId,
+    double? dropOffLat,
+    double? dropOffLng,
     String? riderId,
     RiderDto? rider,
-    String? items,
     double? codAmount,
-    int? sequenceNumber,
     String? description,
-    String? customerName,
-    String? customerPhone,
+    String? pickupPhone,
+    String? dropOffPhone,
     DateTime? deliveredAt,
     DateTime? updatedAt,
   }) = _OrderDto;
@@ -36,17 +38,20 @@ class OrderDto with _$OrderDto {
 
   Order toEntity() => Order(
     id: id,
-    companyId: companyId,
     riderId: riderId,
     rider: rider?.toEntity(),
     pickupAddress: pickupAddress,
+    pickupPlaceId: pickupPlaceId,
+    pickupLat: pickupLat,
+    pickupLng: pickupLng,
     dropOffAddress: dropOffAddress,
-    items: items,
+    dropOffPlaceId: dropOffPlaceId,
+    dropOffLat: dropOffLat,
+    dropOffLng: dropOffLng,
     codAmount: codAmount,
-    sequenceNumber: sequenceNumber,
     description: description,
-    customerName: customerName,
-    customerPhone: customerPhone,
+    pickupPhone: pickupPhone,
+    dropOffPhone: dropOffPhone,
     trackingNumber: trackingNumber,
     status: OrderStatusX.fromString(status),
     deliveredAt: deliveredAt,

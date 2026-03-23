@@ -35,10 +35,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           otpSent: (email) {
             context.push('${AuthRoutes.verifyOtp}?email=$email');
           },
-          unauthenticated: (message) {
-            if (message != null) {
-              context.toast.showToast(message, type: ToastType.error);
-            }
+          forgotPasswordError: (message) {
+            context.toast.showToast(message, type: ToastType.error);
           },
         );
       },
@@ -88,7 +86,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     final isLoading = state.maybeWhen(
-                      loading: () => true,
+                      forgotPasswordLoading: () => true,
                       orElse: () => false,
                     );
 

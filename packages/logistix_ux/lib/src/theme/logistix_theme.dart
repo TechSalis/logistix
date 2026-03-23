@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logistix_ux/src/theme/extensions/theme_extensions.dart';
 import 'package:logistix_ux/src/tokens/colors.dart';
 import 'package:logistix_ux/src/tokens/radii.dart';
 import 'package:logistix_ux/src/tokens/spacing.dart';
@@ -38,24 +39,26 @@ class LogistixTheme {
         foregroundColor: LogistixColors.text,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        titleTextStyle: LogistixTextStyles.titleLarge.copyWith(
+        titleTextStyle: LogistixTextStyles.titleLarge.bold.copyWith(
+          color: LogistixColors.text,
+        ),
+        toolbarTextStyle: LogistixTextStyles.bodyMedium.copyWith(
           color: LogistixColors.text,
         ),
       ),
 
       // Card
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: LogistixColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: LogistixRadii.borderRadiusCard,
-          side: BorderSide(color: LogistixColors.border),
+          side: const BorderSide(color: LogistixColors.border, width: 1.2),
         ),
         margin: EdgeInsets.zero,
       ),
 
-      // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
@@ -67,10 +70,13 @@ class LogistixTheme {
             horizontal: LogistixSpacing.buttonPaddingHorizontal,
             vertical: LogistixSpacing.buttonPaddingVertical,
           ),
-          minimumSize: const Size(0, 44),
-          textStyle: const TextStyle(fontWeight: FontWeight.bold),
-          shape: const RoundedRectangleBorder(
-            borderRadius: LogistixRadii.borderRadiusButton,
+          minimumSize: const Size(0, 52), // Premium height
+          textStyle: LogistixTextStyles.titleMedium.bold.copyWith(
+            fontSize: 15,
+            letterSpacing: 1.1,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(LogistixRadii.button),
           ),
         ),
       ),
@@ -79,14 +85,14 @@ class LogistixTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: LogistixColors.primary,
           disabledForegroundColor: LogistixColors.textTertiary,
-          side: const BorderSide(color: LogistixColors.border),
+          side: const BorderSide(color: LogistixColors.border, width: 1.5),
           padding: const EdgeInsets.symmetric(
             horizontal: LogistixSpacing.buttonPaddingHorizontal,
             vertical: LogistixSpacing.buttonPaddingVertical,
           ),
-          minimumSize: const Size(0, 44),
-          shape: const RoundedRectangleBorder(
-            borderRadius: LogistixRadii.borderRadiusButton,
+          minimumSize: const Size(0, 52),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(LogistixRadii.button),
           ),
         ),
       ),
@@ -95,38 +101,45 @@ class LogistixTheme {
         style: TextButton.styleFrom(
           foregroundColor: LogistixColors.primary,
           disabledForegroundColor: LogistixColors.textTertiary,
-          minimumSize: const Size(0, 44),
+          minimumSize: const Size(0, 52),
+          padding: const EdgeInsets.symmetric(
+            horizontal: LogistixSpacing.buttonPaddingHorizontal,
+            vertical: LogistixSpacing.buttonPaddingVertical,
+          ),
+          textStyle: LogistixTextStyles.bodyLarge.semiBold,
         ),
       ),
 
       // Input
-      inputDecorationTheme: const InputDecorationTheme(
+      inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: LogistixColors.surface,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: LogistixSpacing.inputPaddingHorizontal,
-          vertical: LogistixSpacing.inputPaddingVertical,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 18,
         ),
         border: OutlineInputBorder(
-          borderRadius: LogistixRadii.borderRadiusInput,
-          borderSide: BorderSide(color: LogistixColors.border),
+          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderSide: const BorderSide(color: LogistixColors.border, width: 1.2),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: LogistixRadii.borderRadiusInput,
-          borderSide: BorderSide(color: LogistixColors.border),
+          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderSide: const BorderSide(color: LogistixColors.border, width: 1.2),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: LogistixRadii.borderRadiusInput,
-          borderSide: BorderSide(color: LogistixColors.primary, width: 2),
+          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderSide: const BorderSide(color: LogistixColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: LogistixRadii.borderRadiusInput,
-          borderSide: BorderSide(color: LogistixColors.error),
+          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderSide: const BorderSide(color: LogistixColors.error, width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: LogistixRadii.borderRadiusInput,
-          borderSide: BorderSide(color: LogistixColors.error, width: 2),
+          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderSide: const BorderSide(color: LogistixColors.error, width: 2),
         ),
+        hintStyle: const TextStyle(color: LogistixColors.textSecondary, fontSize: 14),
+        labelStyle: const TextStyle(color: LogistixColors.text, fontSize: 14, fontWeight: FontWeight.w500),
       ),
 
       // Divider
@@ -141,6 +154,7 @@ class LogistixTheme {
         elevation: 0,
         backgroundColor: LogistixColors.surface,
         surfaceTintColor: Colors.transparent,
+        insetPadding: EdgeInsets.all(20),
         shape: RoundedRectangleBorder(
           borderRadius: LogistixRadii.borderRadiusDialog,
         ),
@@ -195,6 +209,40 @@ class LogistixTheme {
         labelLarge: LogistixTextStyles.labelLarge,
         labelMedium: LogistixTextStyles.labelMedium,
         labelSmall: LogistixTextStyles.labelSmall,
+      ),
+ 
+      // Navigation Bar
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: LogistixColors.surface,
+        indicatorColor: LogistixColors.primary.withValues(alpha: 0.1),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        height: 70,
+        elevation: 0,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(
+              color: LogistixColors.primary,
+              size: 26,
+            );
+          }
+          return const IconThemeData(
+            color: LogistixColors.textSecondary,
+            size: 24,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final style = LogistixTextStyles.labelSmall;
+          if (states.contains(WidgetState.selected)) {
+            return style.bold.copyWith(
+              color: LogistixColors.primary,
+              fontSize: 12,
+            );
+          }
+          return style.medium.copyWith(
+            color: LogistixColors.textSecondary,
+            fontSize: 12,
+          );
+        }),
       ),
     );
   }

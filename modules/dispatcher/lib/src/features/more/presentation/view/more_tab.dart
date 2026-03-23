@@ -1,12 +1,16 @@
+import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/extensions/string_extension.dart';
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
+import 'package:dispatcher/src/features/more/presentation/widgets/export_options_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared/shared.dart';
 
 class MoreTab extends StatelessWidget {
@@ -24,210 +28,297 @@ class _MoreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logoutEvent = context.read<MoreCubit>().logoutEvent;
+    final cubit = context.read<MoreCubit>();
     return Scaffold(
-      body: SafeArea(
-        child: AsyncRunnerListener(
-          runner: logoutEvent,
-          listener: (context, state) {
-            if (state.status.isSuccess) {
-              context.go(ModuleRoutePaths.auth);
-            }
-          },
-          child: BlocConsumer<MoreCubit, MoreState>(
+      backgroundColor: LogistixColors.background,
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: SafeArea(
+          child: AsyncRunnerListener(
+            runner: cubit.logoutEvent,
             listener: (context, state) {
-              state.whenOrNull(
-                error: (message) {
-                  context.toast.showToast(message, type: ToastType.error);
-                },
-              );
+              if (state.status.isSuccess) {
+                context.go(ModuleRoutePaths.auth);
+              }
             },
-            builder: (context, state) {
-              final appVersion = state.maybeMap(
-                loaded: (state) {
-                  return '${state.packageInfo.version} '
-                      '(${EnvConfig.environment.capitalizeFirst()})';
-                },
-                orElse: () => 'Loading...',
-              );
-
-              final company = state.mapOrNull(loaded: (state) => state.company);
-
-              return ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Company Profile Section
-                  if (company != null) ...[
-                    Card(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: LogistixRadii.borderRadiusCard,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30,
-                              backgroundColor: LogistixColors.primary
-                                  .withValues(alpha: 0.1),
-                              child: const Icon(
-                                Icons.business_rounded,
-                                color: LogistixColors.primary,
-                                size: 28,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    company.name,
-                                    style:
-                                        context.textTheme.titleMedium?.semiBold,
-                                  ),
-                                  if (company.address != null) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      company.address!,
-                                      style: context.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: LogistixColors.textSecondary,
-                                          ),
-                                    ),
-                                  ],
-                                  if (company.phoneNumber != null) ...[
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      company.phoneNumber!,
-                                      style: context.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: LogistixColors.textSecondary,
-                                          ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  Text(
-                    'Support & About',
-                    style: context.textTheme.titleSmall?.copyWith(
-                      color: LogistixColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Card(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: LogistixRadii.borderRadiusCard,
-                    ),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            Icons.help_outline_rounded,
-                            color: LogistixColors.primary,
-                          ),
-                          title: const Text('Help Center'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () {
-                            context.toast.showToast(
-                              'Help Center coming soon',
-                              type: ToastType.info,
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.privacy_tip_outlined,
-                            color: LogistixColors.primary,
-                          ),
-                          title: const Text('Privacy Policy'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () {
-                            context.toast.showToast(
-                              'Privacy Policy coming soon',
-                              type: ToastType.info,
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.article_outlined,
-                            color: LogistixColors.primary,
-                          ),
-                          title: const Text('Terms of Service'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () {
-                            context.toast.showToast(
-                              'Terms of Service coming soon',
-                              type: ToastType.info,
-                            );
-                          },
-                        ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.info_outline,
-                            color: LogistixColors.primary,
-                          ),
-                          title: const Text('App version'),
-                          subtitle: Text(appVersion),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: LogistixRadii.borderRadiusCard,
-                    ),
-                    // Use a slightly different styling for Logout to make it stand out
-                    // without being overly aggressive.
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.logout_rounded,
-                        color: LogistixColors.error,
-                      ),
-                      title: const Text(
-                        'Logout',
-                        style: TextStyle(
-                          color: LogistixColors.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      onTap: () {
-                        LogistixDialog.show<void>(
-                          context: context,
-                          title: 'Logout',
-                          content: 'Are you sure you want to sign out?',
-                          icon: Icons.logout_rounded,
-                          isDestructive: true,
-                          primaryActionText: 'Logout',
-                          secondaryActionText: 'Cancel',
-                          onPrimaryAction: () {
-                            Navigator.pop(context);
-                            logoutEvent();
-                          },
-                        );
+            child: AsyncRunnerListener(
+              runner: cubit.exportAnalyticsRunner,
+              listener: _handleExportState,
+              child: AsyncRunnerListener(
+                runner: cubit.exportSummaryRunner,
+                listener: _handleExportState,
+                child: BlocConsumer<MoreCubit, MoreState>(
+                  listener: (context, state) {
+                    state.whenOrNull(
+                      error: (message) {
+                        context.toast.showToast(message, type: ToastType.error);
                       },
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              );
-            },
+                    );
+                  },
+                  builder: (context, state) {
+                    final appVersion = state.maybeMap(
+                      loaded: (state) {
+                        return '${state.packageInfo.version} '
+                            '(${EnvConfig.environment.capitalizeFirst()})';
+                      },
+                      orElse: () => 'Loading...',
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: LogistixSpacing.md,
+                      ),
+                      child: LogistixEntrance(
+                        children: [
+                          const SizedBox(height: 24),
+                          _buildOrganizationHeader(state),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            title: 'ANALYTICS & REPORTS',
+                            children: [
+                              _ExportTile(
+                                runner: cubit.exportAnalyticsRunner,
+                                icon: Icons.file_download_outlined,
+                                title: 'Export Orders Data',
+                                subtitle: 'Detailed CSV with custom filters',
+                                onTap: () => _showExportOptions(
+                                  context,
+                                  title: 'Export Orders',
+                                  showRiderFilter: true,
+                                  onParamsSelected: cubit.exportAnalyticsRunner,
+                                ),
+                              ),
+                              _ExportTile(
+                                runner: cubit.exportSummaryRunner,
+                                icon: Icons.analytics_outlined,
+                                title: 'Export Performance Summary',
+                                subtitle: 'Aggregated KPIs and metrics',
+                                onTap: () => _showExportOptions(
+                                  context,
+                                  title: 'Performance Summary',
+                                  showRiderFilter: false,
+                                  onParamsSelected: cubit.exportSummaryRunner,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            title: 'SUPPORT & ABOUT',
+                            children: [
+                              LogistixSettingsTile(
+                                icon: Icons.help_outline_rounded,
+                                title: 'Help Center',
+                                onTap: () =>
+                                    _showComingSoon(context, 'Help Center'),
+                              ),
+                              LogistixSettingsTile(
+                                icon: Icons.privacy_tip_outlined,
+                                title: 'Privacy Policy',
+                                onTap: () =>
+                                    _showComingSoon(context, 'Privacy Policy'),
+                              ),
+                              LogistixSettingsTile(
+                                icon: Icons.info_outline,
+                                title: 'App Version',
+                                subtitle: appVersion,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            children: [
+                              LogistixSettingsTile(
+                                icon: Icons.logout_rounded,
+                                title: 'Logout',
+                                titleColor: LogistixColors.error,
+                                subtitle: 'Sign out of your account',
+                                iconColor: LogistixColors.error,
+                                onTap: () => _confirmLogout(context, cubit),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildOrganizationHeader(MoreState state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: state.maybeWhen(
+        loading: () =>
+            const LogistixShimmer(width: double.infinity, height: 100),
+        loaded: (_, company) {
+          if (company == null) return const SizedBox();
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                LogistixAvatar(
+                  name: company.name,
+                  size: 64,
+                  backgroundColor: LogistixColors.primary.withValues(
+                    alpha: 0.1,
+                  ),
+                  foregroundColor: LogistixColors.primary,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        company.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (company.address != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          company.address!,
+                          style: const TextStyle(
+                            color: LogistixColors.textSecondary,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        orElse: () => const SizedBox(),
+      ),
+    );
+  }
+
+  Future<void> _showExportOptions(
+    BuildContext context, {
+    required String title,
+    required bool showRiderFilter,
+    required AsyncRunnerWithArg<ExportParams, AppError, String>
+    onParamsSelected,
+  }) async {
+    final params = await showModalBottomSheet<ExportParams>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ExportOptionsBottomSheet(
+        title: title,
+        showRiderFilter: showRiderFilter,
+      ),
+    );
+
+    if (params != null && context.mounted) {
+      await onParamsSelected(params);
+    }
+  }
+
+  void _handleExportState(
+    BuildContext context,
+    AsyncState<AppError, String> state,
+  ) {
+    if (state.status.isSuccess && state.result?.data != null) {
+      SharePlus.instance.share(
+        ShareParams(
+          subject: 'Analytics Export',
+          files: [XFile(state.result!.data)],
+        ),
+      );
+    } else if (state.status.isFailure) {
+      context.toast.showToast(
+        state.result?.error.message ?? 'Export failed',
+        type: ToastType.error,
+      );
+    }
+  }
+
+  void _confirmLogout(BuildContext context, MoreCubit cubit) {
+    LogistixDialog.show<void>(
+      context: context,
+      title: 'Logout',
+      content: 'Are you sure you want to sign out?',
+      icon: Icons.logout_rounded,
+      isDestructive: true,
+      primaryActionText: 'Logout',
+      secondaryActionText: 'Cancel',
+      onPrimaryAction: (context) {
+        Navigator.pop(context);
+        cubit.logoutEvent();
+      },
+    );
+  }
+
+  void _showComingSoon(BuildContext context, String feature) {
+    context.toast.showToast('$feature coming soon', type: ToastType.info);
+  }
+}
+
+class _ExportTile extends StatelessWidget {
+  const _ExportTile({
+    required this.runner,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final AsyncRunnerWithArg<ExportParams, AppError, String> runner;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AsyncRunnerBuilder(
+      runner: runner,
+      builder: (context, state, _) {
+        final isLoading = state.status.isRunning;
+        return LogistixSettingsTile(
+          icon: icon,
+          title: title,
+          subtitle: subtitle,
+          onTap: onTap,
+          trailing: isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: LogistixColors.primary,
+                  ),
+                )
+              : null,
+        );
+      },
     );
   }
 }
