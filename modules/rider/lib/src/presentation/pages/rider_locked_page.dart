@@ -61,7 +61,7 @@ class RiderLockedPage extends StatelessWidget {
                     onPressed: onRefresh,
                     isLoading: isLoading,
                     icon: Icons.refresh_rounded,
-                    label: 'REFRESH STATUS',
+                    label: 'Refresh Status',
                   ),
                   const SizedBox(height: 24),
                   Row(
@@ -70,7 +70,7 @@ class RiderLockedPage extends StatelessWidget {
                       LogistixButton(
                         onPressed: bloc.logout,
                         icon: Icons.logout_rounded,
-                        label: 'LOGOUT',
+                        label: 'Logout',
                         type: LogistixButtonType.text,
                         width: 140,
                       ),
@@ -87,9 +87,9 @@ class RiderLockedPage extends StatelessWidget {
                         },
                         child: LogistixButton(
                           onPressed: () {
-                            bloc.supportRunner(EnvConfig.contactSupportUrl);
+                            bloc.supportRunner(EnvConfig.instance.contactSupportUrl);
                           },
-                          label: 'SUPPORT',
+                          label: 'Support',
                           type: LogistixButtonType.text,
                           width: 140,
                         ),

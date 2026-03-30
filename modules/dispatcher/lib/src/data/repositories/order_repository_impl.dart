@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:dispatcher/src/data/datasources/order_remote_datasource.dart';
@@ -12,15 +14,18 @@ class OrderRepositoryImpl implements OrderRepository {
     required OrderDao orderDao,
     required RiderDao riderDao,
     required PlacesService placesService,
+    required CapturedOrderRepository capturedOrderRepository,
   }) : _remoteDataSource = remoteDataSource,
        _orderDao = orderDao,
        _riderDao = riderDao,
-       _placesService = placesService;
+       _placesService = placesService,
+       _capturedOrderRepository = capturedOrderRepository;
 
   final OrderRemoteDataSource _remoteDataSource;
   final OrderDao _orderDao;
   final RiderDao _riderDao;
   final PlacesService _placesService;
+  final CapturedOrderRepository _capturedOrderRepository;
 
   // READ operations - stream from local Drift DB
   @override
@@ -221,20 +226,34 @@ class OrderRepositoryImpl implements OrderRepository {
         results = localResult.orders.map((p) => p.order).toList();
       }
 
+      // Capture EVERY result for future AI improvement, regardless of fallback
+      // Convert OrderCreateInput list back to dynamic list for consistent JSON storage
+      if (results.isNotEmpty) {
+        unawaited(
+          _capturedOrderRepository.saveParsedResult(
+            text,
+            results.map((r) => r.toJson()).toList(),
+          ),
+        );
+      } else {
+        // Even if empty, capture the failure text as raw capture
+        unawaited(_capturedOrderRepository.saveParsedResult(text, []));
+      }
+
       if (results.isEmpty) return [];
 
       // 3. Parallel Google Places resolution for extracted addresses
       // We perform all resolutions in parallel using high-performance fuzzy word matching
-      final withPlaces = await Future.wait(
-        results.map(_resolveOrderLocations),
-      );
+      final withPlaces = await Future.wait(results.map(_resolveOrderLocations));
 
       return withPlaces;
     });
   }
 
   /// Private helper to coordinate dual-address resolution using fuzzy Places matching
-  Future<OrderCreateInput> _resolveOrderLocations(OrderCreateInput order) async {
+  Future<OrderCreateInput> _resolveOrderLocations(
+    OrderCreateInput order,
+  ) async {
     final hasDropOff = order.dropOffAddress.isNotEmpty;
     final hasPickup = order.pickupAddress?.isNotEmpty ?? false;
 
@@ -245,7 +264,9 @@ class OrderRepositoryImpl implements OrderRepository {
     ]);
 
     final dropOffMatch = hasDropOff ? lookups[0] : null;
-    final pickupMatch = hasPickup ? (hasDropOff ? lookups[1] : lookups[0]) : null;
+    final pickupMatch = hasPickup
+        ? (hasDropOff ? lookups[1] : lookups[0])
+        : null;
 
     return order.copyWith(
       dropOffAddress: dropOffMatch?.formattedAddress ?? order.dropOffAddress,

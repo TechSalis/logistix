@@ -142,18 +142,14 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                                       ),
                                     ),
                                     const SizedBox(height: LogistixSpacing.lg),
-                                    TextFormField(
-                                      controller: _registrationNumberController,
-                                      decoration: const InputDecoration(
-                                        labelText: 'Vehicle Reg Number',
-                                        prefixIcon: Icon(Icons.pin_outlined),
-                                        hintText: 'e.g., KJA-1234',
-                                      ),
-                                      validator:
-                                          FormBuilderValidators.required(),
-                                      textCapitalization:
-                                          TextCapitalization.characters,
-                                    ),
+                                  LogistixTextField(
+                                    controller: _registrationNumberController,
+                                    label: 'Vehicle Reg Number',
+                                    icon: Icons.pin_rounded,
+                                    hintText: 'e.g., KJA-1234',
+                                    validator: FormBuilderValidators.required(),
+                                    textCapitalization: TextCapitalization.characters,
+                                  ),
                                     const SizedBox(height: LogistixSpacing.lg),
                                     DropdownSearch<Company>(
                                       items: (String filter, _) async {
@@ -223,7 +219,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                                     state.status == OnboardingStatus.loading;
 
                                 return LogistixButton(
-                                  label: 'COMPLETE SETUP',
+                                  label: 'Complete Setup',
                                   isLoading: isLoading,
                                   onPressed: _submitOnboarding,
                                 );

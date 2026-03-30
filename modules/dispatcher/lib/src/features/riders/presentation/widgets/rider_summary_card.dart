@@ -28,12 +28,12 @@ class RiderSummaryCard extends StatelessWidget {
         final metrics =
             state.metrics ??
             const DispatcherMetricsDto(
-              totalOrders: 0,
-              pendingOrders: 0,
-              deliveredOrders: 0,
-              totalRiders: 0,
-              activeRiders: 0,
-              availableRiders: 0,
+              activeOrders: 0,
+              unassignedOrders: 0,
+              assignedOrders: 0,
+              enRouteOrders: 0,
+              onlineRidersCount: 0,
+              busyRidersCount: 0,
             );
 
         return LogistixMetricsRow(
@@ -42,19 +42,19 @@ class RiderSummaryCard extends StatelessWidget {
               label: 'Total',
               value: metrics.totalRiders.toString(),
               icon: Icons.people_alt_rounded,
-              color: Colors.blueAccent[100]!,
+              color: Colors.blueAccent[100],
             ),
             LogistixMetricItem(
               label: 'Active',
               value: metrics.activeRiders.toString(),
               icon: Icons.bolt_rounded,
-              color: Colors.greenAccent[200]!,
+              color: Colors.greenAccent[200],
             ),
             LogistixMetricItem(
               label: 'Available',
               value: metrics.availableRiders.toString(),
               icon: Icons.check_circle_rounded,
-              color: Colors.orangeAccent[100]!,
+              color: Colors.orangeAccent[100],
             ),
           ],
         );

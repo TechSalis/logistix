@@ -1,19 +1,20 @@
-import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared/shared.dart';
 
 class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
   DispatcherSubscriptionHandler({
     required super.orderDao,
     required super.riderDao,
-    required ObjectStore<DispatcherMetricsDto> metricsStore,
+    required LogistixDatabase database,
     super.logger,
-  }) : _metricsStore = metricsStore;
+  }) : _database = database;
 
-  final ObjectStore<DispatcherMetricsDto> _metricsStore;
+  final LogistixDatabase _database;
 
   @override
+  @mustCallSuper
   Future<void> handleOrderUpdate(
-    OrderDto orderDto,
+    OrderDto? orderDto,
     String eventType, {
     RiderDto? riderDto,
     DispatcherMetricsDto? dispatcherMetrics,
@@ -21,11 +22,17 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
     await super.handleOrderUpdate(orderDto, eventType, riderDto: riderDto);
 
     if (dispatcherMetrics != null) {
-      await _metricsStore.set(dispatcherMetrics);
+      final companyId = orderDto?.companyId ?? riderDto?.companyId;
+      if (companyId != null) {
+        await _database.upsertDispatcherMetrics(
+          dispatcherMetrics.toDriftCompanion(companyId),
+        );
+      }
     }
   }
 
   @override
+  @mustCallSuper
   Future<void> handleRiderUpdate(
     RiderDto riderDto,
     String eventType, {
@@ -34,7 +41,9 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
     await super.handleRiderUpdate(riderDto, eventType);
 
     if (dispatcherMetrics != null) {
-      await _metricsStore.set(dispatcherMetrics);
+      await _database.upsertDispatcherMetrics(
+        dispatcherMetrics.toDriftCompanion(riderDto.companyId),
+      );
     }
   }
 }

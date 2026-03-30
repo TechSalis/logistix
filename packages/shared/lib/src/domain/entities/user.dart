@@ -19,7 +19,7 @@ abstract class User with _$User {
   }) = _User;
 }
 
-enum UserRole { rider, dispatcher, customer }
+enum UserRole { rider, dispatcher /* customer */ }
 
 extension UserRoleX on UserRole {
   String get value => name.toLowerCase();

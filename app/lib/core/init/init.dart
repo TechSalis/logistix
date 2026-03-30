@@ -11,17 +11,18 @@ import 'package:logistix/core/services/share_intent_service.dart';
 import 'package:logistix/firebase_options.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:rider/rider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared/shared.dart';
 
 class AppInitialization {
   static Future<GoRouter> init(DI injector) async {
+    // Initialize environment (defaults to Local for dev)
+    EnvConfig.instance = LocalEnvConfig();
+
     // 1. Load env vars and initialize core services
     await Future.wait<void>([
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
-      SentryLogger.initSentry(
-        EnvConfig.sentryDsn,
-        environment: EnvConfig.environment,
-      ),
+      _initLogger(),
       initHiveForFlutter(),
       Future.value(appLogger.init()),
     ]);
@@ -31,8 +32,8 @@ class AppInitialization {
     await Future.wait([
       // 3. Initialize Network Service
       injector.get<GraphQLService>().init(
-        EnvConfig.graphqlUrl,
-        wsUrl: EnvConfig.wsUrl,
+        EnvConfig.instance.graphqlUrl,
+        wsUrl: EnvConfig.instance.wsUrl,
       ),
       // 4. Start listening for share intents
       injector.get<ShareIntentService>().init(router),
@@ -41,11 +42,46 @@ class AppInitialization {
     return router;
   }
 
+  static Future<void> _initLogger() async {
+    Map<String, String>? redact(Map<String, String>? headers) {
+      if (headers == null) return null;
+      final h = Map.of(headers);
+      for (final k in h.keys) {
+        final key = k.toLowerCase();
+        if (key.contains('authorization') || key.contains('token')) {
+          h[k] = 'REDACTED';
+        }
+      }
+      return h;
+    }
+
+    await SentryFlutter.init((o) {
+      o
+        ..dsn = EnvConfig.instance.sentryDsn
+        ..environment = EnvConfig.instance.environment
+        ..tracesSampleRate = 0.2
+        ..attachScreenshot = true
+        ..enableAppHangTracking = true
+        ..enableAutoPerformanceTracing = true
+        ..beforeSend = (event, hint) {
+          return event
+            ..request?.headers = redact(event.request?.headers) ?? {}
+            ..request?.cookies = null;
+        };
+    });
+
+    await appLogger.init();
+  }
+
   static GoRouter _prepareRouter(DI injector) {
     // Initialize modules using ModuleFactory
     final moduleFactory = ModuleFactory(
       injector: injector,
-      routerFactory: GoRouterFactory(injector: injector, initialLocation: '/'),
+      routerFactory: GoRouterFactory(
+        injector: injector,
+        initialLocation: '/',
+        observers: [SentryNavigatorObserver()],
+      ),
       modules: [
         const AppModule(),
         const AuthModule(),

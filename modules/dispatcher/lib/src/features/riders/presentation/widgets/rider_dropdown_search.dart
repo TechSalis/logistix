@@ -10,17 +10,15 @@ import 'package:shared/shared.dart';
 /// - Searchable popup
 /// - Customizable suffix actions (like unassign)
 /// - Integrated optimistic selection to prevent jitter
-class RiderDropdownSearch extends StatefulWidget {
+class RiderDropdownSearch extends StatelessWidget {
   const RiderDropdownSearch({
     required this.selectedRider,
     required this.onChanged,
     required this.searchRiders,
     super.key,
-    this.onUnassign,
-    this.showUnassign = false,
     this.isCompleted = false,
     this.enabled = true,
-    this.label = 'Assign a Rider',
+    this.label = 'Select a Rider',
   }) : isLarge = false;
 
   const RiderDropdownSearch.large({
@@ -28,8 +26,52 @@ class RiderDropdownSearch extends StatefulWidget {
     required this.onChanged,
     required this.searchRiders,
     super.key,
+    this.isCompleted = false,
+    this.enabled = true,
+    this.label = 'Select a Rider',
+  }) : isLarge = true;
+
+  final Rider? selectedRider;
+  final ValueChanged<Rider?> onChanged;
+  final Future<List<Rider>> Function(String filter) searchRiders;
+  final bool isCompleted;
+  final bool enabled;
+  final String label;
+  final bool isLarge;
+
+  @override
+  Widget build(BuildContext context) {
+    return _RiderDropdownSearchBase(
+      selectedRider: selectedRider,
+      onChanged: onChanged,
+      searchRiders: searchRiders,
+      isCompleted: isCompleted,
+      enabled: enabled,
+      label: label,
+      isLarge: isLarge,
+      showUnassign: false,
+    );
+  }
+}
+
+class AssignRiderDropdownSearch extends StatelessWidget {
+  const AssignRiderDropdownSearch({
+    required this.selectedRider,
+    required this.onChanged,
+    required this.searchRiders,
+    super.key,
     this.onUnassign,
-    this.showUnassign = false,
+    this.isCompleted = false,
+    this.enabled = true,
+    this.label = 'Assign a Rider',
+  }) : isLarge = false;
+
+  const AssignRiderDropdownSearch.large({
+    required this.selectedRider,
+    required this.onChanged,
+    required this.searchRiders,
+    super.key,
+    this.onUnassign,
     this.isCompleted = false,
     this.enabled = true,
     this.label = 'Assign a Rider',
@@ -39,17 +81,56 @@ class RiderDropdownSearch extends StatefulWidget {
   final ValueChanged<Rider?> onChanged;
   final Future<List<Rider>> Function(String filter) searchRiders;
   final VoidCallback? onUnassign;
-  final bool showUnassign;
   final bool isCompleted;
   final bool enabled;
   final String label;
   final bool isLarge;
 
   @override
-  State<RiderDropdownSearch> createState() => _RiderDropdownSearchState();
+  Widget build(BuildContext context) {
+    return _RiderDropdownSearchBase(
+      selectedRider: selectedRider,
+      onChanged: onChanged,
+      searchRiders: searchRiders,
+      onUnassign: onUnassign,
+      isCompleted: isCompleted,
+      enabled: enabled,
+      label: label,
+      isLarge: isLarge,
+      showUnassign: true,
+    );
+  }
 }
 
-class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
+class _RiderDropdownSearchBase extends StatefulWidget {
+  const _RiderDropdownSearchBase({
+    required this.selectedRider,
+    required this.onChanged,
+    required this.searchRiders,
+    required this.isCompleted,
+    required this.enabled,
+    required this.label,
+    required this.isLarge,
+    required this.showUnassign,
+    this.onUnassign,
+  });
+
+  final Rider? selectedRider;
+  final ValueChanged<Rider?> onChanged;
+  final Future<List<Rider>> Function(String filter) searchRiders;
+  final VoidCallback? onUnassign;
+  final bool isCompleted;
+  final bool enabled;
+  final String label;
+  final bool isLarge;
+  final bool showUnassign;
+
+  @override
+  State<_RiderDropdownSearchBase> createState() =>
+      _RiderDropdownSearchBaseState();
+}
+
+class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
   Rider? _localRider;
 
   @override
@@ -59,7 +140,7 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
   }
 
   @override
-  void didUpdateWidget(covariant RiderDropdownSearch oldWidget) {
+  void didUpdateWidget(covariant _RiderDropdownSearchBase oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final externalId = widget.selectedRider?.id;
@@ -73,7 +154,7 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minHeight: widget.isLarge ? 70 : 44),
+      constraints: BoxConstraints(minHeight: widget.isLarge ? 70 : 50),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(LogistixRadii.xl),
@@ -90,13 +171,21 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
         enabled: widget.enabled && !widget.isCompleted,
         items: (filter, _) => widget.searchRiders(filter),
         selectedItem: _localRider,
-        itemAsString: (rider) => rider.user?.fullName ?? '',
+        itemAsString: (rider) => rider.fullName,
         onChanged: (newRider) {
           setState(() => _localRider = newRider);
           widget.onChanged(newRider);
         },
         compareFn: (r1, r2) => r1.id == r2.id,
         dropdownBuilder: _buildSelectedView,
+        decoratorProps: DropDownDecoratorProps(
+          decoration: InputDecoration(
+            isDense: true,
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+            constraints: BoxConstraints(maxHeight: widget.isLarge ? 70 : 44),
+          ),
+        ),
         popupProps: PopupProps.menu(
           showSearchBox: true,
           containerBuilder: (context, child) => Container(
@@ -138,7 +227,7 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: widget.isLarge ? LogistixSpacing.xs : 6,
+        vertical: widget.isLarge ? LogistixSpacing.xs : LogistixSpacing.xxs,
       ),
       child: Builder(
         builder: (context) {
@@ -148,7 +237,6 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
                 Container(
                   width: avatarSize,
                   height: avatarSize,
-
                   decoration: BoxDecoration(
                     color: LogistixColors.background,
                     borderRadius: BorderRadius.circular(avatarSize * 0.35),
@@ -188,7 +276,7 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      selectedRider.user?.fullName ?? '',
+                      selectedRider.fullName,
                       style: widget.isLarge
                           ? context.textTheme.bodyMedium?.bold
                           : context.textTheme.bodySmall?.semiBold,
@@ -200,18 +288,22 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
               ),
               if (widget.showUnassign &&
                   !widget.isCompleted &&
-                  widget.onUnassign != null)
+                  (widget.onUnassign != null || _localRider != null))
                 Padding(
                   padding: const EdgeInsets.only(left: LogistixSpacing.sm),
                   child: AnimatedScaleTap(
                     onTap: () {
                       setState(() => _localRider = null);
-                      widget.onUnassign?.call();
+                      if (widget.onUnassign != null) {
+                        widget.onUnassign?.call();
+                      } else {
+                        widget.onChanged(null);
+                      }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: widget.isLarge ? 6 : LogistixSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
                         color: LogistixColors.error.withValues(alpha: 0.1),
@@ -228,9 +320,9 @@ class _RiderDropdownSearchState extends State<RiderDropdownSearch> {
                             size: 14,
                             color: LogistixColors.error,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           Text(
-                            'Unassign',
+                            'Remove',
                             style: context.textTheme.labelSmall?.bold.copyWith(
                               color: LogistixColors.error,
                               letterSpacing: 0,
@@ -273,7 +365,7 @@ class _RiderAvatar extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          rider.user?.fullName.initials ?? '?',
+          rider.fullName.initials,
           style: context.textTheme.titleMedium?.bold.copyWith(
             color: LogistixColors.primary,
             fontSize: size * 0.4,
@@ -306,7 +398,7 @@ class _RiderStatusIndicator extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          status.name.toUpperCase(),
+          status.name,
           style: context.textTheme.labelSmall?.bold.copyWith(
             color: color,
             letterSpacing: 0.5,
@@ -369,7 +461,7 @@ class _RiderListItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          rider.user?.fullName ?? '',
+          rider.fullName,
           style: context.textTheme.bodyLarge?.bold.copyWith(
             color: isSelected ? LogistixColors.primary : null,
           ),
@@ -385,7 +477,7 @@ class _RiderListItem extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            rider.user?.fullName ?? '',
+            rider.fullName,
             style: context.textTheme.bodyMedium?.semiBold.copyWith(
               color: isSelected ? LogistixColors.primary : null,
             ),
@@ -393,7 +485,7 @@ class _RiderListItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: LogistixSpacing.xs),
         _StatusIndicator(statusColor: statusColor),
       ],
     );
@@ -424,12 +516,12 @@ class _StatusRow extends StatelessWidget {
     return Row(
       children: [
         _StatusIndicator(statusColor: statusColor),
-        const SizedBox(width: 4),
+        const SizedBox(width: LogistixSpacing.xxs),
         Text(
           rider.status.label,
           style: context.textTheme.labelSmall?.copyWith(color: statusColor),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: LogistixSpacing.xs),
         const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
         const SizedBox(width: 2),
         Text(

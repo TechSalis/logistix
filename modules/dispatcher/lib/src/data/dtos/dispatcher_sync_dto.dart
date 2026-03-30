@@ -6,7 +6,7 @@ part 'dispatcher_sync_dto.freezed.dart';
 part 'dispatcher_sync_dto.g.dart';
 
 @freezed
-class DispatcherSyncDto with _$DispatcherSyncDto {
+abstract class DispatcherSyncDto with _$DispatcherSyncDto {
   const factory DispatcherSyncDto({
     required List<OrderDto> orders,
     required List<RiderDto> riders,

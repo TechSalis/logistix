@@ -120,6 +120,7 @@ class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<(OAuthToken, UserDto)> submitDispatcherProfile(
     DispatcherProfileDto profile,
   ) async {
+    // TODO: save address placeId or coordinates
     const mutation =
         '''
         mutation SubmitDispatcherProfile(

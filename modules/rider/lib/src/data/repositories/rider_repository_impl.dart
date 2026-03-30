@@ -3,6 +3,7 @@ import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
+import 'package:drift/drift.dart' hide Column;
 import 'package:shared/shared.dart';
 
 class RiderRepositoryImpl implements RiderRepository {
@@ -59,27 +60,6 @@ class RiderRepositoryImpl implements RiderRepository {
   }
 
   // WRITE operations - go to server
-  @override
-  Future<Result<AppError, Rider>> updateRiderLocation(
-    String riderId,
-    double lat,
-    double lng, {
-    int? batteryLevel,
-  }) async {
-    return Result.tryCatch(() async {
-      final dto = await _remoteDataSource.updateLocation(
-        riderId,
-        lat,
-        lng,
-        batteryLevel,
-      );
-
-      // Update local DB
-      await _riderDao.upsertRider(dto.toDriftCompanion());
-
-      return dto.toEntity();
-    });
-  }
 
   @override
   Future<Result<AppError, Rider?>> getRider(String riderId) async {
@@ -102,24 +82,41 @@ class RiderRepositoryImpl implements RiderRepository {
     String orderId,
     OrderStatus status,
   ) async {
-    return Result.tryCatch(() async {
-      final dto = await _remoteDataSource.updateOrderStatus(
-        orderId,
-        status.value,
+    final original = await _orderDao.getOrder(orderId);
+
+    // Optimistic local update
+    if (original != null) {
+      await _orderDao.upsertOrder(
+        original.toDriftCompanion().copyWith(
+              status: Value(status.value),
+              localUpdatedAt: Value(DateTime.now()),
+            ),
       );
+    }
 
-      // Update local DB immediately to reflect changes in UI
-      // (since backend filters out current session in subscriptions)
-      await _orderDao.upsertOrder(dto.toDriftCompanion());
+    return Result.tryCatch(() async {
+      try {
+        final dto =
+            await _remoteDataSource.updateOrderStatus(orderId, status.value);
 
-      return dto.toEntity();
+        // Final update with server response
+        await _orderDao.upsertOrder(dto.toDriftCompanion());
+
+        return dto.toEntity();
+      } catch (e) {
+        // Rollback on failure to maintain data integrity
+        if (original != null) {
+          await _orderDao.upsertOrder(original.toDriftCompanion());
+        }
+        rethrow;
+      }
     });
   }
 
   @override
   Future<Result<AppError, Rider>> sendHeartbeat({
-    required double lat,
-    required double lng,
+    double? lat,
+    double? lng,
     int? batteryLevel,
   }) async {
     return Result.tryCatch(() async {

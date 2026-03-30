@@ -13,7 +13,6 @@ abstract class Rider with _$Rider {
     required String companyId,
     String? phoneNumber,
     String? fcmToken,
-    User? user, // Nested for UI convenience
     Order? activeOrder,
     double? lastLat,
     double? lastLng,
@@ -27,7 +26,7 @@ abstract class Rider with _$Rider {
 enum RiderStatus { online, busy, offline }
 
 extension RiderStatusX on RiderStatus {
-  String get value => name.toUpperCase();
+  String get value => name;
 
   static RiderStatus fromString(String status) {
     switch (status.toUpperCase()) {
@@ -43,5 +42,5 @@ extension RiderStatusX on RiderStatus {
 }
 
 extension RiderX on Rider {
-  bool get hasPosition => lastLat != null && lastLng != null;
+  bool get hasLocation => lastLat != null && lastLng != null;
 }

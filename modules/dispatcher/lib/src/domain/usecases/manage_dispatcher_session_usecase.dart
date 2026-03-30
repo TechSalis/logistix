@@ -1,42 +1,37 @@
 import 'dart:async';
 
-import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:dispatcher/src/core/network/sync/dispatcher_subscription_handler.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
+import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
 import 'package:shared/shared.dart';
 
 /// Manages dispatcher session with real-time subscriptions
 ///
 /// Architecture:
 /// - Subscriptions write to Drift via SubscriptionHandler
-/// - Cubits subscribe to Drift streams for reactive updates
-/// - No manual callbacks needed
 class DispatcherSessionManager {
   DispatcherSessionManager(
     this._dataSource,
     this._subscriptionHandler,
-    this._orderDao,
-    this._riderDao,
-    this._metricsStore,
     this._database,
+    this._syncDispatcherDataUseCase,
+    this._capturedOrderRepository,
   );
 
   final DispatcherSessionRemoteDataSource _dataSource;
-  final ObjectStore<DispatcherMetricsDto> _metricsStore;
   final DispatcherSubscriptionHandler _subscriptionHandler;
   final LogistixDatabase _database;
-  final OrderDao _orderDao;
-  final RiderDao _riderDao;
+  final SyncDispatcherDataUseCase _syncDispatcherDataUseCase;
+  final CapturedOrderRepository _capturedOrderRepository;
 
   SyncManager? _orderSyncManager;
   SyncManager? _riderSyncManager;
   Timer? _syncTimer;
   bool _isSyncing = false;
 
-  Future<void> start({required String companyId}) async {
+  Future<void> start() async {
     // 1. Subscribe to order updates (performs sync on connection and reconnection)
     _orderSyncManager = await _dataSource.subscribeToOrderUpdates(
-      companyId: companyId,
       onData: (orderDto, eventType, metrics) async {
         await _subscriptionHandler.handleOrderUpdate(
           orderDto,
@@ -49,7 +44,6 @@ class DispatcherSessionManager {
 
     // 2. Subscribe to rider updates (performs sync on connection and reconnection)
     _riderSyncManager = await _dataSource.subscribeToRiderUpdates(
-      companyId: companyId,
       onData: (riderDto, eventType, metrics) async {
         await _subscriptionHandler.handleRiderUpdate(
           riderDto,
@@ -59,12 +53,15 @@ class DispatcherSessionManager {
       },
     );
 
-    // 3. Start periodic sync every 5 minutes
+    // 3. Start periodic sync every 60 seconds (as fallback if subscriptions fail)
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(
-      const Duration(minutes: 5),
+      const Duration(minutes: 1),
       (_) => _performSync(),
     );
+
+    // 4. Background sync of captured orders
+    unawaited(_capturedOrderRepository.syncBatches(threshold: 10));
   }
 
   Future<void> _performSync() async {
@@ -78,72 +75,7 @@ class DispatcherSessionManager {
 
       final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 
-      var offset = 0;
-      const limit = 50;
-      var hasMore = true;
-      int? lastUpdated;
-
-      while (hasMore) {
-        try {
-          final syncDto = await _dataSource.syncData(
-            since: since,
-            limit: limit,
-            offset: offset,
-          );
-
-          lastUpdated = syncDto.lastUpdated;
-
-          // Upsert orders in batch
-          if (syncDto.orders.isNotEmpty) {
-            await _orderDao.upsertOrders(
-              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
-            );
-          }
-
-          // Upsert riders in batch
-          if (syncDto.riders.isNotEmpty) {
-            await _riderDao.upsertRiders(
-              syncDto.riders.map((e) => e.toDriftCompanion()).toList(),
-            );
-          }
-
-          // Save metrics to ObjectStore (usually from first page is enough)
-          if (offset == 0) {
-            await _metricsStore.set(syncDto.metrics);
-          }
-
-          // Handle deleted orders
-          if (syncDto.deletedOrderIds.isNotEmpty) {
-            await _orderDao.deleteOrders(syncDto.deletedOrderIds);
-          }
-
-          // Handle deleted riders
-          if (syncDto.deletedRiderIds.isNotEmpty) {
-            await _riderDao.deleteRiders(syncDto.deletedRiderIds);
-          }
-
-          if (syncDto.orders.length < limit && syncDto.riders.length < limit) {
-            hasMore = false;
-          } else {
-            offset += limit;
-          }
-        } catch (e) {
-          // Log page error but allow the next page or retry to handle it.
-          // For crucial syncs, we might want to throw or retry here.
-          // In a real app, we'd log to Sentry.
-          hasMore = false; // Stop this sync cycle if a page fails
-          rethrow;
-        }
-      }
-
-      // Update last sync time immediately after a successful page fetch
-      if (lastUpdated != null) {
-        await _database.updateLastSyncTime(
-          'dispatcher_last_sync',
-          DateTime.fromMillisecondsSinceEpoch(lastUpdated),
-          null,
-        );
-      }
+      await _syncDispatcherDataUseCase(since: since);
     } catch (e) {
       // Handle overall sync error
     } finally {

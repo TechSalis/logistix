@@ -132,6 +132,7 @@ class _RiderMapTabState extends State<RiderMapTab>
                 Positioned.fill(
                   bottom: 90,
                   child: GoogleMap(
+                    style: LogistixMapTheme.cleanSlate,
                     zoomControlsEnabled: false,
                     myLocationButtonEnabled: false,
                     initialCameraPosition: CameraPosition(

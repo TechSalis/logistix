@@ -19,12 +19,6 @@ abstract class RiderRepository {
   Stream<RiderMetricsDto?> watchRiderMetrics();
 
   // Write operations - go to server
-  Future<Result<AppError, Rider>> updateRiderLocation(
-    String riderId,
-    double lat,
-    double lng, {
-    int? batteryLevel,
-  });
 
   Future<Result<AppError, Order>> updateOrderStatus(
     String orderId,
@@ -35,8 +29,8 @@ abstract class RiderRepository {
   Future<Result<AppError, Rider>> fetchProfile();
 
   Future<Result<AppError, Rider>> sendHeartbeat({
-    required double lat,
-    required double lng,
+    double? lat,
+    double? lng,
     int? batteryLevel,
   });
 }

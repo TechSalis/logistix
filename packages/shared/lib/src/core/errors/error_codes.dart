@@ -27,10 +27,15 @@ abstract class GraphQLErrorCodes {
   static bool isAuthError(String? code) {
     if (code == null) return false;
     final upper = code.toUpperCase();
-    return upper.contains(auth) ||
+    return (upper.contains(auth) && upper != forbidden) ||
         upper == unauthenticated ||
-        upper == forbidden ||
         upper == unauthorized;
+  }
+
+  /// Check if code indicates a permission/access denied error
+  static bool isForbidden(String? code) {
+    if (code == null) return false;
+    return code.toUpperCase().contains(forbidden);
   }
 
   /// Check if code indicates a not found error

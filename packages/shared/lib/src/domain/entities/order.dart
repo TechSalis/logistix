@@ -26,6 +26,7 @@ abstract class Order with _$Order {
     String? assignedCompanyId,
     double? codAmount,
     String? description,
+    DateTime? scheduledAt,
     String? createdBy,
     String? pickupPhone,
     String? dropOffPhone,
@@ -71,5 +72,5 @@ extension OrderStatusX on OrderStatus {
 extension OrderX on Order {
   bool get hasPickupPosition => pickupLat != null && pickupLng != null;
   bool get hasDropOffPosition => dropOffLat != null && dropOffLng != null;
-  bool get hasPosition => hasPickupPosition || hasDropOffPosition;
+  bool get hasLocation => hasPickupPosition || hasDropOffPosition;
 }

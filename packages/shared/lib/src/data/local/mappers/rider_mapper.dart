@@ -1,8 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/models/rider_dto.dart';
-import 'package:shared/src/domain/entities/rider.dart' as entities;
-import 'package:shared/src/domain/entities/user.dart' as entities;
+import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 
 extension RiderDtoToDrift on RiderDto {
   RidersCompanion toDriftCompanion() {
@@ -26,13 +25,13 @@ extension RiderDtoToDrift on RiderDto {
 }
 
 extension RiderDataToEntity on Rider {
-  entities.Rider toEntity() {
-    return entities.Rider(
+  rider_entities.Rider toEntity() {
+    return rider_entities.Rider(
       id: id,
       email: email,
       fullName: fullName,
       companyId: companyId,
-      status: entities.RiderStatusX.fromString(status),
+      status: rider_entities.RiderStatusX.fromString(status),
       phoneNumber: phoneNumber,
       fcmToken: fcmToken,
       lastLat: lastLat,
@@ -41,20 +40,11 @@ extension RiderDataToEntity on Rider {
       isAccepted: isAccepted,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      user: entities.User(
-        id: id, // Use Profile ID as User ID for the UI
-        email: email,
-        fullName: fullName,
-        isOnboarded: true,
-        phoneNumber: phoneNumber,
-        companyId: companyId,
-        role: entities.UserRole.rider,
-      ),
     );
   }
 }
 
-extension RiderEntityToDrift on entities.Rider {
+extension RiderEntityToDrift on rider_entities.Rider {
   RidersCompanion toDriftCompanion() {
     return RidersCompanion.insert(
       id: id,

@@ -5,7 +5,7 @@ part 'order_create_input.freezed.dart';
 part 'order_create_input.g.dart';
 
 @freezed
-class OrderCreateInput with _$OrderCreateInput {
+abstract class OrderCreateInput with _$OrderCreateInput {
   const factory OrderCreateInput({
     required String dropOffAddress,
     String? dropOffPlaceId,
@@ -15,9 +15,10 @@ class OrderCreateInput with _$OrderCreateInput {
     double? codAmount,
     String? pickupPhone,
     String? dropOffPhone,
-    String? companyId,
+    @JsonKey(includeToJson: false) String? companyId,
     String? assignedCompanyId,
     String? riderId,
+    DateTime? scheduledAt,
     // ignore: invalid_annotation_target
     @JsonKey(includeFromJson: false, includeToJson: false) Rider? rider,
   }) = _OrderCreateInput;

@@ -6,9 +6,10 @@ part 'rider_sync_dto.freezed.dart';
 part 'rider_sync_dto.g.dart';
 
 @freezed
-class RiderSyncDto with _$RiderSyncDto {
+abstract class RiderSyncDto with _$RiderSyncDto {
   const factory RiderSyncDto({
     required List<OrderDto> orders,
+    required RiderDto rider,
     required RiderMetricsDto metrics,
     required int lastUpdated,
     @Default([]) List<String> deletedOrderIds,
@@ -21,6 +22,7 @@ class RiderSyncDto with _$RiderSyncDto {
 
   RiderSync toEntity() => RiderSync(
     orders: orders.map((e) => e.toEntity()).toList(),
+    rider: rider.toEntity(),
     metrics: metrics,
     deletedOrderIds: deletedOrderIds,
     lastUpdated: DateTime.fromMillisecondsSinceEpoch(lastUpdated),

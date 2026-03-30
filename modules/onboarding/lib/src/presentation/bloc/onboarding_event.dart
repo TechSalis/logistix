@@ -4,7 +4,7 @@ import 'package:shared/shared.dart';
 part 'onboarding_event.freezed.dart';
 
 @freezed
-class OnboardingEvent with _$OnboardingEvent {
+abstract class OnboardingEvent with _$OnboardingEvent {
   const factory OnboardingEvent.saveRiderOnboarding({
     required String phoneNumber,
     required String registrationNumber,

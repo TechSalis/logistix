@@ -20,6 +20,7 @@ import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/export_summary_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/manage_dispatcher_session_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
+import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/create_order_cubit.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart';
@@ -49,8 +50,7 @@ class DispatcherModule extends Module<RouteBase> {
             create: (context) => DispatcherSubscriptionHandler(
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
-              metricsStore: injector
-                  .get<StreamableObjectStore<DispatcherMetricsDto>>(),
+              database: injector.get<LogistixDatabase>(),
               logger: injector.get<Logger>(),
             ),
           ),
@@ -62,6 +62,7 @@ class DispatcherModule extends Module<RouteBase> {
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
               placesService: injector.get<PlacesService>(),
+              capturedOrderRepository: injector.get<CapturedOrderRepository>(),
             ),
           ),
           RepositoryProvider<RiderRepository>(
@@ -72,7 +73,8 @@ class DispatcherModule extends Module<RouteBase> {
           ),
           RepositoryProvider<MetricsRepository>(
             create: (context) => MetricsRepositoryImpl(
-              injector.get<StreamableObjectStore<DispatcherMetricsDto>>(),
+              injector.get<LogistixDatabase>(),
+              injector.get<UserStore>(),
             ),
           ),
           RepositoryProvider<AnalyticsRepository>(
@@ -84,6 +86,17 @@ class DispatcherModule extends Module<RouteBase> {
             create: (context) {
               return SearchRidersUseCase(context.read<RiderRepository>());
             },
+          ),
+          RepositoryProvider<SyncDispatcherDataUseCase>(
+            create: (context) => SyncDispatcherDataUseCase(
+              remoteDataSource:
+                  context.read<DispatcherSessionRemoteDataSource>(),
+              orderDao: injector.get<OrderDao>(),
+              riderDao: injector.get<RiderDao>(),
+              metricsStore:
+                  injector.get<StreamableObjectStore<DispatcherMetricsDto>>(),
+              database: injector.get<LogistixDatabase>(),
+            ),
           ),
         ],
         child: MultiBlocProvider(
@@ -124,12 +137,10 @@ class DispatcherModule extends Module<RouteBase> {
                 sessionManager: DispatcherSessionManager(
                   context.read<DispatcherSessionRemoteDataSource>(),
                   context.read<DispatcherSubscriptionHandler>(),
-                  injector.get<OrderDao>(),
-                  injector.get<RiderDao>(),
-                  injector.get<StreamableObjectStore<DispatcherMetricsDto>>(),
                   injector.get<LogistixDatabase>(),
+                  context.read<SyncDispatcherDataUseCase>(),
+                  injector.get<CapturedOrderRepository>(),
                 ),
-                userStore: injector.get<UserStore>(),
                 child: ToastServiceWidget(child: child),
               );
             },
@@ -142,13 +153,9 @@ class DispatcherModule extends Module<RouteBase> {
           pageBuilder: (context, state) => SyncPage.page(
             state: state,
             onInitialize: () => DispatcherInitialSyncProvider(
-              remoteDataSource: context
-                  .read<DispatcherSessionRemoteDataSource>(),
-              orderDao: injector.get<OrderDao>(),
-              riderDao: injector.get<RiderDao>(),
-              metricsStore: injector
-                  .get<StreamableObjectStore<DispatcherMetricsDto>>(),
               database: injector.get<LogistixDatabase>(),
+              syncDispatcherDataUseCase: context
+                  .read<SyncDispatcherDataUseCase>(),
             ).performInitialSync(),
             onSuccess: () => context.go(DispatcherRoutes.orders),
             onError: (context, e, retry) {

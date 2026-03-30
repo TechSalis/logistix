@@ -1,32 +1,88 @@
 abstract class EnvConfig {
-  static const String _host = String.fromEnvironment('HOST');
+  String get host;
+  int get port;
+  String get apiUrl;
+  String get graphqlUrl;
+  String get wsUrl;
+  String get sentryDsn;
+  String get contactSupportUrl;
+  String get environment;
+  String get trackingLink;
 
-  static String get apiUrl =>
-      const String.fromEnvironment('API_URL', defaultValue: 'http://$_host');
+  bool get isDevelopment => environment == 'development';
+  bool get isProduction => environment == 'production';
 
-  static String get refreshUrl => const String.fromEnvironment('REFRESH_URL');
+  /// Standard singleton instance for the current environment.
+  /// Set this during app initialization.
+  static late EnvConfig instance;
+}
 
-  static String get graphqlUrl => const String.fromEnvironment(
+class LocalEnvConfig extends EnvConfig {
+  @override
+  final String host = '0.0.0.0';
+
+  @override
+  final int port = 4000;
+
+  @override
+  String get apiUrl => 'http://$host:$port';
+
+  @override
+  String get graphqlUrl => 'http://$host:$port/graphql';
+
+  @override
+  String get wsUrl => 'ws://$host:$port/graphql/ws';
+
+  @override
+  String get sentryDsn => '';
+
+  @override
+  String get contactSupportUrl => '';
+
+  @override
+  String get environment => 'development';
+
+  @override
+  String get trackingLink => 'http://$host:$port/track';
+}
+
+class ProductionEnvConfig extends EnvConfig {
+  @override
+  String get host => const String.fromEnvironment('HOST');
+
+  @override
+  int get port => const int.fromEnvironment('PORT', defaultValue: 80);
+
+  @override
+  String get apiUrl => const String.fromEnvironment(
+        'API_URL',
+        defaultValue: 'https://api.logistix.com',
+      );
+
+  @override
+  String get graphqlUrl => const String.fromEnvironment(
         'GRAPHQL_URL',
-        defaultValue: 'http://$_host/graphql',
+        defaultValue: 'https://api.logistix.com/graphql',
       );
 
-  static String get wsUrl => const String.fromEnvironment(
+  @override
+  String get wsUrl => const String.fromEnvironment(
         'WS_URL',
-        defaultValue: 'ws://$_host/graphql/ws',
+        defaultValue: 'wss://api.logistix.com/graphql/ws',
       );
 
-  static String get sentryDsn => const String.fromEnvironment('SENTRY_DSN');
+  @override
+  String get sentryDsn => const String.fromEnvironment('SENTRY_DSN');
 
-  static String get contactSupportUrl =>
+  @override
+  String get contactSupportUrl =>
       const String.fromEnvironment('CONTACT_SUPPORT_URL');
 
-  static String get environment => const String.fromEnvironment('ENVIRONMENT');
+  @override
+  String get environment =>
+      const String.fromEnvironment('ENVIRONMENT', defaultValue: 'production');
 
-  static String get trackingLink =>
-      const String.fromEnvironment('TRACKING_LINK');
-
-  static bool get isDevelopment => environment == 'development';
-
-  static bool get isProduction => environment == 'production';
+  @override
+  String get trackingLink =>
+      const String.fromEnvironment('TRACKING_LINK', defaultValue: 'https://shipment.logistix.com');
 }

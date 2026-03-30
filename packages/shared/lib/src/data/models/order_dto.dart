@@ -7,7 +7,7 @@ part 'order_dto.freezed.dart';
 part 'order_dto.g.dart';
 
 @freezed
-class OrderDto with _$OrderDto {
+abstract class OrderDto with _$OrderDto {
   const factory OrderDto({
     required String id,
     required String dropOffAddress,
@@ -31,6 +31,7 @@ class OrderDto with _$OrderDto {
     String? pickupPhone,
     String? dropOffPhone,
     DateTime? deliveredAt,
+    DateTime? scheduledAt,
     DateTime? updatedAt,
   }) = _OrderDto;
 
@@ -61,6 +62,7 @@ class OrderDto with _$OrderDto {
     trackingNumber: trackingNumber,
     status: OrderStatusX.fromString(status),
     deliveredAt: deliveredAt,
+    scheduledAt: scheduledAt,
     createdAt: createdAt,
     updatedAt: updatedAt,
   );

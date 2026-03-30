@@ -46,7 +46,7 @@ class RiderCard extends StatelessWidget {
                 Row(
                   children: [
                     LogistixAvatar(
-                      name: rider.user?.fullName,
+                      name: rider.fullName,
                       statusColor: statusColor,
                       backgroundColor: riderColor.withValues(alpha: 0.1),
                       foregroundColor: riderColor,
@@ -57,7 +57,7 @@ class RiderCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            rider.user?.fullName ?? '',
+                            rider.fullName,
                             style: context.textTheme.titleMedium?.bold.copyWith(
                               letterSpacing: -0.2,
                             ),
@@ -78,7 +78,7 @@ class RiderCard extends StatelessWidget {
                               const SizedBox(width: 6),
                               Flexible(
                                 child: Text(
-                                  rider.status.value.capitalizeFirst().toUpperCase(),
+                                  rider.status.value.capitalizeFirst(),
                                   style: context.textTheme.labelSmall?.bold.copyWith(
                                     color: statusColor,
                                     letterSpacing: 0.5,
@@ -88,11 +88,11 @@ class RiderCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              if (rider.user?.phoneNumber != null) ...[
+                              if (rider.phoneNumber != null) ...[
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
-                                    '  •  ${rider.user?.phoneNumber}',
+                                    '  •  ${rider.phoneNumber}',
                                     style: context.textTheme.labelSmall?.copyWith(
                                       color: LogistixColors.textTertiary,
                                     ),
@@ -144,7 +144,7 @@ class RiderCard extends StatelessWidget {
                         },
                       )
                     else ...[
-                      if (rider.hasPosition)
+                      if (rider.hasLocation)
                         _ActionButton(
                           icon: Icons.location_on_rounded,
                           color: riderColor,
@@ -222,7 +222,7 @@ class RiderCard extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      activeOrder.status.label.toUpperCase(),
+                                      activeOrder.status.label,
                                       style: context.textTheme.labelSmall?.bold.copyWith(
                                         color: LogistixColors.primary,
                                         fontSize: 9,

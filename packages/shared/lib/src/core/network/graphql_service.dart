@@ -93,7 +93,7 @@ class GraphQLService {
     client = GraphQLClient(
       link: link,
       cache: GraphQLCache(store: HiveStore()),
-      queryRequestTimeout: const Duration(seconds: 10),
+      queryRequestTimeout: const Duration(seconds: 20),
     );
   }
 
@@ -267,19 +267,34 @@ class GraphQLService {
             attempts++;
             try {
               final token = await tokenStore.read();
-              if (token == null) return result;
+              if (token == null) {
+                // If we reach here with an auth error but no token,
+                // it means we're genuinely unauthenticated.
+                _authStatus.setUnauthenticated();
+                return result;
+              }
 
-              // Try to refresh even if not expired because permissions/roles might have changed
+              // Try to refresh to sync latest roles/permissions
               _logger?.info(
                 'Auth error detected, attempting refresh to sync latest roles',
               );
               await refreshAccessToken(token);
               // Retry immediately after refresh
               continue;
-            } catch (_) {
-              // Refresh failed, let the error bubble up
-              _logger?.error('Token refresh failed during retry');
-              _authStatus.setUnauthenticated();
+            } on Object catch (e) {
+              // Only logout if it's an explicit authentication error during refresh
+              // Rethrow or return result for transient errors
+              _logger?.error('Token refresh failed during retry: $e');
+              if (e is OperationException &&
+                  _isAuthenticationError(
+                    QueryResult(
+                      exception: e,
+                      source: QueryResultSource.network,
+                      options: QueryOptions(document: gql('')),
+                    ),
+                  )) {
+                _authStatus.setUnauthenticated();
+              }
               return result;
             }
           }
@@ -380,7 +395,7 @@ class GraphQLService {
     if (refreshToken == null) return null;
 
     final refreshClient = GraphQLClient(
-      link: HttpLink(EnvConfig.refreshUrl),
+      link: HttpLink(EnvConfig.instance.graphqlUrl),
       cache: GraphQLCache(),
     );
 

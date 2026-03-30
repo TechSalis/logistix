@@ -13,7 +13,6 @@ abstract class CustomerOrderRemoteDataSource {
   });
 
   Future<SyncManager> subscribeToUpdates({
-    required String userId,
     required void Function(OrderDto order, SubscriptionEventType eventType)
         onData,
     Future<void> Function()? onSync,
@@ -92,15 +91,14 @@ class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<SyncManager> subscribeToUpdates({
-    required String userId,
     required void Function(OrderDto order, SubscriptionEventType eventType)
         onData,
     Future<void> Function()? onSync,
   }) async {
     return subscribe(
       '''
-      subscription OnCustomerOrderUpdated(\$userId: ID!, \$sessionId: String) {
-        customerOrderUpdated(userId: \$userId, sessionId: \$sessionId) {
+      subscription OnCustomerOrderUpdated(\$sessionId: String) {
+        customerOrderUpdated(sessionId: \$sessionId) {
           order {
             ${GqlFragments.orderFields}
           }
@@ -109,7 +107,6 @@ class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
       }
       ''',
       variables: {
-        'userId': userId,
         'sessionId': await gqlService.sessionId,
       },
       onData: (Map<String, dynamic> data) {

@@ -21,39 +21,11 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: TextField(
-        onChanged: onChanged,
-        style: context.textTheme.bodyMedium?.bold,
-        decoration: InputDecoration(
-          hintText: 'Search riders...',
-          hintStyle: context.textTheme.bodyMedium?.copyWith(
-            color: LogistixColors.textTertiary,
-            fontWeight: FontWeight.normal,
-          ),
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: LogistixColors.primary,
-            size: 22,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-      ),
+    return LogistixTextField(
+      label: '',
+      onChanged: onChanged,
+      hintText: 'Search riders...',
+      icon: Icons.search_rounded,
     );
   }
 }
@@ -73,14 +45,14 @@ class _RiderStatusFilterList extends StatelessWidget {
           child: Row(
             children: [
               _StatusChip(
-                label: 'ALL',
+                label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ridersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
                 return _StatusChip(
-                  label: status.label.toUpperCase(),
+                  label: status.label,
                   isSelected: isSelected,
                   onTap: () => ridersCubit.filterByStatus(status),
                 );
@@ -157,15 +129,23 @@ class RidersListView extends StatelessWidget {
     return Scaffold(
       backgroundColor: LogistixColors.background,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           SliverAppBar(
             pinned: true,
+            stretch: true,
             toolbarHeight: 0,
             collapsedHeight: 0,
             expandedHeight: 160,
             backgroundColor: LogistixColors.primary,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
+              stretchModes: const [
+                StretchMode.zoomBackground,
+                StretchMode.fadeTitle,
+              ],
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -326,7 +306,7 @@ class RidersListView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                         child: Text(
-                          'PENDING APPROVAL (${filteredPending.length})',
+                          'Pending Approval (${filteredPending.length})',
                           style: context.textTheme.labelSmall?.bold.copyWith(
                             color: LogistixColors.warning,
                             letterSpacing: 0.5,
@@ -344,7 +324,7 @@ class RidersListView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                         child: Text(
-                          'ACTIVE RIDERS (${filteredActive.length})',
+                          'Active Riders (${filteredActive.length})',
                           style: context.textTheme.labelSmall?.bold.copyWith(
                             color: LogistixColors.textSecondary,
                             letterSpacing: 0.5,
@@ -409,7 +389,7 @@ class _RidersMapViewState extends State<RidersMapView> {
             prev.selectedRider?.id != next.selectedRider?.id,
         listener: (context, state) {
           final rider = state.selectedRider;
-          if (rider != null && rider.hasPosition) {
+          if (rider != null && rider.hasLocation) {
             _mapController?.animateCamera(
               CameraUpdate.newLatLngZoom(
                 LatLng(rider.lastLat!, rider.lastLng!),
@@ -435,6 +415,7 @@ class _RidersMapViewState extends State<RidersMapView> {
             children: [
               Positioned.fill(
                 child: GoogleMap(
+                  style: LogistixMapTheme.cleanSlate,
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   initialCameraPosition: CameraPosition(

@@ -21,15 +21,23 @@ class OrdersTab extends StatelessWidget {
           backgroundColor: LogistixColors.background,
           body: CustomScrollView(
             controller: ordersCubit.scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             slivers: [
               SliverAppBar(
                 pinned: true,
+                stretch: true,
                 toolbarHeight: 0,
                 collapsedHeight: 0,
                 expandedHeight: 160,
                 backgroundColor: LogistixColors.primary,
                 systemOverlayStyle: SystemUiOverlayStyle.light,
                 flexibleSpace: FlexibleSpaceBar(
+                  stretchModes: const [
+                    StretchMode.zoomBackground,
+                    StretchMode.fadeTitle,
+                  ],
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -68,7 +76,7 @@ class OrdersTab extends StatelessWidget {
               PinnedHeaderSliver(
                 child: Container(
                   color: LogistixColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -80,7 +88,7 @@ class OrdersTab extends StatelessWidget {
                           onChanged: ordersCubit.searchOrders,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: LogistixSpacing.md),
                       const _StatusFilterList(),
                     ],
                   ),
@@ -170,39 +178,11 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: TextField(
-        onChanged: onChanged,
-        style: context.textTheme.bodyMedium?.bold,
-        decoration: InputDecoration(
-          hintText: 'Search orders or trackings...',
-          hintStyle: context.textTheme.bodyMedium?.copyWith(
-            color: LogistixColors.textTertiary,
-            fontWeight: FontWeight.normal,
-          ),
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: LogistixColors.primary,
-            size: 22,
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-      ),
+    return LogistixTextField(
+      label: '',
+      onChanged: onChanged,
+      hintText: 'Search orders or trackings...',
+      icon: Icons.search_rounded,
     );
   }
 }
@@ -222,14 +202,14 @@ class _StatusFilterList extends StatelessWidget {
           child: Row(
             children: [
               _StatusChip(
-                label: 'ALL',
+                label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ordersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
                 return _StatusChip(
-                  label: status.label.toUpperCase(),
+                  label: status.label,
                   isSelected: isSelected,
                   onTap: () => ordersCubit.filterByStatus(status),
                 );
@@ -258,8 +238,9 @@ class _StatusChip extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        margin: const EdgeInsets.only(right: LogistixSpacing.xs),
+        padding: const EdgeInsets.symmetric(
+            horizontal: LogistixSpacing.md, vertical: LogistixSpacing.sm),
         decoration: BoxDecoration(
           color: isSelected ? LogistixColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(14),

@@ -30,9 +30,6 @@ class StartupRemoteDataSourceImpl implements StartupRemoteDataSource {
               name
               address
             }
-            customerProfile {
-              ${GqlFragments.customerFields}
-            }
           }
         }
       ''';

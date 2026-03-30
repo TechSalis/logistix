@@ -16,7 +16,8 @@ class RiderMarkerOverlayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isLocationSelected) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+            horizontal: LogistixSpacing.sm, vertical: LogistixSpacing.sm),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -43,7 +44,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
                 size: 14,
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: LogistixSpacing.sm),
             Text(
               'Your Location',
               style: context.textTheme.labelMedium?.bold.copyWith(
@@ -58,7 +59,8 @@ class RiderMarkerOverlayCard extends StatelessWidget {
     if (selectedOrder == null) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+          horizontal: LogistixSpacing.sm, vertical: LogistixSpacing.sm),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -93,13 +95,13 @@ class RiderMarkerOverlayCard extends StatelessWidget {
               size: 14,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: LogistixSpacing.sm),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'ORDER #${selectedOrder!.trackingNumber.toUpperCase()}',
+                'Order #${selectedOrder!.trackingNumber}',
                 style: context.textTheme.labelSmall?.bold.copyWith(
                   letterSpacing: 0.5,
                   fontSize: 10,

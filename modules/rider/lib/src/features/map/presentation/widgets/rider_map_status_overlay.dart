@@ -88,7 +88,7 @@ class RiderMapStatusOverlay extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  rider!.user?.fullName ?? '',
+                  rider!.fullName,
                   style: context.textTheme.titleMedium?.bold,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -125,7 +125,7 @@ class RiderMapStatusOverlay extends StatelessWidget {
               ],
             ),
           ),
-          if (liveRiderLocation != null || rider!.hasPosition)
+          if (liveRiderLocation != null || rider!.hasLocation)
             AnimatedScaleTap(
               onTap: () {
                 final loc = liveRiderLocation ??

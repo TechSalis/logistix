@@ -84,18 +84,16 @@ class _OrderLoadedContent extends StatelessWidget {
         const SliverAppBar(title: Text('Order Details')),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              LogistixSpacing.lg,
-              LogistixSpacing.xl,
-              LogistixSpacing.lg,
-              LogistixSpacing.xxl,
+            padding: const EdgeInsets.symmetric(
+              horizontal: LogistixSpacing.lg,
+              vertical: LogistixSpacing.sm,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _OrderHeader(order: order, dateFormat: dateFormat),
                 const SizedBox(height: LogistixSpacing.xl),
-                const _SectionTitle(title: 'DELIVERY DETAILS'),
+                const _SectionTitle(title: 'Delivery Details'),
                 const SizedBox(height: LogistixSpacing.md),
                 if (order.pickupAddress?.isNotEmpty ?? false) ...[
                   LogistixInfoTile(
@@ -105,9 +103,9 @@ class _OrderLoadedContent extends StatelessWidget {
                     value: order.pickupAddress!,
                     onTap: order.hasPickupPosition
                         ? () => LauncherUtils.openMap(
-                              order.pickupLat!,
-                              order.pickupLng!,
-                            )
+                            order.pickupLat!,
+                            order.pickupLng!,
+                          )
                         : null,
                   ),
                   if (order.pickupPhone?.isNotEmpty ?? false)
@@ -118,7 +116,8 @@ class _OrderLoadedContent extends StatelessWidget {
                         iconColor: LogistixColors.primary,
                         title: 'Call Sender',
                         value: order.pickupPhone!,
-                        onTap: () => LauncherUtils.callNumber(order.pickupPhone!),
+                        onTap: () =>
+                            LauncherUtils.callNumber(order.pickupPhone!),
                       ),
                     ),
                   const SizedBox(height: 12),
@@ -131,12 +130,13 @@ class _OrderLoadedContent extends StatelessWidget {
                   isBold: true,
                   onTap: order.hasDropOffPosition
                       ? () => LauncherUtils.openMap(
-                            order.dropOffLat!,
-                            order.dropOffLng!,
-                          )
+                          order.dropOffLat!,
+                          order.dropOffLng!,
+                        )
                       : null,
                 ),
-                if (order.description != null && order.description!.isNotEmpty) ...[
+                if (order.description != null &&
+                    order.description!.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   LogistixInfoTile(
                     icon: Icons.description_rounded,
@@ -248,8 +248,6 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-
-
 class _BottomActionCta extends StatelessWidget {
   const _BottomActionCta({required this.order});
   final Order order;
@@ -259,13 +257,7 @@ class _BottomActionCta extends StatelessWidget {
     return AsyncRunnerListener(
       runner: cubit.unassignRunner,
       listener: (context, state) {
-        if (state.status.isSuccess) {
-          context.toast.showToast(
-            'Order unassigned successfully',
-            type: ToastType.success,
-          );
-          // Stream will auto-update via Drift
-        } else if (state.status.isFailure) {
+        if (state.status.isFailure) {
           final error = state.result?.error;
           context.toast.showToast(
             error?.message ?? 'Failed to unassign order',
@@ -277,26 +269,14 @@ class _BottomActionCta extends StatelessWidget {
         runner: cubit.unassignRunner,
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
-
-          return OutlinedButton.icon(
-            onPressed: isLoading ? null : cubit.unassignRunner.call,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: LogistixColors.error,
-              side: const BorderSide(color: LogistixColors.error),
-              padding: const EdgeInsets.symmetric(
-                vertical: LogistixSpacing.buttonPaddingVertical,
-              ),
-            ),
-            icon: isLoading
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: LogistixInlineLoader(color: LogistixColors.error),
-                  )
-                : const Icon(Icons.cancel_rounded),
-            label: Text(
-              isLoading ? 'Loading...' : 'Unassign',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+          return LogistixButton(
+            onPressed: cubit.unassignRunner.call,
+            foregroundColor: LogistixColors.error,
+            backgroundColor: LogistixColors.error,
+            isLoading: isLoading,
+            icon: Icons.cancel_rounded,
+            label: 'Unassign',
+            type: LogistixButtonType.outline,
           );
         },
       ),
@@ -308,9 +288,7 @@ class _BottomActionCta extends StatelessWidget {
     return AsyncRunnerListener(
       runner: cubit.startDeliveryRunner,
       listener: (context, state) {
-        if (state.status.isSuccess) {
-          context.toast.showToast('Delivery started', type: ToastType.success);
-        } else if (state.status.isFailure) {
+        if (state.status.isFailure) {
           final error = state.result?.error;
           context.toast.showToast(
             error?.message ?? 'Failed to start delivery',
@@ -323,33 +301,11 @@ class _BottomActionCta extends StatelessWidget {
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
 
-          return SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: isLoading ? null : () => cubit.startDeliveryRunner(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: LogistixColors.primary,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  vertical: LogistixSpacing.buttonPaddingVertical,
-                ),
-              ),
-              label: Text(
-                isLoading ? 'Starting...' : 'Start Delivery',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              icon: isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: LogistixInlineLoader(color: Colors.white),
-                    )
-                  : const Icon(Icons.play_arrow_rounded),
-            ),
+          return LogistixButton(
+            onPressed: isLoading ? null : cubit.startDeliveryRunner.call,
+            label: isLoading ? 'Starting...' : 'Start Delivery',
+            icon: Icons.play_arrow_rounded,
+            isLoading: isLoading,
           );
         },
       ),
@@ -361,13 +317,7 @@ class _BottomActionCta extends StatelessWidget {
     return AsyncRunnerListener(
       runner: cubit.markDeliveredRunner,
       listener: (context, state) {
-        if (state.status.isSuccess) {
-          context.toast.showToast(
-            'Order marked as delivered',
-            type: ToastType.success,
-          );
-          // Stream will auto-update via Drift
-        } else if (state.status.isFailure) {
+        if (state.status.isFailure) {
           final error = state.result?.error;
           context.toast.showToast(
             error?.message ?? 'Failed to mark order as delivered',
@@ -380,26 +330,12 @@ class _BottomActionCta extends StatelessWidget {
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
 
-          return ElevatedButton.icon(
+          return LogistixButton(
             onPressed: isLoading ? null : cubit.markDeliveredRunner.call,
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              backgroundColor: LogistixColors.success,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                vertical: LogistixSpacing.buttonPaddingVertical,
-              ),
-            ),
-            icon: isLoading
-                ? const SizedBox.square(
-                    dimension: 16,
-                    child: LogistixInlineLoader(color: Colors.white),
-                  )
-                : const Icon(Icons.check_circle_rounded),
-            label: Text(
-              isLoading ? 'Marking...' : 'Mark Delivered',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            backgroundColor: LogistixColors.success,
+            isLoading: isLoading,
+            icon: Icons.check_circle_rounded,
+            label: 'Mark Delivered',
           );
         },
       ),
@@ -416,9 +352,9 @@ class _BottomActionCta extends StatelessWidget {
       case OrderStatus.EN_ROUTE:
         actionButton = Row(
           children: [
-            Expanded(flex: 2, child: unassignButton(context)),
+            Expanded(flex: 3, child: unassignButton(context)),
             const SizedBox(width: 12),
-            Expanded(flex: 3, child: markDeliveredButton(context)),
+            Expanded(flex: 4, child: markDeliveredButton(context)),
           ],
         );
       case OrderStatus.DELIVERED:

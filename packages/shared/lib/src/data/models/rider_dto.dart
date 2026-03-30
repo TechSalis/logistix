@@ -2,14 +2,13 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/src/data/models/order_dto.dart';
-import 'package:shared/src/data/models/user_dto.dart';
 import 'package:shared/src/domain/entities/rider.dart';
 
 part 'rider_dto.freezed.dart';
 part 'rider_dto.g.dart';
 
 @freezed
-class RiderDto with _$RiderDto {
+abstract class RiderDto with _$RiderDto {
   const factory RiderDto({
     required String id,
     required String email,
@@ -18,7 +17,6 @@ class RiderDto with _$RiderDto {
     required String companyId,
     String? phoneNumber,
     String? fcmToken,
-    UserDto? user,
     OrderDto? activeOrder,
     double? lastLat,
     double? lastLng,
@@ -36,7 +34,6 @@ class RiderDto with _$RiderDto {
     status: rider.status.value,
     phoneNumber: rider.phoneNumber,
     fcmToken: rider.fcmToken,
-    user: rider.user != null ? UserDto.fromEntity(rider.user!) : null,
     lastLat: rider.lastLat,
     lastLng: rider.lastLng,
     batteryLevel: rider.batteryLevel,
@@ -58,7 +55,6 @@ class RiderDto with _$RiderDto {
     status: RiderStatusX.fromString(status),
     phoneNumber: phoneNumber,
     fcmToken: fcmToken,
-    user: user?.toEntity(),
     activeOrder: activeOrder?.toEntity(),
     lastLat: lastLat,
     lastLng: lastLng,

@@ -11,7 +11,7 @@ import 'package:shared/shared.dart';
 part 'create_order_cubit.freezed.dart';
 
 @freezed
-class CreateOrderState with _$CreateOrderState {
+abstract class CreateOrderState with _$CreateOrderState {
   const factory CreateOrderState({
     required List<OrderCreateInput> orders,
     @Default([]) List<Rider> riders,
@@ -32,8 +32,12 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
   final OrderRepository _orderRepo;
   final SearchRidersUseCase _searchRidersUseCase;
 
-  Future<List<Rider>> searchRiders(String query) async {
-    final riders = await _searchRidersUseCase(query);
+  Future<List<Rider>> searchRiders(
+    String query, {
+    double? lat,
+    double? lng,
+  }) async {
+    final riders = await _searchRidersUseCase.call(query, lat: lat, lng: lng);
     emit(state.copyWith(riders: riders));
     return riders;
   }
@@ -47,6 +51,14 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
         ],
       ),
     );
+  }
+
+  void duplicateOrder(int index) {
+    if (index < 0 || index >= state.orders.length) return;
+    final orderToDuplicate = state.orders[index];
+    final newList = List<OrderCreateInput>.from(state.orders)
+      ..insert(index + 1, orderToDuplicate.copyWith(rider: null, riderId: null));
+    emit(state.copyWith(orders: newList));
   }
 
   void removeOrder(int index) {
@@ -114,12 +126,13 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
 
   // Clean structured key-value template (two example orders separated by ---)
   static const String _kOrderTemplate = '''
-Pickup: 12 Ada George Road, GRA
-Pickup Phone: 08012345678
-Dropoff: Rumuokoro Junction, PH
-Dropoff Phone: 07098765432
-Amount: 5000
-Description: 2 Large Pizzas
+Dropoff: 
+Dropoff Phone: 
+---
+Pickup: 
+Pickup Phone: 
+Amount: 
+Description: 
 ''';
 
   Future<void> copyTemplateToClipboard() {

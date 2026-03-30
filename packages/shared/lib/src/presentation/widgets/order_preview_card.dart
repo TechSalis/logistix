@@ -39,7 +39,7 @@ class OrderPreviewCard extends StatelessWidget {
           child: Row(
             children: [
               // Status Indicator Bar
-              Container(width: LogistixSpacing.xs, color: statusColor),
+              Container(width: LogistixSpacing.xxs, color: statusColor),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(LogistixSpacing.md),
@@ -58,14 +58,14 @@ class OrderPreviewCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              order.status.label.toUpperCase(),
+                              order.status.label,
                               style: context.textTheme.labelSmall?.bold
                                   .copyWith(color: statusColor, fontSize: 10),
                             ),
                           ),
                           const SizedBox(width: LogistixSpacing.xs),
                           Text(
-                            '#${order.trackingNumber.toUpperCase()}',
+                            '#${order.trackingNumber}',
                             style: context.textTheme.labelMedium?.bold.copyWith(
                               color: LogistixColors.textSecondary,
                               letterSpacing: 0.5,
@@ -110,12 +110,6 @@ class OrderPreviewCard extends StatelessWidget {
                               title: 'Pickup',
                               value: order.pickupAddress!,
                               fontSize: 13,
-                              onTap: order.hasPickupPosition
-                                  ? () => _openMap(
-                                      order.pickupLat!,
-                                      order.pickupLng!,
-                                    )
-                                  : null,
                             ),
                             const SizedBox(height: LogistixSpacing.xxs),
                           ],
@@ -126,12 +120,6 @@ class OrderPreviewCard extends StatelessWidget {
                             value: order.dropOffAddress,
                             isBold: true,
                             fontSize: 13,
-                            onTap: order.hasDropOffPosition
-                                ? () => _openMap(
-                                    order.dropOffLat!,
-                                    order.dropOffLng!,
-                                  )
-                                : null,
                           ),
                         ],
                       ),
@@ -148,9 +136,5 @@ class OrderPreviewCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _openMap(double lat, double lng) {
-    LauncherUtils.openMap(lat, lng);
   }
 }

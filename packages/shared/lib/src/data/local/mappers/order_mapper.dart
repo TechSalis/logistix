@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/models/order_dto.dart';
-import 'package:shared/src/domain/entities/order.dart' as entities;
-import 'package:shared/src/domain/entities/rider.dart' as entities;
+import 'package:shared/src/domain/entities/order.dart' as order_entities;
+import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 
 extension OrderDtoToDrift on OrderDto {
   OrdersCompanion toDriftCompanion() {
@@ -27,6 +27,7 @@ extension OrderDtoToDrift on OrderDto {
       trackingNumber: trackingNumber,
       status: status,
       deliveredAt: Value(deliveredAt),
+      scheduledAt: Value(scheduledAt),
       createdAt: createdAt,
       updatedAt: Value(updatedAt),
       localUpdatedAt: DateTime.now(),
@@ -35,8 +36,8 @@ extension OrderDtoToDrift on OrderDto {
 }
 
 extension OrderDriftToEntity on Order {
-  entities.Order toEntity({entities.Rider? rider}) {
-    return entities.Order(
+  order_entities.Order toEntity({rider_entities.Rider? rider}) {
+    return order_entities.Order(
       id: id,
       pickupAddress: pickupAddress,
       pickupLat: pickupLat,
@@ -56,15 +57,16 @@ extension OrderDriftToEntity on Order {
       description: description,
       createdBy: createdBy,
       trackingNumber: trackingNumber,
-      status: entities.OrderStatusX.fromString(status),
+      status: order_entities.OrderStatusX.fromString(status),
       deliveredAt: deliveredAt,
+      scheduledAt: scheduledAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
   }
 }
 
-extension OrderEntityToDrift on entities.Order {
+extension OrderEntityToDrift on order_entities.Order {
   OrdersCompanion toDriftCompanion() {
     return OrdersCompanion.insert(
       id: id,
@@ -87,6 +89,7 @@ extension OrderEntityToDrift on entities.Order {
       trackingNumber: trackingNumber,
       status: status.value,
       deliveredAt: Value(deliveredAt),
+      scheduledAt: Value(scheduledAt),
       createdAt: createdAt,
       updatedAt: Value(updatedAt),
       localUpdatedAt: DateTime.now(),

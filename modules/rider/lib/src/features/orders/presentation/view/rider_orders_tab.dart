@@ -31,15 +31,23 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
         builder: (context, state) {
           return CustomScrollView(
             controller: ordersCubit.scrollController,
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
             slivers: [
               SliverAppBar(
                 pinned: true,
+                stretch: true,
                 toolbarHeight: 0,
                 collapsedHeight: 0,
                 expandedHeight: 160,
                 backgroundColor: LogistixColors.primary,
                 systemOverlayStyle: SystemUiOverlayStyle.light,
                 flexibleSpace: FlexibleSpaceBar(
+                  stretchModes: const [
+                    StretchMode.zoomBackground,
+                    StretchMode.fadeTitle,
+                  ],
                   background: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -78,7 +86,7 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
               PinnedHeaderSliver(
                 child: Container(
                   color: LogistixColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -90,7 +98,7 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
                           onChanged: ordersCubit.searchOrders,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: LogistixSpacing.md),
                       const _StatusFilterList(),
                     ],
                   ),
@@ -200,10 +208,6 @@ class _SearchField extends StatelessWidget {
             color: LogistixColors.primary,
           ),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
         ),
       ),
     );
@@ -231,14 +235,14 @@ class _StatusFilterList extends StatelessWidget {
           child: Row(
             children: [
               _StatusChip(
-                label: 'ALL',
+                label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ordersCubit.filterByStatus(null),
               ),
               ...riderStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
                 return _StatusChip(
-                  label: status.label.toUpperCase(),
+                  label: status.label,
                   isSelected: isSelected,
                   onTap: () => ordersCubit.filterByStatus(status),
                 );
@@ -267,8 +271,9 @@ class _StatusChip extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        margin: const EdgeInsets.only(right: LogistixSpacing.xs),
+        padding: const EdgeInsets.symmetric(
+            horizontal: LogistixSpacing.md, vertical: LogistixSpacing.sm),
         decoration: BoxDecoration(
           color: isSelected ? LogistixColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(14),

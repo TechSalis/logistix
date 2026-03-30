@@ -41,74 +41,67 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Forgot Password')),
-        body: Align(
-          alignment: const Alignment(0, -.75),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              clipBehavior: Clip.none,
-              padding: const EdgeInsets.all(32),
-              children: [
-                Icon(
-                  Icons.lock_reset,
-                  size: 100,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Reset Password',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Enter your email address and we'll send you a one-time password (OTP) to reset your password.",
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: LogistixColors.textSecondary,
+        appBar: AppBar(title: const Text('Reset Password')),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
+            child: Form(
+              key: _formKey,
+              child: LogistixEntrance(
+                children: [
+                  const Icon(
+                    Icons.lock_reset_rounded,
+                    size: 100,
+                    color: LogistixColors.primary,
                   ),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  autocorrect: false,
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  const SizedBox(height: LogistixSpacing.lg),
+                  Text(
+                    'Forgot Password?',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.headlineMedium?.bold,
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  autofocus: true,
-                  validator: FormBuilderValidators.email(),
-                ),
-                const SizedBox(height: 32),
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state.maybeWhen(
-                      forgotPasswordLoading: () => true,
-                      orElse: () => false,
-                    );
+                  const SizedBox(height: LogistixSpacing.sm),
+                  Text(
+                    "Enter your email address and we'll send you a one-time password (OTP) to reset your password.",
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: LogistixColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: LogistixSpacing.xxl),
+                  LogistixTextField(
+                    controller: _emailController,
+                    label: 'Email Address',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    autofocus: true,
+                    validator: FormBuilderValidators.email(),
+                  ),
+                  const SizedBox(height: LogistixSpacing.xl),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state.maybeWhen(
+                        forgotPasswordLoading: () => true,
+                        orElse: () => false,
+                      );
 
-                    return ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              if (_formKey.currentState?.validate() ?? false) {
-                                context.read<AuthBloc>().add(
+                      return LogistixButton(
+                        onPressed: () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            context.read<AuthBloc>().add(
                                   AuthEvent.forgotPassword(
                                     email: _emailController.text.trim(),
                                   ),
                                 );
-                              }
-                            },
-                      child: isLoading
-                          ? const LogistixInlineLoader()
-                          : const Text('Send OTP'),
-                    );
-                  },
-                ),
-              ],
+                          }
+                        },
+                        isLoading: isLoading,
+                        label: 'Send OTP',
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

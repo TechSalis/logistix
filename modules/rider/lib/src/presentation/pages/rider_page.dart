@@ -49,14 +49,14 @@ class _RiderPageState extends State<RiderPage> {
   }
 
   late final _startSessionIfNeeded = RunOnce.withArg((String riderId) {
-    // Initialize cubits with riderId
+    // Initialize cubits
     context.read<RiderOrdersCubit>().initialize();
     context.read<RiderMapOrdersCubit>().initialize();
     riderBloc.add(RiderEvent.watchProfile(riderId));
 
     // Start session
     _sessionUseCase = context.read<RiderSessionManager>()
-      ..startSession(riderId);
+      ..startSession();
   });
 
   @override
@@ -73,6 +73,11 @@ class _RiderPageState extends State<RiderPage> {
           BlocListener<RiderBloc, RiderState>(
             listener: (context, state) {
               state.mapOrNull(
+                loading: (state) {
+                  if (state.rider != null && state.rider!.isAccepted) {
+                    _startSessionIfNeeded(state.rider!.id);
+                  }
+                },
                 loaded: (state) {
                   if (state.rider.isAccepted) {
                     _startSessionIfNeeded(state.rider.id);
@@ -88,7 +93,7 @@ class _RiderPageState extends State<RiderPage> {
                   riderBloc.state.mapOrNull(
                     loaded: (s) {
                       if (s.rider.isAccepted) {
-                        _sessionUseCase?.startHeartbeat(s.rider.id);
+                        _sessionUseCase?.startHeartbeat();
                       }
                     },
                   );
@@ -123,8 +128,9 @@ class _RiderPageState extends State<RiderPage> {
               loading: (rider) {
                 if (rider != null && !rider.isAccepted) {
                   return RiderLockedPage(
-                    onRefresh: () =>
-                        riderBloc.add(const RiderEvent.fetchProfile()),
+                    onRefresh: () {
+                      riderBloc.add(const RiderEvent.fetchProfile());
+                    },
                   );
                 }
 
@@ -133,8 +139,9 @@ class _RiderPageState extends State<RiderPage> {
               loaded: (rider, orders, isLoading, loc) {
                 if (!rider.isAccepted) {
                   return RiderLockedPage(
-                    onRefresh: () =>
-                        riderBloc.add(const RiderEvent.fetchProfile()),
+                    onRefresh: () {
+                      riderBloc.add(const RiderEvent.fetchProfile());
+                    },
                   );
                 }
 

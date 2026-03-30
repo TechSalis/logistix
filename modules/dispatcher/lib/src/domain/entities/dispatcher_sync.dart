@@ -4,7 +4,7 @@ import 'package:shared/shared.dart';
 part 'dispatcher_sync.freezed.dart';
 
 @freezed
-class DispatcherSync with _$DispatcherSync {
+abstract class DispatcherSync with _$DispatcherSync {
   const factory DispatcherSync({
     required List<Order> orders,
     required List<Rider> riders,

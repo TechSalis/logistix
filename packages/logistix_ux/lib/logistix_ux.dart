@@ -13,6 +13,9 @@ export 'src/components/logistix_avatar.dart';
 export 'src/components/logistix_button.dart';
 export 'src/components/logistix_card.dart';
 export 'src/components/logistix_dialog.dart';
+export 'src/components/logistix_empty_view.dart';
+export 'src/components/logistix_info_tile.dart';
+export 'src/components/logistix_metrics.dart';
 export 'src/components/logistix_settings.dart';
 export 'src/components/logistix_shimmer.dart';
 export 'src/components/logistix_text_field.dart';
@@ -21,6 +24,7 @@ export 'src/theme/extensions/theme_extensions.dart';
 export 'src/theme/logistix_decorations.dart';
 // Theme
 export 'src/theme/logistix_theme.dart';
+export 'src/theme/logistix_map_theme.dart';
 // Tokens
 export 'src/tokens/colors.dart';
 export 'src/tokens/durations.dart';

@@ -41,12 +41,12 @@ class GqlFragments {
   ''';
 
   static const String dispatcherMetricsFields = '''
-    totalOrders
-    pendingOrders
-    deliveredOrders
-    totalRiders
-    activeRiders
-    availableRiders
+    activeOrders
+    unassignedOrders
+    assignedOrders
+    enRouteOrders
+    onlineRidersCount
+    busyRidersCount
   ''';
 
   static const String riderMetricsFields = '''

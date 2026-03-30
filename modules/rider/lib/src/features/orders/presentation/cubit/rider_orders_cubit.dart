@@ -9,7 +9,7 @@ import 'package:shared/shared.dart';
 part 'rider_orders_cubit.freezed.dart';
 
 @freezed
-class RiderOrdersState with _$RiderOrdersState {
+abstract class RiderOrdersState with _$RiderOrdersState {
   const factory RiderOrdersState({
     required List<Order> orders,
     required bool isSearching,

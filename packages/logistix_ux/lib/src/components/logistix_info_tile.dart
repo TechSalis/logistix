@@ -53,7 +53,7 @@ class LogistixInfoTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title.toUpperCase(),
+                    title,
                     style: context.textTheme.labelSmall?.copyWith(
                       color: LogistixColors.textTertiary,
                       fontWeight: FontWeight.w900,

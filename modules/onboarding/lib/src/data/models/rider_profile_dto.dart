@@ -4,7 +4,7 @@ part 'rider_profile_dto.freezed.dart';
 part 'rider_profile_dto.g.dart';
 
 @freezed
-class RiderProfileDto with _$RiderProfileDto {
+abstract class RiderProfileDto with _$RiderProfileDto {
   const factory RiderProfileDto({
     required String phoneNumber,
     required String registrationNumber,

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_metrics_cubit.dart';
-import 'package:shared/shared.dart';
 
 class RiderMetricsCard extends StatelessWidget {
   const RiderMetricsCard({this.onRetry, super.key});
-
   final VoidCallback? onRetry;
 
   @override

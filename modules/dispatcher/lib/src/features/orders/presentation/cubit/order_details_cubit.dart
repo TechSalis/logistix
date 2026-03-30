@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 part 'order_details_state.dart';
 part 'order_details_cubit.freezed.dart';
@@ -29,11 +28,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
 
   Future<void> _launchCaller(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-
-    final url = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
+    await LauncherUtils.callNumber(phone);
   }
 
   void loadOrder(String id) {
@@ -54,7 +49,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   Future<void> shareOrder(Order order) async {
     final trackingText =
         'Track Your Order: #${order.trackingNumber}\n'
-        'Link: ${EnvConfig.trackingLink}/${order.trackingNumber}';
+        'Link: ${EnvConfig.instance.trackingLink}/${order.trackingNumber}';
 
     await SharePlus.instance.share(
       ShareParams(
@@ -126,11 +121,6 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   }
 
   Future<void> openMap(double lat, double lng) async {
-    final url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
-    );
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url);
-    }
+    await LauncherUtils.openMap(lat, lng);
   }
 }

@@ -7,7 +7,6 @@ import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class RiderBloc extends Bloc<RiderEvent, RiderState> {
   RiderBloc(this._repository, this._authStatusRepository, this._userStore)
@@ -91,12 +90,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
   );
 
   Future<void> _launchSupportUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri);
-    } else {
-      throw const UserError(message: 'Could not open support link');
-    }
+    await LauncherUtils.launchInBrowser(url);
   }
 
   FutureOr<void> _onUpdateRider(

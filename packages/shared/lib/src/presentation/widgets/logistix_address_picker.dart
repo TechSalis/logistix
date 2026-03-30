@@ -82,14 +82,12 @@ class _LogistixAddressPickerState extends State<LogistixAddressPicker> {
       ),
       decoratorProps: DropDownDecoratorProps(
         decoration: InputDecoration(
-          filled: true,
+          isDense: true,
           fillColor: isUnresolved
               ? LogistixColors.warning.withValues(alpha: 0.1)
               : widget.isRequired && !hasAddress
-              ? LogistixColors.primary.withValues(
-                  alpha: 0.03,
-                ) // Subtle highlight for required
-              : LogistixColors.background,
+              ? LogistixColors.primary.withValues(alpha: 0.03)
+              : null, // Let theme handle it
           label: widget.isRequired
               ? Text.rich(
                   TextSpan(
@@ -123,34 +121,18 @@ class _LogistixAddressPickerState extends State<LogistixAddressPicker> {
                 ? LogistixColors.primary
                 : LogistixColors.textTertiary,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: isUnresolved
-                ? const BorderSide(color: LogistixColors.warning)
-                : widget.isRequired && !hasAddress
-                ? BorderSide(
-                    color: LogistixColors.primary.withValues(alpha: 0.2),
-                  )
-                : BorderSide.none,
-          ),
-          enabledBorder: isUnresolved
+          border: isUnresolved
               ? OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(LogistixRadii.input),
                   borderSide: const BorderSide(color: LogistixColors.warning),
                 )
-              : widget.isRequired && !hasAddress
+              : null, // Let theme handle it
+          enabledBorder: isUnresolved
               ? OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: LogistixColors.primary.withValues(alpha: 0.2),
-                  ),
+                  borderRadius: BorderRadius.circular(LogistixRadii.input),
+                  borderSide: const BorderSide(color: LogistixColors.warning),
                 )
               : null,
-          prefixIconConstraints: const BoxConstraints(
-            minWidth: 40,
-            minHeight: 48,
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
         ),
       ),
       popupProps: PopupProps.menu(
@@ -160,10 +142,10 @@ class _LogistixAddressPickerState extends State<LogistixAddressPicker> {
           controller: _searchController,
           autofocus: true,
           autocorrect: false,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
+            isDense: true,
             hintText: 'Start typing address...',
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            prefixIcon: Icon(Icons.search_rounded, size: 20),
           ),
         ),
       ),

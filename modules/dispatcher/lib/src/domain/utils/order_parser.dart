@@ -1,3 +1,4 @@
+import 'dart:isolate' show Isolate;
 import 'dart:math';
 
 import 'package:dispatcher/src/data/dtos/order_create_input.dart';
@@ -469,7 +470,7 @@ class _Engine {
       (m) => ' ${m.group(1)!.replaceAll('O', '0').replaceAll('o', '0')}',
     );
     s = s.replaceAllMapped(RegExp(r'[₦N]\s*[0-9O,]+'), (m) {
-      return m.group(0)!.toUpperCase().replaceAll('O', '0');
+      return m.group(0)!.replaceAll('O', '0');
     });
 
     // Expand shorthands before classification

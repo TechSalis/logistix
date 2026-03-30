@@ -6,7 +6,6 @@ abstract class DispatcherSessionRemoteDataSource {
   Future<DispatcherSyncDto> syncData({double? since, int? limit, int? offset});
 
   Future<SyncManager> subscribeToOrderUpdates({
-    required String companyId,
     required void Function(
       OrderDto order,
       String eventType,
@@ -17,7 +16,6 @@ abstract class DispatcherSessionRemoteDataSource {
   });
 
   Future<SyncManager> subscribeToRiderUpdates({
-    required String companyId,
     required void Function(
       RiderDto rider,
       String eventType,
@@ -69,7 +67,6 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<SyncManager> subscribeToOrderUpdates({
-    required String companyId,
     required void Function(
       OrderDto order,
       String eventType,
@@ -82,7 +79,6 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     await syncManager.startSubscription(
       subscriptionDocument: _orderSubscription,
       variables: {
-        'companyId': companyId,
         'sessionId': await gqlService.sessionId,
       },
       onData: (data) async {
@@ -104,7 +100,6 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<SyncManager> subscribeToRiderUpdates({
-    required String companyId,
     required void Function(
       RiderDto rider,
       String eventType,
@@ -117,7 +112,6 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     await syncManager.startSubscription(
       subscriptionDocument: _riderSubscription,
       variables: {
-        'companyId': companyId,
         'sessionId': await gqlService.sessionId,
       },
       onData: (data) async {
@@ -139,8 +133,8 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
 
   static const String _orderSubscription =
       '''
-    subscription OrderUpdated(\$companyId: ID!, \$sessionId: String) {
-      orderUpdated(companyId: \$companyId, sessionId: \$sessionId) {
+    subscription OrderUpdated(\$sessionId: String) {
+      orderUpdated(sessionId: \$sessionId) {
         order {
           ${GqlFragments.orderFields}
         }
@@ -154,8 +148,8 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
 
   static const String _riderSubscription =
       '''
-    subscription RiderUpdated(\$companyId: ID!, \$sessionId: String) {
-      riderUpdated(companyId: \$companyId, sessionId: \$sessionId) {
+    subscription RiderUpdated(\$sessionId: String) {
+      riderUpdated(sessionId: \$sessionId) {
         rider {
           ${GqlFragments.riderFields}
         }

@@ -44,20 +44,28 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         body: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(LogistixSpacing.xl),
+            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
             child: Form(
               key: _formKey,
               child: LogistixEntrance(
                 children: [
                   Hero(
                     tag: 'logo',
-                    child: LogistixAssets.images.icon.image(height: 100),
+                    child: LogistixAssets.images.icon.image(height: 80),
                   ),
                   const SizedBox(height: LogistixSpacing.md),
                   Text(
                     'Logistix',
                     textAlign: TextAlign.center,
                     style: context.textTheme.headlineLarge?.bold,
+                  ),
+                  const SizedBox(height: LogistixSpacing.sm),
+                  Text(
+                    'Precision in every step',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      color: LogistixColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: LogistixSpacing.xxl),
                   LogistixTextField(

@@ -2,27 +2,20 @@ import 'package:rider/src/data/dtos/rider_sync_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRemoteDataSource {
-  Future<RiderDto> updateLocation(
-    String riderId,
-    double lat,
-    double lng,
-    int? batteryLevel,
-  );
 
   Future<OrderDto> updateOrderStatus(String orderId, String status);
 
   Future<RiderDto> sendHeartbeat({
-    required double lat,
-    required double lng,
+    double? lat,
+    double? lng,
     int? batteryLevel,
   });
 
   Future<RiderSyncDto> syncData({double? since, int? limit, int? offset});
 
   Future<SyncManager> subscribeToAssignmentUpdates({
-    required String riderId,
     required void Function(
-      OrderDto order,
+      OrderDto? order,
       RiderDto? rider,
       String eventType,
       RiderMetricsDto? metrics,
@@ -58,34 +51,6 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<RiderDto> updateLocation(
-    String riderId,
-    double lat,
-    double lng,
-    int? batteryLevel,
-  ) async {
-    const mutation =
-        '''
-      mutation UpdateRiderLocation(\$riderId: ID!, \$lat: Float!, \$lng: Float!, \$batteryLevel: Int) {
-        updateRiderLocation(riderId: \$riderId, lat: \$lat, lng: \$lng, batteryLevel: \$batteryLevel) {
-          ${GqlFragments.riderFields}
-        }
-      }
-    ''';
-
-    final data = await mutate<Map<String, dynamic>>(
-      mutation,
-      key: 'updateRiderLocation',
-      variables: {
-        'riderId': riderId,
-        'lat': lat,
-        'lng': lng,
-        'batteryLevel': batteryLevel,
-      },
-    );
-
-    return RiderDto.fromJson(data);
-  }
 
   @override
   Future<OrderDto> updateOrderStatus(String orderId, String status) async {
@@ -112,13 +77,13 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<RiderDto> sendHeartbeat({
-    required double lat,
-    required double lng,
+    double? lat,
+    double? lng,
     int? batteryLevel,
   }) async {
     const mutation =
         '''
-      mutation RiderHeartbeat(\$lat: Float!, \$lng: Float!, \$batteryLevel: Int) {
+      mutation RiderHeartbeat(\$lat: Float, \$lng: Float, \$batteryLevel: Int) {
         riderHeartbeat(lat: \$lat, lng: \$lng, batteryLevel: \$batteryLevel) {
           ${GqlFragments.riderFields}
         }
@@ -128,7 +93,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     final data = await mutate<Map<String, dynamic>>(
       mutation,
       key: 'riderHeartbeat',
-      variables: {'lat': lat, 'lng': lng, 'batteryLevel': batteryLevel},
+      variables: {'lat': ?lat, 'lng': ?lng, 'batteryLevel': ?batteryLevel},
     );
 
     return RiderDto.fromJson(data);
@@ -140,12 +105,14 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     int? limit,
     int? offset,
   }) async {
-    const queryDocument =
-        '''
+    const queryDocument = '''
       query RiderSync(\$since: Float, \$limit: Int, \$offset: Int) {
         riderSync(since: \$since, limit: \$limit, offset: \$offset) {
           orders {
             ${GqlFragments.orderFields}
+          }
+          rider {
+            ${GqlFragments.riderFields}
           }
           metrics {
             ${GqlFragments.riderMetricsFields}
@@ -167,9 +134,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<SyncManager> subscribeToAssignmentUpdates({
-    required String riderId,
     required void Function(
-      OrderDto order,
+      OrderDto? order,
       RiderDto? rider,
       String eventType,
       RiderMetricsDto? metrics,
@@ -179,18 +145,18 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }) async {
     final syncManager = SyncManager(gqlService);
     await syncManager.startSubscription(
-      subscriptionDocument: _riderAssignmentSubscription,
-      variables: {'riderId': riderId, 'sessionId': await gqlService.sessionId},
+      subscriptionDocument: _riderAssignmentUpdatedSubscription,
+      variables: {'sessionId': await gqlService.sessionId},
       onData: (data) async {
         final updateData =
             data['riderAssignmentUpdated'] as Map<String, dynamic>;
-        final orderData = updateData['order'] as Map<String, dynamic>;
+        final orderData = updateData['order'] as Map<String, dynamic>?;
         final riderData = updateData['rider'] as Map<String, dynamic>?;
         final eventType = updateData['eventType'] as String;
         final metricsData = updateData['metrics'] as Map<String, dynamic>?;
 
         onData(
-          OrderDto.fromJson(orderData),
+          orderData != null ? OrderDto.fromJson(orderData) : null,
           riderData != null ? RiderDto.fromJson(riderData) : null,
           eventType,
           metricsData != null ? RiderMetricsDto.fromJson(metricsData) : null,
@@ -201,10 +167,10 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     return syncManager;
   }
 
-  static const String _riderAssignmentSubscription =
+  static const String _riderAssignmentUpdatedSubscription =
       '''
-    subscription RiderAssignmentUpdated(\$riderId: ID!, \$sessionId: String) {
-      riderAssignmentUpdated(riderId: \$riderId, sessionId: \$sessionId) {
+    subscription RiderAssignmentUpdated(\$sessionId: String) {
+      riderAssignmentUpdated(sessionId: \$sessionId) {
         order {
           ${GqlFragments.orderFields}
         }

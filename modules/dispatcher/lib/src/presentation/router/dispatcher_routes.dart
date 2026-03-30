@@ -57,7 +57,7 @@ List<RouteBase> get dispatcherRoutes => [
             routes: [
               GoRoute(
                 path: _DispatcherPaths.createOrder,
-                builder: (context, state) => CreateOrderPage(),
+                builder: (context, state) => const CreateOrderPage(),
                 routes: [
                   GoRoute(
                     path: _DispatcherPaths.parseText,

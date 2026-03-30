@@ -9,6 +9,7 @@ import 'package:rider/src/data/repositories/rider_repository_impl.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/domain/usecases/rider_initial_sync_provider.dart';
+import 'package:rider/src/domain/usecases/sync_rider_data_usecase.dart';
 import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_metrics_cubit.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
@@ -47,6 +48,16 @@ class RiderModule extends Module<RouteBase> {
                   .get<StreamableObjectStore<RiderMetricsDto>>(),
             ),
           ),
+          RepositoryProvider<SyncRiderDataUseCase>(
+            create: (context) => SyncRiderDataUseCase(
+              remoteDataSource: context.read<RiderRemoteDataSource>(),
+              orderDao: injector.get<OrderDao>(),
+              riderDao: injector.get<RiderDao>(),
+              metricsStore:
+                  injector.get<StreamableObjectStore<RiderMetricsDto>>(),
+              database: injector.get<LogistixDatabase>(),
+            ),
+          ),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -75,10 +86,9 @@ class RiderModule extends Module<RouteBase> {
             create: (context) => RiderSessionManager(
               context.read<RiderRemoteDataSource>(),
               context.read<RiderSubscriptionHandler>(),
-              injector.get<OrderDao>(),
               injector.get<RiderDao>(),
-              injector.get<StreamableObjectStore<RiderMetricsDto>>(),
               injector.get<LogistixDatabase>(),
+              context.read<SyncRiderDataUseCase>(),
               context.read<RiderBloc>(),
             ),
             child: ToastServiceWidget(child: child),
@@ -91,13 +101,10 @@ class RiderModule extends Module<RouteBase> {
           pageBuilder: (context, state) => SyncPage.page(
             state: state,
             onInitialize: () => RiderInitialSyncProvider(
-              remoteDataSource: context.read<RiderRemoteDataSource>(),
-              orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
-              metricsStore: injector
-                  .get<StreamableObjectStore<RiderMetricsDto>>(),
-              database: injector.get<LogistixDatabase>(),
               userStore: injector.get<UserStore>(),
+              database: injector.get<LogistixDatabase>(),
+              syncRiderDataUseCase: context.read<SyncRiderDataUseCase>(),
             ).performInitialSync(),
             onSuccess: () => context.go(RiderRoutes.map),
             onError: (context, error, retry) {

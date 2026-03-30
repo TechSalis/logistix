@@ -4,7 +4,7 @@ part 'presigned_url.freezed.dart';
 part 'presigned_url.g.dart';
 
 @freezed
-class PresignedUrl with _$PresignedUrl {
+abstract class PresignedUrl with _$PresignedUrl {
   const factory PresignedUrl({required String url, required String key}) =
       _PresignedUrl;
 

@@ -1,5 +1,6 @@
 # Podfile for Logistix
 platform :ios, '17.0'
+use_modular_headers!
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

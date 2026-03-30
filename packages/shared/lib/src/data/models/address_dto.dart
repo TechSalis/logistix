@@ -4,7 +4,7 @@ part 'address_dto.freezed.dart';
 part 'address_dto.g.dart';
 
 @freezed
-class AddressDto with _$AddressDto {
+abstract class AddressDto with _$AddressDto {
   const factory AddressDto({required String address, String? placeId}) =
       _AddressDto;
 

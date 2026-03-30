@@ -136,12 +136,10 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                TextFormField(
+                                LogistixTextField(
                                   controller: _companyNameController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Company Name',
-                                    prefixIcon: Icon(Icons.business_rounded),
-                                  ),
+                                  label: 'Company Name',
+                                  icon: Icons.business_rounded,
                                   validator: FormBuilderValidators.required(),
                                   textCapitalization: TextCapitalization.words,
                                 ),
@@ -219,13 +217,11 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                                   },
                                 ),
                                 const SizedBox(height: LogistixSpacing.lg),
-                                TextFormField(
+                                LogistixTextField(
                                   controller: _cacController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'CAC Reg Number',
-                                    prefixIcon: Icon(Icons.verified_outlined),
-                                    hintText: 'RC123456 or BN123456',
-                                  ),
+                                  label: 'CAC Reg Number',
+                                  icon: Icons.verified_rounded,
+                                  hintText: 'RC123456 or BN123456',
                                   validator: FormBuilderValidators.compose([
                                     FormBuilderValidators.required(),
                                     FormBuilderValidators.match(
@@ -248,7 +244,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                                 state.status == OnboardingStatus.loading;
 
                             return LogistixButton(
-                              label: 'COMPLETE SETUP',
+                              label: 'Complete Setup',
                               isLoading: isLoading,
                               onPressed: _submitOnboarding,
                             );

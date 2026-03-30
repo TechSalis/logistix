@@ -3,13 +3,13 @@ import 'package:bootstrap/interfaces/http/token_store.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:onboarding/onboarding.dart';
 import 'package:onboarding/src/data/datasources/company_remote_datasource.dart';
 import 'package:onboarding/src/data/datasources/onboarding_remote_datasource.dart';
 import 'package:onboarding/src/data/repositories/company_repository_impl.dart';
 import 'package:onboarding/src/data/repositories/onboarding_repository_impl.dart';
 import 'package:onboarding/src/domain/repositories/company_repository.dart';
 import 'package:onboarding/src/domain/repositories/onboarding_repository.dart';
-import 'package:onboarding/src/presentation/bloc/onboarding_bloc.dart';
 import 'package:onboarding/src/presentation/bloc/upload_cubit.dart';
 import 'package:onboarding/src/presentation/router/onboarding_routes.dart';
 import 'package:shared/shared.dart';
@@ -65,7 +65,17 @@ class OnboardingModule extends Module<RouteBase> {
                   UploadCubit(context.read<UploadRepository>()),
             ),
           ],
-          child: ToastServiceWidget(child: child),
+          child: BlocListener<OnboardingBloc, OnboardingState>(
+            listener: (context, state) {
+              state.mapOrNull(
+                rider: (_) => context.go(OnboardingRoutes.completeOnboarding),
+                dispatcher: (_) {
+                  context.go(OnboardingRoutes.completeOnboarding);
+                },
+              );
+            },
+            child: ToastServiceWidget(child: child),
+          ),
         ),
       ),
       routes: [
@@ -75,7 +85,7 @@ class OnboardingModule extends Module<RouteBase> {
             OnboardingRoutes.roleSelection,
             from: OnboardingRoutes.rootPath,
           ).redirect(context, state.fullPath),
-          routes: onboardingRoutes
+          routes: onboardingRoutes,
         ),
       ],
     ),

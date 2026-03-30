@@ -7,7 +7,7 @@ import 'package:shared/shared.dart';
 part 'order_history_cubit.freezed.dart';
 
 @freezed
-class OrderHistoryState with _$OrderHistoryState {
+abstract class OrderHistoryState with _$OrderHistoryState {
   const factory OrderHistoryState({
     required List<Order> orders,
     required bool isLoading,

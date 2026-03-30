@@ -7,7 +7,7 @@ import 'package:shared/shared.dart';
 part 'rider_map_orders_cubit.freezed.dart';
 
 @freezed
-class RiderMapOrdersState with _$RiderMapOrdersState {
+abstract class RiderMapOrdersState with _$RiderMapOrdersState {
   const factory RiderMapOrdersState({
     required List<Order> orders,
     required bool isLoading,

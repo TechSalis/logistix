@@ -9,12 +9,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
-class CreateOrderPage extends StatelessWidget {
-  CreateOrderPage({super.key});
+class CreateOrderPage extends StatefulWidget {
+  const CreateOrderPage({super.key});
 
+  @override
+  State<CreateOrderPage> createState() => _CreateOrderPageState();
+}
+
+class _CreateOrderPageState extends State<CreateOrderPage> {
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -23,11 +29,8 @@ class CreateOrderPage extends StatelessWidget {
     return BlocConsumer<CreateOrderCubit, CreateOrderState>(
       listener: (context, orderState) {
         if (orderState.success) {
-          context.toast.showToast(
-            'Orders created successfully',
-            type: ToastType.success,
-          );
           createOrderCubit.reset();
+          context.pop();
         } else if (orderState.error != null) {
           context.toast.showToast(orderState.error!, type: ToastType.error);
         }
@@ -40,6 +43,7 @@ class CreateOrderPage extends StatelessWidget {
               if (orderState.orders.isNotEmpty && !orderState.isLoading)
                 LogistixButton(
                   label: 'Clear',
+                  padding: EdgeInsets.zero,
                   onPressed: () {
                     LogistixDialog.show<void>(
                       context: context,
@@ -78,7 +82,9 @@ class CreateOrderPage extends StatelessWidget {
                 final orderIndex = index - 1;
                 if (orderIndex == orderState.orders.length) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.lg),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: LogistixSpacing.lg,
+                    ),
                     child: LogistixButton(
                       onPressed: createOrderCubit.addOrder,
                       icon: Icons.add_rounded,
@@ -97,6 +103,8 @@ class CreateOrderPage extends StatelessWidget {
                     onRemoved: orderIndex == 0
                         ? null
                         : () => createOrderCubit.removeOrder(orderIndex),
+                    onDuplicated: () =>
+                        createOrderCubit.duplicateOrder(orderIndex),
                     onUpdated: (newInput) {
                       createOrderCubit.updateOrder(orderIndex, newInput);
                     },
@@ -106,11 +114,9 @@ class CreateOrderPage extends StatelessWidget {
             ),
           ),
           bottomNavigationBar: Container(
-            padding: const EdgeInsets.fromLTRB(
-              LogistixSpacing.lg,
-              LogistixSpacing.sm,
-              LogistixSpacing.lg,
-              LogistixSpacing.xl,
+            padding: const EdgeInsets.symmetric(
+              horizontal: LogistixSpacing.lg,
+              vertical: LogistixSpacing.sm,
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -138,12 +144,14 @@ class _OrderInputCard extends StatefulWidget {
     required this.index,
     required this.input,
     required this.onUpdated,
+    required this.onDuplicated,
     this.onRemoved,
   });
 
   final int index;
   final OrderCreateInput input;
   final VoidCallback? onRemoved;
+  final VoidCallback onDuplicated;
   final ValueChanged<OrderCreateInput> onUpdated;
 
   @override
@@ -153,14 +161,15 @@ class _OrderInputCard extends StatefulWidget {
 class _OrderInputCardState extends State<_OrderInputCard> {
   late bool _isExpanded;
 
-  bool _hasPickup() =>
+  bool _hasAdditionalDetails() =>
       (widget.input.pickupAddress?.isNotEmpty ?? false) ||
-      (widget.input.pickupPhone?.isNotEmpty ?? false);
+      (widget.input.pickupPhone?.isNotEmpty ?? false) ||
+      widget.input.scheduledAt != null;
 
   @override
   void initState() {
     super.initState();
-    _isExpanded = _hasPickup();
+    _isExpanded = _hasAdditionalDetails();
   }
 
   @override
@@ -169,7 +178,39 @@ class _OrderInputCardState extends State<_OrderInputCard> {
     // If the input changed significantly (e.g. via AI parse), re-evaluate expansion
     if (widget.input != oldWidget.input) {
       if (!_isExpanded) {
-        _isExpanded = _hasPickup();
+        _isExpanded = _hasAdditionalDetails();
+      }
+    }
+  }
+
+  Future<void> _pickDateTime() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: widget.input.scheduledAt ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 30)),
+    );
+
+    if (date != null && mounted) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(
+          widget.input.scheduledAt ?? DateTime.now(),
+        ),
+      );
+
+      if (time != null && mounted) {
+        widget.onUpdated(
+          widget.input.copyWith(
+            scheduledAt: DateTime(
+              date.year,
+              date.month,
+              date.day,
+              time.hour,
+              time.minute,
+            ),
+          ),
+        );
       }
     }
   }
@@ -177,11 +218,9 @@ class _OrderInputCardState extends State<_OrderInputCard> {
   @override
   Widget build(BuildContext context) {
     return LogistixCard(
-      padding: const EdgeInsets.fromLTRB(
-        LogistixSpacing.lg,
-        LogistixSpacing.sm,
-        LogistixSpacing.lg,
-        LogistixSpacing.lg,
+      padding: const EdgeInsets.symmetric(
+        horizontal: LogistixSpacing.lg,
+        vertical: LogistixSpacing.sm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,13 +237,20 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   borderRadius: BorderRadius.circular(LogistixRadii.sm),
                 ),
                 child: Text(
-                  'ORDER #${widget.index + 1}',
+                  'Order #${widget.index + 1}',
                   style: context.textTheme.labelLarge?.bold.copyWith(
                     color: LogistixColors.primary,
                   ),
                 ),
               ),
               const Spacer(),
+              IconButton(
+                onPressed: widget.onDuplicated,
+                color: LogistixColors.primary,
+                icon: const Icon(Icons.copy_rounded, size: 20),
+                tooltip: 'Duplicate order',
+                visualDensity: VisualDensity.compact,
+              ),
               if (widget.onRemoved != null)
                 IconButton(
                   onPressed: widget.onRemoved,
@@ -240,7 +286,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 child: LogistixTextField(
                   label: 'Drop-off Phone',
                   initialValue: widget.input.dropOffPhone ?? '',
-                  hintText: '0801 234 5678',
+                  hintText: 'Enter phone number',
                   icon: Icons.phone_rounded,
                   keyboardType: TextInputType.phone,
                   onChanged: (val) {
@@ -293,7 +339,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   ),
                   const SizedBox(width: LogistixSpacing.xs),
                   Text(
-                    _isExpanded ? 'Show less' : 'Add pickup',
+                    _isExpanded ? 'Show less' : 'Pickup & Schedule',
                     style: context.textTheme.labelMedium?.bold.copyWith(
                       color: LogistixColors.primary,
                     ),
@@ -331,12 +377,34 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             LogistixTextField(
               label: 'Pickup Phone',
               initialValue: widget.input.pickupPhone ?? '',
-              hintText: '0801 234 5678',
+              hintText: 'Enter phone number',
               icon: Icons.phone_callback_rounded,
               keyboardType: TextInputType.phone,
               onChanged: (val) {
                 widget.onUpdated(widget.input.copyWith(pickupPhone: val));
               },
+            ),
+            const SizedBox(height: LogistixSpacing.md),
+            LogistixTextField(
+              key: ValueKey('dt_${widget.input.scheduledAt}'),
+              label: 'Scheduled Delivery (Optional)',
+              initialValue: widget.input.scheduledAt != null
+                  ? DateFormat(
+                      'MMM dd, yyyy • hh:mm a',
+                    ).format(widget.input.scheduledAt!)
+                  : '',
+              readOnly: true,
+              onTap: _pickDateTime,
+              hintText: 'Select date & time',
+              icon: Icons.calendar_today_rounded,
+              // suffix: widget.input.scheduledAt != null
+              //     ? IconButton(
+              //         icon: const Icon(Icons.close, size: 14),
+              //         onPressed: () => widget.onUpdated(
+              //           widget.input.copyWith(scheduledAt: null),
+              //         ),
+              //       )
+              //     : null,
             ),
           ],
           const SizedBox(height: LogistixSpacing.md),
@@ -345,8 +413,9 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             initialValue: widget.input.description ?? '',
             hintText: 'e.g. 2 x Large Pizza, fragile item...',
             icon: Icons.description_rounded,
-            onChanged: (val) =>
-                widget.onUpdated(widget.input.copyWith(description: val)),
+            onChanged: (val) {
+              widget.onUpdated(widget.input.copyWith(description: val));
+            },
           ),
           const SizedBox(height: LogistixSpacing.md),
           _RiderSelector(
@@ -450,7 +519,7 @@ class _RiderSelector extends StatelessWidget {
           ),
         ),
         const SizedBox(height: LogistixSpacing.xs),
-        RiderDropdownSearch(
+        AssignRiderDropdownSearch(
           selectedRider: selectedRider,
           searchRiders: (filter) {
             return context.read<CreateOrderCubit>().searchRiders(filter);

@@ -4,9 +4,10 @@ import 'package:shared/shared.dart';
 part 'rider_sync.freezed.dart';
 
 @freezed
-class RiderSync with _$RiderSync {
+abstract class RiderSync with _$RiderSync {
   const factory RiderSync({
     required List<Order> orders,
+    required Rider rider,
     required RiderMetricsDto metrics,
     required DateTime lastUpdated,
     @Default([]) List<String> deletedOrderIds,

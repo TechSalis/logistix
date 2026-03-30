@@ -4,7 +4,7 @@ part 'rider_metrics_dto.freezed.dart';
 part 'rider_metrics_dto.g.dart';
 
 @freezed
-class RiderMetricsDto with _$RiderMetricsDto {
+abstract class RiderMetricsDto with _$RiderMetricsDto {
   const factory RiderMetricsDto({
     required int totalOrders,
     required int pendingOrders,

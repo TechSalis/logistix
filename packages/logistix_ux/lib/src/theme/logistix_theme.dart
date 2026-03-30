@@ -39,6 +39,9 @@ class LogistixTheme {
         foregroundColor: LogistixColors.text,
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        actionsPadding: const EdgeInsets.symmetric(
+          horizontal: LogistixSpacing.md,
+        ),
         titleTextStyle: LogistixTextStyles.titleLarge.bold.copyWith(
           color: LogistixColors.text,
         ),
@@ -70,11 +73,7 @@ class LogistixTheme {
             horizontal: LogistixSpacing.buttonPaddingHorizontal,
             vertical: LogistixSpacing.buttonPaddingVertical,
           ),
-          minimumSize: const Size(0, 52), // Premium height
-          textStyle: LogistixTextStyles.titleMedium.bold.copyWith(
-            fontSize: 15,
-            letterSpacing: 1.1,
-          ),
+          minimumSize: const Size(0, 44), // Reduced from 52
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(LogistixRadii.button),
           ),
@@ -90,7 +89,7 @@ class LogistixTheme {
             horizontal: LogistixSpacing.buttonPaddingHorizontal,
             vertical: LogistixSpacing.buttonPaddingVertical,
           ),
-          minimumSize: const Size(0, 52),
+          minimumSize: const Size(0, 44),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(LogistixRadii.button),
           ),
@@ -101,12 +100,11 @@ class LogistixTheme {
         style: TextButton.styleFrom(
           foregroundColor: LogistixColors.primary,
           disabledForegroundColor: LogistixColors.textTertiary,
-          minimumSize: const Size(0, 52),
+          minimumSize: const Size(0, 44),
           padding: const EdgeInsets.symmetric(
             horizontal: LogistixSpacing.buttonPaddingHorizontal,
             vertical: LogistixSpacing.buttonPaddingVertical,
           ),
-          textStyle: LogistixTextStyles.bodyLarge.semiBold,
         ),
       ),
 
@@ -114,17 +112,33 @@ class LogistixTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: LogistixColors.surface,
+        hintStyle: LogistixTextStyles.bodyMedium.copyWith(
+          color: LogistixColors.textTertiary,
+        ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 18,
+          horizontal: LogistixSpacing.lg,
+        ),
+        prefixIconConstraints: const BoxConstraints(
+          minWidth: 40,
+          minHeight: 48,
+        ),
+        suffixIconConstraints: const BoxConstraints(
+          minWidth: 40,
+          minHeight: 48,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(LogistixRadii.input),
-          borderSide: const BorderSide(color: LogistixColors.border, width: 1.2),
+          borderSide: const BorderSide(
+            color: LogistixColors.border,
+            width: 1.2,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(LogistixRadii.input),
-          borderSide: const BorderSide(color: LogistixColors.border, width: 1.2),
+          borderSide: const BorderSide(
+            color: LogistixColors.border,
+            width: 1.2,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(LogistixRadii.input),
@@ -138,8 +152,11 @@ class LogistixTheme {
           borderRadius: BorderRadius.circular(LogistixRadii.input),
           borderSide: const BorderSide(color: LogistixColors.error, width: 2),
         ),
-        hintStyle: const TextStyle(color: LogistixColors.textSecondary, fontSize: 14),
-        labelStyle: const TextStyle(color: LogistixColors.text, fontSize: 14, fontWeight: FontWeight.w500),
+        labelStyle: const TextStyle(
+          color: LogistixColors.text,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
       ),
 
       // Divider
@@ -210,7 +227,7 @@ class LogistixTheme {
         labelMedium: LogistixTextStyles.labelMedium,
         labelSmall: LogistixTextStyles.labelSmall,
       ),
- 
+
       // Navigation Bar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: LogistixColors.surface,
@@ -220,10 +237,7 @@ class LogistixTheme {
         elevation: 0,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(
-              color: LogistixColors.primary,
-              size: 26,
-            );
+            return const IconThemeData(color: LogistixColors.primary, size: 26);
           }
           return const IconThemeData(
             color: LogistixColors.textSecondary,

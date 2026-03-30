@@ -3,10 +3,8 @@ import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
-import 'package:shared/shared.dart';
 
 class CompleteOnboardingPage extends StatefulWidget {
   const CompleteOnboardingPage({super.key});
@@ -33,12 +31,6 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
 
         if (status == OnboardingStatus.error && message != null) {
           context.toast.showToast(message, type: ToastType.error);
-        } else if (status == OnboardingStatus.success) {
-          state.mapOrNull(
-            dispatcher: (_) => context.go(ModuleRoutePaths.dispatcher),
-            rider: (_) => context.go(ModuleRoutePaths.rider),
-            customer: (_) {},
-          );
         }
       },
       child: Scaffold(

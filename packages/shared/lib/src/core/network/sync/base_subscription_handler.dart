@@ -31,23 +31,27 @@ abstract class BaseSubscriptionHandler {
 
   @mustCallSuper
   Future<void> handleOrderUpdate(
-    OrderDto orderDto,
+    OrderDto? orderDto,
     String eventType, {
     RiderDto? riderDto,
   }) async {
     final event = EventTypeX.fromString(eventType);
-    logger?.debug('SubscriptionHandler: Order ${orderDto.id} - $event');
+    logger?.debug(
+      'SubscriptionHandler: Order ${orderDto?.id ?? "none"} - $event',
+    );
 
     switch (event) {
       case EventType.created:
       case EventType.updated:
         await Future.wait([
-          orderDao.upsertOrder(orderDto.toDriftCompanion()),
+          if (orderDto != null) orderDao.upsertOrder(orderDto.toDriftCompanion()),
           if (riderDto != null)
             riderDao.upsertRider(riderDto.toDriftCompanion()),
         ]);
       case EventType.deleted:
-        await orderDao.deleteOrder(orderDto.id);
+        if (orderDto != null) {
+          await orderDao.deleteOrder(orderDto.id);
+        }
     }
   }
 

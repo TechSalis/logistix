@@ -4,7 +4,7 @@ part 'customer_order_input.freezed.dart';
 part 'customer_order_input.g.dart';
 
 @freezed
-class CustomerOrderInput with _$CustomerOrderInput {
+abstract class CustomerOrderInput with _$CustomerOrderInput {
   const factory CustomerOrderInput({
     required String dropOffAddress,
     required String dropOffPhone,

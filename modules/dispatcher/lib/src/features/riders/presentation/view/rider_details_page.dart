@@ -30,7 +30,7 @@ class RiderDetailsPage extends StatelessWidget {
           );
         }
 
-        final hasLocation = rider.hasPosition;
+        final hasLocation = rider.hasLocation;
         return Scaffold(
           backgroundColor: LogistixColors.background,
           appBar: AppBar(
@@ -60,7 +60,7 @@ class RiderDetailsPage extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        'PENDING',
+                        'Pending',
                         style: context.textTheme.labelSmall?.bold.copyWith(
                           color: LogistixColors.warning,
                           fontSize: 10,
@@ -80,8 +80,8 @@ class RiderDetailsPage extends StatelessWidget {
               children: [
                 _RiderProfileHeader(rider: rider),
                 const SizedBox(height: LogistixSpacing.xl),
-                if (rider.user?.phoneNumber != null &&
-                    rider.user!.phoneNumber!.isNotEmpty)
+                if (rider.phoneNumber != null &&
+                    rider.phoneNumber!.isNotEmpty)
                   _QuickActionsRow(rider: rider),
                 const SizedBox(height: LogistixSpacing.xl),
                 LogistixButton(
@@ -93,17 +93,17 @@ class RiderDetailsPage extends StatelessWidget {
                           );
                         }
                       : null,
-                  label: hasLocation ? 'VIEW ON MAP' : 'LOCATION UNAVAILABLE',
+                  label: hasLocation ? 'View on Map' : 'Location Unavailable',
                   icon: Icons.map_rounded,
                 ),
                 if (rider.activeOrder != null) ...[
                   const SizedBox(height: LogistixSpacing.xl),
-                  const _SectionTitle(title: 'CURRENT DELIVERY'),
+                  const _SectionTitle(title: 'Current Delivery'),
                   const SizedBox(height: LogistixSpacing.sm),
                   _ClickableOrderCard(order: rider.activeOrder!),
                 ],
                 const SizedBox(height: LogistixSpacing.xl),
-                const _SectionTitle(title: 'CONTACT INFORMATION'),
+                const _SectionTitle(title: 'Contact Information'),
                 const SizedBox(height: LogistixSpacing.sm),
                 _ContactCard(rider: rider),
                 if (!rider.isAccepted) ...[
@@ -146,14 +146,14 @@ class _RiderProfileHeader extends StatelessWidget {
     return Column(
       children: [
         LogistixAvatar(
-          name: rider.user?.fullName,
+          name: rider.fullName,
           size: 100,
           statusColor: rider.status.color,
           useGradient: true,
         ),
         const SizedBox(height: LogistixSpacing.lg),
         Text(
-          rider.user?.fullName ?? '',
+          rider.fullName,
           style: context.textTheme.headlineSmall?.bold,
           textAlign: TextAlign.center,
         ),
@@ -238,7 +238,7 @@ class _ProminentStatusBadge extends StatelessWidget {
           Icon(icon, color: color, size: 14),
           const SizedBox(width: LogistixSpacing.xs),
           Text(
-            status.name.toUpperCase(),
+            status.name,
             style: context.textTheme.labelSmall?.bold.copyWith(
               color: color,
               letterSpacing: 0.5,
@@ -265,7 +265,7 @@ class _QuickActionsRow extends StatelessWidget {
             label: 'Voice Call',
             color: LogistixColors.primary,
             onPressed: () {
-              context.read<RidersCubit>().callRunner(rider.user?.phoneNumber);
+              context.read<RidersCubit>().callRunner(rider.phoneNumber);
             },
           ),
         ),
@@ -277,7 +277,7 @@ class _QuickActionsRow extends StatelessWidget {
             color: const Color(0xFF25D366),
             onPressed: () {
               context.read<RidersCubit>().whatsappRunner(
-                rider.user?.phoneNumber,
+                rider.phoneNumber,
               );
             },
           ),
@@ -310,11 +310,12 @@ class _QuickActionButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
-        padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
-        child: Column(
+        padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.sm),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 24),
-            const SizedBox(height: LogistixSpacing.xs),
+            const SizedBox(width: LogistixSpacing.sm),
             Text(
               label,
               style: context.textTheme.labelMedium?.bold.copyWith(color: color),
@@ -386,7 +387,7 @@ class _ClickableOrderCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          order.status.label.toUpperCase(),
+                          order.status.label,
                           style: context.textTheme.labelSmall?.bold.copyWith(
                             color: order.status.color,
                             fontSize: 9,
@@ -433,12 +434,12 @@ class _ContactCard extends StatelessWidget {
         LogistixSettingsTile(
           icon: Icons.phone_rounded,
           title: 'Phone Number',
-          subtitle: rider.user?.phoneNumber ?? 'Not provided',
+          subtitle: rider.phoneNumber ?? 'Not provided',
         ),
         LogistixSettingsTile(
           icon: Icons.email_rounded,
           title: 'Email Address',
-          subtitle: rider.user?.email ?? 'Not provided',
+          subtitle: rider.email,
         ),
       ],
     );
@@ -469,7 +470,7 @@ class _ApprovalActions extends StatelessWidget {
                 onPressed: isAnyProcessing
                     ? null
                     : () => context.read<RidersCubit>().rejectRider(rider.id),
-                label: 'REJECT',
+                label: 'Reject',
                 type: LogistixButtonType.outline,
                 isLoading: isRejecting,
               ),
@@ -480,7 +481,7 @@ class _ApprovalActions extends StatelessWidget {
                 onPressed: isAnyProcessing
                     ? null
                     : () => context.read<RidersCubit>().acceptRider(rider.id),
-                label: 'ACCEPT RIDER',
+                label: 'Accept Rider',
                 isLoading: isAccepting,
               ),
             ),

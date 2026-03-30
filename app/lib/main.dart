@@ -26,9 +26,7 @@ void main() async {
       bundle: SentryAssetBundle(),
       child: LogistixApp(
         appRouter: appRouter,
-        getAppBloc: () {
-          return injector.get<AppBloc>()..add(const AppEvent.initialize());
-        },
+        getAppBloc: injector.get<AppBloc>
       ),
     ),
   );
@@ -56,14 +54,14 @@ class LogistixApp extends StatelessWidget {
           appRouter.go(switch (role) {
             UserRole.rider => ModuleRoutePaths.rider,
             UserRole.dispatcher => ModuleRoutePaths.dispatcher,
-            UserRole.customer => ModuleRoutePaths.auth,
+            // UserRole.customer => ModuleRoutePaths.auth,
           });
         },
       );
     }
 
     return BlocProvider(
-      create: (_) => getAppBloc(),
+      create: (_) => getAppBloc()..add(const AppEvent.initialize()),
       child: BlocListener<AppBloc, AppState>(
         listener: (context, state) => redirect(state),
         child: MaterialApp.router(

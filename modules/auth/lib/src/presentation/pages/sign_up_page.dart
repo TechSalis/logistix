@@ -50,7 +50,7 @@ class _SignUpPageState extends State<SignUpPage> {
       child: Scaffold(
         body: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
             child: Form(
               key: _formKey,
               child: LogistixEntrance(
@@ -59,13 +59,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     tag: 'logo',
                     child: LogistixAssets.images.icon.image(height: 64),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: LogistixSpacing.lg),
                   Text(
                     'Join Logistix',
                     textAlign: TextAlign.center,
                     style: context.textTheme.headlineMedium?.bold,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: LogistixSpacing.xs),
                   Text(
                     'Create your account to get started',
                     textAlign: TextAlign.center,
@@ -73,7 +73,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       color: LogistixColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: LogistixSpacing.xxl),
                   LogistixTextField(
                     label: 'Full Name',
                     controller: _nameController,
@@ -81,7 +81,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     textCapitalization: TextCapitalization.words,
                     validator: FormBuilderValidators.required(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: LogistixSpacing.md),
                   LogistixTextField(
                     label: 'Email',
                     controller: _emailController,
@@ -89,7 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     keyboardType: TextInputType.emailAddress,
                     validator: FormBuilderValidators.email(),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: LogistixSpacing.md),
                   LogistixTextField(
                     label: 'Password',
                     controller: _passwordController,
@@ -113,7 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: LogistixSpacing.md),
                   LogistixTextField(
                     label: 'Confirm Password',
                     controller: _confirmPasswordController,
@@ -141,7 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: LogistixSpacing.xl),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       final isLoading = state.maybeWhen(
@@ -154,18 +154,18 @@ class _SignUpPageState extends State<SignUpPage> {
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
                             context.read<AuthBloc>().add(
-                              AuthEvent.signUp(
-                                email: _emailController.text.trim(),
-                                password: _passwordController.text,
-                                name: _nameController.text.trim(),
-                              ),
-                            );
+                                  AuthEvent.signUp(
+                                    email: _emailController.text.trim(),
+                                    password: _passwordController.text,
+                                    name: _nameController.text.trim(),
+                                  ),
+                                );
                           }
                         },
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: LogistixSpacing.lg),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

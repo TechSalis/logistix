@@ -92,7 +92,10 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
               message: error.message,
             ),
           ),
-          (_) => emit(state.copyWith(status: OnboardingStatus.success)),
+          (user) {
+            _authStatusRepository.setAuthenticated(user);
+            emit(state.copyWith(status: OnboardingStatus.success));
+          },
         );
       },
       dispatcher: (state) async {
@@ -106,7 +109,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         final result = await _repository.submitDispatcherProfile(profile);
 
         result.when(
-          data: (_) {
+          data: (user) {
+            _authStatusRepository.setAuthenticated(user);
             emit(state.copyWith(status: OnboardingStatus.success));
           },
           error: (error) => emit(
@@ -121,7 +125,10 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         final result = await _repository.submitCustomerProfile();
 
         result.when(
-          data: (_) => emit(state.copyWith(status: OnboardingStatus.success)),
+          data: (user) {
+            _authStatusRepository.setAuthenticated(user);
+            emit(state.copyWith(status: OnboardingStatus.success));
+          },
           error: (error) => emit(
             state.copyWith(
               status: OnboardingStatus.error,

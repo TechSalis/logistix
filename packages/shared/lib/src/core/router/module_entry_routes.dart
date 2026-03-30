@@ -12,6 +12,9 @@ abstract class ModuleRoutePaths {
   // Rider module routes
   static const String rider = '/rider';
 
+  // Customer module routes
+  static const String customer = '/customer';
+
   // Dispatcher module routes
   static const String dispatcher = '/dispatcher';
   static const String dispatcherParseText = '$dispatcher/orders/create/parse';

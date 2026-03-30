@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:shared/shared.dart';
 
 /// Interface for module-specific initial synchronization logic.
 ///

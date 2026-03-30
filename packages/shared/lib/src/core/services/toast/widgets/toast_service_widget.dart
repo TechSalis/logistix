@@ -14,7 +14,7 @@ class ToastServiceWidget extends StatefulWidget {
 }
 
 class _ToastServiceWidgetState extends State<ToastServiceWidget> {
-  late final IToastService _toastService;
+  late IToastService _toastService;
 
   @override
   void didChangeDependencies() {

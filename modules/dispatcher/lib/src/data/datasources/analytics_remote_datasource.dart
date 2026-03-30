@@ -73,7 +73,7 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
     }
 
     final uri = Uri.parse(
-      '${EnvConfig.apiUrl}$path',
+      '${EnvConfig.instance.apiUrl}$path',
     ).replace(queryParameters: queryParams);
 
     try {

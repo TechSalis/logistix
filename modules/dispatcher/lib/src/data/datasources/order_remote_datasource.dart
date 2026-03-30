@@ -89,8 +89,8 @@ class OrderRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<List<OrderDto>> createBulkOrders(List<OrderCreateInput> orders) async {
     const mutation =
         '''
-      mutation CreateBulkOrders(\$orders: [OrderCreateInput!]!) {
-        createBulkOrders(orders: \$orders) {
+      mutation CreateBulkOrders(\$orders: [OrderCreateInput!]!, \$sessionId: String) {
+        createBulkOrders(orders: \$orders, sessionId: \$sessionId) {
           ${GqlFragments.orderFields}
         }
       }
@@ -99,7 +99,10 @@ class OrderRemoteDataSourceImpl extends BaseRemoteDataSource
     final data = await mutate<List<dynamic>>(
       mutation,
       key: 'createBulkOrders',
-      variables: {'orders': orders.map((o) => o.toJson()).toList()},
+      variables: {
+        'orders': orders.map((o) => o.toJson()).toList(),
+        'sessionId': await gqlService.sessionId,
+      },
     );
 
     return data

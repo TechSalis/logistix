@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:rider/src/core/network/sync/rider_subscription_handler.dart';
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
+import 'package:rider/src/domain/usecases/sync_rider_data_usecase.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:shared/shared.dart';
@@ -18,19 +18,17 @@ class RiderSessionManager {
   RiderSessionManager(
     this._dataSource,
     this._subscriptionHandler,
-    this._orderDao,
     this._riderDao,
-    this._metricsStore,
     this._database,
+    this._syncRiderDataUseCase,
     this.riderBloc,
   );
 
   final RiderRemoteDataSource _dataSource;
   final RiderSubscriptionHandler _subscriptionHandler;
-  final OrderDao _orderDao;
   final RiderDao _riderDao;
-  final ObjectStore<RiderMetricsDto> _metricsStore;
   final LogistixDatabase _database;
+  final SyncRiderDataUseCase _syncRiderDataUseCase;
   final RiderBloc riderBloc;
 
   SyncManager? _assignmentSyncManager;
@@ -38,49 +36,47 @@ class RiderSessionManager {
   Timer? _syncTimer;
   bool _isSyncing = false;
 
-  Future<void> startSession(String riderId) async {
-    // 1. Subscribe to order updates
-    _assignmentSyncManager = await _dataSource.subscribeToAssignmentUpdates(
-      riderId: riderId,
-      onData:
-          (
-            OrderDto orderDto,
-            RiderDto? riderDto,
-            String eventType,
-            RiderMetricsDto? metrics,
-          ) async {
-            // Write to Drift via SubscriptionHandler
-            await _subscriptionHandler.handleOrderUpdate(
-              orderDto,
-              eventType,
-              riderDto: riderDto,
-              riderMetrics: metrics,
-            );
-          },
-      onSync: _performSync,
-    );
+  Future<void> startSession() async {
+    // 1. Subscribawait
+    await Future.wait<void>([
+      _sendHeartbeat(),
+      _dataSource
+          .subscribeToAssignmentUpdates(
+            onData:
+                (
+                  OrderDto? orderDto,
+                  RiderDto? riderDto,
+                  String eventType,
+                  RiderMetricsDto? metrics,
+                ) async {
+                  // Write to Drift via SubscriptionHandler
+                  await _subscriptionHandler.handleOrderUpdate(
+                    orderDto,
+                    eventType,
+                    riderDto: riderDto,
+                    riderMetrics: metrics,
+                  );
+                },
+            onSync: _performSync,
+          )
+          .then((value) => _assignmentSyncManager = value),
+    ]);
 
-    // Initial sync
-    unawaited(_performSync());
-
-    // Start partial sync every 5 minutes
+    // Start partial sync every 1 minute
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(
-      const Duration(minutes: 5),
+      const Duration(minutes: 1),
       (_) => _performSync(),
     );
   }
 
   /// Start or resume the heartbeat (location updates)
-  void startHeartbeat(String riderId) {
+  void startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(
       const Duration(seconds: 20),
-      (_) => _sendHeartbeat(riderId),
+      (_) => _sendHeartbeat(),
     );
-
-    // Immediate heartbeat to set correct online/busy status on server
-    unawaited(_sendHeartbeat(riderId));
   }
 
   /// Stop only the heartbeat
@@ -97,52 +93,7 @@ class RiderSessionManager {
       final lastSyncTime = await _database.getLastSyncTime('rider_last_sync');
       final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 
-      var offset = 0;
-      const limit = 50;
-      var hasMore = true;
-
-      while (hasMore) {
-        try {
-          final syncDto = await _dataSource.syncData(
-            since: since,
-            limit: limit,
-            offset: offset,
-          );
-
-          if (riderBloc.isClosed) return;
-
-          // Update last sync time immediately after a successful page fetch
-          await _database.updateLastSyncTime(
-            'rider_last_sync',
-            DateTime.fromMillisecondsSinceEpoch(syncDto.lastUpdated),
-            null,
-          );
-
-          // Upsert full list of active/available orders
-          if (syncDto.orders.isNotEmpty) {
-            await _orderDao.upsertOrders(
-              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
-            );
-          }
-
-          // Upsert metrics
-          await _metricsStore.set(syncDto.metrics);
-
-          // If there are deleted orders, remove them
-          if (syncDto.deletedOrderIds.isNotEmpty) {
-            await _orderDao.deleteOrders(syncDto.deletedOrderIds);
-          }
-
-          if (syncDto.orders.length < limit) {
-            hasMore = false;
-          } else {
-            offset += limit;
-          }
-        } catch (e) {
-          hasMore = false;
-          rethrow;
-        }
-      }
+      await _syncRiderDataUseCase(since: since);
     } catch (_) {
       // Handle overall sync error
     } finally {
@@ -150,18 +101,32 @@ class RiderSessionManager {
     }
   }
 
-  Future<RiderDto?> _sendHeartbeat(String riderId) async {
+  Future<RiderDto?> _sendHeartbeat() async {
     try {
-      final position = await Geolocator.getCurrentPosition();
+      Position? position;
+      try {
+        final isEnabled = await Geolocator.isLocationServiceEnabled();
+        if (isEnabled) {
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              timeLimit: Duration(seconds: 3),
+            ),
+          );
+        }
+      } catch (_) {
+        // Fallback gracefully without location
+      }
 
       final riderDto = await _dataSource.sendHeartbeat(
-        lat: position.latitude,
-        lng: position.longitude,
+        lat: position?.latitude,
+        lng: position?.longitude,
       );
 
       if (riderBloc.isClosed) return null;
 
-      riderBloc.add(RiderEvent.locationUpdated(position));
+      if (position != null) {
+        riderBloc.add(RiderEvent.locationUpdated(position));
+      }
 
       // Update local DB with latest rider info (including status)
       await _riderDao.upsertRider(riderDto.toDriftCompanion());
@@ -171,7 +136,7 @@ class RiderSessionManager {
       riderBloc.add(RiderEvent.statusChanged(status));
 
       return riderDto;
-    } catch (_) {
+    } catch (e) {
       // Permission or service issue - ignore
       return null;
     }

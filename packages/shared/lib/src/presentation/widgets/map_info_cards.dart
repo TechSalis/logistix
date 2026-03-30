@@ -19,7 +19,7 @@ class RiderMapInfoCard extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -34,6 +34,7 @@ class RiderMapInfoCard extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const SizedBox(width: 8),
             Container(
               width: 40,
               height: 40,
@@ -54,7 +55,7 @@ class RiderMapInfoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    rider.user?.fullName ?? '',
+                    rider.fullName,
                     style: context.textTheme.titleSmall?.bold,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -151,7 +152,7 @@ class OrderMapInfoCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      order.status.label.toUpperCase(),
+                      order.status.label,
                       style: context.textTheme.labelSmall?.copyWith(
                         color: order.status.color,
                         fontWeight: FontWeight.bold,

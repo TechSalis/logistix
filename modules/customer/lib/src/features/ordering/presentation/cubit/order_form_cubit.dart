@@ -7,7 +7,7 @@ import 'package:shared/shared.dart';
 part 'order_form_cubit.freezed.dart';
 
 @freezed
-class OrderFormState with _$OrderFormState {
+abstract class OrderFormState with _$OrderFormState {
   const factory OrderFormState({
     required bool isLoading,
     Order? createdOrder,

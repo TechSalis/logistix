@@ -64,6 +64,9 @@ class AppModule extends Module<RouteBase> {
       ..registerLazySingleton<RiderDao>(
         () => RiderDao(injector.get<LogistixDatabase>()),
       )
+      ..registerLazySingleton<CapturedOrderDao>(
+        () => CapturedOrderDao(injector.get<LogistixDatabase>()),
+      )
       ..registerLazySingleton<LogoutUseCase>(
         () => LogoutUseCase(
           ClearAppDataUseCase(
@@ -89,7 +92,16 @@ class AppModule extends Module<RouteBase> {
       ..registerSingleton<ShareIntentService>(
         ShareIntentService(userStore: injector.get<UserStore>()),
       )
-      ..registerLazySingleton<PlacesService>(PlacesService.new);
+      ..registerLazySingleton<PlacesService>(PlacesService.new)
+      ..registerLazySingleton<CapturedOrderRemoteDataSource>(
+        () => CapturedOrderRemoteDataSourceImpl(injector.get<GraphQLService>()),
+      )
+      ..registerLazySingleton<CapturedOrderRepository>(
+        () => CapturedOrderRepositoryImpl(
+          injector.get<CapturedOrderDao>(),
+          injector.get<CapturedOrderRemoteDataSource>(),
+        ),
+      );
   }
 
   @override

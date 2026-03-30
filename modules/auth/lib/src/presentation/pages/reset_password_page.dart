@@ -52,41 +52,40 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         );
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Reset Password')),
-        body: Align(
-          alignment: const Alignment(0, -.5),
-          child: Form(
-            key: _formKey,
-            child: ListView(
-              shrinkWrap: true,
-              clipBehavior: Clip.none,
-              padding: const EdgeInsets.all(32),
-              children: [
-                Icon(
-                  Icons.lock_reset,
-                  size: 64,
-                  color: context.colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Create New Password',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Enter your new password for ${widget.email}',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: LogistixColors.textSecondary,
+        appBar: AppBar(title: const Text('New Password')),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
+            child: Form(
+              key: _formKey,
+              child: LogistixEntrance(
+                children: [
+                  const Icon(
+                    Icons.vpn_key_rounded,
+                    size: 80,
+                    color: LogistixColors.primary,
                   ),
-                ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'New Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                  const SizedBox(height: LogistixSpacing.lg),
+                  Text(
+                    'Create New Password',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.headlineMedium?.bold,
+                  ),
+                  const SizedBox(height: LogistixSpacing.sm),
+                  Text(
+                    'Secure your account by choosing a strong password for ${widget.email}',
+                    textAlign: TextAlign.center,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: LogistixColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: LogistixSpacing.xxl),
+                  LogistixTextField(
+                    controller: _passwordController,
+                    label: 'New Password',
+                    icon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    validator: FormBuilderValidators.password(),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -94,21 +93,25 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                             : Icons.visibility_off_outlined,
                       ),
                       onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
+                        setState(() => _obscurePassword = !_obscurePassword);
                       },
                     ),
                   ),
-                  obscureText: _obscurePassword,
-                  validator: FormBuilderValidators.password(),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    prefixIcon: const Icon(Icons.lock_outline),
+                  const SizedBox(height: LogistixSpacing.md),
+                  LogistixTextField(
+                    controller: _confirmPasswordController,
+                    label: 'Confirm Password',
+                    icon: Icons.lock_outline,
+                    obscureText: _obscureConfirmPassword,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscureConfirmPassword
@@ -122,45 +125,32 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                       },
                     ),
                   ),
-                  obscureText: _obscureConfirmPassword,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-                BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final isLoading = state.maybeWhen(
-                      resetPasswordLoading: () => true,
-                      orElse: () => false,
-                    );
+                  const SizedBox(height: LogistixSpacing.xl),
+                  BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) {
+                      final isLoading = state.maybeWhen(
+                        resetPasswordLoading: () => true,
+                        orElse: () => false,
+                      );
 
-                    return ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              if (_formKey.currentState?.validate() ?? false) {
-                                context.read<AuthBloc>().add(
+                      return LogistixButton(
+                        onPressed: () {
+                          if (_formKey.currentState?.validate() ?? false) {
+                            context.read<AuthBloc>().add(
                                   AuthEvent.resetPassword(
                                     email: widget.email,
                                     newPassword: _passwordController.text,
                                   ),
                                 );
-                              }
-                            },
-                      child: isLoading
-                          ? const LogistixInlineLoader()
-                          : const Text('Reset Password'),
-                    );
-                  },
-                ),
-              ],
+                          }
+                        },
+                        isLoading: isLoading,
+                        label: 'Change Password',
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

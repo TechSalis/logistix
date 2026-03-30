@@ -12,6 +12,10 @@ class LogistixButton extends StatelessWidget {
     this.icon,
     this.width,
     this.height = 48,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.padding,
+    this.fontSize,
     super.key,
   });
 
@@ -22,58 +26,77 @@ class LogistixButton extends StatelessWidget {
   final IconData? icon;
   final double? width;
   final double height;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final EdgeInsetsGeometry? padding;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor;
-    Color foregroundColor;
+    Color bg;
+    Color fg;
     var borderSide = BorderSide.none;
     List<BoxShadow>? shadows;
 
+    final isDisabled = onPressed == null || isLoading;
+
     switch (type) {
       case LogistixButtonType.primary:
-        backgroundColor = LogistixColors.primary;
-        foregroundColor = Colors.white;
-        if (onPressed != null && !isLoading) {
+        bg = LogistixColors.primary;
+        fg = Colors.white;
+        if (!isDisabled) {
           shadows = [
             BoxShadow(
-              color: LogistixColors.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
+              color: LogistixColors.primary.withValues(alpha: 0.25),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ];
         }
       case LogistixButtonType.secondary:
-        backgroundColor = LogistixColors.primary.withValues(alpha: 0.1);
-        foregroundColor = LogistixColors.primary;
+        bg = LogistixColors.primary.withValues(alpha: 0.1);
+        fg = LogistixColors.primary;
       case LogistixButtonType.outline:
-        backgroundColor = Colors.transparent;
-        foregroundColor = LogistixColors.primary;
-        borderSide = const BorderSide(color: LogistixColors.border, width: 1.5);
+        bg = Colors.transparent;
+        fg = LogistixColors.primary;
+        borderSide = BorderSide(
+          color: backgroundColor ?? LogistixColors.border,
+          width: 1.5,
+        );
       case LogistixButtonType.danger:
-        backgroundColor = LogistixColors.error;
-        foregroundColor = Colors.white;
+        bg = LogistixColors.error;
+        fg = Colors.white;
       case LogistixButtonType.text:
-        backgroundColor = Colors.transparent;
-        foregroundColor = LogistixColors.primary;
+        bg = Colors.transparent;
+        fg = LogistixColors.primary;
     }
 
-    if (onPressed == null || isLoading) {
-      backgroundColor =
-          type == LogistixButtonType.text || type == LogistixButtonType.outline
-          ? Colors.transparent
-          : LogistixColors.neutral200;
-      foregroundColor = LogistixColors.textTertiary;
+    // Explicit overrides
+    if (backgroundColor != null && type != LogistixButtonType.outline) {
+      bg = backgroundColor!;
+    }
+    
+    if (foregroundColor != null) fg = foregroundColor!;
+
+    if (isDisabled) {
+      if (type != LogistixButtonType.text &&
+          type != LogistixButtonType.outline) {
+        bg = LogistixColors.neutral200;
+      }
+      fg = LogistixColors.textTertiary;
       shadows = null;
     }
 
     return AnimatedScaleTap(
-      onTap: isLoading ? null : onPressed,
+      onTap: isDisabled ? null : onPressed,
       child: Container(
         width: width,
         height: height,
+        padding:
+            padding ??
+            const EdgeInsets.symmetric(horizontal: LogistixSpacing.md),
         decoration: BoxDecoration(
-          color: backgroundColor,
+          color: bg,
           borderRadius: BorderRadius.circular(LogistixRadii.button),
           border: borderSide != BorderSide.none
               ? Border.fromBorderSide(borderSide)
@@ -82,27 +105,22 @@ class LogistixButton extends StatelessWidget {
         ),
         child: Center(
           child: isLoading
-              ? SizedBox.square(
-                  dimension: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
-                  ),
-                )
+              ? LogistixInlineLoader(color: fg)
               : Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (icon != null) ...[
-                      Icon(icon, color: foregroundColor, size: 20),
-                      const SizedBox(width: 12),
+                      Icon(icon, color: fg, size: 20),
+                      const SizedBox(width: LogistixSpacing.xs),
                     ],
                     Text(
                       label,
-                      style: context.textTheme.titleMedium?.semiBold.copyWith(
-                        color: foregroundColor,
-                        letterSpacing: 1.1,
-                        fontSize: 15,
+                      style: context.textTheme.titleSmall?.semiBold.copyWith(
+                        color: fg,
+                        fontSize: fontSize,
+                        height: 1.2,
+                        letterSpacing: 0.2,
                       ),
                     ),
                   ],

@@ -1,18 +1,15 @@
 import 'package:customer/src/domain/usecases/manage_customer_session_usecase.dart';
 import 'package:flutter/material.dart';
-import 'package:shared/shared.dart';
 
 /// Widget that initializes and manages the customer session
 class CustomerSessionProvider extends StatefulWidget {
   const CustomerSessionProvider({
     required this.sessionManager,
-    required this.userStore,
     required this.child,
     super.key,
   });
 
   final CustomerSessionManager sessionManager;
-  final UserStore userStore;
   final Widget child;
 
   @override
@@ -29,10 +26,7 @@ class _CustomerSessionProviderState
   }
 
   Future<void> _initializeSession() async {
-    final user = await widget.userStore.getUser();
-    if (!mounted || user?.id == null) return;
-
-    await widget.sessionManager.start(userId: user!.id);
+    await widget.sessionManager.start();
   }
 
   @override

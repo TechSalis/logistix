@@ -7,7 +7,7 @@ import 'package:shared/shared.dart';
 part 'order_details_cubit.freezed.dart';
 
 @freezed
-class OrderDetailsState with _$OrderDetailsState {
+abstract class OrderDetailsState with _$OrderDetailsState {
   const factory OrderDetailsState({
     required bool isLoading,
     Order? order,

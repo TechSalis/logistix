@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:customer/src/core/network/sync/customer_subscription_handler.dart';
 import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
 import 'package:shared/shared.dart';
 
 /// Manages customer session with real-time subscriptions
@@ -9,23 +10,22 @@ class CustomerSessionManager {
   CustomerSessionManager(
     this._dataSource,
     this._subscriptionHandler,
-    this._orderDao,
     this._database,
+    this._syncCustomerDataUseCase,
   );
 
   final CustomerOrderRemoteDataSource _dataSource;
   final CustomerSubscriptionHandler _subscriptionHandler;
   final LogistixDatabase _database;
-  final OrderDao _orderDao;
+  final SyncCustomerDataUseCase _syncCustomerDataUseCase;
 
   SyncManager? _orderSyncManager;
   Timer? _syncTimer;
   bool _isSyncing = false;
 
-  Future<void> start({required String userId}) async {
+  Future<void> start() async {
     // 1. Subscribe to order updates (performs sync on connection and reconnection)
     _orderSyncManager = await _dataSource.subscribeToUpdates(
-      userId: userId,
       onData: (orderDto, SubscriptionEventType eventType) async {
         await _subscriptionHandler.handleOrderUpdate(
           orderDto,
@@ -54,52 +54,7 @@ class CustomerSessionManager {
 
       final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 
-      var offset = 0;
-      const limit = 50;
-      var hasMore = true;
-      int? lastUpdated;
-
-      while (hasMore) {
-        try {
-          final syncDto = await _dataSource.syncData(
-            since: since,
-            limit: limit,
-            offset: offset,
-          );
-
-          lastUpdated = syncDto.lastUpdated;
-
-          // Upsert orders in batch
-          if (syncDto.orders.isNotEmpty) {
-            await _orderDao.upsertOrders(
-              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
-            );
-          }
-
-          // Handle deleted orders
-          if (syncDto.deletedOrderIds.isNotEmpty) {
-            await _orderDao.deleteOrders(syncDto.deletedOrderIds);
-          }
-
-          if (syncDto.orders.length < limit) {
-            hasMore = false;
-          } else {
-            offset += limit;
-          }
-        } catch (e) {
-          hasMore = false;
-          rethrow;
-        }
-      }
-
-      // Update last sync time immediately after a successful page fetch
-      if (lastUpdated != null) {
-        await _database.updateLastSyncTime(
-          'customer_last_sync',
-          DateTime.fromMillisecondsSinceEpoch(lastUpdated),
-          null,
-        );
-      }
+      await _syncCustomerDataUseCase(since: since);
     } catch (e) {
       // Handle overall sync error
     } finally {

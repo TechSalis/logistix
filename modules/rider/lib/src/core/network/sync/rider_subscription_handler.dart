@@ -13,7 +13,7 @@ class RiderSubscriptionHandler extends BaseSubscriptionHandler {
 
   @override
   Future<void> handleOrderUpdate(
-    OrderDto orderDto,
+    OrderDto? orderDto,
     String eventType, {
     RiderDto? riderDto,
     RiderMetricsDto? riderMetrics,

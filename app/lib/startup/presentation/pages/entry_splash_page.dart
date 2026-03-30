@@ -2,6 +2,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/startup/presentation/bloc/app_bloc.dart';
 import 'package:logistix/startup/presentation/bloc/app_event.dart';
+import 'package:logistix/startup/presentation/bloc/app_state.dart';
 import 'package:shared/shared.dart';
 
 /// The entry point page that handles initialization and initial routing.

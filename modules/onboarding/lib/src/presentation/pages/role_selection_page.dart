@@ -127,8 +127,8 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      LogistixButton(
-                        label: 'CONTINUE',
+                        LogistixButton(
+                          label: 'Continue',
                         onPressed: _selectedRole == null
                             ? null
                             : () {
@@ -141,8 +141,8 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                                     context.push(
                                       OnboardingRoutes.dispatcherOnboarding,
                                     );
-                                  case UserRole.customer:
-                                    return;
+                                  // case UserRole.customer:
+                                  //   return;
                                 }
                               },
                       ),

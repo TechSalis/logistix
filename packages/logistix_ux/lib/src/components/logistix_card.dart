@@ -29,7 +29,7 @@ class LogistixCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget card = Container(
+    final card = Container(
       width: width,
       height: height,
       margin: margin,

@@ -75,9 +75,10 @@ class _ActiveOrdersSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Active Orders', style: context.textTheme.titleMedium?.bold),
-            TextButton(
+            LogistixButton(
               onPressed: () => context.push(CustomerRoutes.history),
-              child: const Text('See All'),
+              label: 'See All',
+              type: LogistixButtonType.text,
             ),
           ],
         ),

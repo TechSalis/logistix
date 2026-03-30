@@ -5,7 +5,7 @@ part 'dispatcher_dto.freezed.dart';
 part 'dispatcher_dto.g.dart';
 
 @freezed
-class DispatcherDto with _$DispatcherDto {
+abstract class DispatcherDto with _$DispatcherDto {
   const factory DispatcherDto({
     required String id,
     required String email,

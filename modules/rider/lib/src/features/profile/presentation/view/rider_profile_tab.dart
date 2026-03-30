@@ -64,8 +64,6 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstName = rider.user?.fullName.initials;
-
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -79,24 +77,15 @@ class _ProfileHeader extends StatelessWidget {
               ),
             ),
             child: LogistixAvatar(
-              name: rider.user?.fullName,
+              name: rider.fullName,
               size: 100,
               statusColor: rider.status.color,
               useGradient: true,
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            'Hello, $firstName!',
-            style: context.textTheme.labelMedium?.copyWith(
-              color: LogistixColors.textSecondary,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            ),
-          ),
           const SizedBox(height: 4),
           Text(
-            rider.user?.fullName ?? '',
+            rider.fullName,
             style: context.textTheme.headlineSmall?.bold.copyWith(
               letterSpacing: -0.5,
             ),
@@ -224,7 +213,7 @@ class _SettingsSection extends StatelessWidget {
           future: PackageInfo.fromPlatform(),
           builder: (context, snapshot) {
             final appVersion = snapshot.hasData
-                ? '${snapshot.data!.version} (${EnvConfig.environment.capitalizeFirst()})'
+                ? '${snapshot.data!.version} (${EnvConfig.instance.environment.capitalizeFirst()})'
                 : 'Loading...';
             return LogistixSettingsCard(
               children: [

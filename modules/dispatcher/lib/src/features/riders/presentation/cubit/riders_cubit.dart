@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:dispatcher/src/domain/repositories/rider_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class RidersState {
   RidersState({
@@ -31,7 +30,7 @@ class RidersState {
   );
 
   final List<Rider> riders;
-  final List<RiderLocationInfo> mapRiders;
+  final List<Rider> mapRiders;
   final List<Rider> pendingRiders;
   final bool isLoading;
   final Set<String> acceptingRiderIds;
@@ -59,7 +58,7 @@ class RidersState {
 
   RidersState copyWith({
     List<Rider>? riders,
-    List<RiderLocationInfo>? mapRiders,
+    List<Rider>? mapRiders,
     List<Rider>? pendingRiders,
     bool? isLoading,
     Set<String>? acceptingRiderIds,
@@ -130,7 +129,7 @@ class RidersCubit extends Cubit<RidersState> {
                 isLoading: false,
                 riders: activeRiders,
                 pendingRiders: pendingRiders,
-                mapRiders: activeRiders.map((r) => r.toLocationInfo()).toList(),
+                mapRiders: activeRiders,
               ),
             );
           },
@@ -144,21 +143,15 @@ class RidersCubit extends Cubit<RidersState> {
 
   Future<void> _launchCaller(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-
-    final url = Uri.parse('tel:$phone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
+    await LauncherUtils.callNumber(phone);
   }
 
   Future<void> _launchWhatsApp(String? phone) async {
     if (phone == null || phone.isEmpty) return;
 
     final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
-    final url = Uri.parse('https://wa.me/$cleanPhone');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    }
+    final url = 'https://wa.me/$cleanPhone';
+    await LauncherUtils.launchInBrowser(url);
   }
 
   void filterByStatus(RiderStatus? status) {
@@ -225,16 +218,5 @@ class RidersCubit extends Cubit<RidersState> {
   Future<void> close() {
     _ridersSubscription?.cancel();
     return super.close();
-  }
-}
-
-extension on Rider {
-  RiderLocationInfo toLocationInfo() {
-    return RiderLocationInfo(
-      id: id,
-      fullName: user?.fullName ?? '',
-      lastLat: lastLat,
-      lastLng: lastLng,
-    );
   }
 }

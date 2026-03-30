@@ -62,11 +62,11 @@ class _OrderDetailsView extends StatelessWidget {
                       const SizedBox(height: LogistixSpacing.xl),
                       _StatusBanner(order: order),
                       const SizedBox(height: LogistixSpacing.xl),
-                      const _SectionTitle(title: 'DELIVERY DETAILS'),
+                      const _SectionTitle(title: 'Delivery Details'),
                       const SizedBox(height: LogistixSpacing.sm),
                       _OrderLocationInfo(order: order),
                       const SizedBox(height: LogistixSpacing.xl),
-                      const _SectionTitle(title: 'DESCRIPTION'),
+                      const _SectionTitle(title: 'Description'),
                       const SizedBox(height: LogistixSpacing.xs),
                       Text(
                         order.description ?? 'No extra details provided',
@@ -76,7 +76,7 @@ class _OrderDetailsView extends StatelessWidget {
                       ),
                       const SizedBox(height: LogistixSpacing.xl),
                       if (order.rider != null) ...[
-                        const _SectionTitle(title: 'ASSIGNED RIDER'),
+                        const _SectionTitle(title: 'Assigned Rider'),
                         const SizedBox(height: LogistixSpacing.sm),
                         _RiderCard(rider: order.rider!),
                       ],
@@ -128,7 +128,7 @@ class _OrderHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'ORDER OVERVIEW',
+          'Order Overview',
           style: context.textTheme.labelSmall?.copyWith(
             color: LogistixColors.primary,
             fontWeight: FontWeight.w900,
@@ -137,7 +137,7 @@ class _OrderHeader extends StatelessWidget {
         ),
         const SizedBox(height: LogistixSpacing.xxs),
         Text(
-          '#${order.trackingNumber.toUpperCase()}',
+          '#${order.trackingNumber}',
           style: context.textTheme.headlineSmall?.bold.copyWith(
             color: LogistixColors.text,
           ),
@@ -188,7 +188,7 @@ class _StatusBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  order.status.label.toUpperCase(),
+                  order.status.label,
                   style: context.textTheme.titleSmall?.bold.copyWith(color: color),
                 ),
                 const SizedBox(height: LogistixSpacing.xxs),

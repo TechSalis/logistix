@@ -5,6 +5,7 @@ import 'package:customer/src/data/datasources/order_remote_datasource.dart';
 import 'package:customer/src/data/repositories/order_repository_impl.dart';
 import 'package:customer/src/domain/repositories/customer_order_repository.dart';
 import 'package:customer/src/domain/usecases/manage_customer_session_usecase.dart';
+import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
 import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
 import 'package:customer/src/features/ordering/presentation/cubit/customer_address_cubit.dart';
 import 'package:customer/src/features/ordering/presentation/cubit/order_form_cubit.dart';
@@ -43,6 +44,13 @@ class CustomerModule extends Module<RouteBase> {
                   logger: injector.get<Logger>(),
                 ),
               ),
+              RepositoryProvider<SyncCustomerDataUseCase>(
+                create: (context) => SyncCustomerDataUseCase(
+                  remoteDataSource: context.read<CustomerOrderRemoteDataSource>(),
+                  orderDao: injector.get<OrderDao>(),
+                  database: injector.get<LogistixDatabase>(),
+                ),
+              ),
             ],
             child: MultiBlocProvider(
               providers: [
@@ -68,10 +76,9 @@ class CustomerModule extends Module<RouteBase> {
                     sessionManager: CustomerSessionManager(
                       context.read<CustomerOrderRemoteDataSource>(),
                       context.read<CustomerSubscriptionHandler>(),
-                      injector.get<OrderDao>(),
                       injector.get<LogistixDatabase>(),
+                      context.read<SyncCustomerDataUseCase>(),
                     ),
-                    userStore: injector.get<UserStore>(),
                     child: ToastServiceWidget(child: child),
                   );
                 },

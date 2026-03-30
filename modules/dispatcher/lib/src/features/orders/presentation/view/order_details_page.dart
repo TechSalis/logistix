@@ -74,18 +74,16 @@ class _OrderLoadedContent extends StatelessWidget {
         _SliverAppBar(order: order),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              LogistixSpacing.lg,
-              LogistixSpacing.xl,
-              LogistixSpacing.lg,
-              LogistixSpacing.xxl,
+            padding: const EdgeInsets.symmetric(
+              horizontal: LogistixSpacing.lg,
+              vertical: LogistixSpacing.sm,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _OrderHeader(order: order, dateFormat: dateFormat),
                 const SizedBox(height: LogistixSpacing.xl),
-                const _SectionTitle(title: 'DELIVERY DETAILS'),
+                const _SectionTitle(title: 'Delivery Details'),
                 const SizedBox(height: LogistixSpacing.md),
                 if (order.pickupAddress?.isNotEmpty ?? false) ...[
                   LogistixInfoTile(
@@ -166,11 +164,13 @@ class _OrderLoadedContent extends StatelessWidget {
                 Center(
                   child: LogistixButton(
                     onPressed: () => orderDetailsCubit.shareOrder(order),
-                    label: 'SHARE TRACKING LINK',
+                    label: 'Share Tracking Link',
                     icon: Icons.share_rounded,
+                    type: LogistixButtonType.outline,
                     width: 280,
                   ),
                 ),
+                const SizedBox(height: LogistixSpacing.xl),
               ],
             ),
           ),
@@ -188,7 +188,7 @@ class _SliverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRiderAssigned = order.rider != null;
-    final hasRiderLocation = order.rider?.hasPosition ?? false;
+    final hasRiderLocation = order.rider?.hasLocation ?? false;
     final isEnRoute = order.status == OrderStatus.EN_ROUTE;
 
     // Show rider location when rider is assigned and order is en route
@@ -199,7 +199,7 @@ class _SliverAppBar extends StatelessWidget {
         ? LatLng(order.rider!.lastLat!, order.rider!.lastLng!)
         : null;
 
-    final expandedHeight = displayLocation != null ? 260.0 : 160.0;
+    final expandedHeight = displayLocation != null ? 260.0 : 140.0;
 
     return SliverAppBar(
       pinned: true,
@@ -223,7 +223,7 @@ class _SliverAppBar extends StatelessWidget {
                     markerId: const MarkerId('rider_with_order'),
                     position: displayLocation,
                     infoWindow: InfoWindow(
-                      title: '${order.rider?.user?.fullName ?? ''} - En Route',
+                      title: '${order.rider?.fullName ?? ''} - En Route',
                       snippet:
                           'Delivering to '
                           '${order.dropOffAddress}',
@@ -237,6 +237,7 @@ class _SliverAppBar extends StatelessWidget {
                 myLocationButtonEnabled: false,
                 compassEnabled: false,
                 mapToolbarEnabled: false,
+                style: LogistixMapTheme.cleanSlate,
               )
             else
               Container(
@@ -245,6 +246,7 @@ class _SliverAppBar extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -337,7 +339,7 @@ class _SliverAppBar extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'LIVE TRACKING',
+                        'Live Tracking',
                         style: context.textTheme.labelSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
@@ -372,7 +374,7 @@ class _OrderHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'ORDER OVERVIEW',
+                'Order Overview',
                 style: context.textTheme.labelSmall?.copyWith(
                   color: LogistixColors.primary,
                   fontWeight: FontWeight.w900,
@@ -469,12 +471,16 @@ class _RiderSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _SectionTitle(title: 'RIDER ASSIGNMENT'),
+        const _SectionTitle(title: 'Rider Assignment'),
         const SizedBox(height: LogistixSpacing.md),
-        RiderDropdownSearch(
+        AssignRiderDropdownSearch(
           selectedRider: order.rider,
           searchRiders: (filter) {
-            return context.read<SearchRidersUseCase>().call(filter);
+            return context.read<SearchRidersUseCase>().call(
+              filter,
+              lat: order.dropOffLat ?? order.pickupLat,
+              lng: order.dropOffLng ?? order.pickupLng,
+            );
           },
           onChanged: (rider) {
             if (rider != null) {
@@ -482,7 +488,6 @@ class _RiderSection extends StatelessWidget {
             }
           },
           onUnassign: () => context.read<OrderDetailsCubit>().unassignRunner(),
-          showUnassign: order.rider != null,
           isCompleted: order.status.isCompleted,
         ),
       ],
@@ -516,8 +521,6 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-
-
 class _BottomActionCta extends StatelessWidget {
   const _BottomActionCta({required this.order});
   final Order order;
@@ -527,13 +530,7 @@ class _BottomActionCta extends StatelessWidget {
     return AsyncRunnerListener(
       runner: cubit.cancelRunner,
       listener: (context, state) {
-        if (state.status.isSuccess) {
-          context.toast.showToast(
-            'Order cancelled successfully',
-            type: ToastType.success,
-          );
-          // Stream will auto-update via Drift
-        } else if (state.status.isFailure) {
+        if (state.status.isFailure) {
           final error = state.result?.error;
           context.toast.showToast(
             error?.message ?? 'Failed to cancel order',
@@ -589,12 +586,7 @@ class _BottomActionCta extends StatelessWidget {
     return AsyncRunnerListener(
       runner: cubit.rejectRunner,
       listener: (context, state) {
-        if (state.status.isSuccess) {
-          context.toast.showToast(
-            'Order rejected successfully',
-            type: ToastType.success,
-          );
-        } else if (state.status.isFailure) {
+        if (state.status.isFailure) {
           final error = state.result?.error;
           context.toast.showToast(
             error?.message ?? 'Failed to reject order',

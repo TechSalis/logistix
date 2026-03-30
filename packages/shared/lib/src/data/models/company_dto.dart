@@ -5,7 +5,7 @@ part 'company_dto.freezed.dart';
 part 'company_dto.g.dart';
 
 @freezed
-class CompanyDto with _$CompanyDto {
+abstract class CompanyDto with _$CompanyDto {
   const factory CompanyDto({
     required String id,
     required String name,

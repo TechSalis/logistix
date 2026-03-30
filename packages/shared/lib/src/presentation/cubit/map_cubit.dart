@@ -55,7 +55,7 @@ class MapCubit extends Cubit<MapState> {
       // Get current position
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          timeLimit: Duration(seconds: 5),
+          timeLimit: Duration(seconds: 3),
         ),
       );
 

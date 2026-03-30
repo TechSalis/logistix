@@ -51,87 +51,90 @@ class _MoreView extends StatelessWidget {
                   final appVersion = state.maybeMap(
                     loaded: (state) {
                       return '${state.packageInfo.version} '
-                          '(${EnvConfig.environment.capitalizeFirst()})';
+                          '(${EnvConfig.instance.environment.capitalizeFirst()})';
                     },
                     orElse: () => 'Loading...',
                   );
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: LogistixSpacing.md,
-                    ),
-                    child: LogistixEntrance(
-                      children: [
-                        const SizedBox(height: 24),
-                        _buildOrganizationHeader(state),
-                        const SizedBox(height: 32),
-                        LogistixSettingsCard(
-                          title: 'ANALYTICS & REPORTS',
-                          children: [
-                            _ExportTile(
-                              runner: cubit.exportAnalyticsRunner,
-                              icon: Icons.file_download_outlined,
-                              title: 'Export Orders Data',
-                              subtitle: 'Detailed CSV with custom filters',
-                              onTap: () => _showExportOptions(
-                                context,
-                                title: 'Export Orders',
-                                showRiderFilter: true,
-                                onParamsSelected: cubit.exportAnalyticsRunner,
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: LogistixSpacing.md,
+                      ),
+                      child: LogistixEntrance(
+                        children: [
+                          const SizedBox(height: 24),
+                          _buildOrganizationHeader(state),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            title: 'ANALYTICS & REPORTS',
+                            children: [
+                              _ExportTile(
+                                runner: cubit.exportAnalyticsRunner,
+                                icon: Icons.file_download_outlined,
+                                title: 'Export Orders Data',
+                                subtitle: 'Detailed CSV with custom filters',
+                                onTap: () => _showExportOptions(
+                                  context,
+                                  title: 'Export Orders',
+                                  showRiderFilter: true,
+                                  onParamsSelected: cubit.exportAnalyticsRunner,
+                                ),
                               ),
-                            ),
-                            _ExportTile(
-                              runner: cubit.exportSummaryRunner,
-                              icon: Icons.analytics_outlined,
-                              title: 'Export Performance Summary',
-                              subtitle: 'Aggregated KPIs and metrics',
-                              onTap: () => _showExportOptions(
-                                context,
-                                title: 'Performance Summary',
-                                showRiderFilter: false,
-                                onParamsSelected: cubit.exportSummaryRunner,
+                              _ExportTile(
+                                runner: cubit.exportSummaryRunner,
+                                icon: Icons.analytics_outlined,
+                                title: 'Export Performance Summary',
+                                subtitle: 'Aggregated KPIs and metrics',
+                                onTap: () => _showExportOptions(
+                                  context,
+                                  title: 'Performance Summary',
+                                  showRiderFilter: false,
+                                  onParamsSelected: cubit.exportSummaryRunner,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        LogistixSettingsCard(
-                          title: 'SUPPORT & ABOUT',
-                          children: [
-                            LogistixSettingsTile(
-                              icon: Icons.help_outline_rounded,
-                              title: 'Help Center',
-                              onTap: () =>
-                                  _showComingSoon(context, 'Help Center'),
-                            ),
-                            LogistixSettingsTile(
-                              icon: Icons.privacy_tip_outlined,
-                              title: 'Privacy Policy',
-                              onTap: () =>
-                                  _showComingSoon(context, 'Privacy Policy'),
-                            ),
-                            LogistixSettingsTile(
-                              icon: Icons.info_outline,
-                              title: 'App Version',
-                              subtitle: appVersion,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        LogistixSettingsCard(
-                          children: [
-                            LogistixSettingsTile(
-                              icon: Icons.logout_rounded,
-                              title: 'Logout',
-                              titleColor: LogistixColors.error,
-                              subtitle: 'Sign out of your account',
-                              iconColor: LogistixColors.error,
-                              onTap: () => _confirmLogout(context, cubit),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 40),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            title: 'SUPPORT & ABOUT',
+                            children: [
+                              LogistixSettingsTile(
+                                icon: Icons.help_outline_rounded,
+                                title: 'Help Center',
+                                onTap: () =>
+                                    _showComingSoon(context, 'Help Center'),
+                              ),
+                              LogistixSettingsTile(
+                                icon: Icons.privacy_tip_outlined,
+                                title: 'Privacy Policy',
+                                onTap: () =>
+                                    _showComingSoon(context, 'Privacy Policy'),
+                              ),
+                              LogistixSettingsTile(
+                                icon: Icons.info_outline,
+                                title: 'App Version',
+                                subtitle: appVersion,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 32),
+                          LogistixSettingsCard(
+                            children: [
+                              LogistixSettingsTile(
+                                icon: Icons.logout_rounded,
+                                title: 'Logout',
+                                titleColor: LogistixColors.error,
+                                subtitle: 'Sign out of your account',
+                                iconColor: LogistixColors.error,
+                                onTap: () => _confirmLogout(context, cubit),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -145,10 +148,11 @@ class _MoreView extends StatelessWidget {
 
   Widget _buildOrganizationHeader(MoreState state) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: state.maybeWhen(
-        loading: () =>
-            const LogistixShimmer(width: double.infinity, height: 100),
+        loading: () {
+          return const LogistixShimmer(width: double.infinity, height: 100);
+        },
         loaded: (_, company) {
           if (company == null) return const SizedBox();
           return Container(
@@ -217,11 +221,12 @@ class _MoreView extends StatelessWidget {
     required AsyncRunnerWithArg<ExportParams, AppError, String>
     onParamsSelected,
   }) async {
-    final params = await showModalBottomSheet<ExportParams>(
+    final params = await showGeneralDialog<ExportParams>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => ExportOptionsBottomSheet(
+      barrierDismissible: true,
+      barrierLabel: 'ExportOptions',
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      pageBuilder: (context, _, __) => ExportOptionsDialog(
         title: title,
         showRiderFilter: showRiderFilter,
       ),

@@ -43,7 +43,7 @@ class LogistixMetricItem extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
-  final Color color;
+  final Color? color;
   final bool isLoading;
 
   @override
@@ -68,7 +68,7 @@ class LogistixMetricItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color?.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 22),
@@ -93,7 +93,7 @@ class LogistixMetricItem extends StatelessWidget {
             ),
           const SizedBox(height: 2),
           Text(
-            label.toUpperCase(),
+            label,
             textAlign: TextAlign.center,
             style: context.textTheme.labelSmall?.copyWith(
               color: Colors.white70,
