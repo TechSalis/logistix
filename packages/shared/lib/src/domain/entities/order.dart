@@ -21,6 +21,7 @@ abstract class Order with _$Order {
     double? pickupLat,
     double? pickupLng,
     String? riderId,
+    String? trackingCode,
     Rider? rider,
     String? companyId,
     String? assignedCompanyId,

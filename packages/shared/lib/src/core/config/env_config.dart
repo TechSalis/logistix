@@ -1,6 +1,4 @@
 abstract class EnvConfig {
-  String get host;
-  int get port;
   String get apiUrl;
   String get graphqlUrl;
   String get wsUrl;
@@ -8,6 +6,7 @@ abstract class EnvConfig {
   String get contactSupportUrl;
   String get environment;
   String get trackingLink;
+  String get clientKey;
 
   bool get isDevelopment => environment == 'development';
   bool get isProduction => environment == 'production';
@@ -18,10 +17,8 @@ abstract class EnvConfig {
 }
 
 class LocalEnvConfig extends EnvConfig {
-  @override
   final String host = '0.0.0.0';
 
-  @override
   final int port = 4000;
 
   @override
@@ -43,33 +40,21 @@ class LocalEnvConfig extends EnvConfig {
   String get environment => 'development';
 
   @override
-  String get trackingLink => 'http://$host:$port/track';
+  String get trackingLink => 'http://localhost:5173/track';
+
+  @override
+  String get clientKey => 'Lgx_7f8d2b1c9a0e4f5a6b7c8d9e0f1a2b3c';
 }
 
 class ProductionEnvConfig extends EnvConfig {
   @override
-  String get host => const String.fromEnvironment('HOST');
+  String get apiUrl => const String.fromEnvironment('API_URL');
 
   @override
-  int get port => const int.fromEnvironment('PORT', defaultValue: 80);
+  String get graphqlUrl => const String.fromEnvironment('GRAPHQL_URL');
 
   @override
-  String get apiUrl => const String.fromEnvironment(
-        'API_URL',
-        defaultValue: 'https://api.logistix.com',
-      );
-
-  @override
-  String get graphqlUrl => const String.fromEnvironment(
-        'GRAPHQL_URL',
-        defaultValue: 'https://api.logistix.com/graphql',
-      );
-
-  @override
-  String get wsUrl => const String.fromEnvironment(
-        'WS_URL',
-        defaultValue: 'wss://api.logistix.com/graphql/ws',
-      );
+  String get wsUrl => const String.fromEnvironment('WS_URL');
 
   @override
   String get sentryDsn => const String.fromEnvironment('SENTRY_DSN');
@@ -79,10 +64,11 @@ class ProductionEnvConfig extends EnvConfig {
       const String.fromEnvironment('CONTACT_SUPPORT_URL');
 
   @override
-  String get environment =>
-      const String.fromEnvironment('ENVIRONMENT', defaultValue: 'production');
+  String get environment => const String.fromEnvironment('ENVIRONMENT');
 
   @override
-  String get trackingLink =>
-      const String.fromEnvironment('TRACKING_LINK', defaultValue: 'https://shipment.logistix.com');
+  String get trackingLink => const String.fromEnvironment('TRACKING_LINK');
+
+  @override
+  String get clientKey => const String.fromEnvironment('CLIENT_KEY');
 }

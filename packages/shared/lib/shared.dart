@@ -13,6 +13,7 @@ export 'src/core/router/module_entry_routes.dart';
 export 'src/core/services/toast/toast_service_impl.dart';
 export 'src/core/services/toast/widgets/toast_service_widget.dart';
 export 'src/core/utils/launcher_utils.dart';
+export 'src/core/utils/tracking_link_utils.dart';
 export 'src/data/datasources/remote/captured_order_remote_datasource.dart';
 export 'src/data/datasources/upload_remote_datasource.dart';
 export 'src/data/datasources/user_store.dart';

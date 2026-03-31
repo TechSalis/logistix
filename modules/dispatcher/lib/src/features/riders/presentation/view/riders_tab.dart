@@ -1,3 +1,4 @@
+import 'package:bootstrap/services/equality_filter.dart';
 import 'package:collection/collection.dart';
 import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
 import 'package:dispatcher/src/features/riders/presentation/cubit/riders_cubit.dart';
@@ -384,134 +385,140 @@ class _RidersMapViewState extends State<RidersMapView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: BlocConsumer<RidersCubit, RidersState>(
-        listenWhen: (prev, next) =>
-            prev.selectedRider?.id != next.selectedRider?.id,
-        listener: (context, state) {
-          final rider = state.selectedRider;
-          if (rider != null && rider.hasLocation) {
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLngZoom(
-                LatLng(rider.lastLat!, rider.lastLng!),
-                15,
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          var initialPos = const LatLng(6.5244, 3.3792);
-
-          final ridersWithLocation = state.mapRiders
-              .where((r) => r.hasLocation)
-              .toList();
-
-          if (ridersWithLocation.isNotEmpty) {
-            final avgLat = ridersWithLocation.map((r) => r.lastLat!).average;
-            final avgLng = ridersWithLocation.map((r) => r.lastLng!).average;
-            initialPos = LatLng(avgLat, avgLng);
-          }
-
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: GoogleMap(
-                  style: LogistixMapTheme.cleanSlate,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: false,
-                  initialCameraPosition: CameraPosition(
-                    target: initialPos,
-                    zoom: 15,
-                  ),
-                  onMapCreated: _onMapCreated,
-                  onTap: (_) {
-                    FocusScope.of(context).unfocus();
-                    ridersCubit.selectRider(null);
-                  },
-                  markers: ridersWithLocation.mapIndexed((i, r) {
-                    return Marker(
-                      zIndexInt: r.id == state.selectedRider?.id ? 100000 : i,
-                      markerId: MarkerId(r.id),
-                      position: LatLng(r.lastLat!, r.lastLng!),
-                      onTap: () {
-                        ridersCubit.selectRider(r.id);
-                      },
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                        RiderMapUtils.getHue(r.id),
-                      ),
-                    );
-                  }).toSet(),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: BlocConsumer<RidersCubit, RidersState>(
+          listenWhen: EqualityFilter<RidersState>(
+            (state) => state.selectedRider?.id,
+          ).call,
+          listener: (context, state) {
+            final rider = state.selectedRider;
+            if (rider != null && rider.hasLocation) {
+              _mapController?.animateCamera(
+                CameraUpdate.newLatLngZoom(
+                  LatLng(rider.lastLat!, rider.lastLng!),
+                  15,
                 ),
-              ),
-              if (state.selectedRider != null)
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 32,
-                  child: Center(
-                    child: RiderMapInfoCard(
-                      rider: state.selectedRider!,
-                      onClose: () => ridersCubit.selectRider(null),
-                      onTap: () => context.push(
-                        DispatcherRoutes.riderDetails(state.selectedRider!.id),
+              );
+            }
+          },
+          builder: (context, state) {
+            var initialPos = const LatLng(6.5244, 3.3792);
+
+            final ridersWithLocation = state.mapRiders
+                .where((r) => r.hasLocation)
+                .toList();
+
+            if (ridersWithLocation.isNotEmpty) {
+              final avgLat = ridersWithLocation.map((r) => r.lastLat!).average;
+              final avgLng = ridersWithLocation.map((r) => r.lastLng!).average;
+              initialPos = LatLng(avgLat, avgLng);
+            }
+
+            return Stack(
+              children: [
+                Positioned.fill(
+                  child: GoogleMap(
+                    style: LogistixMapTheme.cleanSlate,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    initialCameraPosition: CameraPosition(
+                      target: initialPos,
+                      zoom: 15,
+                    ),
+                    onMapCreated: _onMapCreated,
+                    onTap: (_) {
+                      FocusScope.of(context).unfocus();
+                      ridersCubit.selectRider(null);
+                    },
+                    markers: ridersWithLocation.mapIndexed((i, r) {
+                      return Marker(
+                        zIndexInt: r.id == state.selectedRider?.id ? 100000 : i,
+                        markerId: MarkerId(r.id),
+                        position: LatLng(r.lastLat!, r.lastLng!),
+                        onTap: () {
+                          ridersCubit.selectRider(r.id);
+                        },
+                        icon: BitmapDescriptor.defaultMarkerWithHue(
+                          RiderMapUtils.getHue(r.id),
+                        ),
+                      );
+                    }).toSet(),
+                  ),
+                ),
+                if (state.selectedRider != null)
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 32,
+                    child: Center(
+                      child: RiderMapInfoCard(
+                        rider: state.selectedRider!,
+                        onClose: () => ridersCubit.selectRider(null),
+                        onTap: () => context.push(
+                          DispatcherRoutes.riderDetails(
+                            state.selectedRider!.id,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              // Search and Overlays
-              SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      Hero(
-                        tag: 'rider-search-tag',
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _MapSearchOverlay(
-                                onRiderSelected: (r) {
-                                  if (r != null) {
-                                    ridersCubit.selectRider(r.id);
-                                  }
-                                },
+                // Search and Overlays
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Hero(
+                          tag: 'rider-search-tag',
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _MapSearchOverlay(
+                                  onRiderSelected: (r) {
+                                    if (r != null) {
+                                      ridersCubit.selectRider(r.id);
+                                    }
+                                  },
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            AnimatedScaleTap(
-                              onTap: () =>
-                                  context.go(DispatcherRoutes.ridersList),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.1,
+                              const SizedBox(width: 12),
+                              AnimatedScaleTap(
+                                onTap: () =>
+                                    context.go(DispatcherRoutes.ridersList),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.list_rounded,
-                                  color: LogistixColors.primary,
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.list_rounded,
+                                    color: LogistixColors.primary,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

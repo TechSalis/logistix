@@ -47,9 +47,14 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   }
 
   Future<void> shareOrder(Order order) async {
+    final trackingLink = TrackingLinkUtils.generateLink(
+      trackingNumber: order.trackingNumber,
+      trackingCode: order.trackingCode,
+    );
+
     final trackingText =
-        'Track Your Order: #${order.trackingNumber}\n'
-        'Link: ${EnvConfig.instance.trackingLink}/${order.trackingNumber}';
+        '📦 Track Your Order: #${order.trackingNumber}\n'
+        'Link: $trackingLink';
 
     await SharePlus.instance.share(
       ShareParams(

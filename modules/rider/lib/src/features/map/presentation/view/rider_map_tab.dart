@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -67,40 +68,42 @@ class _RiderMapTabState extends State<RiderMapTab>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: LogistixColors.background,
-      body: BlocBuilder<MapCubit, MapState>(
-        builder: (context, mapState) {
-          return mapState.when(
-            initial: () => const Center(child: LogistixInlineLoader()),
-            checkingPermission: () {
-              return const Center(child: LogistixInlineLoader());
-            },
-            permissionDenied: (message) => _PermissionDeniedView(
-              message: message,
-              onRetry: riderMapCubit.requestLocationPermission,
-              onOpenSettings: riderMapCubit.openAppSettings,
-            ),
-            ready: (position) {
-              _liveLocationSubscription ??=
-                  Geolocator.getPositionStream(
-                    locationSettings: const LocationSettings(
-                      accuracy: LocationAccuracy.high,
-                      distanceFilter: 5,
-                    ),
-                  ).listen((pos) {
-                    if (mounted) {
-                      setState(() {
-                        _liveRiderLocation = LatLng(
-                          pos.latitude,
-                          pos.longitude,
-                        );
-                      });
-                    }
-                  });
-              return _buildMapView(position);
-            },
-          );
-        },
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: BlocBuilder<MapCubit, MapState>(
+          builder: (context, mapState) {
+            return mapState.when(
+              initial: () => const Center(child: LogistixInlineLoader()),
+              checkingPermission: () {
+                return const Center(child: LogistixInlineLoader());
+              },
+              permissionDenied: (message) => _PermissionDeniedView(
+                message: message,
+                onRetry: riderMapCubit.requestLocationPermission,
+                onOpenSettings: riderMapCubit.openAppSettings,
+              ),
+              ready: (position) {
+                _liveLocationSubscription ??=
+                    Geolocator.getPositionStream(
+                      locationSettings: const LocationSettings(
+                        accuracy: LocationAccuracy.high,
+                        distanceFilter: 5,
+                      ),
+                    ).listen((pos) {
+                      if (mounted) {
+                        setState(() {
+                          _liveRiderLocation = LatLng(
+                            pos.latitude,
+                            pos.longitude,
+                          );
+                        });
+                      }
+                    });
+                return _buildMapView(position);
+              },
+            );
+          },
+        ),
       ),
     );
   }

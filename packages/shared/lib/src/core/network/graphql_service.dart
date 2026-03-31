@@ -46,7 +46,10 @@ class GraphQLService {
   Completer<void>? _refreshCompleter;
 
   Future<void> init(String graphqlUrl, {String? wsUrl}) async {
-    final httpLink = HttpLink(graphqlUrl);
+    final httpLink = HttpLink(
+      graphqlUrl,
+      defaultHeaders: {'x-client-key': EnvConfig.instance.clientKey},
+    );
 
     final authLink = AuthLink(
       getToken: () async {
@@ -65,7 +68,10 @@ class GraphQLService {
         config: SocketClientConfig(
           initialPayload: () async {
             final tokenObj = await tokenStore.read();
-            return {HttpHeaders.authorizationHeader: tokenObj?.authorization};
+            return {
+              HttpHeaders.authorizationHeader: tokenObj?.authorization,
+              'x-client-key': EnvConfig.instance.clientKey,
+            };
           },
         ),
       );
