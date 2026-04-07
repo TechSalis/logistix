@@ -1,5 +1,4 @@
 import 'package:bootstrap/core.dart';
-import 'package:bootstrap/interfaces/http/token_store.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:dispatcher/src/core/network/sync/dispatcher_subscription_handler.dart';
@@ -17,7 +16,6 @@ import 'package:dispatcher/src/domain/repositories/order_repository.dart';
 import 'package:dispatcher/src/domain/repositories/rider_repository.dart';
 import 'package:dispatcher/src/domain/usecases/dispatcher_initial_sync_provider.dart';
 import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
-import 'package:dispatcher/src/domain/usecases/export_summary_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/manage_dispatcher_session_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
@@ -62,7 +60,6 @@ class DispatcherModule extends Module<RouteBase> {
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
               placesService: injector.get<PlacesService>(),
-              capturedOrderRepository: injector.get<CapturedOrderRepository>(),
             ),
           ),
           RepositoryProvider<RiderRepository>(
@@ -79,7 +76,7 @@ class DispatcherModule extends Module<RouteBase> {
           ),
           RepositoryProvider<AnalyticsRepository>(
             create: (context) => AnalyticsRepositoryImpl(
-              AnalyticsRemoteDataSourceImpl(injector.get<TokenStore>()),
+              AnalyticsRemoteDataSourceImpl(injector.get<RestService>()),
             ),
           ),
           RepositoryProvider<SearchRidersUseCase>(
@@ -127,7 +124,6 @@ class DispatcherModule extends Module<RouteBase> {
                 injector.get<AuthStatusRepository>(),
                 injector.get<UserStore>(),
                 ExportAnalyticsUseCase(context.read<AnalyticsRepository>()),
-                ExportSummaryUseCase(context.read<AnalyticsRepository>()),
               ),
             ),
           ],
@@ -139,7 +135,6 @@ class DispatcherModule extends Module<RouteBase> {
                   context.read<DispatcherSubscriptionHandler>(),
                   injector.get<LogistixDatabase>(),
                   context.read<SyncDispatcherDataUseCase>(),
-                  injector.get<CapturedOrderRepository>(),
                 ),
                 child: ToastServiceWidget(child: child),
               );

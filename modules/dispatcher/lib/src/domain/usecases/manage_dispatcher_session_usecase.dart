@@ -15,14 +15,12 @@ class DispatcherSessionManager {
     this._subscriptionHandler,
     this._database,
     this._syncDispatcherDataUseCase,
-    this._capturedOrderRepository,
   );
 
   final DispatcherSessionRemoteDataSource _dataSource;
   final DispatcherSubscriptionHandler _subscriptionHandler;
   final LogistixDatabase _database;
   final SyncDispatcherDataUseCase _syncDispatcherDataUseCase;
-  final CapturedOrderRepository _capturedOrderRepository;
 
   SyncManager? _orderSyncManager;
   SyncManager? _riderSyncManager;
@@ -60,8 +58,7 @@ class DispatcherSessionManager {
       (_) => _performSync(),
     );
 
-    // 4. Background sync of captured orders
-    unawaited(_capturedOrderRepository.syncBatches(threshold: 10));
+
   }
 
   Future<void> _performSync() async {

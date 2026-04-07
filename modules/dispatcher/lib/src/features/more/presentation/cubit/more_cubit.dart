@@ -4,7 +4,6 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
-import 'package:dispatcher/src/domain/usecases/export_summary_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -27,13 +26,11 @@ class MoreCubit extends Cubit<MoreState> {
     this._authStatusRepository,
     this._userStore,
     this._exportAnalyticsUseCase,
-    this._exportSummaryUseCase,
   ) : super(const MoreState.initial());
 
   final AuthStatusRepository _authStatusRepository;
   final UserStore _userStore;
   final ExportAnalyticsUseCase _exportAnalyticsUseCase;
-  final ExportSummaryUseCase _exportSummaryUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -62,17 +59,7 @@ class MoreCubit extends Cubit<MoreState> {
           riderId: params.riderId,
         );
         final csv = result.throwOrReturn();
-        return _saveToTempFile(csv, 'orders_export');
-      });
-
-  late final exportSummaryRunner =
-      AsyncRunner.withArg<ExportParams, AppError, String>((params) async {
-        final result = await _exportSummaryUseCase(
-          startDate: params.startDate,
-          endDate: params.endDate,
-        );
-        final csv = result.throwOrReturn();
-        return _saveToTempFile(csv, 'summary_export');
+        return _saveToTempFile(csv, 'analytics_export');
       });
 
   Future<String> _saveToTempFile(String content, String prefix) async {

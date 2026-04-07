@@ -10,7 +10,6 @@ import 'package:onboarding/src/data/repositories/company_repository_impl.dart';
 import 'package:onboarding/src/data/repositories/onboarding_repository_impl.dart';
 import 'package:onboarding/src/domain/repositories/company_repository.dart';
 import 'package:onboarding/src/domain/repositories/onboarding_repository.dart';
-import 'package:onboarding/src/presentation/bloc/upload_cubit.dart';
 import 'package:onboarding/src/presentation/router/onboarding_routes.dart';
 import 'package:shared/shared.dart';
 
@@ -41,11 +40,6 @@ class OnboardingModule extends Module<RouteBase> {
               injector.get<UserStore>(),
             ),
           ),
-          RepositoryProvider<UploadRepository>(
-            create: (context) => UploadRepositoryImpl(
-              UploadRemoteDataSourceImpl(injector.get<GraphQLService>()),
-            ),
-          ),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -59,10 +53,6 @@ class OnboardingModule extends Module<RouteBase> {
             ),
             BlocProvider<AddressCubit>(
               create: (context) => AddressCubit(injector.get<PlacesService>()),
-            ),
-            BlocProvider<UploadCubit>(
-              create: (context) =>
-                  UploadCubit(context.read<UploadRepository>()),
             ),
           ],
           child: BlocListener<OnboardingBloc, OnboardingState>(

@@ -14,18 +14,15 @@ class OrderRepositoryImpl implements OrderRepository {
     required OrderDao orderDao,
     required RiderDao riderDao,
     required PlacesService placesService,
-    required CapturedOrderRepository capturedOrderRepository,
   }) : _remoteDataSource = remoteDataSource,
        _orderDao = orderDao,
        _riderDao = riderDao,
-       _placesService = placesService,
-       _capturedOrderRepository = capturedOrderRepository;
+       _placesService = placesService;
 
   final OrderRemoteDataSource _remoteDataSource;
   final OrderDao _orderDao;
   final RiderDao _riderDao;
   final PlacesService _placesService;
-  final CapturedOrderRepository _capturedOrderRepository;
 
   // READ operations - stream from local Drift DB
   @override
@@ -210,34 +207,15 @@ class OrderRepositoryImpl implements OrderRepository {
       // 1. Local heuristic parser with confidence scoring
       final localResult = await OrderParser.parse(text);
 
-      List<OrderCreateInput> results;
+      List<OrderCreateInput> results = [];
 
-      if (localResult.needsRemoteFallback) {
-        // 2. Fallback: remote endpoint (future LLM integration point).
-        //    Currently uses the backend NLP engine as a secondary attempt.
-        try {
-          results = await _remoteDataSource.parseTextToOrders(text);
-        } catch (_) {
-          // Remote also failed — return what local found (even if low confidence)
-          // to avoid a completely empty result.
-          results = localResult.orders.map((p) => p.order).toList();
-        }
-      } else {
+      if (!localResult.needsRemoteFallback && localResult.orders.isNotEmpty) {
         results = localResult.orders.map((p) => p.order).toList();
       }
 
-      // Capture EVERY result for future AI improvement, regardless of fallback
-      // Convert OrderCreateInput list back to dynamic list for consistent JSON storage
-      if (results.isNotEmpty) {
-        unawaited(
-          _capturedOrderRepository.saveParsedResult(
-            text,
-            results.map((r) => r.toJson()).toList(),
-          ),
-        );
-      } else {
-        // Even if empty, capture the failure text as raw capture
-        unawaited(_capturedOrderRepository.saveParsedResult(text, []));
+      // 2. Telemetry Fallback - Capture text on backend if local parser struggles
+      if (results.isEmpty || localResult.needsRemoteFallback) {
+        await _remoteDataSource.parseTextToOrders(text).catchError((_) => <OrderCreateInput>[]);
       }
 
       if (results.isEmpty) return [];

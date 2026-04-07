@@ -8,29 +8,16 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
   final AnalyticsRemoteDataSource _dataSource;
 
   @override
-  Future<Result<AppError, String>> exportOrdersCsv({
+  Future<Result<AppError, String>> exportAnalytics({
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
   }) async {
     return Result.tryCatch(
-      () => _dataSource.exportOrdersCsv(
+      () => _dataSource.exportAnalytics(
         startDate: startDate,
         endDate: endDate,
         riderId: riderId,
-      ),
-    );
-  }
-
-  @override
-  Future<Result<AppError, String>> exportAnalyticsSummary({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
-    return Result.tryCatch(
-      () => _dataSource.exportAnalyticsSummary(
-        startDate: startDate,
-        endDate: endDate,
       ),
     );
   }

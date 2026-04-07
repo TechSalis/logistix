@@ -11,7 +11,7 @@ class ExportAnalyticsUseCase {
     DateTime? endDate,
     String? riderId,
   }) {
-    return _repository.exportOrdersCsv(
+    return _repository.exportAnalytics(
       startDate: startDate,
       endDate: endDate,
       riderId: riderId,

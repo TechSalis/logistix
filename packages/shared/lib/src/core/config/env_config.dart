@@ -7,6 +7,7 @@ abstract class EnvConfig {
   String get environment;
   String get trackingLink;
   String get clientKey;
+  bool get isSingleTenant;
 
   bool get isDevelopment => environment == 'development';
   bool get isProduction => environment == 'production';
@@ -22,13 +23,13 @@ class LocalEnvConfig extends EnvConfig {
   final int port = 4000;
 
   @override
-  String get apiUrl => 'http://$host:$port';
+  String get apiUrl => 'http://$host:$port/v1';
 
   @override
-  String get graphqlUrl => 'http://$host:$port/graphql';
+  String get graphqlUrl => 'http://$host:$port/v1/graphql';
 
   @override
-  String get wsUrl => 'ws://$host:$port/graphql/ws';
+  String get wsUrl => 'ws://$host:$port/v1/graphql/ws';
 
   @override
   String get sentryDsn => '';
@@ -44,6 +45,9 @@ class LocalEnvConfig extends EnvConfig {
 
   @override
   String get clientKey => 'Lgx_7f8d2b1c9a0e4f5a6b7c8d9e0f1a2b3c';
+
+  @override
+  bool get isSingleTenant => false;
 }
 
 class ProductionEnvConfig extends EnvConfig {
@@ -71,4 +75,7 @@ class ProductionEnvConfig extends EnvConfig {
 
   @override
   String get clientKey => const String.fromEnvironment('CLIENT_KEY');
+
+  @override
+  bool get isSingleTenant => const String.fromEnvironment('SYSTEM_MODE') == 'SINGLE';
 }

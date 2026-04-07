@@ -5,7 +5,6 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-import 'package:shared/src/data/local/daos/captured_order_dao.dart';
 import 'package:shared/src/data/local/daos/order_dao.dart';
 import 'package:shared/src/data/local/daos/rider_dao.dart';
 
@@ -91,13 +90,7 @@ class SyncMetadata extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-class CapturedOrders extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get rawText => text().nullable()(); // Optional: the source text
-  TextColumn get parsedData => text()(); // JSON string of the parsed result
-  DateTimeColumn get capturedAt => dateTime().withDefault(currentDateAndTime)();
-  BoolColumn get isUploaded => boolean().withDefault(const Constant(false))();
-}
+
 
 class DispatcherMetrics extends Table {
   TextColumn get companyId => text()();
@@ -119,10 +112,9 @@ class DispatcherMetrics extends Table {
     Riders,
     Dispatchers,
     SyncMetadata,
-    CapturedOrders,
     DispatcherMetrics,
   ],
-  daos: [OrderDao, RiderDao, CapturedOrderDao],
+  daos: [OrderDao, RiderDao],
 )
 class LogistixDatabase extends _$LogistixDatabase {
   LogistixDatabase() : super(_openConnection());

@@ -1,66 +1,24 @@
-import 'dart:io';
-
 import 'package:bootstrap/definitions/app_error.dart';
-import 'package:bootstrap/interfaces/http/token_store.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared/shared.dart';
 
 abstract class AnalyticsRemoteDataSource {
-  Future<String> exportOrdersCsv({
+  Future<String> exportAnalytics({
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
-  });
-
-  Future<String> exportAnalyticsSummary({
-    DateTime? startDate,
-    DateTime? endDate,
   });
 }
 
 class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
-  AnalyticsRemoteDataSourceImpl(this.tokenStore);
-  final TokenStore tokenStore;
+  AnalyticsRemoteDataSourceImpl(this._rest);
+  final RestService _rest;
 
   @override
-  Future<String> exportOrdersCsv({
+  Future<String> exportAnalytics({
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
   }) async {
-    return _exportFromPath(
-      '/analytics/export/orders',
-      startDate: startDate,
-      endDate: endDate,
-      riderId: riderId,
-    );
-  }
-
-  @override
-  Future<String> exportAnalyticsSummary({
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
-    return _exportFromPath(
-      '/analytics/export/summary',
-      startDate: startDate,
-      endDate: endDate,
-    );
-  }
-
-  Future<String> _exportFromPath(
-    String path, {
-    DateTime? startDate,
-    DateTime? endDate,
-    String? riderId,
-  }) async {
-    final tokenObj = await tokenStore.read();
-    final token = tokenObj?.authorization;
-
-    if (token == null) {
-      throw const AppError(message: 'Authentication token not found');
-    }
-
     final queryParams = <String, String>{};
     if (startDate != null) {
       queryParams['startDate'] = startDate.toIso8601String();
@@ -72,20 +30,11 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
       queryParams['riderId'] = riderId;
     }
 
-    final uri = Uri.parse(
-      '${EnvConfig.instance.apiUrl}$path',
-    ).replace(queryParameters: queryParams);
-
     try {
-      final response = await http
-          .get(
-            uri,
-            headers: {
-              HttpHeaders.authorizationHeader: token,
-              HttpHeaders.acceptHeader: 'text/csv',
-            },
-          )
-          .timeout(const Duration(seconds: 30));
+      final response = await _rest.get(
+        '/analytics/export',
+        queryParams: queryParams,
+      ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         return response.body;

@@ -36,66 +36,54 @@ class _MoreView extends StatelessWidget {
           child: AsyncRunnerListener(
             runner: cubit.exportAnalyticsRunner,
             listener: _handleExportState,
-            child: AsyncRunnerListener(
-              runner: cubit.exportSummaryRunner,
-              listener: _handleExportState,
-              child: BlocConsumer<MoreCubit, MoreState>(
-                listener: (context, state) {
-                  state.whenOrNull(
-                    error: (message) {
-                      context.toast.showToast(message, type: ToastType.error);
-                    },
-                  );
-                },
-                builder: (context, state) {
-                  final appVersion = state.maybeMap(
-                    loaded: (state) {
-                      return '${state.packageInfo.version} '
-                          '(${EnvConfig.instance.environment.capitalizeFirst()})';
-                    },
-                    orElse: () => 'Loading...',
-                  );
+          child: AsyncRunnerListener(
+            runner: cubit.exportAnalyticsRunner,
+            listener: _handleExportState,
+            child: BlocConsumer<MoreCubit, MoreState>(
+              listener: (context, state) {
+                state.whenOrNull(
+                  error: (message) {
+                    context.toast.showToast(message, type: ToastType.error);
+                  },
+                );
+              },
+              builder: (context, state) {
+                final appVersion = state.maybeMap(
+                  loaded: (state) {
+                    return '${state.packageInfo.version} '
+                        '(${EnvConfig.instance.environment.capitalizeFirst()})';
+                  },
+                  orElse: () => 'Loading...',
+                );
 
-                  return SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: LogistixSpacing.md,
-                      ),
-                      child: LogistixEntrance(
-                        children: [
-                          const SizedBox(height: 24),
-                          _buildOrganizationHeader(state),
-                          const SizedBox(height: 32),
-                          LogistixSettingsCard(
-                            title: 'ANALYTICS & REPORTS',
-                            children: [
-                              _ExportTile(
-                                runner: cubit.exportAnalyticsRunner,
-                                icon: Icons.file_download_outlined,
-                                title: 'Export Orders Data',
-                                subtitle: 'Detailed CSV with custom filters',
-                                onTap: () => _showExportOptions(
-                                  context,
-                                  title: 'Export Orders',
-                                  showRiderFilter: true,
-                                  onParamsSelected: cubit.exportAnalyticsRunner,
-                                ),
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: LogistixSpacing.md,
+                    ),
+                    child: LogistixEntrance(
+                      children: [
+                        const SizedBox(height: 24),
+                        _buildCompanyHeader(state),
+                        const SizedBox(height: 32),
+                        LogistixSettingsCard(
+                          title: 'ANALYTICS & REPORTS',
+                          children: [
+                            _ExportTile(
+                              runner: cubit.exportAnalyticsRunner,
+                              icon: Icons.analytics_outlined,
+                              title: 'Export Analytics Report',
+                              subtitle: 'Includes performance summary and detailed history',
+                              onTap: () => _showExportOptions(
+                                context,
+                                title: 'Export Analytics',
+                                showRiderFilter: true,
+                                onParamsSelected: cubit.exportAnalyticsRunner,
                               ),
-                              _ExportTile(
-                                runner: cubit.exportSummaryRunner,
-                                icon: Icons.analytics_outlined,
-                                title: 'Export Performance Summary',
-                                subtitle: 'Aggregated KPIs and metrics',
-                                onTap: () => _showExportOptions(
-                                  context,
-                                  title: 'Performance Summary',
-                                  showRiderFilter: false,
-                                  onParamsSelected: cubit.exportSummaryRunner,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
                           const SizedBox(height: 32),
                           LogistixSettingsCard(
                             title: 'SUPPORT & ABOUT',
@@ -146,7 +134,7 @@ class _MoreView extends StatelessWidget {
     );
   }
 
-  Widget _buildOrganizationHeader(MoreState state) {
+  Widget _buildCompanyHeader(MoreState state) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: state.maybeWhen(

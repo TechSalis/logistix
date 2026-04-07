@@ -4,9 +4,8 @@ import 'package:shared/shared.dart';
 abstract class OrderRemoteDataSource {
   Future<List<OrderDto>> createBulkOrders(List<OrderCreateInput> orders);
   Future<OrderDto> updateOrderStatus(String orderId, String status);
-  Future<OrderDto> assignOrder(String orderId, String riderId);
   Future<OrderDto> rejectOrder(String orderId);
-
+  Future<OrderDto> assignOrder(String orderId, String riderId);
   Future<List<OrderCreateInput>> parseTextToOrders(String text);
 }
 
@@ -117,28 +116,26 @@ class OrderRemoteDataSourceImpl extends BaseRemoteDataSource
         parseOrders(text: $text) {
           orders {
             pickupAddress
-            pickupPlaceId
             dropOffAddress
-            dropOffPlaceId
-            description
-            codAmount
             pickupPhone
             dropOffPhone
+            codAmount
+            description
           }
         }
       }
     ''';
 
-    final data = await mutate<Map<String, dynamic>>(
+    final result = await mutate<Map<String, dynamic>>(
       mutation,
       key: 'parseOrders',
       variables: {'text': text},
     );
 
-    final ordersData = data['orders'] as List<dynamic>? ?? [];
-
-    return ordersData
-        .map((json) => OrderCreateInput.fromJson(json as Map<String, dynamic>))
+    final orders = result['orders'] as List<dynamic>;
+    return orders
+        .map((o) => OrderCreateInput.fromJson(o as Map<String, dynamic>))
         .toList();
   }
 }
+

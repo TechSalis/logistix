@@ -66,7 +66,7 @@ class OrderPreviewCard extends StatelessWidget {
                           const SizedBox(width: LogistixSpacing.xs),
                           Text(
                             '#${order.trackingNumber}',
-                            style: context.textTheme.labelMedium?.bold.copyWith(
+                            style: context.textTheme.labelLarge?.bold.copyWith(
                               color: LogistixColors.textSecondary,
                               letterSpacing: 0.5,
                             ),

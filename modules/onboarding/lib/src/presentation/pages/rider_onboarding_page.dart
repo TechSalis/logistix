@@ -26,19 +26,38 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
   PhoneNumber? _phoneNumber;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSingleTenantCompany();
+  }
+
+  Future<void> _loadSingleTenantCompany() async {
+    if (EnvConfig.instance.isSingleTenant) {
+      final repo = context.read<CompanyRepository>();
+      final result = await repo.getCompanies(limit: 1);
+      result.map((_) => null, (r) {
+        if (mounted && r.items.isNotEmpty) {
+           setState(() => _company = r.items.first);
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
     _registrationNumberController.dispose();
   }
 
   void _submitOnboarding() {
-    if (_formKey.currentState?.validate() != true || _company == null) return;
+    final companyToUse = _company;
+    if (_formKey.currentState?.validate() != true || companyToUse == null) return;
 
     context.read<OnboardingBloc>().add(
       OnboardingEvent.saveRiderOnboarding(
         phoneNumber: _phoneNumber?.completeNumber ?? '',
         registrationNumber: _registrationNumberController.text,
-        company: _company!,
+        company: companyToUse,
       ),
     );
   }
@@ -151,63 +170,65 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                                     textCapitalization: TextCapitalization.characters,
                                   ),
                                     const SizedBox(height: LogistixSpacing.lg),
-                                    DropdownSearch<Company>(
-                                      items: (String filter, _) async {
-                                        final repo = context
-                                            .read<CompanyRepository>();
-                                        final result = await repo.getCompanies(
-                                          search: filter,
-                                        );
-                                        return result.map(
-                                          (_) => const [],
-                                          (r) => r.items,
-                                        );
-                                      },
-                                      compareFn: EqualityFilter<Company>(
-                                        (state) => state.id,
-                                      ).call,
-                                      itemAsString: (company) => company.name,
-                                      selectedItem: _company,
-                                      suffixProps: const DropdownSuffixProps(
-                                        clearButtonProps: ClearButtonProps(
-                                          isVisible: true,
+                                    if (!EnvConfig.instance.isSingleTenant) ...[
+                                      DropdownSearch<Company>(
+                                        items: (String filter, _) async {
+                                          final repo = context
+                                              .read<CompanyRepository>();
+                                          final result = await repo.getCompanies(
+                                            search: filter,
+                                          );
+                                          return result.map(
+                                            (_) => const [],
+                                            (r) => r.items,
+                                          );
+                                        },
+                                        compareFn: EqualityFilter<Company>(
+                                          (state) => state.id,
+                                        ).call,
+                                        itemAsString: (company) => company.name,
+                                        selectedItem: _company,
+                                        suffixProps: const DropdownSuffixProps(
+                                          clearButtonProps: ClearButtonProps(
+                                            isVisible: true,
+                                          ),
+                                          dropdownButtonProps:
+                                              DropdownButtonProps(
+                                                isVisible: false,
+                                              ),
                                         ),
-                                        dropdownButtonProps:
-                                            DropdownButtonProps(
-                                              isVisible: false,
-                                            ),
-                                      ),
-                                      onChanged: (company) {
-                                        _company = company;
-                                      },
-                                      decoratorProps:
-                                          const DropDownDecoratorProps(
-                                            decoration: InputDecoration(
-                                              labelText: 'Associated Company',
-                                              hintText: 'Select company...',
-                                              prefixIcon: Icon(
-                                                Icons.business_outlined,
+                                        onChanged: (company) {
+                                          _company = company;
+                                        },
+                                        decoratorProps:
+                                            const DropDownDecoratorProps(
+                                              decoration: InputDecoration(
+                                                labelText: 'Associated Company',
+                                                hintText: 'Select company...',
+                                                prefixIcon: Icon(
+                                                  Icons.business_outlined,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      popupProps: PopupProps.menu(
-                                        showSearchBox: true,
-                                        loadingBuilder: (_, _) {
-                                          return const LogistixLoadingIndicator();
-                                        },
-                                        searchFieldProps: const TextFieldProps(
-                                          autofocus: true,
-                                          autocorrect: false,
-                                          decoration: InputDecoration(
-                                            hintText: 'Search companies...',
-                                            prefixIcon: Icon(Icons.search),
+                                        popupProps: PopupProps.menu(
+                                          showSearchBox: true,
+                                          loadingBuilder: (_, _) {
+                                            return const LogistixLoadingIndicator();
+                                          },
+                                          searchFieldProps: const TextFieldProps(
+                                            autofocus: true,
+                                            autocorrect: false,
+                                            decoration: InputDecoration(
+                                              hintText: 'Search companies...',
+                                              prefixIcon: Icon(Icons.search),
+                                            ),
                                           ),
                                         ),
+                                        validator: (val) => val == null
+                                            ? 'Please select your company'
+                                            : null,
                                       ),
-                                      validator: (val) => val == null
-                                          ? 'Please select your company'
-                                          : null,
-                                    ),
+                                    ],
                                   ],
                                 ),
                               ),

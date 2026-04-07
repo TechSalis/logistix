@@ -123,7 +123,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                         ).animate(delay: 80.ms).fade().slideY(begin: 0.12),
                         const SizedBox(height: LogistixSpacing.xs),
                         Text(
-                          'Provide your organization details to set up your dispatcher account.',
+                          'Provide your company details to set up your dispatcher account.',
                           textAlign: TextAlign.center,
                           style: context.textTheme.bodyMedium?.copyWith(
                             color: LogistixColors.textSecondary,
@@ -136,14 +136,16 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                LogistixTextField(
-                                  controller: _companyNameController,
-                                  label: 'Company Name',
-                                  icon: Icons.business_rounded,
-                                  validator: FormBuilderValidators.required(),
-                                  textCapitalization: TextCapitalization.words,
-                                ),
-                                const SizedBox(height: LogistixSpacing.lg),
+                                if (!EnvConfig.instance.isSingleTenant) ...[
+                                  LogistixTextField(
+                                    controller: _companyNameController,
+                                    label: 'Company Name',
+                                    icon: Icons.business_rounded,
+                                    validator: FormBuilderValidators.required(),
+                                    textCapitalization: TextCapitalization.words,
+                                  ),
+                                  const SizedBox(height: LogistixSpacing.lg),
+                                ],
                                 PhoneTextField(
                                   initialCountryCode: 'ng',
                                   onChanged: (value) => _phoneNumber = value,
@@ -217,22 +219,24 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                                   },
                                 ),
                                 const SizedBox(height: LogistixSpacing.lg),
-                                LogistixTextField(
-                                  controller: _cacController,
-                                  label: 'CAC Reg Number',
-                                  icon: Icons.verified_rounded,
-                                  hintText: 'RC123456 or BN123456',
-                                  validator: FormBuilderValidators.compose([
-                                    FormBuilderValidators.required(),
-                                    FormBuilderValidators.match(
-                                      RegExp(r'^(RC|BN)[0-9]{6,7}$'),
-                                      errorText:
-                                          'Invalid CAC (RC/BN + 6-7 digits)',
-                                    ),
-                                  ]),
-                                  textCapitalization:
-                                      TextCapitalization.characters,
-                                ),
+                                if (!EnvConfig.instance.isSingleTenant) ...[
+                                  LogistixTextField(
+                                    controller: _cacController,
+                                    label: 'CAC Reg Number',
+                                    icon: Icons.verified_rounded,
+                                    hintText: 'RC123456 or BN123456',
+                                    validator: FormBuilderValidators.compose([
+                                      FormBuilderValidators.required(),
+                                      FormBuilderValidators.match(
+                                        RegExp(r'^(RC|BN)[0-9]{6,7}$'),
+                                        errorText:
+                                            'Invalid CAC (RC/BN + 6-7 digits)',
+                                      ),
+                                    ]),
+                                    textCapitalization:
+                                        TextCapitalization.characters,
+                                  ),
+                                ],
                               ],
                             ),
                           ),
