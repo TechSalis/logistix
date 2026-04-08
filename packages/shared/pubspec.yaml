@@ -45,6 +45,7 @@ dependencies:
   url_launcher: ^6.3.2
   awesome_notifications: ^0.11.0
   awesome_notifications_fcm: ^0.11.0
+  dio: ^5.9.2
 
 dev_dependencies:
   flutter_test:

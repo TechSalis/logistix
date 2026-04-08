@@ -31,17 +31,17 @@ class AnalyticsRemoteDataSourceImpl implements AnalyticsRemoteDataSource {
     }
 
     try {
-      final response = await _rest.get(
+      final response = await _rest.get<String>(
         '/analytics/export',
         queryParams: queryParams,
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
-        return response.body;
+        return response.data ?? '';
       } else {
         throw AppError(
           message: 'Export failed with status ${response.statusCode}',
-          error: response.body,
+          error: response.data.toString(),
         );
       }
     } catch (e) {

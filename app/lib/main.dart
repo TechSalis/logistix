@@ -13,6 +13,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared/shared.dart';
 
 void main() async {
+  EnvConfig.instance = EnvConfig();
   FlutterNativeSplash.preserve(
     widgetsBinding: SentryWidgetsFlutterBinding.ensureInitialized(),
   );

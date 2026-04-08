@@ -4,6 +4,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
+import 'package:dispatcher/src/domain/usecases/request_integration_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -16,8 +17,10 @@ part 'more_cubit.freezed.dart';
 class MoreState with _$MoreState {
   const factory MoreState.initial() = _Initial;
   const factory MoreState.loading() = _Loading;
-  const factory MoreState.loaded(PackageInfo packageInfo, Company? company) =
-      _Loaded;
+  const factory MoreState.loaded({
+    required PackageInfo packageInfo,
+    required User? user,
+  }) = _Loaded;
   const factory MoreState.error(String message) = _Error;
 }
 
@@ -26,11 +29,13 @@ class MoreCubit extends Cubit<MoreState> {
     this._authStatusRepository,
     this._userStore,
     this._exportAnalyticsUseCase,
+    this._requestIntegrationUseCase,
   ) : super(const MoreState.initial());
 
   final AuthStatusRepository _authStatusRepository;
   final UserStore _userStore;
   final ExportAnalyticsUseCase _exportAnalyticsUseCase;
+  final RequestIntegrationUseCase _requestIntegrationUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -38,12 +43,7 @@ class MoreCubit extends Cubit<MoreState> {
       final packageInfo = await PackageInfo.fromPlatform();
       final user = await _userStore.getUser();
 
-      Company? company;
-      if (user?.companyProfile != null) {
-        company = user!.companyProfile;
-      }
-
-      emit(MoreState.loaded(packageInfo, company));
+      emit(MoreState.loaded(packageInfo: packageInfo, user: user));
     } catch (e) {
       emit(MoreState.error(e.toString()));
     }
@@ -60,6 +60,12 @@ class MoreCubit extends Cubit<MoreState> {
         );
         final csv = result.throwOrReturn();
         return _saveToTempFile(csv, 'analytics_export');
+      });
+
+  late final requestIntegrationRunner =
+      AsyncRunner.withArg<ActivationRequestDto, AppError, void>((request) async {
+        final result = await _requestIntegrationUseCase(request);
+        return result.throwOrReturn();
       });
 
   Future<String> _saveToTempFile(String content, String prefix) async {

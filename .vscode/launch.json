@@ -11,9 +11,7 @@
             "type": "dart",
             "cwd": "app",
             "args": [
-                // "--flavor",
-                // "dev",
-                "--dart-define-from-file=.env"
+                "--dart-define-from-file=.env.debug"
             ]
         },
     ]

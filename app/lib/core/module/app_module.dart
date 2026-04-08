@@ -6,6 +6,7 @@ import 'package:bootstrap/interfaces/logger/logger.dart';
 import 'package:bootstrap/interfaces/modules/module/module.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix/core/services/share_intent_service.dart';
 import 'package:logistix/startup/data/datasources/startup_remote_datasource.dart';
@@ -20,6 +21,12 @@ class AppModule extends Module<RouteBase> {
   @override
   void registerServices(DI injector) {
     // Foundation - App-level services
+
+    final tokenStoreRefresh = TokenStoreFreshDioAdapterInterceptor(
+      createTokenStore(),
+      refreshUrl: EnvConfig.instance.refreshUrl,
+    );
+    
     injector
       ..registerSingleton<Logger>(const SentryLogger())
       ..registerSingleton<TokenStore>(SecureTokenStore())
@@ -43,6 +50,26 @@ class AppModule extends Module<RouteBase> {
       ..registerSingleton<IConnectivityService>(
         ConnectivityAdapter(Connectivity()),
       )
+      ..registerLazySingleton<Dio>(
+        () => DioFactory.build(
+          baseUrl: EnvConfig.instance.apiUrl,
+          interceptors: [
+            tokenStoreRefresh,
+            InterceptorsWrapper(
+              onRequest: (options, handler) {
+                options.headers['x-client-key'] = EnvConfig.instance.clientKey;
+                return handler.next(options);
+              },
+            ),
+          ],
+        ),
+      )
+      ..registerLazySingleton<RestService>(
+        () => RestService(
+          client: injector.get<Dio>(),
+          logger: injector.get<Logger>(),
+        ),
+      )
       ..registerLazySingleton<AuthStatusRepository>(
         () => AuthStatusRepositoryImpl(injector.get<UserStore>()),
       )
@@ -64,7 +91,6 @@ class AppModule extends Module<RouteBase> {
       ..registerLazySingleton<RiderDao>(
         () => RiderDao(injector.get<LogistixDatabase>()),
       )
-
       ..registerLazySingleton<LogoutUseCase>(
         () => LogoutUseCase(
           ClearAppDataUseCase(

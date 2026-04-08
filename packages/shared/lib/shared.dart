@@ -22,6 +22,7 @@ export 'src/data/local/database.dart'
     hide Dispatcher, Dispatchers, Order, Orders, Rider, Riders;
 export 'src/data/local/mappers/order_mapper.dart';
 export 'src/data/local/mappers/rider_mapper.dart';
+export 'src/data/models/activation_request_dto.dart';
 export 'src/data/models/address_dto.dart';
 export 'src/data/models/company_dto.dart';
 export 'src/data/models/dispatcher_metrics_dto.dart';
@@ -30,6 +31,8 @@ export 'src/data/models/rider_dto.dart';
 export 'src/data/models/rider_metrics_dto.dart';
 export 'src/data/models/user_dto.dart';
 export 'src/domain/entities/company.dart';
+export 'src/domain/entities/company_integration.dart';
+export 'src/domain/entities/platform.dart';
 export 'src/domain/entities/order.dart';
 export 'src/domain/entities/paginated_result.dart';
 export 'src/domain/entities/rider.dart';

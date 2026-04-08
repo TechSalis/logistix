@@ -3,20 +3,24 @@ import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:dispatcher/src/core/network/sync/dispatcher_subscription_handler.dart';
 import 'package:dispatcher/src/data/datasources/analytics_remote_datasource.dart';
+import 'package:dispatcher/src/data/datasources/contact_remote_datasource.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:dispatcher/src/data/datasources/order_remote_datasource.dart';
 import 'package:dispatcher/src/data/datasources/rider_remote_datasource.dart';
 import 'package:dispatcher/src/data/repositories/analytics_repository_impl.dart';
+import 'package:dispatcher/src/data/repositories/contact_repository_impl.dart';
 import 'package:dispatcher/src/data/repositories/metrics_repository_impl.dart';
 import 'package:dispatcher/src/data/repositories/order_repository_impl.dart';
 import 'package:dispatcher/src/data/repositories/rider_repository_impl.dart';
 import 'package:dispatcher/src/domain/repositories/analytics_repository.dart';
+import 'package:dispatcher/src/domain/repositories/contact_repository.dart';
 import 'package:dispatcher/src/domain/repositories/metrics_repository.dart';
 import 'package:dispatcher/src/domain/repositories/order_repository.dart';
 import 'package:dispatcher/src/domain/repositories/rider_repository.dart';
 import 'package:dispatcher/src/domain/usecases/dispatcher_initial_sync_provider.dart';
 import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/manage_dispatcher_session_usecase.dart';
+import 'package:dispatcher/src/domain/usecases/request_integration_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/search_riders_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
@@ -79,6 +83,11 @@ class DispatcherModule extends Module<RouteBase> {
               AnalyticsRemoteDataSourceImpl(injector.get<RestService>()),
             ),
           ),
+          RepositoryProvider<ContactRepository>(
+            create: (context) => ContactRepositoryImpl(
+              ContactRemoteDataSourceImpl(injector.get<GraphQLService>()),
+            ),
+          ),
           RepositoryProvider<SearchRidersUseCase>(
             create: (context) {
               return SearchRidersUseCase(context.read<RiderRepository>());
@@ -124,6 +133,7 @@ class DispatcherModule extends Module<RouteBase> {
                 injector.get<AuthStatusRepository>(),
                 injector.get<UserStore>(),
                 ExportAnalyticsUseCase(context.read<AnalyticsRepository>()),
+                RequestIntegrationUseCase(context.read<ContactRepository>()),
               ),
             ),
           ],

@@ -16,9 +16,6 @@ import 'package:shared/shared.dart';
 
 class AppInitialization {
   static Future<GoRouter> init(DI injector) async {
-    // Initialize environment (defaults to Local for dev)
-    EnvConfig.instance = LocalEnvConfig();
-
     // 1. Load env vars and initialize core services
     await Future.wait<void>([
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
