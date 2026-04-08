@@ -85,63 +85,37 @@ This runs `build_runner` across every package that requires it (Freezed, json_se
 > melos run setup
 > ```
 
-### 4. Configure environment variables
+## Environment Configuration
 
-The app reads compile-time environment variables injected via `--dart-define`. Copy the example env file and fill in your values:
+The app uses a unified environment system driven by `.env` files and `EnvConfig`.
 
+### 1. Setup Environment Files
+
+Copy the templates and configure your local/production settings:
 ```bash
-cp app/.env.example app/.env   # if an example exists, otherwise edit app/.env directly
+cp app/.env.example app/.env          # Production settings
+cp app/.env.example app/.env.debug    # Local development settings
 ```
 
-`app/.env`:
-```env
-GRAPHQL_URL=http://localhost:4000/graphql
-SENTRY_DSN=
-ENVIRONMENT=development
-CONTACT_SUPPORT_URL=https://support.logistix.com
-```
+### 2. Running the App
 
-These are **not** automatically read at runtime — they must be passed as `--dart-define` flags when running or building the app (see below).
+We use `--dart-define-from-file` to inject environment variables at build time.
 
----
-
-## Running the App
-
-### Development (local backend)
-
+**Local Development (Debug):**
 ```bash
-cd app
-flutter run \
-  --dart-define=GRAPHQL_URL=http://localhost:4000/graphql \
-  --dart-define=ENVIRONMENT=development \
-  --dart-define=CONTACT_SUPPORT_URL=https://support.logistix.com
+flutter run --dart-define-from-file=app/.env.debug
 ```
 
-### Using a `.env`-style launch configuration (VS Code)
-
-Add a `launch.json` under `.vscode/`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Logistix (dev)",
-      "request": "launch",
-      "type": "dart",
-      "cwd": "app",
-      // Opt 1
-      "args": [
-        "--dart-define=GRAPHQL_URL=http://localhost:4000/graphql",
-        "--dart-define=ENVIRONMENT=development",
-        "--dart-define=CONTACT_SUPPORT_URL=https://support.logistix.com"
-      ]
-      // OR Opt 2
-      "--dart-define-from-file=.env"
-    }
-  ]
-}
+**Production Testing:**
+```bash
+flutter run --release --dart-define-from-file=app/.env
 ```
+
+### 3. VS Code Integration
+
+Pre-configured launch targets are available in `.vscode/launch.json`:
+- **Mobile (Debug)**: Uses `.env.debug` (Localhost)
+- **Mobile (Release)**: Uses `.env` (Production)
 
 ---
 
