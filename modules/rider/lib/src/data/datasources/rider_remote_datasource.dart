@@ -51,8 +51,6 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-
-  @override
   Future<OrderDto> updateOrderStatus(String orderId, String status) async {
     final result = await gqlService.mutate<Map<String, dynamic>>(
       '''
@@ -93,7 +91,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     final data = await mutate<Map<String, dynamic>>(
       mutation,
       key: 'riderHeartbeat',
-      variables: {'lat': ?lat, 'lng': ?lng, 'batteryLevel': ?batteryLevel},
+      variables: {'lat': lat, 'lng': lng, 'batteryLevel': batteryLevel},
     );
 
     return RiderDto.fromJson(data);

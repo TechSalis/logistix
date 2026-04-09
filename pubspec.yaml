@@ -12,7 +12,6 @@ workspace:
   - modules/dispatcher/
   - modules/onboarding/
   - modules/rider/
-  - modules/customer/
 
   - app/
 

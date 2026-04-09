@@ -18,7 +18,12 @@ export 'src/components/logistix_info_tile.dart';
 export 'src/components/logistix_metrics.dart';
 export 'src/components/logistix_settings.dart';
 export 'src/components/logistix_shimmer.dart';
+export 'src/components/logistix_success_view.dart';
+export 'src/components/logistix_choice_chip.dart';
+export 'src/components/logistix_search_field.dart';
 export 'src/components/logistix_text_field.dart';
+// Layouts
+export 'src/layouts/auth_scaffold.dart';
 export 'src/extensions/string_extensions.dart';
 export 'src/theme/extensions/theme_extensions.dart';
 export 'src/theme/logistix_decorations.dart';

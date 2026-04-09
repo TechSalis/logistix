@@ -40,71 +40,57 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           },
         );
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Reset Password')),
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
-            child: Form(
-              key: _formKey,
-              child: LogistixEntrance(
-                children: [
-                  const Icon(
-                    Icons.lock_reset_rounded,
-                    size: 100,
-                    color: LogistixColors.primary,
-                  ),
-                  const SizedBox(height: LogistixSpacing.lg),
-                  Text(
-                    'Forgot Password?',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.headlineMedium?.bold,
-                  ),
-                  const SizedBox(height: LogistixSpacing.sm),
-                  Text(
-                    "Enter your email address and we'll send you a one-time password (OTP) to reset your password.",
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: LogistixColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: LogistixSpacing.xxl),
-                  LogistixTextField(
-                    controller: _emailController,
-                    label: 'Email Address',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    autofocus: true,
-                    validator: FormBuilderValidators.email(),
-                  ),
-                  const SizedBox(height: LogistixSpacing.xl),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final isLoading = state.maybeWhen(
-                        forgotPasswordLoading: () => true,
-                        orElse: () => false,
-                      );
-
-                      return LogistixButton(
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            context.read<AuthBloc>().add(
-                                  AuthEvent.forgotPassword(
-                                    email: _emailController.text.trim(),
-                                  ),
-                                );
-                          }
-                        },
-                        isLoading: isLoading,
-                        label: 'Send OTP',
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+      child: LogistixAuthScaffold(
+        onBack: () => context.pop(),
+        header: Container(
+          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          decoration: BoxDecoration(
+            color: LogistixColors.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.lock_reset_rounded,
+            size: 40,
+            color: LogistixColors.primary,
           ),
         ),
+        title: 'Forgot Password?',
+        subtitle: "Enter your email address and we'll send you a one-time password (OTP) to reset your password.",
+        footer: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            final isLoading = state.maybeWhen(
+              forgotPasswordLoading: () => true,
+              orElse: () => false,
+            );
+
+            return LogistixButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  context.read<AuthBloc>().add(
+                        AuthEvent.forgotPassword(
+                          email: _emailController.text.trim(),
+                        ),
+                      );
+                }
+              },
+              isLoading: isLoading,
+              label: 'Send OTP',
+            );
+          },
+        ),
+        children: [
+          Form(
+            key: _formKey,
+            child: LogistixTextField(
+              controller: _emailController,
+              label: 'Email Address',
+              icon: Icons.email_outlined,
+              keyboardType: TextInputType.emailAddress,
+              autofocus: true,
+              validator: FormBuilderValidators.email(),
+            ),
+          ),
+        ],
       ),
     );
   }

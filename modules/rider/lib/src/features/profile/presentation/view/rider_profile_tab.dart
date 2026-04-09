@@ -240,7 +240,7 @@ class _SettingsSection extends StatelessWidget {
                   title: 'Logout',
                   content: 'Are you sure you want to sign out?',
                   icon: Icons.logout_rounded,
-                  isDestructive: true,
+                  type: LogistixDialogType.destructive,
                   primaryActionText: 'Logout',
                   secondaryActionText: 'Cancel',
                   onPrimaryAction: (ctx) {

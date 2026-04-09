@@ -16,6 +16,9 @@ abstract class User with _$User {
     Rider? riderProfile,
     Company? companyProfile,
     String? sessionId,
+    String? fcmToken,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _User;
 }
 

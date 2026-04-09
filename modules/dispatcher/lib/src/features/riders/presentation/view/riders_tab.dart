@@ -15,21 +15,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.onChanged});
-
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return LogistixTextField(
-      label: '',
-      onChanged: onChanged,
-      hintText: 'Search riders...',
-      icon: Icons.search_rounded,
-    );
-  }
-}
 
 class _RiderStatusFilterList extends StatelessWidget {
   const _RiderStatusFilterList();
@@ -45,14 +30,14 @@ class _RiderStatusFilterList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
           child: Row(
             children: [
-              _StatusChip(
+              LogistixChoiceChip(
                 label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ridersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
-                return _StatusChip(
+                return LogistixChoiceChip(
                   label: status.label,
                   isSelected: isSelected,
                   onTap: () => ridersCubit.filterByStatus(status),
@@ -66,59 +51,6 @@ class _RiderStatusFilterList extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScaleTap(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? LogistixColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? LogistixColors.primary
-                : LogistixColors.border.withValues(alpha: 0.5),
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: LogistixColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Text(
-          label,
-          style: context.textTheme.labelSmall?.bold.copyWith(
-            color: isSelected ? Colors.white : LogistixColors.textSecondary,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class RidersListView extends StatelessWidget {
   const RidersListView({super.key});
@@ -198,8 +130,9 @@ class RidersListView extends StatelessWidget {
                       child: Row(
                         children: [
                           Expanded(
-                            child: _SearchField(
+                            child: LogistixSearchField(
                               onChanged: ridersCubit.searchRiders,
+                              hintText: 'Search riders...',
                             ),
                           ),
                           const SizedBox(width: 12),

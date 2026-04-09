@@ -73,36 +73,31 @@ class SyncPage extends StatefulWidget {
         (error is UserError ? error.message : null) ??
         'Failed to synchronize data. Please check your internet connection.';
 
-    showDialog<void>(
+    LogistixDialog.show<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => LogistixDialog(
-        title: 'Sync Error',
-        content: message,
-        actions: [
-          TextButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              onRetry();
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
-          ),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.pop(context);
-              onLogout();
-            },
-            icon: const Icon(Icons.logout, color: LogistixColors.error),
-            label: Text(
-              'Logout',
-              style: context.textTheme.labelLarge?.copyWith(
-                color: LogistixColors.error,
-              ),
-            ),
-          ),
-        ],
-      ),
+      title: 'Sync Error',
+      content: message,
+      actionsBuilder: (dialogContext) => [
+        LogistixButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            onRetry();
+          },
+          label: 'Retry',
+          icon: Icons.refresh,
+        ),
+        const SizedBox(height: 12),
+        LogistixButton(
+          onPressed: () {
+            Navigator.pop(dialogContext);
+            onLogout();
+          },
+          label: 'Logout',
+          icon: Icons.logout,
+          type: LogistixButtonType.text,
+        ),
+      ],
     );
   }
 

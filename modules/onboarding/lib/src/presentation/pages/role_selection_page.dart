@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
@@ -35,131 +34,63 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: LogistixColors.background,
-      body: Stack(
+    return LogistixAuthScaffold(
+      header: Container(
+        padding: const EdgeInsets.all(LogistixSpacing.md),
+        decoration: BoxDecoration(
+          color: LogistixColors.primary.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.person_pin_rounded,
+          size: 40,
+          color: LogistixColors.primary,
+        ),
+      ),
+      title: 'Confirm Your Role',
+      subtitle: 'Select the role that matches your workflow to get started.',
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Decorative background element
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: LogistixDecorations.circleMotif(),
-            ),
+          LogistixButton(
+            label: 'Continue',
+            onPressed: _selectedRole == null
+                ? null
+                : () {
+                    switch (_selectedRole!) {
+                      case UserRole.rider:
+                        context.push(OnboardingRoutes.riderOnboarding);
+                      case UserRole.dispatcher:
+                        context.push(OnboardingRoutes.dispatcherOnboarding);
+                    }
+                  },
           ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: LogistixSpacing.lg),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: LogistixSpacing.xl,
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                            padding: const EdgeInsets.all(LogistixSpacing.md),
-                            decoration: BoxDecoration(
-                              color: LogistixColors.primary.withValues(
-                                alpha: 0.1,
-                              ),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.person_pin_rounded,
-                              size: 48,
-                              color: LogistixColors.primary,
-                            ),
-                          )
-                          .animate()
-                          .fade(duration: 400.ms)
-                          .scale(
-                            begin: const Offset(0.85, 0.85),
-                            curve: Curves.easeOutBack,
-                          ),
-                      const SizedBox(height: LogistixSpacing.lg),
-                      Text(
-                        'Confirm Your Role',
-                        textAlign: TextAlign.center,
-                        style: context.textTheme.headlineMedium?.bold.copyWith(
-                          color: LogistixColors.text,
-                        ),
-                      ).animate(delay: 80.ms).fade().slideY(begin: 0.15),
-                      const SizedBox(height: LogistixSpacing.sm),
-                      Text(
-                        'Select the role that matches your workflow to get started.',
-                        textAlign: TextAlign.center,
-                        style: context.textTheme.bodyLarge?.copyWith(
-                          color: LogistixColors.textSecondary,
-                        ),
-                      ).animate(delay: 120.ms).fade().slideY(begin: 0.15),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: LogistixSpacing.xxl),
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: LogistixSpacing.lg,
-                    ),
-                    itemCount: _roles.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(height: LogistixSpacing.md),
-                    itemBuilder: (context, index) {
-                      final roleOption = _roles[index];
-                      final isSelected = _selectedRole == roleOption.role;
-
-                      return _RoleCard(
-                        roleOption: roleOption,
-                        isSelected: isSelected,
-                        onTap: () {
-                          setState(() => _selectedRole = roleOption.role);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(LogistixSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                        LogistixButton(
-                          label: 'Continue',
-                        onPressed: _selectedRole == null
-                            ? null
-                            : () {
-                                switch (_selectedRole!) {
-                                  case UserRole.rider:
-                                    context.push(
-                                      OnboardingRoutes.riderOnboarding,
-                                    );
-                                  case UserRole.dispatcher:
-                                    context.push(
-                                      OnboardingRoutes.dispatcherOnboarding,
-                                    );
-                                  // case UserRole.customer:
-                                  //   return;
-                                }
-                              },
-                      ),
-                      const SizedBox(height: LogistixSpacing.sm),
-                      LogistixButton(
-                        label: 'Back to Login',
-                        onPressed: context.read<OnboardingBloc>().backToAuth,
-                        type: LogistixButtonType.text,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: LogistixSpacing.sm),
+          LogistixButton(
+            label: 'Back to Login',
+            onPressed: context.read<OnboardingBloc>().backToAuth,
+            type: LogistixButtonType.text,
           ),
         ],
       ),
+      children: [
+        ...List.generate(_roles.length, (index) {
+          final roleOption = _roles[index];
+          final isSelected = _selectedRole == roleOption.role;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: LogistixSpacing.md),
+            child: _RoleCard(
+              roleOption: roleOption,
+              isSelected: isSelected,
+              onTap: () {
+                setState(() => _selectedRole = roleOption.role);
+              },
+            ),
+          );
+        }),
+      ],
     );
   }
 }

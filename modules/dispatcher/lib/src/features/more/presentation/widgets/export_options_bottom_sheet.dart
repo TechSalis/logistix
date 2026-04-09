@@ -7,8 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
-class ExportOptionsDialog extends StatefulWidget {
-  const ExportOptionsDialog({
+class ExportOptionsSheet extends StatefulWidget {
+  const ExportOptionsSheet({
     super.key,
     this.title = 'Export Orders',
     this.showRiderFilter = true,
@@ -18,10 +18,10 @@ class ExportOptionsDialog extends StatefulWidget {
   final bool showRiderFilter;
 
   @override
-  State<ExportOptionsDialog> createState() => _ExportOptionsDialogState();
+  State<ExportOptionsSheet> createState() => _ExportOptionsSheetState();
 }
 
-class _ExportOptionsDialogState extends State<ExportOptionsDialog> {
+class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
   DateTime? _startDate;
   DateTime? _endDate;
   Rider? _selectedRider;
@@ -57,118 +57,107 @@ class _ExportOptionsDialogState extends State<ExportOptionsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: LogistixColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.file_download_outlined,
-                    color: LogistixColors.primary,
-                    size: 20,
-                  ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: LogistixColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: context.textTheme.titleLarge?.bold,
-                  ),
+                child: const Icon(
+                  Icons.file_download_outlined,
+                  color: LogistixColors.primary,
+                  size: 20,
                 ),
-                IconButton.filledTonal(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded),
-                  style: IconButton.styleFrom(
-                    foregroundColor: LogistixColors.text,
-                    backgroundColor: LogistixColors.neutral100,
-                  ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(
+                  widget.title,
+                  style: context.textTheme.titleLarge?.bold,
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Date Range',
+            style: context.textTheme.labelSmall?.bold.copyWith(
+              color: LogistixColors.textSecondary,
             ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 8),
+          InkWell(
+            onTap: _selectDateRange,
+            borderRadius: BorderRadius.circular(LogistixRadii.input),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: LogistixColors.background,
+                borderRadius: BorderRadius.circular(LogistixRadii.input),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.calendar_today_rounded,
+                    size: 20,
+                    color: LogistixColors.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      _startDate != null && _endDate != null
+                          ? '${DateFormat('MMM d, y').format(_startDate!)} - ${DateFormat('MMM d, y').format(_endDate!)}'
+                          : 'Select date range (Optional)',
+                      style: context.textTheme.bodyMedium?.semiBold.copyWith(
+                        color: _startDate != null
+                            ? null
+                            : LogistixColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (widget.showRiderFilter) ...[
+            const SizedBox(height: 20),
             Text(
-              'Date Range',
+              'Filter by Rider',
               style: context.textTheme.labelSmall?.bold.copyWith(
                 color: LogistixColors.textSecondary,
               ),
             ),
             const SizedBox(height: 8),
-            InkWell(
-              onTap: _selectDateRange,
-              borderRadius: BorderRadius.circular(LogistixRadii.input),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: LogistixColors.background,
-                  borderRadius: BorderRadius.circular(LogistixRadii.input),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.calendar_today_rounded,
-                      size: 20,
-                      color: LogistixColors.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _startDate != null && _endDate != null
-                            ? '${DateFormat('MMM d, y').format(_startDate!)} - ${DateFormat('MMM d, y').format(_endDate!)}'
-                            : 'Select date range (Optional)',
-                        style: context.textTheme.bodyMedium?.semiBold.copyWith(
-                          color: _startDate != null
-                              ? null
-                              : LogistixColors.textTertiary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (widget.showRiderFilter) ...[
-              const SizedBox(height: 20),
-              Text(
-                'Filter by Rider',
-                style: context.textTheme.labelSmall?.bold.copyWith(
-                  color: LogistixColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-              AssignRiderDropdownSearch(
-                selectedRider: _selectedRider,
-                searchRiders: (filter) =>
-                    context.read<SearchRidersUseCase>().call(filter),
-                onChanged: (rider) => setState(() => _selectedRider = rider),
-                label: 'Search or select a rider',
-              ),
-            ],
-            const SizedBox(height: 32),
-            LogistixButton(
-              onPressed: () {
-                final params = ExportParams(
-                  startDate: _startDate,
-                  endDate: _endDate,
-                  riderId: _selectedRider?.id,
-                );
-                Navigator.pop(context, params);
-              },
-              label: 'Generate CSV',
-              icon: Icons.check_circle_rounded,
+            AssignRiderDropdownSearch(
+              selectedRider: _selectedRider,
+              searchRiders: (filter) =>
+                  context.read<SearchRidersUseCase>().call(filter),
+              onChanged: (rider) => setState(() => _selectedRider = rider),
+              label: 'Search or select a rider',
             ),
           ],
-        ),
+          const SizedBox(height: 32),
+          LogistixButton(
+            onPressed: () {
+              final params = ExportParams(
+                startDate: _startDate,
+                endDate: _endDate,
+                riderId: _selectedRider?.id,
+              );
+              Navigator.pop(context, params);
+            },
+            label: 'Generate CSV',
+            icon: Icons.check_circle_rounded,
+          ),
+        ],
       ),
     );
   }

@@ -10,7 +10,7 @@ abstract class DispatcherSyncDto with _$DispatcherSyncDto {
   const factory DispatcherSyncDto({
     required List<OrderDto> orders,
     required List<RiderDto> riders,
-    required DispatcherMetricsDto metrics,
+    DispatcherMetricsDto? metrics,
     required int lastUpdated,
     @Default([]) List<String> deletedOrderIds,
     @Default([]) List<String> deletedRiderIds,

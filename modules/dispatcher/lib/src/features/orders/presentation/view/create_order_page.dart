@@ -50,7 +50,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                       title: 'Clear all orders?',
                       content: 'This will remove all orders you have prepared.',
                       primaryActionText: 'Clear All',
-                      isDestructive: true,
+                      type: LogistixDialogType.destructive,
                       onPrimaryAction: (context) {
                         createOrderCubit.reset();
                         Navigator.pop(context);

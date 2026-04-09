@@ -207,18 +207,20 @@ class OrderRepositoryImpl implements OrderRepository {
       // 1. Local heuristic parser with confidence scoring
       final localResult = await OrderParser.parse(text);
 
-      List<OrderCreateInput> results = [];
+      List<OrderCreateInput>? results;
 
       if (!localResult.needsRemoteFallback && localResult.orders.isNotEmpty) {
         results = localResult.orders.map((p) => p.order).toList();
       }
 
       // 2. Telemetry Fallback - Capture text on backend if local parser struggles
-      if (results.isEmpty || localResult.needsRemoteFallback) {
-        await _remoteDataSource.parseTextToOrders(text).catchError((_) => <OrderCreateInput>[]);
+      if (results == null || localResult.needsRemoteFallback) {
+        try {
+          await _remoteDataSource.parseTextToOrders(text);
+        } on Object catch (_) {}
       }
 
-      if (results.isEmpty) return [];
+      if (results == null) return [];
 
       // 3. Parallel Google Places resolution for extracted addresses
       // We perform all resolutions in parallel using high-performance fuzzy word matching

@@ -4,6 +4,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
+import 'package:dispatcher/src/domain/usecases/get_integrations_usecase.dart';
 import 'package:dispatcher/src/domain/usecases/request_integration_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -30,12 +31,14 @@ class MoreCubit extends Cubit<MoreState> {
     this._userStore,
     this._exportAnalyticsUseCase,
     this._requestIntegrationUseCase,
+    this._getIntegrationsUseCase,
   ) : super(const MoreState.initial());
 
   final AuthStatusRepository _authStatusRepository;
   final UserStore _userStore;
   final ExportAnalyticsUseCase _exportAnalyticsUseCase;
   final RequestIntegrationUseCase _requestIntegrationUseCase;
+  final GetIntegrationsUseCase _getIntegrationsUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -65,7 +68,57 @@ class MoreCubit extends Cubit<MoreState> {
   late final requestIntegrationRunner =
       AsyncRunner.withArg<ActivationRequestDto, AppError, void>((request) async {
         final result = await _requestIntegrationUseCase(request);
-        return result.throwOrReturn();
+        final integration = result.throwOrReturn();
+
+        state.whenOrNull(
+          loaded: (info, user) {
+            if (user == null) return;
+            final company = user.companyProfile;
+            if (company == null) return;
+
+            final integrations = List<CompanyIntegration>.from(
+              company.integrations ?? [],
+            );
+
+            // Replace or add the integration
+            final existingIndex = integrations.indexWhere(
+              (e) => e.platform == integration.platform,
+            );
+            if (existingIndex >= 0) {
+              integrations[existingIndex] = integration;
+            } else {
+              integrations.add(integration);
+            }
+
+            final updatedUser = user.copyWith(
+              companyProfile: company.copyWith(integrations: integrations),
+            );
+
+            _userStore.saveUser(updatedUser);
+            emit(MoreState.loaded(packageInfo: info, user: updatedUser));
+          },
+        );
+      });
+
+  late final fetchIntegrationsRunner =
+      AsyncRunner<AppError, List<CompanyIntegration>>(() async {
+        final result = await _getIntegrationsUseCase();
+        final integrations = result.throwOrReturn();
+
+        state.whenOrNull(
+          loaded: (info, user) {
+            if (user == null) return;
+            final updatedUser = user.copyWith(
+              companyProfile: user.companyProfile?.copyWith(
+                integrations: integrations,
+              ),
+            );
+            _userStore.saveUser(updatedUser);
+            emit(MoreState.loaded(packageInfo: info, user: updatedUser));
+          },
+        );
+
+        return integrations;
       });
 
   Future<String> _saveToTempFile(String content, String prefix) async {

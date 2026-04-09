@@ -46,7 +46,7 @@ class SyncRiderDataUseCase {
             syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
           ),
         if (offset == 0) _riderDao.upsertRider(syncDto.rider.toDriftCompanion()),
-        if (offset == 0) _metricsStore.set(syncDto.metrics),
+        if (syncDto.metrics != null) _metricsStore.set(syncDto.metrics!),
       ]);
 
       // Handle deletions

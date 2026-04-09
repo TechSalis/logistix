@@ -57,6 +57,15 @@ enum SubscriptionEventType {
   location_updated,
 }
 
+extension SubscriptionEventTypeX on SubscriptionEventType {
+  static SubscriptionEventType fromString(String value) {
+    return SubscriptionEventType.values.firstWhere(
+      (e) => e.name.toLowerCase() == value.toLowerCase(),
+      orElse: () => SubscriptionEventType.updated,
+    );
+  }
+}
+
 extension OrderStatusX on OrderStatus {
   String get value => name;
 

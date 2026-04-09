@@ -21,6 +21,9 @@ abstract class UserDto with _$UserDto {
     RiderDto? riderProfile,
     CompanyDto? companyProfile,
     String? sessionId,
+    String? fcmToken,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _UserDto;
 
   const UserDto._();
@@ -40,6 +43,9 @@ abstract class UserDto with _$UserDto {
       riderProfile: user.riderProfile != null ? RiderDto.fromEntity(user.riderProfile!) : null,
       companyProfile: user.companyProfile != null ? CompanyDto.fromEntity(user.companyProfile!) : null,
       sessionId: user.sessionId,
+      fcmToken: user.fcmToken,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     );
   }
 
@@ -54,6 +60,9 @@ abstract class UserDto with _$UserDto {
     riderProfile: riderProfile?.toEntity(),
     companyProfile: companyProfile?.toEntity(),
     sessionId: sessionId,
+    fcmToken: fcmToken,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
   );
 
   static Map<String, dynamic>? toJsonFunc(UserDto? object) {

@@ -49,91 +49,78 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
             context.go('${AuthRoutes.resetPassword}?email=$email');
           },
           verifyOtpError: (message) {
-            setState(() {
-              _isVerifying = false;
-            });
+            setState(() => _isVerifying = false);
             context.toast.showToast(message, type: ToastType.error);
           },
         );
       },
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Verify Account')),
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
-            child: LogistixEntrance(
-              children: [
-                const Icon(
-                  Icons.mark_email_read_rounded,
-                  size: 100,
-                  color: LogistixColors.primary,
-                ),
-                const SizedBox(height: LogistixSpacing.lg),
-                Text(
-                  'Verify Your Identity',
-                  textAlign: TextAlign.center,
-                  style: context.textTheme.headlineMedium?.bold,
-                ),
-                const SizedBox(height: LogistixSpacing.sm),
-                Text.rich(
-                  TextSpan(
-                    text: 'We sent a verification code to ',
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: LogistixColors.textSecondary,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: widget.email,
-                        style: context.textTheme.bodyMedium?.semiBold.copyWith(
-                          color: LogistixColors.text,
-                        ),
-                      ),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: LogistixSpacing.xxl),
-                Pinput(
-                  autofocus: true,
-                  length: 6,
-                  onCompleted: _onOtpCompleted,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  defaultPinTheme: PinTheme(
-                    width: 50,
-                    height: 56,
-                    textStyle: context.textTheme.headlineSmall?.bold,
-                    decoration: BoxDecoration(
-                      color: LogistixColors.surface,
-                      borderRadius: BorderRadius.circular(LogistixRadii.md),
-                      border: Border.all(color: LogistixColors.border),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: LogistixSpacing.xl),
-                if (_isVerifying)
-                  const Center(child: LogistixInlineLoader(size: 32))
-                else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Didn't receive code? ",
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: LogistixColors.textSecondary,
-                        ),
-                      ),
-                      LogistixButton(
-                        onPressed: _resendOtp,
-                        label: 'Resend',
-                        type: LogistixButtonType.text,
-                      ),
-                    ],
-                  ),
-              ],
-            ),
+      child: LogistixAuthScaffold(
+        onBack: () => context.pop(),
+        header: Container(
+          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          decoration: BoxDecoration(
+            color: LogistixColors.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.mark_email_read_rounded,
+            size: 40,
+            color: LogistixColors.primary,
           ),
         ),
+        title: 'Verify Your Identity',
+        subtitle: 'We sent a verification code to ${widget.email}',
+        footer: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Didn't receive code? ",
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: LogistixColors.textSecondary,
+                  ),
+                ),
+                LogistixButton(
+                  onPressed: _resendOtp,
+                  label: 'Resend',
+                  type: LogistixButtonType.text,
+                ),
+              ],
+            ),
+          ],
+        ),
+        children: [
+          Pinput(
+            autofocus: true,
+            length: 6,
+            onCompleted: _onOtpCompleted,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            defaultPinTheme: PinTheme(
+              width: 50,
+              height: 56,
+              textStyle: context.textTheme.headlineSmall?.bold,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(LogistixRadii.md),
+                border: Border.all(color: LogistixColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isVerifying) ...[
+            const SizedBox(height: LogistixSpacing.xl),
+            const Center(child: LogistixInlineLoader(size: 32)),
+          ],
+        ],
       ),
     );
   }

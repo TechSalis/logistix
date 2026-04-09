@@ -41,110 +41,93 @@ class _LoginPageState extends State<LoginPage> {
           },
         );
       },
-      child: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(LogistixSpacing.pagePadding),
-            child: Form(
-              key: _formKey,
-              child: LogistixEntrance(
-                children: [
-                  Hero(
-                    tag: 'logo',
-                    child: LogistixAssets.images.icon.image(height: 80),
-                  ),
-                  const SizedBox(height: LogistixSpacing.md),
-                  Text(
-                    'Logistix',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.headlineLarge?.bold,
-                  ),
-                  const SizedBox(height: LogistixSpacing.sm),
-                  Text(
-                    'Precision in every step',
-                    textAlign: TextAlign.center,
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: LogistixColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: LogistixSpacing.xxl),
-                  LogistixTextField(
-                    label: 'Email',
-                    controller: _emailController,
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: FormBuilderValidators.email(),
-                  ),
-                  const SizedBox(height: LogistixSpacing.md),
-                  LogistixTextField(
-                    label: 'Password',
-                    controller: _passwordController,
-                    icon: Icons.lock_outline,
-                    obscureText: _obscurePassword,
-                    validator: FormBuilderValidators.required(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: LogistixSpacing.xs),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: LogistixButton(
-                      label: 'Forgot Password?',
-                      onPressed: () => context.push(AuthRoutes.forgotPassword),
-                      type: LogistixButtonType.text,
-                    ),
-                  ),
-                  const SizedBox(height: LogistixSpacing.lg),
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      final isLoading = state.maybeWhen(
-                        loginLoading: () => true,
-                        orElse: () => false,
+      child: LogistixAuthScaffold(
+        header: Hero(
+          tag: 'logo',
+          child: LogistixAssets.images.icon.image(height: 80),
+        ),
+        title: 'Logistix',
+        subtitle: 'Precision in every step',
+        footer: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            final isLoading = state.maybeWhen(
+              loginLoading: () => true,
+              orElse: () => false,
+            );
+            return LogistixButton(
+              label: 'Login',
+              isLoading: isLoading,
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? true) {
+                  context.read<AuthBloc>().add(
+                        AuthEvent.login(
+                          email: _emailController.text,
+                          password: _passwordController.text,
+                        ),
                       );
-                      return LogistixButton(
-                        label: 'Login',
-                        isLoading: isLoading,
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? true) {
-                            context.read<AuthBloc>().add(
-                                  AuthEvent.login(
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                );
-                          }
-                        },
-                      );
+                }
+              },
+            );
+          },
+        ),
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                LogistixTextField(
+                  label: 'Email',
+                  controller: _emailController,
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: FormBuilderValidators.email(),
+                ),
+                const SizedBox(height: LogistixSpacing.md),
+                LogistixTextField(
+                  label: 'Password',
+                  controller: _passwordController,
+                  icon: Icons.lock_outline,
+                  obscureText: _obscurePassword,
+                  validator: FormBuilderValidators.required(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () {
+                      setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
-                  const SizedBox(height: LogistixSpacing.lg),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an account? ",
-                        style: context.textTheme.bodyMedium,
-                      ),
-                      LogistixButton(
-                        label: 'Sign Up',
-                        onPressed: () => context.go(AuthRoutes.signUp),
-                        type: LogistixButtonType.text,
-                      ),
-                    ],
+                ),
+                const SizedBox(height: LogistixSpacing.xs),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: LogistixButton(
+                    label: 'Forgot Password?',
+                    onPressed: () => context.push(AuthRoutes.forgotPassword),
+                    type: LogistixButtonType.text,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: LogistixSpacing.lg),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account? ",
+                      style: context.textTheme.bodyMedium,
+                    ),
+                    LogistixButton(
+                      label: 'Sign Up',
+                      onPressed: () => context.go(AuthRoutes.signUp),
+                      type: LogistixButtonType.text,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

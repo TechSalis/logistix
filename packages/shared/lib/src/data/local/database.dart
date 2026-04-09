@@ -92,19 +92,6 @@ class SyncMetadata extends Table {
 
 
 
-class DispatcherMetrics extends Table {
-  TextColumn get companyId => text()();
-  IntColumn get activeOrders => integer().withDefault(const Constant(0))();
-  IntColumn get unassignedOrders => integer().withDefault(const Constant(0))();
-  IntColumn get assignedOrders => integer().withDefault(const Constant(0))();
-  IntColumn get enRouteOrders => integer().withDefault(const Constant(0))();
-  IntColumn get onlineRidersCount => integer().withDefault(const Constant(0))();
-  IntColumn get busyRidersCount => integer().withDefault(const Constant(0))();
-  DateTimeColumn get updatedAt => dateTime().nullable()();
-
-  @override
-  Set<Column> get primaryKey => {companyId};
-}
 
 @DriftDatabase(
   tables: [
@@ -112,7 +99,6 @@ class DispatcherMetrics extends Table {
     Riders,
     Dispatchers,
     SyncMetadata,
-    DispatcherMetrics,
   ],
   daos: [OrderDao, RiderDao],
 )
@@ -120,29 +106,14 @@ class LogistixDatabase extends _$LogistixDatabase {
   LogistixDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) async {
+      await m.createAll();
+    },
     onUpgrade: (m, from, to) async {
-      if (from < 11) {
-        // Development-era reset
-        for (final table in allTables) {
-          await m.drop(table);
-        }
-        await m.createAll();
-      } else if (from < 12) {
-        // Sequential migrations
-        await m.createTable(dispatcherMetrics);
-        try {
-          await m.addColumn(riders, riders.permitStatus);
-        } catch (_) {}
-      } else if (from < 13) {
-        // Rename CompanyMetrics to DispatcherMetrics (conceptually, here we just ensure the table exists or handle rename if needed)
-        // In this simple case, we just make sure the new table is created if it doesn't exist.
-        // Actually, drift Table rename is complex, but since it's development, I'll just create it.
-        await m.createTable(dispatcherMetrics);
-      }
     },
   );
 
@@ -168,15 +139,6 @@ class LogistixDatabase extends _$LogistixDatabase {
     );
   }
 
-  Future<void> upsertDispatcherMetrics(DispatcherMetricsCompanion companion) {
-    return into(dispatcherMetrics).insertOnConflictUpdate(companion);
-  }
-
-  Stream<DispatcherMetric?> watchDispatcherMetrics(String companyId) {
-    return (select(
-      dispatcherMetrics,
-    )..where((t) => t.companyId.equals(companyId))).watchSingleOrNull();
-  }
 
   Future<void> clear() async {
     await Future.wait([

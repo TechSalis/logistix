@@ -216,19 +216,23 @@ class GraphQLService {
 
     // Network failed, try cache if enabled
     if (useCache) {
-      _logger?.info('Network failed, trying cache fallback');
-      final cacheResult = await client.query<T>(
-        QueryOptions<T>(
-          document: gql(document),
-          variables: variables ?? {},
-          fetchPolicy: FetchPolicy.cacheOnly,
-        ),
-      );
+      try {
+        _logger?.info('Network failed, trying cache fallback');
+        final cacheResult = await client.query<T>(
+          QueryOptions<T>(
+            document: gql(document),
+            variables: variables ?? {},
+            fetchPolicy: FetchPolicy.cacheOnly,
+          ),
+        );
 
-      // Return cache result if it has data, otherwise return network error
-      if (cacheResult.data != null && !cacheResult.hasException) {
-        _logger?.info('Cache fallback successful');
-        return cacheResult;
+        // Return cache result if it has data, otherwise return network error
+        if (cacheResult.data != null && !cacheResult.hasException) {
+          _logger?.info('Cache fallback successful');
+          return cacheResult;
+        }
+      } on Object catch (e) {
+        _logger?.warn('Cache fallback failed: $e');
       }
     }
 

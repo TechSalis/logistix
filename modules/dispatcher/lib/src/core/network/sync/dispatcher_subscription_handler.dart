@@ -1,3 +1,4 @@
+import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared/shared.dart';
 
@@ -5,11 +6,11 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
   DispatcherSubscriptionHandler({
     required super.orderDao,
     required super.riderDao,
-    required LogistixDatabase database,
+    required StreamableObjectStore<DispatcherMetricsDto> metricsStore,
     super.logger,
-  }) : _database = database;
+  }) : _metricsStore = metricsStore;
 
-  final LogistixDatabase _database;
+  final StreamableObjectStore<DispatcherMetricsDto> _metricsStore;
 
   @override
   @mustCallSuper
@@ -22,12 +23,7 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
     await super.handleOrderUpdate(orderDto, eventType, riderDto: riderDto);
 
     if (dispatcherMetrics != null) {
-      final companyId = orderDto?.companyId ?? riderDto?.companyId;
-      if (companyId != null) {
-        await _database.upsertDispatcherMetrics(
-          dispatcherMetrics.toDriftCompanion(companyId),
-        );
-      }
+      await _metricsStore.set(dispatcherMetrics);
     }
   }
 
@@ -41,9 +37,7 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
     await super.handleRiderUpdate(riderDto, eventType);
 
     if (dispatcherMetrics != null) {
-      await _database.upsertDispatcherMetrics(
-        dispatcherMetrics.toDriftCompanion(riderDto.companyId),
-      );
+      await _metricsStore.set(dispatcherMetrics);
     }
   }
 }

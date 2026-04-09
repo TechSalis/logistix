@@ -74,7 +74,7 @@ class RiderSessionManager {
   void startHeartbeat() {
     _heartbeatTimer?.cancel();
     _heartbeatTimer = Timer.periodic(
-      const Duration(seconds: 20),
+      const Duration(seconds: 30),
       (_) => _sendHeartbeat(),
     );
   }

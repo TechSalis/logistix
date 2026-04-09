@@ -9,7 +9,14 @@ class ContactRepositoryImpl implements ContactRepository {
   final ContactRemoteDataSource _remoteDataSource;
 
   @override
-  Future<Result<AppError, void>> requestIntegration(ActivationRequestDto request) async {
+  Future<Result<AppError, CompanyIntegration>> requestIntegration(
+    ActivationRequestDto request,
+  ) async {
     return Result.tryCatch(() => _remoteDataSource.requestIntegration(request));
+  }
+
+  @override
+  Future<Result<AppError, List<CompanyIntegration>>> getIntegrations() async {
+    return Result.tryCatch(_remoteDataSource.getIntegrations);
   }
 }

@@ -3,5 +3,9 @@ import 'package:bootstrap/definitions/result.dart';
 import 'package:shared/shared.dart';
 
 abstract class ContactRepository {
-  Future<Result<AppError, void>> requestIntegration(ActivationRequestDto request);
+  Future<Result<AppError, CompanyIntegration>> requestIntegration(
+    ActivationRequestDto request,
+  );
+
+  Future<Result<AppError, List<CompanyIntegration>>> getIntegrations();
 }

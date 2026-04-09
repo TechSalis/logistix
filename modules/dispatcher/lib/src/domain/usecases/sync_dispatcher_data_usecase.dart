@@ -54,13 +54,7 @@ class SyncDispatcherDataUseCase {
         if (syncDto.deletedRiderIds.isNotEmpty)
           _riderDao.deleteRiders(syncDto.deletedRiderIds),
         
-        // Persist materialized metrics to local DB
-        if (offset == 0 && (syncDto.riders.isNotEmpty || syncDto.orders.isNotEmpty)) 
-          _database.upsertDispatcherMetrics(
-            syncDto.metrics.toDriftCompanion(syncDto.riders.firstOrNull?.companyId ?? syncDto.orders.firstOrNull?.companyId ?? 'unknown')
-          ),
-
-        if (offset == 0) _metricsStore.set(syncDto.metrics),
+        if (syncDto.metrics != null) _metricsStore.set(syncDto.metrics!),
       ]);
 
       if (syncDto.orders.length < limit && syncDto.riders.length < limit) {

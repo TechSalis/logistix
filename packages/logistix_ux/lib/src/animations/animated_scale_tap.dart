@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:logistix_ux/src/animations/animation_constants.dart';
 
 /// A widget that scales down on tap for a premium tactile feedback
@@ -55,6 +56,7 @@ class _AnimatedScaleTapState extends State<AnimatedScaleTap>
 
   void _onTapDown(TapDownDetails details) {
     if (widget.enabled) {
+      HapticFeedback.lightImpact();
       _controller.forward();
     }
   }

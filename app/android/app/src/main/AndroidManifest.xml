@@ -48,7 +48,7 @@
             android:value="2" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCR-7VW7Kw81mtlGlhbnb7iumOzUeCYjpM" />
+            android:value="AIzaSyDEkCPWDOlqxeLUjBxz5Hl2-cB-LRNBf34" />
         <!-- Notification & Background Services Configuration -->
         <service 
             android:name="androidx.work.impl.foreground.SystemForegroundService" 

@@ -84,8 +84,9 @@ class OrdersTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                           horizontal: LogistixSpacing.lg,
                         ),
-                        child: _SearchField(
+                        child: LogistixSearchField(
                           onChanged: ordersCubit.searchOrders,
+                          hintText: 'Search orders or trackings...',
                         ),
                       ),
                       const SizedBox(height: LogistixSpacing.md),
@@ -172,20 +173,6 @@ class OrdersTab extends StatelessWidget {
   }
 }
 
-class _SearchField extends StatelessWidget {
-  const _SearchField({required this.onChanged});
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return LogistixTextField(
-      label: '',
-      onChanged: onChanged,
-      hintText: 'Search orders or trackings...',
-      icon: Icons.search_rounded,
-    );
-  }
-}
 
 class _StatusFilterList extends StatelessWidget {
   const _StatusFilterList();
@@ -201,14 +188,14 @@ class _StatusFilterList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
           child: Row(
             children: [
-              _StatusChip(
+              LogistixChoiceChip(
                 label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ordersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
-                return _StatusChip(
+                return LogistixChoiceChip(
                   label: status.label,
                   isSelected: isSelected,
                   onTap: () => ordersCubit.filterByStatus(status),
@@ -222,57 +209,4 @@ class _StatusFilterList extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
 
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScaleTap(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(right: LogistixSpacing.xs),
-        padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.md, vertical: LogistixSpacing.sm),
-        decoration: BoxDecoration(
-          color: isSelected ? LogistixColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? LogistixColors.primary
-                : LogistixColors.border.withValues(alpha: 0.5),
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: LogistixColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Text(
-          label,
-          style: context.textTheme.labelSmall?.bold.copyWith(
-            color: isSelected ? Colors.white : LogistixColors.textSecondary,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
-}

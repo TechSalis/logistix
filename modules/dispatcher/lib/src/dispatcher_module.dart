@@ -35,6 +35,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared/shared.dart';
 
+import 'package:dispatcher/src/domain/usecases/get_integrations_usecase.dart';
+
 class DispatcherModule extends Module<RouteBase> {
   const DispatcherModule();
 
@@ -52,7 +54,9 @@ class DispatcherModule extends Module<RouteBase> {
             create: (context) => DispatcherSubscriptionHandler(
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
-              database: injector.get<LogistixDatabase>(),
+              metricsStore: injector.get<
+                StreamableObjectStore<DispatcherMetricsDto>
+              >(),
               logger: injector.get<Logger>(),
             ),
           ),
@@ -74,8 +78,7 @@ class DispatcherModule extends Module<RouteBase> {
           ),
           RepositoryProvider<MetricsRepository>(
             create: (context) => MetricsRepositoryImpl(
-              injector.get<LogistixDatabase>(),
-              injector.get<UserStore>(),
+              injector.get<StreamableObjectStore<DispatcherMetricsDto>>(),
             ),
           ),
           RepositoryProvider<AnalyticsRepository>(
@@ -134,6 +137,7 @@ class DispatcherModule extends Module<RouteBase> {
                 injector.get<UserStore>(),
                 ExportAnalyticsUseCase(context.read<AnalyticsRepository>()),
                 RequestIntegrationUseCase(context.read<ContactRepository>()),
+                GetIntegrationsUseCase(context.read<ContactRepository>()),
               ),
             ),
           ],

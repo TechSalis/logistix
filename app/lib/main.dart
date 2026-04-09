@@ -13,11 +13,11 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared/shared.dart';
 
 void main() async {
-  EnvConfig.instance = EnvConfig();
   FlutterNativeSplash.preserve(
     widgetsBinding: SentryWidgetsFlutterBinding.ensureInitialized(),
   );
 
+  EnvConfig.instance = EnvConfig();
   DI.adapter = GetItDI.new;
   final injector = DI();
   final appRouter = await AppInitialization.init(injector);
@@ -27,11 +27,11 @@ void main() async {
       bundle: SentryAssetBundle(),
       child: LogistixApp(
         appRouter: appRouter,
-        getAppBloc: injector.get<AppBloc>
+        getAppBloc: injector.get<AppBloc>,
       ),
     ),
   );
-  
+
   FlutterNativeSplash.remove();
 }
 

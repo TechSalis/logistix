@@ -10,8 +10,8 @@ abstract class RiderSyncDto with _$RiderSyncDto {
   const factory RiderSyncDto({
     required List<OrderDto> orders,
     required RiderDto rider,
-    required RiderMetricsDto metrics,
     required int lastUpdated,
+    RiderMetricsDto? metrics,
     @Default([]) List<String> deletedOrderIds,
   }) = _RiderSyncDto;
 
