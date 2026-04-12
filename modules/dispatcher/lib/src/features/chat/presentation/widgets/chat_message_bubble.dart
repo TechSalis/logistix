@@ -13,6 +13,7 @@ class ChatMessageBubble extends StatefulWidget {
     required this.isMe,
     required this.isAi,
     required this.onDelete,
+    required this.onRetry,
     this.aiIcon,
     super.key,
   });
@@ -22,6 +23,7 @@ class ChatMessageBubble extends StatefulWidget {
   final bool isAi;
   final Widget? aiIcon;
   final VoidCallback onDelete;
+  final VoidCallback onRetry;
 
   @override
   State<ChatMessageBubble> createState() => _ChatMessageBubbleState();
@@ -137,6 +139,7 @@ class _ChatMessageBubbleState extends State<ChatMessageBubble> {
                         message: message,
                         isMe: isMe,
                         onDelete: widget.onDelete,
+                        onRetry: widget.onRetry,
                       ),
                     ],
                   ),
@@ -215,11 +218,13 @@ class _MessageStatusRow extends StatelessWidget {
     required this.message,
     required this.isMe,
     required this.onDelete,
+    required this.onRetry,
   });
 
   final ChatMessage message;
   final bool isMe;
   final VoidCallback onDelete;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +241,10 @@ class _MessageStatusRow extends StatelessWidget {
         ),
         if (isMe && !message.isDeleted) ...[
           const SizedBox(width: 4),
-          _StatusIcon(status: message.status),
+          _StatusIcon(
+            status: message.status,
+            onRetry: onRetry,
+          ),
           if (message.status != MessageStatus.PENDING) ...[
             const SizedBox(width: 8),
             GestureDetector(
@@ -251,8 +259,9 @@ class _MessageStatusRow extends StatelessWidget {
 }
 
 class _StatusIcon extends StatelessWidget {
-  const _StatusIcon({required this.status});
+  const _StatusIcon({required this.status, required this.onRetry});
   final MessageStatus status;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +269,10 @@ class _StatusIcon extends StatelessWidget {
       case MessageStatus.PENDING:
         return const Icon(Icons.access_time, size: 12, color: Colors.white70);
       case MessageStatus.FAILED:
-        return const Icon(Icons.error_outline, size: 12, color: Colors.white);
+        return GestureDetector(
+          onTap: onRetry,
+          child: const Icon(Icons.refresh_rounded, size: 14, color: Colors.white),
+        );
       case MessageStatus.READ:
         return const Icon(Icons.done_all, size: 14, color: Colors.lightBlueAccent);
       case MessageStatus.DELIVERED:

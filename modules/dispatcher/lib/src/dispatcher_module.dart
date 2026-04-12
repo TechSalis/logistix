@@ -16,6 +16,7 @@ import 'package:dispatcher/src/features/chat/data/datasources/chat_remote_dataso
 import 'package:dispatcher/src/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:dispatcher/src/features/chat/domain/repositories/chat_repository.dart';
 import 'package:dispatcher/src/features/chat/domain/usecases/chat_session_manager.dart';
+import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usecase.dart';
 import 'package:dispatcher/src/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:dispatcher/src/features/more/data/datasources/analytics_remote_datasource.dart';
 import 'package:dispatcher/src/features/more/data/datasources/contact_remote_datasource.dart';
@@ -128,10 +129,20 @@ class DispatcherModule extends Module<RouteBase> {
               );
             },
           ),
+          RepositoryProvider<SyncChatDataUseCase>(
+            create: (context) => SyncChatDataUseCase(
+              remoteDataSource: context.read<ChatRemoteDataSource>(),
+              chatDao: injector.get<ChatDao>(),
+              database: injector.get<LogistixDatabase>(),
+              userStore: injector.get<UserStore>(),
+            ),
+          ),
           RepositoryProvider<ChatSessionManager>(
             create: (context) => ChatSessionManager(
               context.read<ChatRemoteDataSource>(),
               context.read<ChatLocalDataSource>(),
+              context.read<SyncChatDataUseCase>(),
+              injector.get<LogistixDatabase>(),
             ),
           ),
           RepositoryProvider<ChatRepository>(
@@ -152,7 +163,6 @@ class DispatcherModule extends Module<RouteBase> {
                   .read<DispatcherSessionRemoteDataSource>(),
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
-              chatDao: injector.get<ChatDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<DispatcherMetricsDto>>(),
               database: injector.get<LogistixDatabase>(),

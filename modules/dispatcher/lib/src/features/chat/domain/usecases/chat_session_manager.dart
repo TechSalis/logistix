@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dispatcher/src/features/chat/data/datasources/chat_local_datasource.dart';
 import 'package:dispatcher/src/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:dispatcher/src/features/chat/domain/entities/chat_update.dart';
 import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usecase.dart';
 import 'package:shared/shared.dart';
 
@@ -53,11 +54,8 @@ class ChatSessionManager extends SessionComponent {
       onSync: () async {
         final lastSync = await _database.getLastSyncTime(
           ChatSyncKey.chatLastSync,
-          null,
         );
-        await _syncUseCase(
-          since: lastSync?.millisecondsSinceEpoch.toDouble(),
-        );
+        await _syncUseCase(since: lastSync?.millisecondsSinceEpoch.toDouble());
       },
     );
   }

@@ -1,4 +1,6 @@
 import 'package:dispatcher/src/features/chat/data/dtos/chat_message_dto.dart';
+import 'package:dispatcher/src/features/chat/data/dtos/chat_sync_dto.dart';
+import 'package:dispatcher/src/features/chat/data/dtos/chat_sync_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/chat_update_payload_dto.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/conversation_dto.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/get_conversations_request.dart';
@@ -6,8 +8,6 @@ import 'package:dispatcher/src/features/chat/data/dtos/get_messages_request.dart
 import 'package:dispatcher/src/features/chat/data/dtos/send_media_message_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/send_message_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/toggle_ai_request.dart';
-import 'package:dispatcher/src/features/chat/data/dtos/chat_sync_request.dart';
-import 'package:dispatcher/src/features/chat/data/dtos/chat_sync_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class ChatRemoteDataSource {
@@ -264,5 +264,41 @@ class ChatRemoteDataSourceImpl extends BaseRemoteDataSource
     );
 
     return ChatMessageDto.fromJson(result);
+  }
+
+  @override
+  Future<ChatSyncDto> syncData(ChatSyncRequest request) async {
+    const queryDoc = r'''
+      query ChatSync($since: Float, $limit: Int, $offset: Int) {
+        chatSync(since: $since, limit: $limit, offset: $offset) {
+          conversations {
+            id
+            platform
+            platformId
+            autoReplyEnabled
+            lastMessageAt
+            createdAt
+            updatedAt
+            customerName
+            lastMessage {
+              id
+              body
+              senderType
+              createdAt
+            }
+          }
+          deletedMessageIds
+          lastUpdated
+        }
+      }
+    ''';
+
+    final result = await query<Map<String, dynamic>>(
+      queryDoc,
+      variables: request.toJson(),
+      key: 'chatSync',
+    );
+
+    return ChatSyncDto.fromJson(result);
   }
 }

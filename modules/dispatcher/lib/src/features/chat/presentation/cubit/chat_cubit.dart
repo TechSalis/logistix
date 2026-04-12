@@ -113,6 +113,20 @@ class ChatCubit extends Cubit<ChatState> {
   Future<void> deleteMessage(String messageId) async {
     await _repo.deleteMessage(messageId);
   }
+  
+  Future<void> refreshMessages(String conversationId) async {
+    await _repo.syncMessages(conversationId);
+  }
+  
+  void retryMessage(ChatMessage message) {
+    if (message.mediaUrl != null) {
+      sendMediaMessageRunner((url: message.mediaUrl!, caption: message.body));
+    } else {
+      sendMessageRunner(message.body);
+    }
+    // Remove the failed one to prevent duplicates in UI
+    deleteMessage(message.id);
+  }
 
   void loadMoreMessages() {
     if (state.activeConversation == null) return;

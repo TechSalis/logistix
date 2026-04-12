@@ -1,5 +1,3 @@
-import 'package:bootstrap/interfaces/store/store.dart';
-import 'package:dispatcher/src/features/chat/data/datasources/chat_local_datasource.dart';
 import 'package:dispatcher/src/features/chat/data/datasources/chat_remote_datasource.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/chat_sync_request.dart';
 import 'package:dispatcher/src/features/chat/data/mappers/chat_mapper.dart';
@@ -12,18 +10,15 @@ import 'package:shared/shared.dart';
 class SyncChatDataUseCase {
   SyncChatDataUseCase({
     required ChatRemoteDataSource remoteDataSource,
-    required ChatLocalDataSource localDataSource,
     required ChatDao chatDao,
     required LogistixDatabase database,
     required UserStore userStore,
   }) : _remoteDataSource = remoteDataSource,
-       _localDataSource = localDataSource,
        _chatDao = chatDao,
        _database = database,
        _userStore = userStore;
 
   final ChatRemoteDataSource _remoteDataSource;
-  final ChatLocalDataSource _localDataSource;
   final ChatDao _chatDao;
   final LogistixDatabase _database;
   final UserStore _userStore;

@@ -40,4 +40,7 @@ abstract class ChatRepository {
 
   // Added missing fetch method used in Cubit
   Future<Result<AppError, List<Conversation>>> fetchConversations();
+
+  /// Forces a manual synchronization for a specific conversation.
+  Future<Result<AppError, void>> syncMessages(String conversationId);
 }

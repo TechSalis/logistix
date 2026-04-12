@@ -46,6 +46,16 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
+  @override
+  Future<Result<AppError, void>> syncMessages(String conversationId) async {
+    try {
+      await _syncMessages(conversationId);
+      return const Result.data(null);
+    } catch (e) {
+      return Result.error(AppError(message: e.toString()));
+    }
+  }
+
   // ── Reactive Watchers ────────────────────────────────────────────
 
   @override

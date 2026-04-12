@@ -85,18 +85,31 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
         return Scaffold(
           appBar: _buildAppBar(context, conversation, state.typingStatus),
-          body: Column(
-            children: [
-              Expanded(child: _buildMessageList(state.messages)),
-              ChatInputBar(
-                onSend: (text) async {
-                  await _chatCubit.sendMessageRunner(text);
-                  _scrollToBottom();
-                },
-                onMedia: _handleMediaUpload,
-                onTyping: _chatCubit.onTyping,
-              ),
-            ],
+          body: BlocListener<ChatCubit, ChatState>(
+            listenWhen: (prev, curr) =>
+                curr.messages.length > prev.messages.length &&
+                curr.messages.firstOrNull?.senderType == SenderType.DISPATCHER,
+            listener: (context, state) => _scrollToBottom(),
+            child: Column(
+              children: [
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () {
+                      return _chatCubit.refreshMessages(widget.conversationId);
+                    },
+                    child: _buildMessageList(state.messages),
+                  ),
+                ),
+                ChatInputBar(
+                  onSend: (text) async {
+                    await _chatCubit.sendMessageRunner(text);
+                    _scrollToBottom();
+                  },
+                  onMedia: _handleMediaUpload,
+                  onTyping: _chatCubit.onTyping,
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -137,8 +150,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         return ChatMessageBubble(
           message: message,
           isMe: message.senderType == SenderType.DISPATCHER,
-          isAi: message.senderType == SenderType.SYSTEM && message.senderId == null,
+          isAi: (message.senderType == SenderType.SYSTEM || message.senderType == SenderType.AGENT) && 
+                message.senderId == null,
           onDelete: () => _chatCubit.deleteMessage(message.id),
+          onRetry: () => _chatCubit.retryMessage(message),
         );
       },
     );

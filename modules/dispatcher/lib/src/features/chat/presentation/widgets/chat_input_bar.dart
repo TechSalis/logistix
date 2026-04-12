@@ -33,8 +33,8 @@ class _ChatInputBarState extends State<ChatInputBar> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     
-    _controller.clear();
     await widget.onSend(text);
+    _controller.clear();
   }
 
   @override
