@@ -2,6 +2,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
+import 'package:dispatcher/src/features/more/data/dtos/activation_request_dto.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix_ux/logistix_ux.dart';
@@ -16,10 +17,38 @@ class PlatformActivationForm extends StatefulWidget {
     super.key,
   });
 
-  final Platform platform;
+  final ChatPlatform platform;
   final User? user;
   final VoidCallback onSuccess;
   final AsyncRunnerWithArg<ActivationRequestDto, AppError, void> runner;
+
+  static Future<void> show(
+    BuildContext context, {
+    required ChatPlatform platform,
+    required AsyncRunnerWithArg<ActivationRequestDto, AppError, void> runner,
+    required IToastService toastService,
+    User? user,
+  }) {
+    return BootstrapDialog.show<void>(
+      context: context,
+      title: 'Activate ${platform.name.capitalizeFirst()}',
+      content: 'Fill in your contact details for activation.',
+      icon: Icons.rocket_launch_outlined,
+      actionsBuilder: (dialogContext) {
+        return [
+          ToastServiceProvider(
+            service: toastService,
+            child: PlatformActivationForm(
+              platform: platform,
+              user: user,
+              runner: runner,
+              onSuccess: () => Navigator.pop(dialogContext),
+            ),
+          ),
+        ];
+      },
+    );
+  }
 
   @override
   State<PlatformActivationForm> createState() => _PlatformActivationFormState();
@@ -72,48 +101,49 @@ class _PlatformActivationFormState extends State<PlatformActivationForm> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              LogistixTextField(
+              BootstrapTextField(
                 label: 'Business Name',
                 controller: _nameCtrl,
                 icon: Icons.business,
               ),
-              const SizedBox(height: 12),
-              LogistixTextField(
+              const SizedBox(height: BootstrapSpacing.md),
+              BootstrapTextField(
                 label: 'Contact Email',
                 controller: _emailCtrl,
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 12),
-              LogistixTextField(
+              const SizedBox(height: BootstrapSpacing.md),
+              BootstrapTextField(
                 label: 'Contact Phone',
                 controller: _phoneCtrl,
                 icon: Icons.phone_outlined,
                 keyboardType: TextInputType.phone,
                 hintText: '+234...',
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: BootstrapSpacing.xxl),
               if (runnerState.status.isFailure) ...[
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                    horizontal: BootstrapSpacing.md,
+                    vertical: BootstrapSpacing.xs,
                   ),
                   decoration: BoxDecoration(
                     color: LogistixColors.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(BootstrapRadii.md),
                   ),
                   child: Text(
                     runnerState.result?.error.message ?? 'An error occurred',
-                    style: context.textTheme.bodySmall?.bold.copyWith(
+                    style: context.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
                       color: LogistixColors.error,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: BootstrapSpacing.lg),
               ],
-              LogistixButton(
+              BootstrapButton(
                 label: 'Request Activation',
                 isLoading: runnerState.status.isRunning,
                 onPressed: () => runner(
@@ -155,12 +185,12 @@ class ExportTile extends StatelessWidget {
       runner: runner,
       builder: (context, state, _) {
         final isLoading = state.status.isRunning;
-        return LogistixSettingsTile(
+        return BootstrapSettingsTile(
           icon: icon,
           title: title,
           subtitle: subtitle,
           onTap: onTap,
-          trailing: isLoading ? const LogistixInlineLoader() : null,
+          trailing: isLoading ? const BootstrapInlineLoader() : null,
         );
       },
     );

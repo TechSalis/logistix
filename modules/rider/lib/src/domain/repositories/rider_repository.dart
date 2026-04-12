@@ -1,5 +1,6 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRepository {
@@ -19,13 +20,11 @@ abstract class RiderRepository {
   Stream<RiderMetricsDto?> watchRiderMetrics();
 
   // Write operations - go to server
-
   Future<Result<AppError, Order>> updateOrderStatus(
     String orderId,
     OrderStatus status,
   );
 
-  Future<Result<AppError, Rider?>> getRider(String riderId);
   Future<Result<AppError, Rider>> fetchProfile();
 
   Future<Result<AppError, Rider>> sendHeartbeat({

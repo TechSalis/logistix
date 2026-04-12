@@ -4,16 +4,36 @@ import 'package:bootstrap/definitions/usecase.dart';
 import 'package:shared/shared.dart';
 
 class LogoutUseCase extends ResultUseCase<AppError, void> {
-  const LogoutUseCase(this._clearAppDataUseCase);
+  const LogoutUseCase({
+    required PushNotificationService pushNotificationService,
+    required AppRepository appRepository,
+    required AuthStatusRepository authStatusRepository,
+  })  : _pushNotificationService = pushNotificationService,
+        _appRepository = appRepository,
+        _authStatusRepository = authStatusRepository;
 
-  final ClearAppDataUseCase _clearAppDataUseCase;
+  final PushNotificationService _pushNotificationService;
+  final AppRepository _appRepository;
+  final AuthStatusRepository _authStatusRepository;
 
   @override
   Future<Result<AppError, void>> call() async {
-    final response = await _clearAppDataUseCase();
-    return response.map(
-      (error) => Result.error(ErrorHandler.fromException(error)),
-      (r) => const Result.data(null),
-    );
+    try {
+      await Future.wait([
+        // 1. Attempt remote logout (best effort)
+        _appRepository.logout(),
+
+        // 2. Delete FCM token locally
+        _pushNotificationService.deleteToken(),
+      ]);
+
+      // 3. Finalize state change
+      _authStatusRepository.setUnauthenticated();
+      
+      return const Result.data(null);
+    } catch (e) {
+      _authStatusRepository.setUnauthenticated();
+      return Result.error(ErrorHandler.fromException(e));
+    }
   }
 }

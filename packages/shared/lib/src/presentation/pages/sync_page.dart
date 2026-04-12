@@ -2,6 +2,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:shared/src/core/config/env_config.dart';
 
 /// A centralized, "dumb" page for performing critical asynchronous operations.
 ///
@@ -73,13 +74,13 @@ class SyncPage extends StatefulWidget {
         (error is UserError ? error.message : null) ??
         'Failed to synchronize data. Please check your internet connection.';
 
-    LogistixDialog.show<void>(
+    BootstrapDialog.show<void>(
       context: context,
       barrierDismissible: false,
       title: 'Sync Error',
       content: message,
       actionsBuilder: (dialogContext) => [
-        LogistixButton(
+        BootstrapButton(
           onPressed: () {
             Navigator.pop(dialogContext);
             onRetry();
@@ -88,14 +89,14 @@ class SyncPage extends StatefulWidget {
           icon: Icons.refresh,
         ),
         const SizedBox(height: 12),
-        LogistixButton(
+        BootstrapButton(
           onPressed: () {
             Navigator.pop(dialogContext);
             onLogout();
           },
           label: 'Logout',
           icon: Icons.logout,
-          type: LogistixButtonType.text,
+          type: BootstrapButtonType.text,
         ),
       ],
     );
@@ -194,7 +195,7 @@ class _SyncPageState extends State<SyncPage>
                 LogistixAssets.images.icon.image(height: 120, width: 120),
                 const SizedBox(height: 24),
                 Text(
-                  'Logistix',
+                  EnvConfig.instance.appName,
                   style: context.textTheme.headlineLarge?.bold.copyWith(
                     letterSpacing: 1.2,
                   ),
@@ -213,7 +214,7 @@ class _SyncPageState extends State<SyncPage>
                 const SizedBox(height: 48),
                 const SizedBox.square(
                   dimension: 40,
-                  child: LogistixLoadingIndicator(),
+                  child: BootstrapLoadingIndicator(),
                 ),
               ],
             ),

@@ -19,12 +19,10 @@ class ClearAppDataUseCase extends ResultUseCase<Object, void> {
   @override
   Future<Result<Object, void>> call() async {
     return await Result.tryCatch<Object, void>(() async {
-      await Future.wait<void>([
-        _tokenStore.delete(),
-        _userStore.clearUser(),
-        _logistixDatabase.clear(),
-        ?_graphQLService.client.resetStore(refetchQueries: false),
-      ]);
+      await _tokenStore.delete();
+      await _userStore.clearUser();
+      await _logistixDatabase.clearAllData();
+      await _graphQLService.client.resetStore(refetchQueries: false);
     });
   }
 }

@@ -1,7 +1,8 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
-import 'package:shared/shared.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 
 class RiderMetricsState {
   RiderMetricsState({required this.isLoading, this.metrics, this.error});

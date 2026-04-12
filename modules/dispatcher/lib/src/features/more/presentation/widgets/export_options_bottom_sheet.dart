@@ -17,6 +17,29 @@ class ExportOptionsSheet extends StatefulWidget {
   final String title;
   final bool showRiderFilter;
 
+  static Future<ExportParams?> show(
+    BuildContext context, {
+    String title = 'Export Orders',
+    bool showRiderFilter = true,
+  }) {
+    return showModalBottomSheet<ExportParams>(
+      context: context,
+      backgroundColor: Colors.white,
+      showDragHandle: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      builder: (context) {
+        return ExportOptionsSheet(
+          title: title,
+          showRiderFilter: showRiderFilter,
+        );
+      },
+    );
+  }
+
   @override
   State<ExportOptionsSheet> createState() => _ExportOptionsSheetState();
 }
@@ -96,12 +119,12 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
           const SizedBox(height: 8),
           InkWell(
             onTap: _selectDateRange,
-            borderRadius: BorderRadius.circular(LogistixRadii.input),
+            borderRadius: BorderRadius.circular(BootstrapRadii.input),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: LogistixColors.background,
-                borderRadius: BorderRadius.circular(LogistixRadii.input),
+                borderRadius: BorderRadius.circular(BootstrapRadii.input),
               ),
               child: Row(
                 children: [
@@ -145,7 +168,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
             ),
           ],
           const SizedBox(height: 32),
-          LogistixButton(
+          BootstrapButton(
             onPressed: () {
               final params = ExportParams(
                 startDate: _startDate,

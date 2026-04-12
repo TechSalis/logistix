@@ -1,35 +1,51 @@
-// ignore_for_file: invalid_annotation_target
-
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared/src/data/models/company_dto.dart';
 import 'package:shared/src/data/models/rider_dto.dart';
 import 'package:shared/src/domain/entities/user.dart' as entities;
 
-part 'user_dto.freezed.dart';
-part 'user_dto.g.dart';
+@immutable
+class UserDto {
+  const UserDto({
+    required this.id,
+    required this.email,
+    required this.fullName,
+    required this.isOnboarded,
+    this.role,
+    this.companyId,
+    this.phoneNumber,
+    this.riderProfile,
+    this.companyProfile,
+    this.sessionId,
+    this.fcmToken,
+    this.createdAt,
+    this.updatedAt,
+  });
 
-@freezed
-abstract class UserDto with _$UserDto {
-  const factory UserDto({
-    required String id,
-    required String email,
-    required String fullName,
-    required bool isOnboarded,
-    String? role,
-    String? companyId,
-    String? phoneNumber,
-    RiderDto? riderProfile,
-    CompanyDto? companyProfile,
-    String? sessionId,
-    String? fcmToken,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) = _UserDto;
-
-  const UserDto._();
-
-  factory UserDto.fromJson(Map<String, dynamic> json) =>
-      _$UserDtoFromJson(json);
+  factory UserDto.fromJson(Map<String, dynamic> json) {
+    return UserDto(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      fullName: json['fullName'] as String,
+      isOnboarded: json['isOnboarded'] as bool? ?? false,
+      role: json['role'] as String?,
+      companyId: json['companyId'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      riderProfile: json['riderProfile'] != null
+          ? RiderDto.fromJson(json['riderProfile'] as Map<String, dynamic>)
+          : null,
+      companyProfile: json['companyProfile'] != null
+          ? CompanyDto.fromJson(json['companyProfile'] as Map<String, dynamic>)
+          : null,
+      sessionId: json['sessionId'] as String?,
+      fcmToken: json['fcmToken'] as String?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.parse(json['updatedAt'] as String)
+          : null,
+    );
+  }
 
   factory UserDto.fromEntity(entities.User user) {
     return UserDto(
@@ -40,13 +56,51 @@ abstract class UserDto with _$UserDto {
       role: user.role?.name,
       companyId: user.companyId,
       phoneNumber: user.phoneNumber,
-      riderProfile: user.riderProfile != null ? RiderDto.fromEntity(user.riderProfile!) : null,
-      companyProfile: user.companyProfile != null ? CompanyDto.fromEntity(user.companyProfile!) : null,
+      riderProfile: user.riderProfile != null
+          ? RiderDto.fromEntity(user.riderProfile!)
+          : null,
+      companyProfile: user.companyProfile != null
+          ? CompanyDto.fromEntity(user.companyProfile!)
+          : null,
       sessionId: user.sessionId,
       fcmToken: user.fcmToken,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     );
+  }
+
+  static Map<String, dynamic>? toJsonFunc(UserDto? user) => user?.toJson();
+
+  final String id;
+  final String email;
+  final String fullName;
+  final bool isOnboarded;
+  final String? role;
+  final String? companyId;
+  final String? phoneNumber;
+  final RiderDto? riderProfile;
+  final CompanyDto? companyProfile;
+  final String? sessionId;
+  final String? fcmToken;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'fullName': fullName,
+      'isOnboarded': isOnboarded,
+      if (role != null) 'role': role,
+      if (companyId != null) 'companyId': companyId,
+      if (phoneNumber != null) 'phoneNumber': phoneNumber,
+      if (riderProfile != null) 'riderProfile': riderProfile!.toJson(),
+      if (companyProfile != null) 'companyProfile': companyProfile!.toJson(),
+      if (sessionId != null) 'sessionId': sessionId,
+      if (fcmToken != null) 'fcmToken': fcmToken,
+      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
+      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
+    };
   }
 
   entities.User toEntity() => entities.User(
@@ -65,7 +119,15 @@ abstract class UserDto with _$UserDto {
     updatedAt: updatedAt,
   );
 
-  static Map<String, dynamic>? toJsonFunc(UserDto? object) {
-    return object?.toJson();
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserDto &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          email == other.email &&
+          isOnboarded == other.isOnboarded;
+
+  @override
+  int get hashCode => id.hashCode ^ email.hashCode ^ isOnboarded.hashCode;
 }

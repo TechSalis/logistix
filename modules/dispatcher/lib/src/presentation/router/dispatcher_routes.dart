@@ -1,4 +1,6 @@
 import 'package:bootstrap/interfaces/modules/modules.dart';
+import 'package:dispatcher/src/features/chat/presentation/pages/chat_detail_page.dart';
+import 'package:dispatcher/src/features/chat/presentation/pages/chats_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
 import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/create_order_page.dart';
@@ -15,6 +17,7 @@ import 'package:shared/shared.dart';
 /// Private relative route paths (without parent prefix)
 abstract class _DispatcherPaths {
   static const String orders = 'orders';
+  static const String chats = 'chats';
   static const String riders = 'riders';
   static const String more = 'more';
   static const String createOrder = 'create';
@@ -32,6 +35,9 @@ abstract class DispatcherRoutes {
 
   static const String createOrder = '$orders/${_DispatcherPaths.createOrder}';
   static const String parseText = ModuleRoutePaths.dispatcherParseText;
+
+  static const String chats = '$rootPath/${_DispatcherPaths.chats}';
+  static String chatDetails(String id) => '$chats/$id';
 
   static const String riders = '$rootPath/${_DispatcherPaths.riders}';
   static const String ridersList = '$riders/${_DispatcherPaths.list}';
@@ -97,6 +103,23 @@ List<RouteBase> get dispatcherRoutes => [
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
                   return OrderDetailsPage(orderId: id);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: DispatcherRoutes.chats,
+            builder: (context, state) => const ChatsTab(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  return ChatDetailPage(conversationId: id);
                 },
               ),
             ],

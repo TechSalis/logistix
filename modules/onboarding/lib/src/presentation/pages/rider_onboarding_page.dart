@@ -21,26 +21,8 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
   final _formKey = GlobalKey<FormState>();
   final _registrationNumberController = TextEditingController();
 
-  Company? _company;
   PhoneNumber? _phoneNumber;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSingleTenantCompany();
-  }
-
-  Future<void> _loadSingleTenantCompany() async {
-    if (EnvConfig.instance.isSingleTenant) {
-      final repo = context.read<CompanyRepository>();
-      final result = await repo.getCompanies(limit: 1);
-      result.map((_) => null, (r) {
-        if (mounted && r.items.isNotEmpty) {
-           setState(() => _company = r.items.first);
-        }
-      });
-    }
-  }
+  Company? _company;
 
   @override
   void dispose() {
@@ -49,16 +31,20 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
   }
 
   void _submitOnboarding() {
-    final companyToUse = _company;
-    if (_formKey.currentState?.validate() != true || companyToUse == null) return;
+    if (_formKey.currentState?.validate() != true) return;
+
+    // In multi-tenant mode, company selection is required
+    if (!EnvConfig.instance.isSingleTenant && _company == null) {
+      return;
+    }
 
     context.read<OnboardingBloc>().add(
-      OnboardingEvent.saveRiderOnboarding(
-        phoneNumber: _phoneNumber?.completeNumber ?? '',
-        registrationNumber: _registrationNumberController.text,
-        company: companyToUse,
-      ),
-    );
+          OnboardingEvent.saveRiderOnboarding(
+            phoneNumber: _phoneNumber?.completeNumber ?? '',
+            registrationNumber: _registrationNumberController.text,
+            company: _company,
+          ),
+        );
   }
 
   @override
@@ -67,7 +53,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
       builder: (context, onboardingState) {
         return LogistixAuthScaffold(
           header: Container(
-            padding: const EdgeInsets.all(LogistixSpacing.lg),
+            padding: const EdgeInsets.all(BootstrapSpacing.lg),
             decoration: BoxDecoration(
               color: LogistixColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -81,13 +67,13 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
           title: 'Finalize Rider Profile',
           subtitle: 'Complete your account setup to start delivering packages.',
           onBack: () => context.pop(),
-          footer: LogistixButton(
+          footer: BootstrapButton(
             label: 'Complete Setup',
             isLoading: onboardingState.status == OnboardingStatus.loading,
             onPressed: _submitOnboarding,
           ),
           children: [
-            LogistixCard(
+            BootstrapCard(
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -100,8 +86,8 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                         prefixIcon: Icon(Icons.phone_outlined),
                       ),
                     ),
-                    const SizedBox(height: LogistixSpacing.lg),
-                    LogistixTextField(
+                    const SizedBox(height: BootstrapSpacing.lg),
+                    BootstrapTextField(
                       controller: _registrationNumberController,
                       label: 'Vehicle Reg Number',
                       icon: Icons.pin_rounded,
@@ -110,7 +96,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                       textCapitalization: TextCapitalization.characters,
                     ),
                     if (!EnvConfig.instance.isSingleTenant) ...[
-                      const SizedBox(height: LogistixSpacing.lg),
+                      const SizedBox(height: BootstrapSpacing.lg),
                       DropdownSearch<Company>(
                         items: (String filter, _) async {
                           final repo = context.read<CompanyRepository>();
@@ -140,7 +126,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                         popupProps: PopupProps.menu(
                           showSearchBox: true,
                           loadingBuilder: (_, _) =>
-                              const LogistixLoadingIndicator(),
+                              const BootstrapLoadingIndicator(),
                           searchFieldProps: const TextFieldProps(
                             autofocus: true,
                             autocorrect: false,

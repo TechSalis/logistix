@@ -1,0 +1,21 @@
+targets:
+  $default:
+    builders:
+      flutter_gen:
+        options:
+          output: lib/generated/
+          line_length: 80
+          integrations:
+            image: true
+            flutter_svg: true
+          assets:
+            outputs:
+              class_name: DispatcherAssets
+              package_parameter_enabled: true
+      source_gen:combining_builder:
+        options:
+          preamble: |
+            // coverage:ignore-file
+      json_serializable:
+        options:
+          explicit_to_json: true

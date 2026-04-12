@@ -27,17 +27,17 @@ class _RiderStatusFilterList extends StatelessWidget {
         const allStatuses = RiderStatus.values;
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.lg),
           child: Row(
             children: [
-              LogistixChoiceChip(
+              BootstrapChoiceChip(
                 label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ridersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
-                return LogistixChoiceChip(
+                return BootstrapChoiceChip(
                   label: status.label,
                   isSelected: isSelected,
                   onTap: () => ridersCubit.filterByStatus(status),
@@ -87,7 +87,10 @@ class RidersListView extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+                        colors: [
+                          LogistixColors.primary,
+                          LogistixColors.secondaryDark,
+                        ],
                       ),
                     ),
                   ),
@@ -106,7 +109,7 @@ class RidersListView extends StatelessWidget {
                   const Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: EdgeInsets.only(bottom: 24),
+                      padding: EdgeInsets.only(bottom: BootstrapSpacing.lg),
                       child: RiderSummaryCard(),
                     ),
                   ),
@@ -117,20 +120,22 @@ class RidersListView extends StatelessWidget {
           PinnedHeaderSliver(
             child: Container(
               color: LogistixColors.background,
-              padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
+              padding: const EdgeInsets.symmetric(
+                vertical: BootstrapSpacing.md,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: LogistixSpacing.lg,
+                      horizontal: BootstrapSpacing.lg,
                     ),
                     child: Hero(
                       tag: 'rider-search-tag',
                       child: Row(
                         children: [
                           Expanded(
-                            child: LogistixSearchField(
+                            child: BootstrapSearchField(
                               onChanged: ridersCubit.searchRiders,
                               hintText: 'Search riders...',
                             ),
@@ -139,10 +144,14 @@ class RidersListView extends StatelessWidget {
                           AnimatedScaleTap(
                             onTap: () => context.go(DispatcherRoutes.ridersMap),
                             child: Container(
-                              padding: const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(
+                                BootstrapSpacing.sm,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(
+                                  BootstrapRadii.xl,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.04),
@@ -161,7 +170,7 @@ class RidersListView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: BootstrapSpacing.md),
                   const _RiderStatusFilterList(),
                 ],
               ),
@@ -177,15 +186,19 @@ class RidersListView extends StatelessWidget {
                   state.riders.isEmpty &&
                   state.pendingRiders.isEmpty) {
                 return SliverPadding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(BootstrapSpacing.md),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate((context, index) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: LogistixShimmer(
+                        padding: const EdgeInsets.only(
+                          bottom: BootstrapSpacing.md,
+                        ),
+                        child: BootstrapShimmer(
                           width: double.infinity,
                           height: 120,
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(
+                            BootstrapRadii.xxl,
+                          ),
                         ),
                       );
                     }, childCount: 5),
@@ -196,7 +209,7 @@ class RidersListView extends StatelessWidget {
               if (state.error != null && state.riders.isEmpty) {
                 return SliverFillRemaining(
                   hasScrollBody: false,
-                  child: LogistixErrorView(message: state.error!),
+                  child: BootstrapErrorView(message: state.error!),
                 );
               }
 
@@ -216,7 +229,7 @@ class RidersListView extends StatelessWidget {
                             alpha: 0.3,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: BootstrapSpacing.md),
                         Text(
                           state.searchQuery.isNotEmpty
                               ? 'No riders matching your search'
@@ -238,7 +251,12 @@ class RidersListView extends StatelessWidget {
                   delegate: SliverChildListDelegate([
                     if (filteredPending.isNotEmpty) ...[
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        padding: const EdgeInsets.fromLTRB(
+                          BootstrapSpacing.lg,
+                          BootstrapSpacing.md,
+                          BootstrapSpacing.lg,
+                          BootstrapSpacing.xs,
+                        ),
                         child: Text(
                           'Pending Approval (${filteredPending.length})',
                           style: context.textTheme.labelSmall?.bold.copyWith(
@@ -248,7 +266,7 @@ class RidersListView extends StatelessWidget {
                         ),
                       ),
                       ...filteredPending.mapIndexed(
-                        (idx, rider) => LogistixEntrance(
+                        (idx, rider) => BootstrapEntrance(
                           delay: Duration(milliseconds: idx * 50),
                           children: [RiderCard(rider: rider, isPending: true)],
                         ),
@@ -256,7 +274,12 @@ class RidersListView extends StatelessWidget {
                     ],
                     if (filteredActive.isNotEmpty) ...[
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                        padding: const EdgeInsets.fromLTRB(
+                          BootstrapSpacing.lg,
+                          BootstrapSpacing.md,
+                          BootstrapSpacing.lg,
+                          BootstrapSpacing.xs,
+                        ),
                         child: Text(
                           'Active Riders (${filteredActive.length})',
                           style: context.textTheme.labelSmall?.bold.copyWith(
@@ -266,7 +289,7 @@ class RidersListView extends StatelessWidget {
                         ),
                       ),
                       ...filteredActive.mapIndexed(
-                        (idx, rider) => LogistixEntrance(
+                        (idx, rider) => BootstrapEntrance(
                           delay: Duration(
                             milliseconds: (filteredPending.length + idx) * 50,
                           ),
@@ -312,7 +335,7 @@ class _RidersMapViewState extends State<RidersMapView> {
     }
   }
 
-  void _focusRider(String riderId) => ridersCubit.selectRider(riderId);
+  void _focusRider(String riderId) => ridersCubit.selectRiderById(riderId);
 
   @override
   Widget build(BuildContext context) {
@@ -370,7 +393,7 @@ class _RidersMapViewState extends State<RidersMapView> {
                         markerId: MarkerId(r.id),
                         position: LatLng(r.lastLat!, r.lastLng!),
                         onTap: () {
-                          ridersCubit.selectRider(r.id);
+                          ridersCubit.selectRiderById(r.id);
                         },
                         icon: BitmapDescriptor.defaultMarkerWithHue(
                           RiderMapUtils.getHue(r.id),
@@ -381,9 +404,9 @@ class _RidersMapViewState extends State<RidersMapView> {
                 ),
                 if (state.selectedRider != null)
                   Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 32,
+                    left: BootstrapSpacing.md,
+                    right: BootstrapSpacing.md,
+                    bottom: BootstrapSpacing.xl,
                     child: Center(
                       child: RiderMapInfoCard(
                         rider: state.selectedRider!,
@@ -411,7 +434,7 @@ class _RidersMapViewState extends State<RidersMapView> {
                                 child: _MapSearchOverlay(
                                   onRiderSelected: (r) {
                                     if (r != null) {
-                                      ridersCubit.selectRider(r.id);
+                                      ridersCubit.selectRider(r);
                                     }
                                   },
                                 ),
@@ -421,10 +444,14 @@ class _RidersMapViewState extends State<RidersMapView> {
                                 onTap: () =>
                                     context.go(DispatcherRoutes.ridersList),
                                 child: Container(
-                                  padding: const EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(
+                                    BootstrapSpacing.sm,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(
+                                      BootstrapRadii.xl,
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withValues(

@@ -1,9 +1,12 @@
 import 'dart:async';
+
 import 'package:dispatcher/src/data/dtos/dispatcher_sync_dto.dart';
+import 'package:dispatcher/src/data/dtos/dispatcher_sync_request.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class DispatcherSessionRemoteDataSource {
-  Future<DispatcherSyncDto> syncData({double? since, int? limit, int? offset});
+  Future<DispatcherSyncDto> syncData(DispatcherSyncRequest request);
 
   Future<SyncManager> subscribeToOrderUpdates({
     required void Function(
@@ -28,14 +31,15 @@ abstract class DispatcherSessionRemoteDataSource {
 
 class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     implements DispatcherSessionRemoteDataSource {
-  DispatcherSessionRemoteDataSourceImpl(super.gqlService);
+  DispatcherSessionRemoteDataSourceImpl(
+    super.gqlService, 
+    this.syncManager,
+  );
+
+  final SyncManager syncManager;
 
   @override
-  Future<DispatcherSyncDto> syncData({
-    double? since,
-    int? limit,
-    int? offset,
-  }) async {
+  Future<DispatcherSyncDto> syncData(DispatcherSyncRequest request) async {
     const queryDocument =
         '''
       query DispatcherSync(\$since: Float, \$limit: Int, \$offset: Int) {
@@ -58,7 +62,7 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
 
     final data = await query<Map<String, dynamic>>(
       queryDocument,
-      variables: {'since': since, 'limit': limit, 'offset': offset},
+      variables: request.toJson(),
       key: 'dispatcherSync',
     );
 
@@ -75,7 +79,7 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     onData,
     required Future<void> Function() onSync,
   }) async {
-    final syncManager = SyncManager(gqlService);
+    // Uses the injected syncManager
     await syncManager.startSubscription(
       subscriptionDocument: _orderSubscription,
       variables: {
@@ -108,7 +112,7 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     onData,
     Future<void> Function()? onSync,
   }) async {
-    final syncManager = SyncManager(gqlService);
+    // Uses the same injected syncManager, which now supports multiple subscriptions
     await syncManager.startSubscription(
       subscriptionDocument: _riderSubscription,
       variables: {

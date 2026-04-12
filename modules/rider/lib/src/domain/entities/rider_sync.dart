@@ -1,15 +1,34 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
-part 'rider_sync.freezed.dart';
+class RiderSync {
+  const RiderSync({
+    required this.orders,
+    required this.rider,
+    required this.lastUpdated,
+    this.metrics,
+    this.deletedOrderIds = const [],
+  });
 
-@freezed
-abstract class RiderSync with _$RiderSync {
-  const factory RiderSync({
-    required List<Order> orders,
-    required Rider rider,
-    required DateTime lastUpdated,
+  final List<Order> orders;
+  final Rider rider;
+  final DateTime lastUpdated;
+  final RiderMetricsDto? metrics;
+  final List<String> deletedOrderIds;
+
+  RiderSync copyWith({
+    List<Order>? orders,
+    Rider? rider,
+    DateTime? lastUpdated,
     RiderMetricsDto? metrics,
-    @Default([]) List<String> deletedOrderIds,
-  }) = _RiderSync;
+    List<String>? deletedOrderIds,
+  }) {
+    return RiderSync(
+      orders: orders ?? this.orders,
+      rider: rider ?? this.rider,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      metrics: metrics ?? this.metrics,
+      deletedOrderIds: deletedOrderIds ?? this.deletedOrderIds,
+    );
+  }
 }

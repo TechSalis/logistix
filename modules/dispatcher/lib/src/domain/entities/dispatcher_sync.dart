@@ -1,16 +1,20 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
-part 'dispatcher_sync.freezed.dart';
+class DispatcherSync {
+  const DispatcherSync({
+    required this.orders,
+    required this.riders,
+    required this.lastUpdated,
+    this.metrics,
+    this.deletedOrderIds = const [],
+    this.deletedRiderIds = const [],
+  });
 
-@freezed
-abstract class DispatcherSync with _$DispatcherSync {
-  const factory DispatcherSync({
-    required List<Order> orders,
-    required List<Rider> riders,
-    DispatcherMetricsDto? metrics,
-    required DateTime lastUpdated,
-    @Default([]) List<String> deletedOrderIds,
-    @Default([]) List<String> deletedRiderIds,
-  }) = _DispatcherSync;
+  final List<Order> orders;
+  final List<Rider> riders;
+  final DateTime lastUpdated;
+  final DispatcherMetricsDto? metrics;
+  final List<String> deletedOrderIds;
+  final List<String> deletedRiderIds;
 }

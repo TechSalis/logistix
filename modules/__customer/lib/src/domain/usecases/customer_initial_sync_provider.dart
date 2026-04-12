@@ -1,5 +1,5 @@
 import 'package:adapters/adapters.dart';
-import 'sync_customer_data_usecase.dart';
+import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
 import 'package:shared/shared.dart';
 
 /// Performs the initial data synchronization for the Customer module.

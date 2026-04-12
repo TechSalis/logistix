@@ -17,10 +17,10 @@ class RiderMarkerOverlayCard extends StatelessWidget {
     if (isLocationSelected) {
       return Container(
         padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.sm, vertical: LogistixSpacing.sm),
+            horizontal: BootstrapSpacing.sm, vertical: BootstrapSpacing.sm),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(BootstrapRadii.lg),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.15),
@@ -33,7 +33,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(BootstrapSpacing.xs),
               decoration: BoxDecoration(
                 color: LogistixColors.primary.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
@@ -44,7 +44,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
                 size: 14,
               ),
             ),
-            const SizedBox(width: LogistixSpacing.sm),
+            const SizedBox(width: BootstrapSpacing.sm),
             Text(
               'Your Location',
               style: context.textTheme.labelMedium?.bold.copyWith(
@@ -60,10 +60,10 @@ class RiderMarkerOverlayCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-          horizontal: LogistixSpacing.sm, vertical: LogistixSpacing.sm),
+          horizontal: BootstrapSpacing.sm, vertical: BootstrapSpacing.sm),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(BootstrapRadii.lg),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.15),
@@ -76,7 +76,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(BootstrapSpacing.xs),
             decoration: BoxDecoration(
               color:
                   (selectedOrder!.status == OrderStatus.EN_ROUTE
@@ -95,7 +95,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
               size: 14,
             ),
           ),
-          const SizedBox(width: LogistixSpacing.sm),
+          const SizedBox(width: BootstrapSpacing.sm),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,

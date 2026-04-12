@@ -1,6 +1,6 @@
-import '../../../../domain/entities/customer_order_type.dart';
-import '../cubit/order_history_cubit.dart';
-import '../../../../presentation/router/customer_routes.dart';
+import 'package:customer/src/domain/entities/customer_order_type.dart';
+import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
+import 'package:customer/src/presentation/router/customer_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +42,7 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
       body: RefreshIndicator(
         onRefresh: () => context.read<OrderHistoryCubit>().refresh(),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          padding: const EdgeInsets.all(BootstrapSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -52,11 +52,11 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
                   color: LogistixColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: LogistixSpacing.xl),
+              const SizedBox(height: BootstrapSpacing.xl),
               _CategoryGrid(),
-              const SizedBox(height: LogistixSpacing.xxl),
+              const SizedBox(height: BootstrapSpacing.xxl),
               _ActiveOrdersSection(),
-              const SizedBox(height: LogistixSpacing.xxl),
+              const SizedBox(height: BootstrapSpacing.xxl),
             ],
           ),
         ),
@@ -75,14 +75,14 @@ class _ActiveOrdersSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Active Orders', style: context.textTheme.titleMedium?.bold),
-            LogistixButton(
+            BootstrapButton(
               onPressed: () => context.push(CustomerRoutes.history),
               label: 'See All',
-              type: LogistixButtonType.text,
+              type: BootstrapButtonType.text,
             ),
           ],
         ),
-        const SizedBox(height: LogistixSpacing.md),
+        const SizedBox(height: BootstrapSpacing.md),
         BlocBuilder<OrderHistoryCubit, OrderHistoryState>(
           builder: (context, state) {
             final activeOrders = state.orders
@@ -90,15 +90,15 @@ class _ActiveOrdersSection extends StatelessWidget {
                 .toList();
 
             if (state.isLoading && activeOrders.isEmpty) {
-              return const Center(child: LogistixLoadingIndicator());
+              return const Center(child: BootstrapLoadingIndicator());
             }
 
             if (activeOrders.isEmpty) {
               return Container(
-                padding: const EdgeInsets.all(LogistixSpacing.xxl),
+                padding: const EdgeInsets.all(BootstrapSpacing.xxl),
                 decoration: BoxDecoration(
                   color: LogistixColors.background,
-                  borderRadius: BorderRadius.circular(LogistixRadii.xl),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.xl),
                   border: Border.all(color: LogistixColors.border),
                 ),
                 child: Center(
@@ -164,7 +164,7 @@ class _CategoryGrid extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(LogistixRadii.xl),
+              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
               border: Border.all(color: LogistixColors.border),
               boxShadow: [
                 BoxShadow(

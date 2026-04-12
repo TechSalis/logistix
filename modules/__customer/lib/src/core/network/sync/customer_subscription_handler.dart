@@ -9,10 +9,10 @@ class CustomerSubscriptionHandler extends BaseSubscriptionHandler {
 
   @override
   Future<void> handleOrderUpdate(
-    OrderDto? orderDto,
-    String eventType, {
+    String eventType,
+    OrderDto? orderDto, {
     RiderDto? riderDto,
   }) async {
-    await super.handleOrderUpdate(orderDto, eventType, riderDto: riderDto);
+    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
   }
 }

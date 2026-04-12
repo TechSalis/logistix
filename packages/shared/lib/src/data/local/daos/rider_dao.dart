@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:shared/shared.dart';
 import 'package:shared/src/data/local/database.dart';
-import 'package:shared/src/data/local/mappers/rider_mapper.dart';
 import 'package:shared/src/domain/entities/rider.dart' as entities;
 
 part 'rider_dao.g.dart';
@@ -9,29 +9,75 @@ part 'rider_dao.g.dart';
 class RiderDao extends DatabaseAccessor<LogistixDatabase> with _$RiderDaoMixin {
   RiderDao(super.db);
 
+  // ── Read Operations ─────────────────────────────────────────────
+
   Stream<List<entities.Rider>> watchRiders({
     List<String>? statuses,
     String? searchQuery,
+    int? limit,
+    String? afterFullName,
+    String? afterId,
+  }) {
+    return _buildRidersQuery(
+      statuses: statuses,
+      searchQuery: searchQuery,
+      limit: limit,
+      afterFullName: afterFullName,
+      afterId: afterId,
+    ).watch().map((rows) => rows.map((r) => r.toEntity()).toList());
+  }
+
+  Future<List<entities.Rider>> getRiders({
+    List<String>? statuses,
+    String? searchQuery,
+    int? limit,
+    String? afterFullName,
+    String? afterId,
+  }) async {
+    final rows = await _buildRidersQuery(
+      statuses: statuses,
+      searchQuery: searchQuery,
+      limit: limit,
+      afterFullName: afterFullName,
+      afterId: afterId,
+    ).get();
+    return rows.map((r) => r.toEntity()).toList();
+  }
+
+  Selectable<RiderRow> _buildRidersQuery({
+    List<String>? statuses,
+    String? searchQuery,
+    int? limit,
+    String? afterFullName,
+    String? afterId,
   }) {
     final query = select(db.riders);
-
+    
     if (statuses != null && statuses.isNotEmpty) {
       query.where((r) => r.status.isIn(statuses));
     }
-
+    
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query.where((r) =>
-        r.fullName.contains(searchQuery) |
-        r.email.contains(searchQuery) |
-        r.phoneNumber.contains(searchQuery),
+      query.where(
+        (r) => r.fullName.contains(searchQuery) | r.phoneNumber.contains(searchQuery),
       );
     }
 
-    query.orderBy([(r) => OrderingTerm.asc(r.fullName)]);
+    // Cursor-based pagination
+    if (afterFullName != null && afterId != null) {
+      query.where((r) => 
+        (r.fullName.isBiggerThanValue(afterFullName)) | 
+        (r.fullName.equals(afterFullName) & r.id.isBiggerThanValue(afterId))
+      );
+    }
 
-    return query.watch().map((rows) {
-      return rows.map((row) => row.toEntity()).toList();
-    });
+    query.orderBy([(r) => OrderingTerm.asc(r.fullName), (r) => OrderingTerm.asc(r.id)]);
+    
+    if (limit != null) {
+      query.limit(limit);
+    }
+
+    return query;
   }
 
   Future<entities.Rider?> getRider(String riderId) async {
@@ -45,42 +91,43 @@ class RiderDao extends DatabaseAccessor<LogistixDatabase> with _$RiderDaoMixin {
     return query.watchSingleOrNull().map((row) => row?.toEntity());
   }
 
-  Future<List<entities.Rider>> searchRiders({
-    String? searchQuery,
-    List<String>? statuses,
-  }) async {
-    final query = select(db.riders)..where((r) => r.isAccepted.equals(true));
+  // ── Write Operations ────────────────────────────────────────────
 
-    if (statuses != null && statuses.isNotEmpty) {
-      query.where((r) => r.status.isIn(statuses));
-    }
-
-    if (searchQuery != null && searchQuery.isNotEmpty) {
-      query.where((r) =>
-        r.fullName.contains(searchQuery) |
-        r.email.contains(searchQuery) |
-        r.phoneNumber.contains(searchQuery),
-      );
-    }
-
-    query.orderBy([(r) => OrderingTerm.asc(r.fullName)]);
-
-    final rows = await query.get();
-    return rows.map((row) => row.toEntity()).toList();
+  Future<void> upsertRider(RidersCompanion rider) async {
+    await _performUpsert(rider);
   }
 
-  Future<void> upsertRider(RidersCompanion rider) {
-    return into(db.riders).insertOnConflictUpdate(rider);
-  }
-
-  Future<void> upsertRiders(List<RidersCompanion> list) async {
-    await batch((batch) {
-      batch.insertAllOnConflictUpdate(db.riders, list);
+  /// Atomically upsert a list of riders in a single transaction.
+  Future<void> upsertRiders(List<RidersCompanion> riderList) async {
+    if (riderList.isEmpty) return;
+    await transaction(() async {
+      for (final rider in riderList) {
+        await _performUpsert(rider);
+      }
     });
   }
 
-  Future<int> deleteRider(String id) {
-    return (delete(db.riders)..where((r) => r.id.equals(id))).go();
+  Future<void> _performUpsert(RidersCompanion rider) async {
+    final id = rider.id.value;
+    final incomingUpdate = rider.updatedAt.value;
+
+    if (incomingUpdate == null) {
+      await into(db.riders).insertOnConflictUpdate(rider);
+      return;
+    }
+
+    final existing = await (select(db.riders)..where((r) => r.id.equals(id)))
+        .getSingleOrNull();
+
+    if (existing == null ||
+        existing.updatedAt == null ||
+        incomingUpdate.isAfter(existing.updatedAt!)) {
+      await into(db.riders).insertOnConflictUpdate(rider);
+    }
+  }
+
+  Future<void> deleteRider(String id) async {
+    await (delete(db.riders)..where((r) => r.id.equals(id))).go();
   }
 
   Future<void> deleteRiders(List<String> ids) async {

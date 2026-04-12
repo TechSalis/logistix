@@ -41,11 +41,11 @@ class CompanyRemoteDataSourceImpl extends BaseRemoteDataSource
         key: 'companies',
       );
 
-      final rawItems = (data['items'] as List).cast<Map<String, dynamic>?>();
+      final rawItems = (data['items'] as List).cast<Map<String, dynamic>>();
       final total = (data['total'] as num?)?.toInt() ?? 0;
 
       return (
-        items: rawItems.nonNulls.map(CompanyDto.fromJson).toList(),
+        items: rawItems.map(CompanyDto.fromJson).toList(),
         total: total,
       );
     } catch (e) {

@@ -1,5 +1,8 @@
 import 'package:auth/src/data/datasources/auth_remote_datasource.dart';
-import 'package:auth/src/domain/repositories/auth_repository.dart';
+import 'package:auth/src/data/dtos/login_request.dart';
+import 'package:auth/src/data/dtos/reset_password_request.dart';
+import 'package:auth/src/data/dtos/sign_up_request.dart';
+import 'package:auth/src/data/dtos/verify_otp_request.dart';
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';
@@ -14,7 +17,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<AppError, User>> login(String email, String password) async {
     return Result.tryCatch<AppError, User>(() async {
-      final loginData = await _dataSource.login(email, password);
+      final loginData = await _dataSource.login(
+        LoginRequest(email: email, password: password),
+      );
 
       final token = loginData.$1;
       final userDto = loginData.$2;
@@ -33,7 +38,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String name,
   }) async {
     return Result.tryCatch<AppError, User>(() async {
-      final signUpData = await _dataSource.signUp(email, password, name);
+      final signUpData = await _dataSource.signUp(
+        SignUpRequest(email: email, password: password, name: name),
+      );
 
       final token = signUpData.$1;
       final userDto = signUpData.$2;
@@ -59,7 +66,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String otp,
   }) async {
     return Result.tryCatch<AppError, void>(() async {
-      await _dataSource.verifyOtp(email, otp);
+      await _dataSource.verifyOtp(VerifyOtpRequest(email: email, otp: otp));
     });
   }
 
@@ -69,7 +76,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required String newPassword,
   }) async {
     return Result.tryCatch<AppError, void>(() async {
-      await _dataSource.resetPassword(email, newPassword);
+      await _dataSource.resetPassword(
+        ResetPasswordRequest(email: email, newPassword: newPassword),
+      );
     });
   }
 

@@ -2,7 +2,6 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix/startup/presentation/bloc/app_bloc.dart';
 import 'package:logistix/startup/presentation/bloc/app_event.dart';
-import 'package:logistix/startup/presentation/bloc/app_state.dart';
 import 'package:shared/shared.dart';
 
 /// The entry point page that handles initialization and initial routing.
@@ -29,7 +28,7 @@ class EntrySplashPage extends StatelessWidget {
         final state = await appBloc.stream.firstWhere((s) => !s.isInitializing);
 
         // If it's an error state, throw so SyncPage can handle it
-        state.whenOrNull(error: (message) => throw UserError(message: message));
+        state.whenOrNull(error: (message) => throw AppError(message: message));
       },
       onError: (context, e, retry) {
         SyncPage.showErrorDialog(

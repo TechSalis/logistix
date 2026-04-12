@@ -1,5 +1,4 @@
 import 'package:adapters/adapters.dart';
-import 'package:bootstrap/interfaces/di/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -53,9 +52,9 @@ class LogistixApp extends StatelessWidget {
         needsOnboarding: (_) => appRouter.go(ModuleRoutePaths.onboarding),
         authenticated: (_, role) {
           appRouter.go(switch (role) {
-            UserRole.rider => ModuleRoutePaths.rider,
-            UserRole.dispatcher => ModuleRoutePaths.dispatcher,
-            // UserRole.customer => ModuleRoutePaths.auth,
+            UserRole.RIDER => ModuleRoutePaths.rider,
+            UserRole.DISPATCHER => ModuleRoutePaths.dispatcher,
+            UserRole.CUSTOMER => ModuleRoutePaths.auth,
           });
         },
       );
@@ -66,7 +65,7 @@ class LogistixApp extends StatelessWidget {
       child: BlocListener<AppBloc, AppState>(
         listener: (context, state) => redirect(state),
         child: MaterialApp.router(
-          title: 'Logistix',
+          title: EnvConfig.instance.appName,
           theme: LogistixTheme.lightTheme,
           routerConfig: appRouter,
         ),

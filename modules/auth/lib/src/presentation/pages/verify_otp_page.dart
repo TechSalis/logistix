@@ -28,12 +28,12 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
 
     // Trigger OTP verification
     context.read<AuthBloc>().add(
-      AuthEvent.verifyOtp(email: widget.email, otp: otp),
+      AuthVerifyOtp(email: widget.email, otp: otp),
     );
   }
 
   void _resendOtp() {
-    context.read<AuthBloc>().add(AuthEvent.forgotPassword(email: widget.email));
+    context.read<AuthBloc>().add(AuthForgotPassword(email: widget.email));
   }
 
   @override
@@ -57,7 +57,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
       child: LogistixAuthScaffold(
         onBack: () => context.pop(),
         header: Container(
-          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          padding: const EdgeInsets.all(BootstrapSpacing.lg),
           decoration: BoxDecoration(
             color: LogistixColors.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
@@ -82,10 +82,10 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                     color: LogistixColors.textSecondary,
                   ),
                 ),
-                LogistixButton(
+                BootstrapButton(
                   onPressed: _resendOtp,
                   label: 'Resend',
-                  type: LogistixButtonType.text,
+                  type: BootstrapButtonType.text,
                 ),
               ],
             ),
@@ -104,7 +104,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
               textStyle: context.textTheme.headlineSmall?.bold,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(LogistixRadii.md),
+                borderRadius: BorderRadius.circular(BootstrapRadii.md),
                 border: Border.all(color: LogistixColors.border),
                 boxShadow: [
                   BoxShadow(
@@ -117,8 +117,8 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
             ),
           ),
           if (_isVerifying) ...[
-            const SizedBox(height: LogistixSpacing.xl),
-            const Center(child: LogistixInlineLoader(size: 32)),
+            const SizedBox(height: BootstrapSpacing.xl),
+            const Center(child: BootstrapInlineLoader(size: 32)),
           ],
         ],
       ),

@@ -1,18 +1,11 @@
-import 'package:shared/shared.dart';
+import 'package:shared/src/core/config/env_config.dart';
 
-class TrackingLinkUtils {
-  /// Generates a secure tracking link for an order.
+class LogistixTracking {
   static String generateLink({
     required String trackingNumber,
-    String? trackingCode,
+    required String trackingCode,
   }) {
-    final baseUrl = EnvConfig.instance.trackingLink;
-    final url = '$baseUrl/${trackingNumber.toUpperCase()}';
-    
-    if (trackingCode != null && trackingCode.isNotEmpty) {
-      return '$url?code=$trackingCode';
-    }
-    
-    return url;
+    final base = EnvConfig.instance.trackingLink;
+    return '$base/track/$trackingNumber?code=$trackingCode';
   }
 }

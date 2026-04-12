@@ -1,16 +1,32 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'platform.dart';
 
-part 'company_integration.freezed.dart';
+enum ChatPlatform {
+  WHATSAPP,
+  INSTAGRAM,
+  FACEBOOK,
+  TIKTOK;
 
-@freezed
-abstract class CompanyIntegration with _$CompanyIntegration {
-  const factory CompanyIntegration({
-    required String id,
-    required Platform platform,
-    required String platformId,
-    required bool isActive,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) = _CompanyIntegration;
+  static ChatPlatform fromString(String value) {
+    return ChatPlatform.values.firstWhere(
+      (e) => e.name == value.toUpperCase(),
+      orElse: () => ChatPlatform.WHATSAPP,
+    );
+  }
+}
+
+class CompanyIntegration {
+  const CompanyIntegration({
+    required this.id,
+    required this.platform,
+    required this.platformId,
+    required this.isActive,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  final String id;
+  final ChatPlatform platform;
+  final String platformId;
+  final bool isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 }

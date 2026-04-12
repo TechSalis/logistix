@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:bootstrap/interfaces/connectivity/connectivity.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/codec.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/oauth_token.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';
-import 'package:bootstrap/interfaces/logger/logger.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:shared/shared.dart';
 
@@ -15,19 +13,16 @@ class GraphQLService {
   GraphQLService(
     this.tokenStore, {
     required UserStore userStore,
-    required IConnectivityService connectivity,
     required RefreshTokenHandler onRefreshToken,
     required AuthStatusRepository authStatus,
     Logger? logger,
   }) : _userStore = userStore,
-       _connectivity = connectivity,
        _onRefreshToken = onRefreshToken,
        _authStatus = authStatus,
        _logger = logger;
 
   final TokenStore tokenStore;
   final UserStore _userStore;
-  final IConnectivityService _connectivity;
   final RefreshTokenHandler _onRefreshToken;
   final AuthStatusRepository _authStatus;
   final Logger? _logger;
@@ -38,9 +33,6 @@ class GraphQLService {
 
   late final GraphQLClient client;
   WebSocketLink? _wsLink;
-
-  StreamController<void>? _reconnectController;
-  StreamSubscription<bool>? _connectivitySubscription;
 
   bool _isRefreshing = false;
   Completer<void>? _refreshCompleter;
@@ -86,16 +78,6 @@ class GraphQLService {
       link = authLink.concat(httpLink).concat(DedupeLink());
     }
 
-    // Listen to connectivity changes to trigger catch-up syncs
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
-      connected,
-    ) {
-      if (connected) {
-        _logger?.info('Network reachable, triggering reconnection sync');
-        _reconnectController?.add(null);
-      }
-    });
-
     client = GraphQLClient(
       link: link,
       cache: GraphQLCache(store: HiveStore()),
@@ -105,8 +87,6 @@ class GraphQLService {
 
   void dispose() {
     _wsLink?.dispose();
-    _connectivitySubscription?.cancel();
-    _reconnectController?.close();
   }
 
   Stream<QueryResult<T>> subscribe<T>(
@@ -123,25 +103,6 @@ class GraphQLService {
         variables: variables ?? {},
       ),
     );
-  }
-
-  /// Starts a GraphQL subscription and executes [onSync] catch-up logic
-  /// whenever the connection is established or restored.
-  Stream<QueryResult<T>> subscribeWithSync<T>(
-    String document, {
-    required Future<void> Function() onSync,
-    Map<String, dynamic>? variables,
-  }) {
-    // 2. Listen to internal reconnection events (socket or network)
-    // We use a separate subscription because we don't want to cancel the main one
-    // when this method is called multiple times.
-    _reconnectController ??= StreamController<void>.broadcast();
-    _reconnectController?.stream.listen((_) {
-      _logger?.info('Subscription catch-up sync triggered');
-      onSync();
-    });
-
-    return subscribe<T>(document, variables: variables);
   }
 
   Future<void> refreshAccessToken(OAuthToken token) async {
@@ -164,7 +125,6 @@ class GraphQLService {
       }
     } on Object catch (e) {
       _logger?.error('Token refresh error: $e');
-      // Only delete on authentication failure, not transient network errors
       if (e is OperationException) {
         if (_isAuthenticationError(
           QueryResult(
@@ -198,7 +158,6 @@ class GraphQLService {
       extra: {'document': document, 'variables': variables},
     );
 
-    // Try network first, fallback to cache on failure
     final result = await _executeWithRetry<T>(
       () => client.query<T>(
         QueryOptions<T>(
@@ -211,10 +170,8 @@ class GraphQLService {
       retryDelay: retryDelay,
     );
 
-    // If network succeeded, return result
     if (!result.hasException) return result;
 
-    // Network failed, try cache if enabled
     if (useCache) {
       try {
         _logger?.info('Network failed, trying cache fallback');
@@ -226,7 +183,6 @@ class GraphQLService {
           ),
         );
 
-        // Return cache result if it has data, otherwise return network error
         if (cacheResult.data != null && !cacheResult.hasException) {
           _logger?.info('Cache fallback successful');
           return cacheResult;
@@ -278,22 +234,12 @@ class GraphQLService {
             try {
               final token = await tokenStore.read();
               if (token == null) {
-                // If we reach here with an auth error but no token,
-                // it means we're genuinely unauthenticated.
                 _authStatus.setUnauthenticated();
                 return result;
               }
-
-              // Try to refresh to sync latest roles/permissions
-              _logger?.info(
-                'Auth error detected, attempting refresh to sync latest roles',
-              );
               await refreshAccessToken(token);
-              // Retry immediately after refresh
               continue;
             } on Object catch (e) {
-              // Only logout if it's an explicit authentication error during refresh
-              // Rethrow or return result for transient errors
               _logger?.error('Token refresh failed during retry: $e');
               if (e is OperationException &&
                   _isAuthenticationError(
@@ -309,7 +255,6 @@ class GraphQLService {
             }
           }
 
-          // Check if error is retryable
           if (_isRetryable(result.exception) && attempts < maxRetries) {
             _logger?.warn(
               'Retryable error, attempt ${attempts + 1}/${maxRetries + 1}',
@@ -348,52 +293,36 @@ class GraphQLService {
   bool _isRetryable(dynamic error) {
     if (error is OperationException) {
       final linkException = error.linkException;
-
-      if (linkException is NetworkException) {
-        return true;
-      }
-
+      if (linkException is NetworkException) return true;
       if (linkException is ServerException) {
         final statusCode =
             linkException.parsedResponse?.response['statusCode'] as int?;
         return statusCode != null && statusCode >= 500;
       }
-
       final graphQLErrors = error.graphqlErrors;
       if (graphQLErrors.isNotEmpty) {
         final code = graphQLErrors.first.extensions?['code']?.toString();
-
         return GraphQLErrorCodes.isNetworkError(code) ||
             GraphQLErrorCodes.isServerError(code);
       }
     }
-
-    if (error is TimeoutException) {
-      return true;
-    }
-
+    if (error is TimeoutException) return true;
     return false;
   }
 
   bool _isAuthenticationError(QueryResult result) {
     if (!result.hasException) return false;
-
     final exception = result.exception!;
-
-    // Check Link Exception (ServerException with 401)
     final linkEx = exception.linkException;
     if (linkEx is ServerException) {
       final statusCode = linkEx.parsedResponse?.response['statusCode'] as int?;
       if (statusCode == 401) return true;
     }
-
-    // Check GraphQLError codes
     final graphQLErrors = exception.graphqlErrors;
     if (graphQLErrors.isNotEmpty) {
       final code = graphQLErrors.first.extensions?['code']?.toString();
       if (GraphQLErrorCodes.isAuthError(code)) return true;
     }
-
     return false;
   }
 
@@ -403,12 +332,10 @@ class GraphQLService {
   ) async {
     final refreshToken = currentToken?.refreshToken;
     if (refreshToken == null) return null;
-
     final refreshClient = GraphQLClient(
       link: HttpLink(EnvConfig.instance.graphqlUrl),
       cache: GraphQLCache(),
     );
-
     final result = await refreshClient.mutate<Map<String, dynamic>>(
       MutationOptions<Map<String, dynamic>>(
         document: gql(r'''
@@ -424,16 +351,9 @@ class GraphQLService {
         variables: {'token': refreshToken},
       ),
     );
-
-    if (result.hasException) {
-      throw result.exception!;
-    }
-
+    if (result.hasException) throw result.exception!;
     final data = result.data?['refreshToken'];
-    if (data == null) {
-      return null;
-    }
-
+    if (data == null) return null;
     return const OAuthTokenCodec().decode(data as Map<String, dynamic>);
   }
 }

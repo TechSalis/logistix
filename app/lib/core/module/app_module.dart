@@ -1,16 +1,10 @@
 import 'package:adapters/adapters.dart';
 import 'package:bootstrap/interfaces/connectivity/connectivity.dart';
-import 'package:bootstrap/interfaces/di/di.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';
-import 'package:bootstrap/interfaces/logger/logger.dart';
 import 'package:bootstrap/interfaces/modules/module/module.dart';
-import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix/core/services/share_intent_service.dart';
-import 'package:logistix/startup/data/datasources/startup_remote_datasource.dart';
-import 'package:logistix/startup/data/repositories/startup_repository_impl.dart';
 import 'package:logistix/startup/presentation/bloc/app_bloc.dart';
 import 'package:logistix/startup/presentation/pages/entry_splash_page.dart';
 import 'package:shared/shared.dart';
@@ -26,25 +20,13 @@ class AppModule extends Module<RouteBase> {
       createTokenStore(),
       refreshUrl: EnvConfig.instance.refreshUrl,
     );
-    
+
     injector
       ..registerSingleton<Logger>(const SentryLogger())
       ..registerSingleton<TokenStore>(SecureTokenStore())
       ..registerSingleton<UserStore>(
         UserStoreImpl(
           SharedPrefsObjectStore(UserDto.fromJson, UserDto.toJsonFunc),
-        ),
-      )
-      ..registerSingleton<StreamableObjectStore<DispatcherMetricsDto>>(
-        StreamableSharedPrefsObjectStore(
-          DispatcherMetricsDto.fromJson,
-          DispatcherMetricsDto.toJsonFunc,
-        ),
-      )
-      ..registerSingleton<StreamableObjectStore<RiderMetricsDto>>(
-        StreamableSharedPrefsObjectStore(
-          RiderMetricsDto.fromJson,
-          RiderMetricsDto.toJsonFunc,
         ),
       )
       ..registerSingleton<IConnectivityService>(
@@ -64,12 +46,6 @@ class AppModule extends Module<RouteBase> {
           ],
         ),
       )
-      ..registerLazySingleton<RestService>(
-        () => RestService(
-          client: injector.get<Dio>(),
-          logger: injector.get<Logger>(),
-        ),
-      )
       ..registerLazySingleton<AuthStatusRepository>(
         () => AuthStatusRepositoryImpl(injector.get<UserStore>()),
       )
@@ -77,10 +53,17 @@ class AppModule extends Module<RouteBase> {
         () => GraphQLService(
           injector.get<TokenStore>(),
           userStore: injector.get<UserStore>(),
-          connectivity: injector.get<IConnectivityService>(),
           authStatus: injector.get<AuthStatusRepository>(),
           onRefreshToken: GraphQLService.defaultRefreshToken,
           logger: const DevLogger(),
+        ),
+      )
+      // SyncManager Lazy Singleton
+      ..registerLazySingleton<SyncManager>(
+        () => SyncManager(
+          injector.get<GraphQLService>(),
+          injector.get<IConnectivityService>(),
+          logger: injector.get<Logger>(),
         ),
       )
       // Drift Database - Local storage
@@ -93,28 +76,42 @@ class AppModule extends Module<RouteBase> {
       )
       ..registerLazySingleton<LogoutUseCase>(
         () => LogoutUseCase(
+          pushNotificationService: injector.get<PushNotificationService>(),
+          appRepository: injector.get<AppRepository>(),
+          authStatusRepository: injector.get<AuthStatusRepository>(),
+        ),
+      )
+      ..registerLazySingleton<AppRepository>(
+        () => AppRepositoryImpl(
+          AppRemoteDataSourceImpl(injector.get<GraphQLService>()),
+          injector.get<TokenStore>(),
+          injector.get<UserStore>(),
+        ),
+      )
+      // Register AppBloc for global app state and initialization
+      ..registerSingleton<AppBloc>(
+        AppBloc(
+          injector.get<AppRepository>(),
           ClearAppDataUseCase(
             injector.get<TokenStore>(),
             injector.get<UserStore>(),
             injector.get<GraphQLService>(),
             injector.get<LogistixDatabase>(),
           ),
-        ),
-      )
-      // Register AppBloc for global app state and initialization
-      ..registerSingleton<AppBloc>(
-        AppBloc(
-          StartupRepositoryImpl(
-            StartupRemoteDataSourceImpl(injector.get<GraphQLService>()),
-            injector.get<TokenStore>(),
-            injector.get<UserStore>(),
-          ),
-          injector.get<LogoutUseCase>(),
           injector.get<AuthStatusRepository>(),
         ),
       )
-      ..registerSingleton<ShareIntentService>(
-        ShareIntentService(userStore: injector.get<UserStore>()),
+      ..registerLazySingleton<PushNotificationService>(
+        PushNotificationServiceImpl.new,
+      )
+      ..registerLazySingleton<InitializeNotificationsUseCase>(
+        () => InitializeNotificationsUseCase(
+          injector.get<PushNotificationService>(),
+          injector.get<AppRepository>(),
+        ),
+      )
+      ..registerLazySingleton<ShareIntentService>(
+        () => ShareIntentService(userStore: injector.get<UserStore>()),
       )
       ..registerLazySingleton<PlacesService>(PlacesService.new);
   }

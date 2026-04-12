@@ -1,5 +1,7 @@
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
+import 'package:rider/src/data/dtos/rider_sync_request.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 /// Performs a full catch-up sync for the Rider module.
@@ -25,16 +27,21 @@ class SyncRiderDataUseCase {
   final StreamableObjectStore<RiderMetricsDto> _metricsStore;
   final LogistixDatabase _database;
 
-  Future<void> call({double? since, int limit = 50}) async {
+  Future<void> call({double? since, int limit = 200}) async {
+    // Limit initial sync to last 30 days for mobile performance
+    final effectiveSince = since ?? (DateTime.now().subtract(const Duration(days: 30)).millisecondsSinceEpoch / 1000.0);
+
     var offset = 0;
     var hasMore = true;
     DateTime? completionTime;
 
     while (hasMore) {
       final syncDto = await _remoteDataSource.syncData(
-        since: since,
-        limit: limit,
-        offset: offset,
+        RiderSyncRequest(
+          since: effectiveSince,
+          limit: limit,
+          offset: offset,
+        ),
       );
 
       completionTime = DateTime.fromMillisecondsSinceEpoch(syncDto.lastUpdated);
@@ -64,7 +71,7 @@ class SyncRiderDataUseCase {
     // Update Sync Time
     if (completionTime != null) {
       await _database.updateLastSyncTime(
-        'rider_last_sync',
+        SyncKeys.riderLastSync,
         completionTime,
         null,
       );

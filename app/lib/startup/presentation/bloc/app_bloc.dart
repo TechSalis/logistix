@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logistix/startup/domain/repositories/startup_repository.dart';
 import 'package:logistix/startup/presentation/bloc/app_event.dart';
 import 'package:logistix/startup/presentation/bloc/app_state.dart';
 import 'package:shared/shared.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  AppBloc(this.startupRepo, this._logoutUseCase, this._authStatusRepository)
-    : super(const AppState.initializing()) {
+  AppBloc(
+    this.appRepo,
+    this._clearAppDataUseCase,
+    this._authStatusRepository,
+  ) : super(const AppState.initializing()) {
     _authSubscription = _authStatusRepository.session.listen((session) {
       add(AppEvent.sessionStatusChanged(session));
     });
@@ -21,8 +23,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     });
   }
 
-  final LogoutUseCase _logoutUseCase;
-  final StartupRepository startupRepo;
+  final ClearAppDataUseCase _clearAppDataUseCase;
+  final AppRepository appRepo;
   final AuthStatusRepository _authStatusRepository;
 
   late final StreamSubscription<AuthSession> _authSubscription;
@@ -36,7 +38,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   Future<void> _onInitialize(Emitter<AppState> emit) async {
     if (!state.isInitializing) emit(const AppState.initializing());
 
-    final result = await startupRepo.getCurrentUser();
+    final result = await appRepo.getCurrentUser();
 
     result.map(
       (error) => emit(
@@ -61,7 +63,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   ) async {
     switch (session.status) {
       case AuthStatus.unauthenticated:
-        await _logoutUseCase();
+        await _clearAppDataUseCase();
         emit(const AppState.unauthenticated());
       case AuthStatus.authenticated:
         if (session.user?.role != null) {

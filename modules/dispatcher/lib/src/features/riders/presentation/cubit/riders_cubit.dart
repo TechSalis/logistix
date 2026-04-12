@@ -89,12 +89,76 @@ class RidersState {
 
 class RidersCubit extends Cubit<RidersState> {
   RidersCubit(this._repo) : super(RidersState.initial()) {
-    _subscribeToRiders();
+    _initSubscription();
+    refresh();
   }
 
   final RiderRepository _repo;
-
   StreamSubscription<List<Rider>>? _ridersSubscription;
+
+  int _limit = 50;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
+
+  void _initSubscription() {
+    _ridersSubscription?.cancel();
+    _ridersSubscription = _repo
+        .watchRiders(
+          searchQuery: state.searchQuery,
+          statuses: state.selectedStatus != null
+              ? [state.selectedStatus!]
+              : null,
+          limit: _limit,
+        )
+        .listen((riders) {
+          if (isClosed) return;
+
+          final active = riders.where((r) => r.permitStatus == PermitStatus.APPROVED).toList();
+          final pending = riders.where((r) => r.permitStatus == PermitStatus.PENDING).toList();
+
+          active.sort((a, b) => a.fullName.compareTo(b.fullName));
+
+          emit(
+            state.copyWith(
+              riders: active,
+              pendingRiders: pending,
+              mapRiders: active,
+            ),
+          );
+        });
+  }
+
+  Future<void> refresh() async {
+    if (isClosed) return;
+    emit(state.copyWith(isLoading: true));
+    
+    _limit = 50;
+    _initSubscription();
+
+    final result = await _repo.getRiders(
+      searchQuery: state.searchQuery,
+      statuses: state.selectedStatus != null ? [state.selectedStatus!] : null,
+      limit: _limit,
+    );
+
+    result.when(
+      data: (riders) {
+        _hasMore = riders.length >= _limit;
+        emit(state.copyWith(isLoading: false));
+      },
+      error: (e) => emit(state.copyWith(isLoading: false, error: e.message)),
+    );
+  }
+
+  void loadMore() {
+    if (_isLoadingMore || !_hasMore) return;
+
+    _isLoadingMore = true;
+    _limit += 50;
+    _initSubscription();
+
+    _isLoadingMore = false;
+  }
 
   late final callRunner = AsyncRunner.withArg<String?, AppError, void>(
     _launchCaller,
@@ -103,64 +167,26 @@ class RidersCubit extends Cubit<RidersState> {
     _launchWhatsApp,
   );
 
-  void _subscribeToRiders([String? search]) {
-    _ridersSubscription?.cancel();
-    _ridersSubscription = _repo
-        .watchRiders(searchQuery: search)
-        .listen(
-          (data) {
-            int rank(RiderStatus status) {
-              switch (status) {
-                case RiderStatus.online:
-                  return 0;
-                case RiderStatus.busy:
-                  return 1;
-                case RiderStatus.offline:
-                  return 2;
-              }
-            }
-
-            final activeRiders = data.where((r) => r.isAccepted).toList()
-              ..sortBy((e) => rank(e.status));
-
-            final pendingRiders = data.where((r) => !r.isAccepted).toList();
-            emit(
-              state.copyWith(
-                isLoading: false,
-                riders: activeRiders,
-                pendingRiders: pendingRiders,
-                mapRiders: activeRiders,
-              ),
-            );
-          },
-          onError: (Object error) {
-            emit(
-              state.copyWith(isLoading: false, error: 'Failed to fetch riders'),
-            );
-          },
-        );
-  }
-
   Future<void> _launchCaller(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-    await LauncherUtils.callNumber(phone);
+    await LogistixLauncher.callNumber(phone);
   }
 
   Future<void> _launchWhatsApp(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-
     final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
     final url = 'https://wa.me/$cleanPhone';
-    await LauncherUtils.launchInBrowser(url);
+    await LogistixLauncher.launchInBrowser(url);
   }
 
   void filterByStatus(RiderStatus? status) {
     emit(state.copyWith(selectedStatus: status, clearStatus: status == null));
+    refresh();
   }
 
   void searchRiders(String query) {
     emit(state.copyWith(searchQuery: query));
-    _subscribeToRiders(query);
+    refresh();
   }
 
   // Methods using AsyncRunners for better status tracking
@@ -172,12 +198,9 @@ class RidersCubit extends Cubit<RidersState> {
         error: (e) => emit(state.copyWith(error: e.message)),
       );
     } finally {
-      if (!isClosed) {
-        emit(state.copyWith(
-          acceptingRiderIds:
-              state.acceptingRiderIds.where((id) => id != riderId).toSet(),
-        ));
-      }
+      final newAccepting = Set<String>.from(state.acceptingRiderIds)
+        ..remove(riderId);
+      emit(state.copyWith(acceptingRiderIds: newAccepting));
     }
   }
 
@@ -189,29 +212,26 @@ class RidersCubit extends Cubit<RidersState> {
         error: (e) => emit(state.copyWith(error: e.message)),
       );
     } finally {
-      if (!isClosed) {
-        emit(state.copyWith(
-          rejectingRiderIds:
-              state.rejectingRiderIds.where((id) => id != riderId).toSet(),
-        ));
-      }
+      final newRejecting = Set<String>.from(state.rejectingRiderIds)
+        ..remove(riderId);
+      emit(state.copyWith(rejectingRiderIds: newRejecting));
     }
   }
 
-  Future<void> selectRider(String? riderId) async {
-    if (riderId == null) {
-      emit(state.copyWith(clearSelectedRider: true));
-      return;
-    }
+  void selectRider(Rider? rider) {
+    emit(state.copyWith(selectedRider: rider, clearSelectedRider: rider == null));
+  }
 
-    final result = await _repo.getRider(riderId);
-    result.when(
-      data: (rider) {
-        if (rider != null) {
-          emit(state.copyWith(selectedRider: rider));
-        }
-      },
-    );
+  void selectRiderById(String id) {
+    final rider = state.riders.firstWhereOrNull((r) => r.id == id) ??
+        state.pendingRiders.firstWhereOrNull((r) => r.id == id);
+    if (rider != null) {
+      selectRider(rider);
+    }
+  }
+
+  void deselectRider() {
+    emit(state.copyWith(clearSelectedRider: true));
   }
 
   @override

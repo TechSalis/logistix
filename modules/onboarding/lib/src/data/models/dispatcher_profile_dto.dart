@@ -1,17 +1,35 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class DispatcherProfileDto {
+  const DispatcherProfileDto({
+    this.companyName,
+    this.phoneNumber,
+    this.address,
+    this.placeId,
+    this.cac,
+  });
 
-part 'dispatcher_profile_dto.freezed.dart';
-part 'dispatcher_profile_dto.g.dart';
+  factory DispatcherProfileDto.fromJson(Map<String, dynamic> json) {
+    return DispatcherProfileDto(
+      companyName: json['companyName'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      address: json['address'] as String?,
+      placeId: json['placeId'] as String?,
+      cac: json['cac'] as String?,
+    );
+  }
 
-@freezed
-abstract class DispatcherProfileDto with _$DispatcherProfileDto {
-  const factory DispatcherProfileDto({
-    required String companyName,
-    required String phoneNumber,
-    required String address,
-    required String cac,
-  }) = _DispatcherProfileDto;
+  final String? companyName;
+  final String? phoneNumber;
+  final String? address;
+  final String? placeId;
+  final String? cac;
 
-  factory DispatcherProfileDto.fromJson(Map<String, dynamic> json) =>
-      _$DispatcherProfileDtoFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      if (companyName != null) 'companyName': companyName,
+      if (phoneNumber != null) 'phoneNumber': phoneNumber,
+      if (address != null) 'address': address,
+      if (placeId != null) 'placeId': placeId,
+      if (cac != null) 'cac': cac,
+    };
+  }
 }

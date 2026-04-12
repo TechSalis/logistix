@@ -1,8 +1,8 @@
-import '../../domain/entities/customer_order_type.dart';
-import '../../features/dashboard/presentation/view/customer_dashboard_page.dart';
-import '../../features/dashboard/presentation/view/order_history_page.dart';
-import '../../features/ordering/presentation/view/customer_order_form_page.dart';
-import '../../features/ordering/presentation/view/order_details_page.dart';
+import 'package:customer/src/domain/entities/customer_order_type.dart';
+import 'package:customer/src/features/dashboard/presentation/view/customer_dashboard_page.dart';
+import 'package:customer/src/features/dashboard/presentation/view/order_history_page.dart';
+import 'package:customer/src/features/ordering/presentation/view/customer_order_form_page.dart';
+import 'package:customer/src/features/ordering/presentation/view/order_details_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared/shared.dart';
 

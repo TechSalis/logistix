@@ -31,9 +31,6 @@ abstract class AuthStatusRepository {
   /// Reactive stream of the current session state.
   Stream<AuthSession> get session;
 
-  /// Current session value.
-  AuthSession get currentSession;
-
   /// Updates the status to [AuthStatus.authenticated].
   void setAuthenticated(User user);
 
@@ -57,9 +54,6 @@ class AuthStatusRepositoryImpl implements AuthStatusRepository {
 
   @override
   Stream<AuthSession> get session => _controller.stream;
-
-  @override
-  AuthSession get currentSession => _currentSession;
 
   @override
   Future<void> initialize() async {

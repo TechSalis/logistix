@@ -3,23 +3,39 @@ import 'dart:async';
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:shared/shared.dart';
 
-part 'rider_order_details_cubit.freezed.dart';
+abstract class RiderOrderDetailsState {
+  const RiderOrderDetailsState();
 
-@freezed
-class RiderOrderDetailsState with _$RiderOrderDetailsState {
-  const factory RiderOrderDetailsState.initial() = _Initial;
-  const factory RiderOrderDetailsState.loading() = _Loading;
-  const factory RiderOrderDetailsState.loaded(Order order) = _Loaded;
-  const factory RiderOrderDetailsState.error(String message) = _Error;
+  const factory RiderOrderDetailsState.initial() = RiderOrderDetailsInitial;
+  const factory RiderOrderDetailsState.loading() = RiderOrderDetailsLoading;
+  const factory RiderOrderDetailsState.loaded(Order order) = RiderOrderDetailsLoaded;
+  const factory RiderOrderDetailsState.error(String message) = RiderOrderDetailsError;
+}
+
+class RiderOrderDetailsInitial extends RiderOrderDetailsState {
+  const RiderOrderDetailsInitial();
+}
+
+class RiderOrderDetailsLoading extends RiderOrderDetailsState {
+  const RiderOrderDetailsLoading();
+}
+
+class RiderOrderDetailsLoaded extends RiderOrderDetailsState {
+  const RiderOrderDetailsLoaded(this.order);
+  final Order order;
+}
+
+class RiderOrderDetailsError extends RiderOrderDetailsState {
+  const RiderOrderDetailsError(this.message);
+  final String message;
 }
 
 class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
   RiderOrderDetailsCubit(this._riderRepository)
-    : super(const RiderOrderDetailsState.initial());
+    : super(const RiderOrderDetailsInitial());
 
   final RiderRepository _riderRepository;
   
@@ -30,29 +46,28 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
   late final startDeliveryRunner = AsyncRunner<AppError, void>(_startDelivery);
 
   Future<void> _startDelivery() async {
-    await state.mapOrNull(
-      loaded: (state) async {
-        final result = await _riderRepository.updateOrderStatus(
-          state.order.id,
-          OrderStatus.EN_ROUTE,
-        );
+    final curState = state;
+    if (curState is RiderOrderDetailsLoaded) {
+      final result = await _riderRepository.updateOrderStatus(
+        curState.order.id,
+        OrderStatus.EN_ROUTE,
+      );
 
-        result.when(
-          error: (error) {
-            throw UserError(
-              message: error.message ?? 'Failed to start delivery',
-            );
-          },
-        );
-      },
-    );
+      result.when(
+        error: (error) {
+          throw UserError(
+            message: error.message ?? 'Failed to start delivery',
+          );
+        },
+      );
+    }
   }
 
   void loadOrder(String orderId, {Order? initialOrder}) {
     if (initialOrder != null) {
-      emit(RiderOrderDetailsState.loaded(initialOrder));
+      emit(RiderOrderDetailsLoaded(initialOrder));
     } else {
-      emit(const RiderOrderDetailsState.loading());
+      emit(const RiderOrderDetailsLoading());
     }
 
     // Subscribe to order stream from Drift
@@ -64,15 +79,15 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
             if (isClosed) return;
 
             if (order != null) {
-              emit(RiderOrderDetailsState.loaded(order));
-            } else if (state is! _Loaded) {
-              emit(const RiderOrderDetailsState.error('Order not found'));
+              emit(RiderOrderDetailsLoaded(order));
+            } else if (state is! RiderOrderDetailsLoaded) {
+              emit(const RiderOrderDetailsError('Order not found'));
             }
           },
           onError: (Object error) {
             if (isClosed) return;
             emit(
-              RiderOrderDetailsState.error(
+              RiderOrderDetailsError(
                 (error is UserError ? error.message : null) ??
                     'Failed to load order tracking info',
               ),
@@ -88,69 +103,66 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
   }
 
   Future<void> updateStatus(OrderStatus status) async {
-    await state.mapOrNull(
-      loaded: (state) async {
-        final result = await _riderRepository.updateOrderStatus(
-          state.order.id,
-          status,
-        );
+    final curState = state;
+    if (curState is RiderOrderDetailsLoaded) {
+      final result = await _riderRepository.updateOrderStatus(
+        curState.order.id,
+        status,
+      );
 
-        if (isClosed) return;
+      if (isClosed) return;
 
-        result.when(
-          error: (error) {
-            throw UserError(
-              message: error.message ?? 'Failed to update order status',
-            );
-          },
-        );
-      },
-    );
+      result.when(
+        error: (error) {
+          throw UserError(
+            message: error.message ?? 'Failed to update order status',
+          );
+        },
+      );
+    }
   }
 
   Future<void> _unassignOrder() async {
-    await state.mapOrNull(
-      loaded: (state) async {
-        final result = await _riderRepository.updateOrderStatus(
-          state.order.id,
-          OrderStatus.UNASSIGNED,
-        );
+    final curState = state;
+    if (curState is RiderOrderDetailsLoaded) {
+      final result = await _riderRepository.updateOrderStatus(
+        curState.order.id,
+        OrderStatus.UNASSIGNED,
+      );
 
-        if (isClosed) return;
+      if (isClosed) return;
 
-        result.when(
-          error: (error) {
-            throw UserError(
-              message: error.message ?? 'Failed to unassign order',
-            );
-          },
-        );
-      },
-    );
+      result.when(
+        error: (error) {
+          throw UserError(
+            message: error.message ?? 'Failed to unassign order',
+          );
+        },
+      );
+    }
   }
 
   Future<void> _markDelivered() async {
-    await state.mapOrNull(
-      loaded: (state) async {
-        final result = await _riderRepository.updateOrderStatus(
-          state.order.id,
-          OrderStatus.DELIVERED,
-        );
+    final curState = state;
+    if (curState is RiderOrderDetailsLoaded) {
+      final result = await _riderRepository.updateOrderStatus(
+        curState.order.id,
+        OrderStatus.DELIVERED,
+      );
 
-        if (isClosed) return;
+      if (isClosed) return;
 
-        result.when(
-          error: (error) {
-            throw UserError(
-              message: error.message ?? 'Failed to mark order as delivered',
-            );
-          },
-        );
-      },
-    );
+      result.when(
+        error: (error) {
+          throw UserError(
+            message: error.message ?? 'Failed to mark order as delivered',
+          );
+        },
+      );
+    }
   }
 
   Future<void> openMap(double lat, double lng) async {
-    await LauncherUtils.openMap(lat, lng);
+    await LogistixLauncher.openMap(lat, lng);
   }
 }

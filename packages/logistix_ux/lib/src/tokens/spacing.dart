@@ -1,4 +1,4 @@
-abstract class LogistixSpacing {
+abstract class BootstrapSpacing {
   // Base unit: 4px
   static const double unit = 4;
 

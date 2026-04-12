@@ -1,25 +1,21 @@
 import 'dart:async';
 import 'package:bootstrap/services/debouncer.dart';
-import 'package:dispatcher/src/domain/repositories/order_repository.dart';
+import 'package:dispatcher/src/features/orders/domain/repositories/order_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 
-part 'orders_cubit.freezed.dart';
-
-@freezed
-abstract class OrdersState with _$OrdersState {
-  const factory OrdersState({
-    required List<Order> orders,
-    required bool isSearching,
-    required bool isLoading,
-    required bool isLoadingMore,
-    required bool hasMore,
-    OrderStatus? selectedStatus,
-    String? searchQuery,
-    String? error,
-  }) = _OrdersState;
+class OrdersState {
+  const OrdersState({
+    required this.orders,
+    required this.isSearching,
+    required this.isLoading,
+    required this.isLoadingMore,
+    required this.hasMore,
+    this.selectedStatus,
+    this.searchQuery,
+    this.error,
+  });
 
   factory OrdersState.initial() => const OrdersState(
     orders: [],
@@ -28,12 +24,44 @@ abstract class OrdersState with _$OrdersState {
     isLoadingMore: false,
     hasMore: true,
   );
+
+  final List<Order> orders;
+  final bool isSearching;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final OrderStatus? selectedStatus;
+  final String? searchQuery;
+  final String? error;
+
+  OrdersState copyWith({
+    List<Order>? orders,
+    bool? isSearching,
+    bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    OrderStatus? selectedStatus,
+    String? searchQuery,
+    String? error,
+  }) {
+    return OrdersState(
+      orders: orders ?? this.orders,
+      isSearching: isSearching ?? this.isSearching,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
+      selectedStatus: selectedStatus ?? this.selectedStatus,
+      searchQuery: searchQuery ?? this.searchQuery,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class OrdersCubit extends Cubit<OrdersState> {
   OrdersCubit(this._repo) : super(OrdersState.initial()) {
     scrollController = ScrollController()..addListener(_onScroll);
-    _subscribeToOrders();
+    _initSubscription();
+    refresh(); // Initial fetch
   }
 
   final OrderRepository _repo;
@@ -42,42 +70,63 @@ class OrdersCubit extends Cubit<OrdersState> {
   StreamSubscription<List<Order>>? _ordersSubscription;
   final _debouncer = Debouncer();
 
-  int _loadedLimit = _pageSize;
   bool _isLoadingMore = false;
+  int _limit = 50;
 
-  static const int _pageSize = 20;
-
-  void _subscribeToOrders() {
-    if (isClosed) return;
-
+  void _initSubscription() {
     _ordersSubscription?.cancel();
+    _ordersSubscription = _repo.watchOrders(
+      status: state.selectedStatus != null ? [state.selectedStatus!] : null,
+      searchQuery: state.searchQuery,
+      limit: _limit,
+    ).listen((orders) {
+      if (isClosed) return;
 
-    // Subscribe to Drift stream - reactive to all changes
-    // We watch from 0 up to current loaded limit to stay reactive
-    _ordersSubscription = _repo
-        .watchOrders(
-          status: state.selectedStatus != null ? [state.selectedStatus!] : null,
-          searchQuery: state.searchQuery,
-          limit: _loadedLimit,
-        )
-        .listen((orders) {
-          if (!isClosed) {
-            final hasMore = orders.length >= _loadedLimit;
-            emit(
-              state.copyWith(
-                orders: orders,
-                hasMore: hasMore,
-                isLoading: false,
-              ),
-            );
-          }
+      int rank(OrderStatus s) {
+        switch (s) {
+          case OrderStatus.EN_ROUTE: return 0;
+          case OrderStatus.ASSIGNED: return 1;
+          case OrderStatus.UNASSIGNED: return 2;
+          default: return 3;
+        }
+      }
+
+      final sortedOrders = List<Order>.from(orders)
+        ..sort((a, b) {
+          final rankA = rank(a.status);
+          final rankB = rank(b.status);
+          if (rankA != rankB) return rankA.compareTo(rankB);
+          return b.createdAt.compareTo(a.createdAt);
         });
+
+      emit(state.copyWith(
+        orders: sortedOrders,
+        hasMore: orders.length >= _limit,
+      ));
+    });
+  }
+
+  Future<void> refresh() async {
+    if (isClosed) return;
+    _limit = 50;
+    _initSubscription();
+    emit(state.copyWith(isLoading: true, orders: []));
+
+    final result = await _repo.getOrders(
+      status: state.selectedStatus != null ? [state.selectedStatus!] : null,
+      searchQuery: state.searchQuery,
+      limit: _limit,
+    );
+
+    result.when(
+      data: (_) => emit(state.copyWith(isLoading: false)),
+      error: (e) => emit(state.copyWith(isLoading: false, error: e.message)),
+    );
   }
 
   void filterByStatus(OrderStatus? status) {
-    _loadedLimit = _pageSize; // Reset pagination
     emit(state.copyWith(selectedStatus: status, orders: [], isLoading: true));
-    _subscribeToOrders(); // Re-subscribe with new filters
+    refresh();
   }
 
   void searchOrders(String query) {
@@ -87,11 +136,8 @@ class OrdersCubit extends Cubit<OrdersState> {
       duration: const Duration(milliseconds: 500),
       onDebounce: () {
         if (isClosed) return;
-        _loadedLimit = _pageSize; // Reset pagination on search
-        emit(
-          state.copyWith(searchQuery: query, isSearching: false, orders: []),
-        );
-        _subscribeToOrders(); // Re-subscribe with search query
+        emit(state.copyWith(searchQuery: query, isSearching: false));
+        refresh();
       },
     );
   }
@@ -100,17 +146,10 @@ class OrdersCubit extends Cubit<OrdersState> {
     if (_isLoadingMore || !state.hasMore) return;
 
     _isLoadingMore = true;
-    _loadedLimit += _pageSize;
-
-    emit(state.copyWith(isLoadingMore: true));
-
-    // Just re-subscribe with larger limit.
-    // Reactive stream will emit new list with more items.
-    _subscribeToOrders();
-
-    // Reset loading state after a short delay (or wait for first emit but sub is enough)
+    _limit += 50;
+    _initSubscription();
+    
     _isLoadingMore = false;
-    emit(state.copyWith(isLoadingMore: false));
   }
 
   void _onScroll() {

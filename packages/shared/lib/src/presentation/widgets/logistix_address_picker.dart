@@ -123,13 +123,13 @@ class _LogistixAddressPickerState extends State<LogistixAddressPicker> {
           ),
           border: isUnresolved
               ? OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(LogistixRadii.input),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.input),
                   borderSide: const BorderSide(color: LogistixColors.warning),
                 )
               : null, // Let theme handle it
           enabledBorder: isUnresolved
               ? OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(LogistixRadii.input),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.input),
                   borderSide: const BorderSide(color: LogistixColors.warning),
                 )
               : null,
@@ -137,7 +137,7 @@ class _LogistixAddressPickerState extends State<LogistixAddressPicker> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        loadingBuilder: (_, _) => const LogistixLoadingIndicator(),
+        loadingBuilder: (_, _) => const BootstrapLoadingIndicator(),
         searchFieldProps: TextFieldProps(
           controller: _searchController,
           autofocus: true,

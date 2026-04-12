@@ -42,13 +42,11 @@ class PlacesService {
 
     await _ensureInitialized();
 
-    // Cancel / complete previous request if still pending
     if (_completer != null && !_completer!.isCompleted) {
       _completer!.complete([]);
     }
 
     _completer = Completer<List<Prediction>>();
-
     _places.getPredictions(query);
 
     try {
@@ -57,39 +55,12 @@ class PlacesService {
       return [];
     }
   }
-  /// Fetches address predictions for a given query with specific place types.
-  Future<List<Prediction>> getPredictionsWithType(String query, List<String> types) async {
-    if (query.trim().isEmpty) return [];
 
-    final completer = Completer<List<Prediction>>();
-    final typedPlaces = GooglePlacesAutocomplete(
-      countries: ['ng'],
-      placeTypes: types,
-      predictionsListener: (predictions) {
-        if (!completer.isCompleted) completer.complete(predictions);
-      },
-      onError: (error) {
-        if (!completer.isCompleted) completer.completeError(error);
-      },
-      debounceTime: 0,
-    );
-
-    try {
-      await typedPlaces.initialize();
-      typedPlaces.getPredictions(query);
-      final result = await completer.future.timeout(const Duration(seconds: 5));
-      typedPlaces.dispose();
-      return result;
-    } catch (_) {
-      typedPlaces.dispose();
-      return [];
-    }
-  }
   /// Attempts to find the best Google Place match for an address query.
-  /// Uses a fuzzy matching algorithm that handles minor word variations or 1-2 word inaccuracies.
+  /// Handles typos and word variations using a weighted fuzzy algorithm.
   Future<PlaceMatch?> findBestMatch(
     String address, {
-    double minConfidence = 0.85, // Lowered slightly to allow for 1-2 word drift
+    double minConfidence = 0.75, // Allow for more drift with fuzzy matching
   }) async {
     final query = address.trim();
     if (query.isEmpty) return null;
@@ -107,7 +78,6 @@ class PlacesService {
 
       if (description == null || placeId == null) continue;
 
-      // Score against both the primary name (title) and the full description/address
       final titleScore = _calculateSimilarity(query, title);
       final descScore = _calculateSimilarity(query, description);
       
@@ -118,48 +88,90 @@ class PlacesService {
         bestMatch = (formattedAddress: description, placeId: placeId);
       }
       
-      // Short-circuit on exact match
-      if (bestScore == 1.0) break;
+      if (bestScore >= 0.99) break;
     }
 
     return bestMatch;
   }
 
-  /// Refined similarity score (0.0 to 1.0) using word correlation and substring weights
+  /// Enhanced fuzzy similarity score (0.0 to 1.0)
+  /// Features:
+  /// - Exact prefix/substring boosts
+  /// - Word-level fuzzy matching (handles typos like Ada/Anda)
+  /// - Length-normalized scoring
   double _calculateSimilarity(String query, String match) {
     final s1 = query.toLowerCase().trim();
     final s2 = match.toLowerCase().trim();
     
-    // Perfect match
     if (s1 == s2) return 1;
 
-    // Name-Aware Prefix Match: Very high weight if the query is the START of the address/name
-    // (e.g. "Pizza Hut" matches "Pizza Hut, Port Harcourt")
-    if (s2.startsWith(s1)) {
-       return 0.98 + (s1.length / s2.length * 0.02);
+    // Direct substring boosts
+    if (s2.startsWith(s1)) return 0.98;
+    if (s2.contains(s1)) return 0.90;
+
+    // Tokenize and compare words
+    final wordsQuery = s1.split(RegExp(r'[\s,\-]+')).where((w) => w.length > 1).toList();
+    final wordsMatch = s2.split(RegExp(r'[\s,\-]+')).where((w) => w.length > 1).toList();
+
+    if (wordsQuery.isEmpty) return 0;
+
+    double totalWordScore = 0;
+    
+    for (final qWord in wordsQuery) {
+      double bestWordMatchScore = 0;
+      
+      for (final mWord in wordsMatch) {
+        // Exact word match
+        if (qWord == mWord) {
+          bestWordMatchScore = 1.0;
+          break;
+        }
+        
+        // Fuzzy word match (handles "Ada" vs "Anda")
+        final distance = _levenshtein(qWord, mWord);
+        final maxLen = max(qWord.length, mWord.length);
+        
+        // Only allow 1-2 character typos for short words, or ~25% for long words
+        final threshold = qWord.length <= 4 ? 1 : 2;
+        
+        if (distance <= threshold) {
+          final wordSimilarity = 1.0 - (distance / maxLen);
+          // Apply a penalty for fuzzy matches so they score lower than exact ones
+          bestWordMatchScore = max(bestWordMatchScore, wordSimilarity * 0.95);
+        }
+      }
+      
+      totalWordScore += bestWordMatchScore;
     }
 
-    // Substring match anywhere else
-    if (s2.contains(s1)) {
-       return 0.90 + (s1.length / s2.length * 0.05);
-    }
-
-    final words1 = s1.split(RegExp(r'[\s,\-]+')).where((w) => w.length > 2).toSet();
-    final words2 = s2.split(RegExp(r'[\s,\-]+')).where((w) => w.length > 2).toSet();
-
-    if (words1.isEmpty) return 0;
-
-    final intersection = words1.intersection(words2);
+    // Normalized score based on how many query words were found (exactly or fuzzily)
+    final finalScore = totalWordScore / wordsQuery.length;
     
-    // Word correlation score (allows for 1-2 word inaccuracy if the list is long enough)
-    // Example: "Ada George Junction Port Harcourt" (4 words) 
-    // vs "Ada George Junction, Rivers" (3 words intersect). Score: 0.75
-    final correlation = intersection.length / words1.length;
-    
-    return correlation;
+    return finalScore.clamp(0.0, 1.0);
   }
 
-  /// Attempts to find a Google Place ID for an address.
+  /// Standard Levenshtein Distance for typo detection
+  int _levenshtein(String s, String t) {
+    if (s == t) return 0;
+    if (s.isEmpty) return t.length;
+    if (t.isEmpty) return s.length;
+
+    final v0 = List<int>.generate(t.length + 1, (i) => i);
+    final v1 = List<int>.filled(t.length + 1, 0);
+
+    for (var i = 0; i < s.length; i++) {
+      v1[0] = i + 1;
+      for (var j = 0; j < t.length; j++) {
+        final cost = (s[i] == t[j]) ? 0 : 1;
+        v1[j + 1] = min(v1[j] + 1, min(v0[j + 1] + 1, v0[j] + cost));
+      }
+      for (var j = 0; j < t.length + 1; j++) {
+        v0[j] = v1[j];
+      }
+    }
+    return v0[t.length];
+  }
+
   Future<String?> findPlaceId(String address) async {
     final match = await findBestMatch(address);
     return match?.placeId;
@@ -172,5 +184,4 @@ class PlacesService {
   }
 }
 
-/// A high-confidence match from Google Places
 typedef PlaceMatch = ({String formattedAddress, String placeId});

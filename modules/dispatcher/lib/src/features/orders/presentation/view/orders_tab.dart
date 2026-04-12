@@ -46,7 +46,7 @@ class OrdersTab extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+                            colors: [LogistixColors.primary, LogistixColors.secondaryDark],
                           ),
                         ),
                       ),
@@ -65,7 +65,7 @@ class OrdersTab extends StatelessWidget {
                       const Align(
                         alignment: Alignment.bottomCenter,
                         child: Padding(
-                          padding: EdgeInsets.only(bottom: 24),
+                          padding: EdgeInsets.only(bottom: BootstrapSpacing.lg),
                           child: OrderSummaryCard(),
                         ),
                       ),
@@ -76,20 +76,20 @@ class OrdersTab extends StatelessWidget {
               PinnedHeaderSliver(
                 child: Container(
                   color: LogistixColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
+                  padding: const EdgeInsets.symmetric(vertical: BootstrapSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: LogistixSpacing.lg,
+                          horizontal: BootstrapSpacing.lg,
                         ),
-                        child: LogistixSearchField(
+                        child: BootstrapSearchField(
                           onChanged: ordersCubit.searchOrders,
                           hintText: 'Search orders or trackings...',
                         ),
                       ),
-                      const SizedBox(height: LogistixSpacing.md),
+                      const SizedBox(height: BootstrapSpacing.md),
                       const _StatusFilterList(),
                     ],
                   ),
@@ -99,13 +99,13 @@ class OrdersTab extends StatelessWidget {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: (state.searchQuery?.isEmpty ?? true)
-                      ? const LogistixEmptyView(
+                      ? const BootstrapEmptyView(
                           icon: Icons.list_alt_rounded,
                           title: 'No Orders Found',
                           description:
                               'Create your first order to get started!',
                         )
-                      : const LogistixEmptyView(
+                      : const BootstrapEmptyView(
                           icon: Icons.search_off_rounded,
                           title: 'No results matching your query',
                           description: 'Try adjusting your search or filters.',
@@ -113,11 +113,10 @@ class OrdersTab extends StatelessWidget {
                 )
               else
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(
-                    LogistixSpacing.lg,
-                    0,
-                    LogistixSpacing.lg,
-                    100,
+                  padding: const EdgeInsets.only(
+                    left: BootstrapSpacing.lg,
+                    right: BootstrapSpacing.lg,
+                    bottom: 100, // Fab clearance
                   ),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
@@ -126,19 +125,19 @@ class OrdersTab extends StatelessWidget {
                           if (state.isLoadingMore) {
                             return Padding(
                               padding: const EdgeInsets.all(
-                                LogistixSpacing.md,
+                                BootstrapSpacing.md,
                               ),
-                              child: LogistixShimmer(
+                              child: BootstrapShimmer(
                                 width: double.infinity,
                                 height: 120,
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(BootstrapRadii.card),
                               ),
                             );
                           }
                           return const SizedBox.shrink();
                         }
                         final order = state.orders[index];
-                        return LogistixEntrance(
+                        return BootstrapEntrance(
                           delay: Duration(milliseconds: index * 50),
                           children: [
                             OrderPreviewCard(
@@ -161,9 +160,9 @@ class OrdersTab extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             onPressed: () => context.push(DispatcherRoutes.createOrder),
             backgroundColor: LogistixColors.primary,
-            elevation: 8,
+            elevation: 4,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
             ),
             child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
           ),
@@ -185,17 +184,17 @@ class _StatusFilterList extends StatelessWidget {
         const allStatuses = OrderStatus.values;
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.lg),
           child: Row(
             children: [
-              LogistixChoiceChip(
+              BootstrapChoiceChip(
                 label: 'All',
                 isSelected: state.selectedStatus == null,
                 onTap: () => ordersCubit.filterByStatus(null),
               ),
               ...allStatuses.map((status) {
                 final isSelected = state.selectedStatus == status;
-                return LogistixChoiceChip(
+                return BootstrapChoiceChip(
                   label: status.label,
                   isSelected: isSelected,
                   onTap: () => ordersCubit.filterByStatus(status),

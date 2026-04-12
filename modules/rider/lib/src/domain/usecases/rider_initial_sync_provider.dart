@@ -37,7 +37,7 @@ class RiderInitialSyncProvider implements InitialSyncProvider {
     }
 
     // 2. Perform Catch-up Sync (Orders & Metrics)
-    final lastSyncTime = await _database.getLastSyncTime('rider_last_sync');
+    final lastSyncTime = await _database.getLastSyncTime(SyncKeys.riderLastSync);
     final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 
     await _syncRiderDataUseCase(since: since);

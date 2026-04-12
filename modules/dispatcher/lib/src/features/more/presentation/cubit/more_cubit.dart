@@ -3,42 +3,90 @@ import 'dart:io';
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
-import 'package:dispatcher/src/domain/usecases/export_analytics_usecase.dart';
-import 'package:dispatcher/src/domain/usecases/get_integrations_usecase.dart';
-import 'package:dispatcher/src/domain/usecases/request_integration_usecase.dart';
+import 'package:dispatcher/src/features/more/data/dtos/activation_request_dto.dart';
+import 'package:dispatcher/src/features/more/domain/usecases/export_analytics_usecase.dart';
+import 'package:dispatcher/src/features/more/domain/usecases/get_integrations_usecase.dart';
+import 'package:dispatcher/src/features/more/domain/usecases/request_integration_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared/shared.dart';
 
-part 'more_cubit.freezed.dart';
+abstract class MoreState {
+  const MoreState();
 
-@freezed
-class MoreState with _$MoreState {
-  const factory MoreState.initial() = _Initial;
-  const factory MoreState.loading() = _Loading;
+  const factory MoreState.initial() = MoreInitial;
+  const factory MoreState.loading() = MoreLoading;
   const factory MoreState.loaded({
     required PackageInfo packageInfo,
-    required User? user,
-  }) = _Loaded;
-  const factory MoreState.error(String message) = _Error;
+    User? user,
+  }) = MoreLoaded;
+  const factory MoreState.error(String message) = MoreError;
+
+  T? whenOrNull<T>({
+    T Function()? initial,
+    T Function()? loading,
+    T Function(PackageInfo packageInfo, User? user)? loaded,
+    T Function(String message)? error,
+  }) {
+    if (this is MoreInitial) return initial?.call();
+    if (this is MoreLoading) return loading?.call();
+    if (this is MoreLoaded) {
+      final state = this as MoreLoaded;
+      return loaded?.call(state.packageInfo, state.user);
+    }
+    if (this is MoreError) return error?.call((this as MoreError).message);
+    return null;
+  }
+
+  T maybeWhen<T>({
+    required T Function() orElse, T Function()? initial,
+    T Function()? loading,
+    T Function(PackageInfo packageInfo, User? user)? loaded,
+    T Function(String message)? error,
+  }) {
+    return whenOrNull(
+      initial: initial,
+      loading: loading,
+      loaded: loaded,
+      error: error,
+    ) ?? orElse();
+  }
+}
+
+class MoreInitial extends MoreState {
+  const MoreInitial();
+}
+
+class MoreLoading extends MoreState {
+  const MoreLoading();
+}
+
+class MoreLoaded extends MoreState {
+  const MoreLoaded({required this.packageInfo, this.user});
+  final PackageInfo packageInfo;
+  final User? user;
+}
+
+class MoreError extends MoreState {
+  const MoreError(this.message);
+  final String message;
 }
 
 class MoreCubit extends Cubit<MoreState> {
   MoreCubit(
-    this._authStatusRepository,
     this._userStore,
     this._exportAnalyticsUseCase,
     this._requestIntegrationUseCase,
     this._getIntegrationsUseCase,
+    this._logoutUseCase,
   ) : super(const MoreState.initial());
 
-  final AuthStatusRepository _authStatusRepository;
   final UserStore _userStore;
   final ExportAnalyticsUseCase _exportAnalyticsUseCase;
   final RequestIntegrationUseCase _requestIntegrationUseCase;
   final GetIntegrationsUseCase _getIntegrationsUseCase;
+  final LogoutUseCase _logoutUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -52,7 +100,10 @@ class MoreCubit extends Cubit<MoreState> {
     }
   }
 
-  void logout() => _authStatusRepository.setUnauthenticated();
+  late final logoutRunner = AsyncRunner<AppError, void>(() async {
+    final result = await _logoutUseCase();
+    return result.throwOrReturn();
+  });
 
   late final exportAnalyticsRunner =
       AsyncRunner.withArg<ExportParams, AppError, String>((params) async {

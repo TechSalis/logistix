@@ -54,7 +54,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       child: LogistixAuthScaffold(
         onBack: () => context.pop(),
         header: Container(
-          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          padding: const EdgeInsets.all(BootstrapSpacing.lg),
           decoration: BoxDecoration(
             color: LogistixColors.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
@@ -74,11 +74,11 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               orElse: () => false,
             );
 
-            return LogistixButton(
+            return BootstrapButton(
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   context.read<AuthBloc>().add(
-                        AuthEvent.resetPassword(
+                        AuthResetPassword(
                           email: widget.email,
                           newPassword: _passwordController.text,
                         ),
@@ -95,7 +95,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             key: _formKey,
             child: Column(
               children: [
-                LogistixTextField(
+                BootstrapTextField(
                   controller: _passwordController,
                   label: 'New Password',
                   icon: Icons.lock_outline,
@@ -112,8 +112,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     },
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.md),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.md),
+                BootstrapTextField(
                   controller: _confirmPasswordController,
                   label: 'Confirm Password',
                   icon: Icons.lock_outline,

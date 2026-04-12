@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import '../../core/network/sync/customer_subscription_handler.dart';
-import '../../data/datasources/order_remote_datasource.dart';
-import 'sync_customer_data_usecase.dart';
+import 'package:customer/src/core/network/sync/customer_subscription_handler.dart';
+import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
 import 'package:shared/shared.dart';
 
 /// Manages customer session with real-time subscriptions
@@ -27,10 +27,7 @@ class CustomerSessionManager {
     // 1. Subscribe to order updates (performs sync on connection and reconnection)
     _orderSyncManager = await _dataSource.subscribeToUpdates(
       onData: (orderDto, SubscriptionEventType eventType) async {
-        await _subscriptionHandler.handleOrderUpdate(
-          orderDto,
-          eventType.name.toUpperCase(),
-        );
+        await _subscriptionHandler.handleOrderUpdate(eventType.name, orderDto);
       },
       onSync: _performSync,
     );

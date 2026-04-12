@@ -1,4 +1,3 @@
-import 'package:bootstrap/core.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,16 +21,18 @@ class OnboardingModule extends Module<RouteBase> {
       builder: (context, state, child) => MultiRepositoryProvider(
         providers: [
           RepositoryProvider<CompanyRemoteDataSource>(
-            create: (context) =>
-                CompanyRemoteDataSourceImpl(injector.get<GraphQLService>()),
+            create: (context) => CompanyRemoteDataSourceImpl(
+              injector.get<GraphQLService>(),
+            ),
           ),
           RepositoryProvider<CompanyRepository>(
             create: (context) =>
                 CompanyRepositoryImpl(context.read<CompanyRemoteDataSource>()),
           ),
           RepositoryProvider<OnboardingRemoteDataSource>(
-            create: (context) =>
-                OnboardingRemoteDataSourceImpl(injector.get<GraphQLService>()),
+            create: (context) => OnboardingRemoteDataSourceImpl(
+              injector.get<GraphQLService>(),
+            ),
           ),
           RepositoryProvider<OnboardingRepository>(
             create: (context) => OnboardingRepositoryImpl(

@@ -43,7 +43,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: LogistixAuthScaffold(
         onBack: () => context.pop(),
         header: Container(
-          padding: const EdgeInsets.all(LogistixSpacing.lg),
+          padding: const EdgeInsets.all(BootstrapSpacing.lg),
           decoration: BoxDecoration(
             color: LogistixColors.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
@@ -63,11 +63,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               orElse: () => false,
             );
 
-            return LogistixButton(
+            return BootstrapButton(
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
                   context.read<AuthBloc>().add(
-                        AuthEvent.forgotPassword(
+                        AuthForgotPassword(
                           email: _emailController.text.trim(),
                         ),
                       );
@@ -81,7 +81,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         children: [
           Form(
             key: _formKey,
-            child: LogistixTextField(
+            child: BootstrapTextField(
               controller: _emailController,
               label: 'Email Address',
               icon: Icons.email_outlined,

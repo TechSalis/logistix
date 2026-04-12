@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
-/// A reusable dropdown search for selecting [Rider]s.
-///
-/// Features:
-/// - Online status indicators in items and selected view
-/// - Searchable popup
-/// - Customizable suffix actions (like unassign)
-/// - Integrated optimistic selection to prevent jitter
 class RiderDropdownSearch extends StatelessWidget {
   const RiderDropdownSearch({
     required this.selectedRider,
@@ -157,7 +150,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
       constraints: BoxConstraints(minHeight: widget.isLarge ? 70 : 50),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(LogistixRadii.xl),
+        borderRadius: BorderRadius.circular(BootstrapRadii.xl),
         border: Border.all(color: LogistixColors.border.withValues(alpha: 0.8)),
         boxShadow: [
           BoxShadow(
@@ -191,7 +184,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
           containerBuilder: (context, child) => Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(LogistixRadii.xl),
+              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.1),
@@ -202,7 +195,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
             ),
             child: child,
           ),
-          loadingBuilder: (_, __) => const LogistixLoadingIndicator(),
+          loadingBuilder: (_, __) => const BootstrapLoadingIndicator(),
           searchFieldProps: const TextFieldProps(
             autofocus: true,
             decoration: InputDecoration(
@@ -227,7 +220,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
 
     return Padding(
       padding: EdgeInsets.symmetric(
-        vertical: widget.isLarge ? LogistixSpacing.xs : LogistixSpacing.xxs,
+        vertical: widget.isLarge ? BootstrapSpacing.xs : BootstrapSpacing.xxs,
       ),
       child: Builder(
         builder: (context) {
@@ -247,7 +240,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
                     color: LogistixColors.textTertiary,
                   ),
                 ),
-                const SizedBox(width: LogistixSpacing.sm),
+                const SizedBox(width: BootstrapSpacing.sm),
                 Expanded(
                   child: Text(
                     widget.label,
@@ -269,7 +262,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
                 size: avatarSize,
                 isLarge: widget.isLarge,
               ),
-              const SizedBox(width: LogistixSpacing.sm),
+              const SizedBox(width: BootstrapSpacing.sm),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -290,7 +283,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
                   !widget.isCompleted &&
                   (widget.onUnassign != null || _localRider != null))
                 Padding(
-                  padding: const EdgeInsets.only(left: LogistixSpacing.sm),
+                  padding: const EdgeInsets.only(left: BootstrapSpacing.sm),
                   child: AnimatedScaleTap(
                     onTap: () {
                       setState(() => _localRider = null);
@@ -303,11 +296,11 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 6,
-                        vertical: widget.isLarge ? 6 : LogistixSpacing.xxs,
+                        vertical: widget.isLarge ? 6 : BootstrapSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
                         color: LogistixColors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(LogistixRadii.lg),
+                        borderRadius: BorderRadius.circular(BootstrapRadii.lg),
                         border: Border.all(
                           color: LogistixColors.error.withValues(alpha: 0.2),
                         ),
@@ -383,8 +376,8 @@ class _RiderStatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
-      RiderStatus.online => LogistixColors.success,
-      RiderStatus.busy => LogistixColors.primary,
+      RiderStatus.ONLINE => LogistixColors.success,
+      RiderStatus.BUSY => LogistixColors.primary,
       _ => LogistixColors.textTertiary,
     };
 
@@ -423,8 +416,8 @@ class _RiderListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = switch (rider.status) {
-      RiderStatus.online => LogistixColors.success,
-      RiderStatus.busy => LogistixColors.primary,
+      RiderStatus.ONLINE => LogistixColors.success,
+      RiderStatus.BUSY => LogistixColors.primary,
       _ => LogistixColors.textTertiary,
     };
 
@@ -432,14 +425,14 @@ class _RiderListItem extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: LogistixSpacing.md,
-        vertical: isLarge ? LogistixSpacing.sm : LogistixSpacing.xs,
+        horizontal: BootstrapSpacing.md,
+        vertical: isLarge ? BootstrapSpacing.sm : BootstrapSpacing.xs,
       ),
       color: isSelected ? LogistixColors.primary.withValues(alpha: 0.05) : null,
       child: Row(
         children: [
           _RiderAvatar(rider: rider, size: avatarSize, isLarge: isLarge),
-          const SizedBox(width: LogistixSpacing.md),
+          const SizedBox(width: BootstrapSpacing.md),
           Expanded(
             child: isLarge
                 ? _buildLargeContent(context, statusColor)
@@ -485,7 +478,7 @@ class _RiderListItem extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        const SizedBox(width: LogistixSpacing.xs),
+        const SizedBox(width: BootstrapSpacing.xs),
         _StatusIndicator(statusColor: statusColor),
       ],
     );
@@ -516,12 +509,12 @@ class _StatusRow extends StatelessWidget {
     return Row(
       children: [
         _StatusIndicator(statusColor: statusColor),
-        const SizedBox(width: LogistixSpacing.xxs),
+        const SizedBox(width: BootstrapSpacing.xxs),
         Text(
           rider.status.label,
           style: context.textTheme.labelSmall?.copyWith(color: statusColor),
         ),
-        const SizedBox(width: LogistixSpacing.xs),
+        const SizedBox(width: BootstrapSpacing.xs),
         const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
         const SizedBox(width: 2),
         Text(

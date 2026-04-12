@@ -1,22 +1,35 @@
 import 'dart:async';
-import '../../../../domain/repositories/customer_order_repository.dart';
+
+import 'package:customer/src/domain/repositories/customer_order_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 
-part 'order_details_cubit.freezed.dart';
-
-@freezed
-abstract class OrderDetailsState with _$OrderDetailsState {
-  const factory OrderDetailsState({
-    required bool isLoading,
-    Order? order,
-    String? error,
-  }) = _OrderDetailsState;
+class OrderDetailsState {
+  const OrderDetailsState({
+    required this.isLoading,
+    this.order,
+    this.error,
+  });
 
   factory OrderDetailsState.initial() => const OrderDetailsState(
     isLoading: false,
   );
+
+  final bool isLoading;
+  final Order? order;
+  final String? error;
+
+  OrderDetailsState copyWith({
+    bool? isLoading,
+    Order? order,
+    String? error,
+  }) {
+    return OrderDetailsState(
+      isLoading: isLoading ?? this.isLoading,
+      order: order ?? this.order,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class OrderDetailsCubit extends Cubit<OrderDetailsState> {

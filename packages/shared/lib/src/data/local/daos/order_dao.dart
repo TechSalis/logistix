@@ -10,109 +10,128 @@ part 'order_dao.g.dart';
 class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
   OrderDao(super.db);
 
-  /// Watch orders with advanced filtering and reactive updates from local DB.
-  /// Joins with Riders table only when riderId is provided.
+  // ── Read Operations ─────────────────────────────────────────────
+
   Stream<List<entities.Order>> watchOrders({
     List<entities.OrderStatus>? statuses,
     String? riderId,
     String? createdBy,
     String? searchQuery,
-    int limit = 20,
+    bool includeUnassigned = false,
+    int limit = 50,
     int offset = 0,
     bool isPrioritySort = false,
-    bool includeUnassigned = false,
   }) {
-    final conditions = <Expression<bool>>[];
+    final query = _buildOrdersQuery(
+      statuses: statuses,
+      riderId: riderId,
+      createdBy: createdBy,
+      searchQuery: searchQuery,
+      includeUnassigned: includeUnassigned,
+    );
 
-    // 1. Status Filter
+    if (isPrioritySort) {
+      query.orderBy([
+        OrderingTerm.desc(db.orders.isPriority),
+        OrderingTerm.desc(db.orders.createdAt),
+      ]);
+    } else {
+      query.orderBy([OrderingTerm.desc(db.orders.createdAt)]);
+    }
+    
+    query.limit(limit, offset: offset);
+
+    return query.map((row) {
+      final order = row.readTable(db.orders);
+      final rider = row.readTableOrNull(db.riders);
+      return order.toEntity(rider: rider?.toEntity());
+    }).watch();
+  }
+
+  Future<List<entities.Order>> getOrders({
+    List<entities.OrderStatus>? statuses,
+    String? riderId,
+    String? searchQuery,
+    int limit = 50,
+    int offset = 0,
+    DateTime? beforeDate,
+    String? beforeId,
+  }) {
+    final query = _buildOrdersQuery(
+      statuses: statuses,
+      riderId: riderId,
+      searchQuery: searchQuery,
+    );
+
+    if (beforeDate != null) {
+      query.where(db.orders.createdAt.isSmallerThanValue(beforeDate));
+    }
+    // Note: beforeId for cursor pagination is complex to implement without more logic,
+    // assuming limit/offset or date is sufficient for now.
+
+    query.orderBy([OrderingTerm.desc(db.orders.createdAt)]);
+    query.limit(limit, offset: offset);
+
+    return query.map((row) {
+      final order = row.readTable(db.orders);
+      final rider = row.readTableOrNull(db.riders);
+      return order.toEntity(rider: rider?.toEntity());
+    }).get();
+  }
+
+  Stream<int> watchOrderCount({List<entities.OrderStatus>? statuses, String? riderId}) {
+    final amount = countAll();
+    final query = select(db.orders).addColumns([amount]);
+    
     if (statuses != null && statuses.isNotEmpty) {
-      final statusStrings = statuses.map((s) => s.value).toList();
-      conditions.add(db.orders.status.isIn(statusStrings));
+      query.where(db.orders.status.isIn(statuses.map((s) => s.value).toList()));
+    }
+    if (riderId != null) {
+      query.where(db.orders.riderId.equals(riderId));
     }
 
-    // 2. Ownership Filter
+    return query.map((row) => row.read(amount) ?? 0).watchSingle();
+  }
+
+  JoinedSelectStatement<HasResultSet, dynamic> _buildOrdersQuery({
+    List<entities.OrderStatus>? statuses,
+    String? riderId,
+    String? createdBy,
+    String? searchQuery,
+    bool includeUnassigned = false,
+  }) {
+    final query = select(db.orders).join([
+      leftOuterJoin(db.riders, db.riders.id.equalsExp(db.orders.riderId)),
+    ]);
+
+    if (statuses != null && statuses.isNotEmpty) {
+      query.where(db.orders.status.isIn(statuses.map((s) => s.value).toList()));
+    }
+    
     if (riderId != null) {
       if (includeUnassigned) {
-        conditions.add(
-          db.orders.riderId.equals(riderId) |
-              db.orders.status.equals(entities.OrderStatus.UNASSIGNED.value),
-        );
+        query.where(db.orders.riderId.equals(riderId) | db.orders.riderId.isNull());
       } else {
-        conditions.add(db.orders.riderId.equals(riderId));
+        query.where(db.orders.riderId.equals(riderId));
       }
     }
 
     if (createdBy != null) {
-      conditions.add(db.orders.createdBy.equals(createdBy));
+      query.where(db.orders.createdBy.equals(createdBy));
     }
-
-    // 3. Search Filter (Tracking number or Address)
-    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-      final term = '%${searchQuery.trim().toLowerCase()}%';
-      conditions.add(
+    
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      final term = '%${searchQuery.toLowerCase()}%';
+      query.where(
         db.orders.trackingNumber.lower().like(term) |
-            db.orders.pickupAddress.lower().like(term) |
-            db.orders.dropOffAddress.lower().like(term),
+            db.orders.dropOffAddress.lower().like(term) |
+            db.orders.pickupAddress.lower().like(term),
       );
     }
-
-    final combinedCondition = conditions.isNotEmpty
-        ? conditions.reduce((a, b) => a & b)
-        : const Constant(true);
-
-    final sorting = [
-      if (isPrioritySort)
-        OrderingTerm(
-          expression: db.orders.status.caseMatch(
-            when: {
-              Constant(entities.OrderStatus.EN_ROUTE.value): const Constant(0),
-              Constant(entities.OrderStatus.ASSIGNED.value): const Constant(1),
-              Constant(entities.OrderStatus.UNASSIGNED.value): const Constant(
-                2,
-              ),
-            },
-            orElse: const Constant(3),
-          ),
-        ),
-      OrderingTerm.desc(db.orders.createdAt),
-    ];
-
-    if (riderId != null) {
-      // Logic for Dispatcher or specialized Rider views that need rider info
-      final query =
-          select(db.orders).join([
-              leftOuterJoin(
-                db.riders,
-                db.riders.id.equalsExp(db.orders.riderId),
-              ),
-            ])
-            ..where(combinedCondition)
-            ..orderBy(sorting)
-            ..limit(limit, offset: offset);
-
-      return query.map((row) {
-        final order = row.readTable(db.orders);
-        final rider = row.readTableOrNull(db.riders);
-        return order.toEntity(rider: rider?.toEntity());
-      }).watch();
-    } else {
-      // Standard Rider view - no join needed, faster execution
-      final query = select(db.orders)
-        ..where((_) => combinedCondition)
-        ..orderBy(
-          sorting.map((e) {
-            return (_) => e;
-          }).toList(),
-        )
-        ..limit(limit, offset: offset);
-
-      return query.map((order) {
-        return order.toEntity();
-      }).watch();
-    }
+    
+    return query;
   }
 
-  /// Get single order with its assigned rider.
   Future<entities.Order?> getOrder(String orderId) {
     final query = select(db.orders).join([
       leftOuterJoin(db.riders, db.riders.id.equalsExp(db.orders.riderId)),
@@ -125,7 +144,6 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
     }).getSingleOrNull();
   }
 
-  /// Watch a single order reactively.
   Stream<entities.Order?> watchOrder(String orderId) {
     final query = select(db.orders).join([
       leftOuterJoin(db.riders, db.riders.id.equalsExp(db.orders.riderId)),
@@ -138,34 +156,42 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
     }).watchSingleOrNull();
   }
 
-  /// Watch order count with optional status filters.
-  Stream<int> watchOrderCount({List<entities.OrderStatus>? statuses}) {
-    var query = selectOnly(db.orders)..addColumns([db.orders.id.count()]);
+  // ── Write Operations ────────────────────────────────────────────
 
-    if (statuses != null && statuses.isNotEmpty) {
-      final statusValues = statuses.map((s) => s.value).toList();
-      query = query..where(db.orders.status.isIn(statusValues));
-    }
-
-    return query
-        .map((row) => row.read(db.orders.id.count()) ?? 0)
-        .watchSingle();
+  Future<void> upsertOrder(OrdersCompanion order) async {
+    await _performUpsert(order);
   }
 
-  // UPSERT Operations
-  Future<void> upsertOrder(OrdersCompanion order) {
-    return into(db.orders).insertOnConflictUpdate(order);
-  }
-
-  Future<void> upsertOrders(List<OrdersCompanion> orderList) {
-    return batch((batch) {
-      batch.insertAllOnConflictUpdate(db.orders, orderList);
+  Future<void> upsertOrders(List<OrdersCompanion> orderList) async {
+    if (orderList.isEmpty) return;
+    await transaction(() async {
+      for (final order in orderList) {
+        await _performUpsert(order);
+      }
     });
   }
 
-  // DELETE Operations
-  Future<void> deleteOrder(String orderId) {
-    return (delete(db.orders)..where((o) => o.id.equals(orderId))).go();
+  Future<void> _performUpsert(OrdersCompanion order) async {
+    final id = order.id.value;
+    final incomingUpdate = order.updatedAt.value;
+
+    if (incomingUpdate == null) {
+      await into(db.orders).insertOnConflictUpdate(order);
+      return;
+    }
+
+    final existing = await (select(db.orders)..where((o) => o.id.equals(id)))
+        .getSingleOrNull();
+
+    if (existing == null ||
+        existing.updatedAt == null ||
+        incomingUpdate.isAfter(existing.updatedAt!)) {
+      await into(db.orders).insertOnConflictUpdate(order);
+    }
+  }
+
+  Future<void> deleteOrder(String id) {
+    return (delete(db.orders)..where((o) => o.id.equals(id))).go();
   }
 
   Future<void> deleteOrders(List<String> orderIds) {

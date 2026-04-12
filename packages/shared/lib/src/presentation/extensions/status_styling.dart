@@ -1,4 +1,3 @@
-import 'package:bootstrap/extensions/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
@@ -6,16 +5,14 @@ import 'package:shared/shared.dart';
 extension RiderStatusStyling on RiderStatus {
   Color get color {
     switch (this) {
-      case RiderStatus.online:
+      case RiderStatus.ONLINE:
         return LogistixColors.success;
-      case RiderStatus.busy:
+      case RiderStatus.BUSY:
         return LogistixColors.warning;
-      case RiderStatus.offline:
+      case RiderStatus.OFFLINE:
         return LogistixColors.textTertiary;
     }
   }
-
-  String get label => value.capitalizeFirst();
 }
 
 extension OrderStatusStyling on OrderStatus {
@@ -54,7 +51,7 @@ extension OrderStatusStyling on OrderStatus {
       case OrderStatus.UNASSIGNED:
         return 'Waiting for a rider to be assigned';
       case OrderStatus.ASSIGNED:
-        return 'A rider has been assigned and will pick up shortly';
+        return 'A rider has been assigned and will begin shortly';
       case OrderStatus.EN_ROUTE:
         return 'Rider is on the way to the delivery location';
       case OrderStatus.DELIVERED:

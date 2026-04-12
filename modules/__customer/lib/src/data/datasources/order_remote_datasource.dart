@@ -1,5 +1,5 @@
-import '../dtos/customer_order_input.dart';
-import '../dtos/customer_sync_dto.dart';
+import 'package:customer/src/data/dtos/customer_order_input.dart';
+import 'package:customer/src/data/dtos/customer_sync_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class CustomerOrderRemoteDataSource {
@@ -21,7 +21,9 @@ abstract class CustomerOrderRemoteDataSource {
 
 class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
     implements CustomerOrderRemoteDataSource {
-  CustomerOrderRemoteDataSourceImpl(super.gqlService);
+  CustomerOrderRemoteDataSourceImpl(super.gqlService, this.syncManager);
+
+  final SyncManager syncManager;
 
   @override
   Future<OrderDto> createOrder(CustomerOrderInput input) async {
@@ -95,8 +97,8 @@ class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
         onData,
     Future<void> Function()? onSync,
   }) async {
-    return subscribe(
-      '''
+    await syncManager.startSubscription(
+      subscriptionDocument: '''
       subscription OnCustomerOrderUpdated(\$sessionId: String) {
         customerOrderUpdated(sessionId: \$sessionId) {
           order {
@@ -109,8 +111,8 @@ class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
       variables: {
         'sessionId': await gqlService.sessionId,
       },
-      onData: (Map<String, dynamic> data) {
-        final payload = data['customerOrderUpdated'];
+      onData: (data) async {
+        final payload = data['customerOrderUpdated'] as Map<String, dynamic>;
         final order =
             OrderDto.fromJson(payload['order'] as Map<String, dynamic>);
         final eventType = SubscriptionEventType.values.byName(
@@ -120,5 +122,6 @@ class CustomerOrderRemoteDataSourceImpl extends BaseRemoteDataSource
       },
       onSync: onSync,
     );
+    return syncManager;
   }
 }

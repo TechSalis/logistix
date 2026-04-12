@@ -1,18 +1,68 @@
-// ignore_for_file: constant_identifier_names
-
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 
-part 'order.freezed.dart';
+class Order {
+  const Order({
+    required this.id,
+    required this.dropOffAddress,
+    required this.trackingNumber,
+    required this.status,
+    required this.createdAt,
+    this.dropOffPlaceId,
+    this.dropOffLat,
+    this.dropOffLng,
+    this.pickupAddress,
+    this.pickupPlaceId,
+    this.pickupLat,
+    this.pickupLng,
+    this.riderId,
+    this.trackingCode,
+    this.rider,
+    this.companyId,
+    this.assignedCompanyId,
+    this.codAmount,
+    this.description,
+    this.scheduledAt,
+    this.createdBy,
+    this.pickupPhone,
+    this.dropOffPhone,
+    this.deliveredAt,
+    this.updatedAt,
+    this.isPriority = false,
+  });
 
-@freezed
-abstract class Order with _$Order {
-  const factory Order({
-    required String id,
-    required String dropOffAddress,
-    required String trackingNumber,
-    required OrderStatus status,
-    required DateTime createdAt,
+  final String id;
+  final String dropOffAddress;
+  final String trackingNumber;
+  final OrderStatus status;
+  final DateTime createdAt;
+  final String? dropOffPlaceId;
+  final double? dropOffLat;
+  final double? dropOffLng;
+  final String? pickupAddress;
+  final String? pickupPlaceId;
+  final double? pickupLat;
+  final double? pickupLng;
+  final String? riderId;
+  final String? trackingCode;
+  final Rider? rider;
+  final String? companyId;
+  final String? assignedCompanyId;
+  final double? codAmount;
+  final String? description;
+  final DateTime? scheduledAt;
+  final String? createdBy;
+  final String? pickupPhone;
+  final String? dropOffPhone;
+  final DateTime? deliveredAt;
+  final DateTime? updatedAt;
+  final bool isPriority;
+
+  Order copyWith({
+    String? id,
+    String? dropOffAddress,
+    String? trackingNumber,
+    OrderStatus? status,
+    DateTime? createdAt,
     String? dropOffPlaceId,
     double? dropOffLat,
     double? dropOffLng,
@@ -33,7 +83,37 @@ abstract class Order with _$Order {
     String? dropOffPhone,
     DateTime? deliveredAt,
     DateTime? updatedAt,
-  }) = _Order;
+    bool? isPriority,
+  }) {
+    return Order(
+      id: id ?? this.id,
+      dropOffAddress: dropOffAddress ?? this.dropOffAddress,
+      trackingNumber: trackingNumber ?? this.trackingNumber,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      dropOffPlaceId: dropOffPlaceId ?? this.dropOffPlaceId,
+      dropOffLat: dropOffLat ?? this.dropOffLat,
+      dropOffLng: dropOffLng ?? this.dropOffLng,
+      pickupAddress: pickupAddress ?? this.pickupAddress,
+      pickupPlaceId: pickupPlaceId ?? this.pickupPlaceId,
+      pickupLat: pickupLat ?? this.pickupLat,
+      pickupLng: pickupLng ?? this.pickupLng,
+      riderId: riderId ?? this.riderId,
+      trackingCode: trackingCode ?? this.trackingCode,
+      rider: rider ?? this.rider,
+      companyId: companyId ?? this.companyId,
+      assignedCompanyId: assignedCompanyId ?? this.assignedCompanyId,
+      codAmount: codAmount ?? this.codAmount,
+      description: description ?? this.description,
+      scheduledAt: scheduledAt ?? this.scheduledAt,
+      createdBy: createdBy ?? this.createdBy,
+      pickupPhone: pickupPhone ?? this.pickupPhone,
+      dropOffPhone: dropOffPhone ?? this.dropOffPhone,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isPriority: isPriority ?? this.isPriority,
+    );
+  }
 }
 
 enum OrderStatus {
@@ -49,19 +129,19 @@ enum OrderStatus {
 }
 
 enum SubscriptionEventType {
-  created,
-  updated,
-  deleted,
-  assigned,
-  status_changed,
-  location_updated,
+  CREATED,
+  UPDATED,
+  DELETED,
+  ASSIGNED,
+  STATUS_CHANGED,
+  LOCATION_UPDATED,
 }
 
 extension SubscriptionEventTypeX on SubscriptionEventType {
   static SubscriptionEventType fromString(String value) {
     return SubscriptionEventType.values.firstWhere(
-      (e) => e.name.toLowerCase() == value.toLowerCase(),
-      orElse: () => SubscriptionEventType.updated,
+      (e) => e.name == value.toUpperCase(),
+      orElse: () => SubscriptionEventType.UPDATED,
     );
   }
 }
@@ -73,7 +153,7 @@ extension OrderStatusX on OrderStatus {
 
   static OrderStatus fromString(String status) {
     return OrderStatus.values.firstWhere(
-      (e) => e.name == status,
+      (e) => e.name == status.toUpperCase(),
       orElse: () => OrderStatus.UNASSIGNED,
     );
   }

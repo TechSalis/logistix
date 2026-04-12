@@ -35,7 +35,7 @@ extension OrderDtoToDrift on OrderDto {
   }
 }
 
-extension OrderDriftToEntity on Order {
+extension OrderDriftToEntity on OrderRow {
   order_entities.Order toEntity({rider_entities.Rider? rider}) {
     return order_entities.Order(
       id: id,

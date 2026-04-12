@@ -1,32 +1,67 @@
 import 'package:dispatcher/src/domain/entities/dispatcher_sync.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:dispatcher/src/features/chat/data/dtos/conversation_dto.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
-part 'dispatcher_sync_dto.freezed.dart';
-part 'dispatcher_sync_dto.g.dart';
+class DispatcherSyncDto {
+  const DispatcherSyncDto({
+    required this.orders,
+    required this.riders,
+    required this.lastUpdated,
+    this.metrics,
+    this.deletedOrderIds = const [],
+    this.deletedRiderIds = const [],
+  });
 
-@freezed
-abstract class DispatcherSyncDto with _$DispatcherSyncDto {
-  const factory DispatcherSyncDto({
-    required List<OrderDto> orders,
-    required List<RiderDto> riders,
-    DispatcherMetricsDto? metrics,
-    required int lastUpdated,
-    @Default([]) List<String> deletedOrderIds,
-    @Default([]) List<String> deletedRiderIds,
-  }) = _DispatcherSyncDto;
+  factory DispatcherSyncDto.fromJson(Map<String, dynamic> json) {
+    return DispatcherSyncDto(
+      orders: (json['orders'] as List<dynamic>?)
+              ?.map((e) => OrderDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      riders: (json['riders'] as List<dynamic>?)
+              ?.map((e) => RiderDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      lastUpdated: (json['lastUpdated'] as num).toInt(),
+      metrics: json['metrics'] != null
+          ? DispatcherMetricsDto.fromJson(json['metrics'] as Map<String, dynamic>)
+          : null,
+      deletedOrderIds: (json['deletedOrderIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+      deletedRiderIds: (json['deletedRiderIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+    );
+  }
 
-  factory DispatcherSyncDto.fromJson(Map<String, dynamic> json) =>
-      _$DispatcherSyncDtoFromJson(json);
-}
+  final List<OrderDto> orders;
+  final List<RiderDto> riders;
+  final int lastUpdated;
+  final DispatcherMetricsDto? metrics;
+  final List<String> deletedOrderIds;
+  final List<String> deletedRiderIds;
 
-extension DispatcherSyncDtoX on DispatcherSyncDto {
+  Map<String, dynamic> toJson() {
+    return {
+      'orders': orders.map((e) => e.toJson()).toList(),
+      'riders': riders.map((e) => e.toJson()).toList(),
+      'lastUpdated': lastUpdated,
+      'metrics': metrics?.toJson(),
+      'deletedOrderIds': deletedOrderIds,
+      'deletedRiderIds': deletedRiderIds,
+    };
+  }
+
   DispatcherSync toEntity() => DispatcherSync(
-    orders: orders.map((e) => e.toEntity()).toList(),
-    riders: riders.map((e) => e.toEntity()).toList(),
-    metrics: metrics,
-    deletedOrderIds: deletedOrderIds,
-    deletedRiderIds: deletedRiderIds,
-    lastUpdated: DateTime.fromMillisecondsSinceEpoch(lastUpdated),
-  );
+        orders: orders.map((e) => e.toEntity()).toList(),
+        riders: riders.map((e) => e.toEntity()).toList(),
+        metrics: metrics,
+        deletedOrderIds: deletedOrderIds,
+        deletedRiderIds: deletedRiderIds,
+        lastUpdated: DateTime.fromMillisecondsSinceEpoch(lastUpdated),
+      );
 }

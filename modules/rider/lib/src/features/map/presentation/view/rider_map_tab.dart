@@ -26,9 +26,11 @@ class _RiderMapTabState extends State<RiderMapTab>
   late final riderMapCubit = context.read<MapCubit>();
 
   GoogleMapController? _mapController;
-  Order? _selectedOrderOverlay;
-  bool _isLocationSelected = false;
-  LatLng? _liveRiderLocation;
+  
+  // ValueNotifiers for granular UI updates without full page rebuilds
+  late final ValueNotifier<Order?> _selectedOrderOverlay;
+  late final ValueNotifier<bool> _isLocationSelected;
+  late final ValueNotifier<LatLng?> _liveRiderLocation;
 
   StreamSubscription<Position>? _liveLocationSubscription;
 
@@ -43,9 +45,13 @@ class _RiderMapTabState extends State<RiderMapTab>
   void initState() {
     super.initState();
 
+    _selectedOrderOverlay = ValueNotifier(null);
+    _isLocationSelected = ValueNotifier(false);
+    _liveRiderLocation = ValueNotifier(null);
+
     _sheetAnimationController = AnimationController(
       vsync: this,
-      duration: LogistixAnimations.normal,
+      duration: BootstrapAnimations.normal,
     );
 
     _handleScaleAnimation = Tween<double>(begin: 1, end: 1.5).animate(
@@ -62,6 +68,9 @@ class _RiderMapTabState extends State<RiderMapTab>
   void dispose() {
     _sheetAnimationController.dispose();
     _liveLocationSubscription?.cancel();
+    _selectedOrderOverlay.dispose();
+    _isLocationSelected.dispose();
+    _liveRiderLocation.dispose();
     super.dispose();
   }
 
@@ -72,36 +81,30 @@ class _RiderMapTabState extends State<RiderMapTab>
         value: SystemUiOverlayStyle.dark,
         child: BlocBuilder<MapCubit, MapState>(
           builder: (context, mapState) {
-            return mapState.when(
-              initial: () => const Center(child: LogistixInlineLoader()),
-              checkingPermission: () {
-                return const Center(child: LogistixInlineLoader());
-              },
-              permissionDenied: (message) => _PermissionDeniedView(
-                message: message,
+            if (mapState is MapStateInitial || mapState is MapStateCheckingPermission) {
+              return const Center(child: BootstrapInlineLoader());
+            }
+            if (mapState is MapStatePermissionDenied) {
+              return _PermissionDeniedView(
+                message: mapState.message,
                 onRetry: riderMapCubit.requestLocationPermission,
                 onOpenSettings: riderMapCubit.openAppSettings,
-              ),
-              ready: (position) {
-                _liveLocationSubscription ??=
-                    Geolocator.getPositionStream(
-                      locationSettings: const LocationSettings(
-                        accuracy: LocationAccuracy.high,
-                        distanceFilter: 5,
-                      ),
-                    ).listen((pos) {
-                      if (mounted) {
-                        setState(() {
-                          _liveRiderLocation = LatLng(
-                            pos.latitude,
-                            pos.longitude,
-                          );
-                        });
-                      }
-                    });
-                return _buildMapView(position);
-              },
-            );
+              );
+            }
+            if (mapState is MapStateReady) {
+              final position = mapState.currentPosition;
+              _liveLocationSubscription ??=
+                  Geolocator.getPositionStream(
+                    locationSettings: const LocationSettings(
+                      accuracy: LocationAccuracy.high,
+                      distanceFilter: 5,
+                    ),
+                  ).listen((pos) {
+                    _liveRiderLocation.value = LatLng(pos.latitude, pos.longitude);
+                  });
+              return _buildMapView(position);
+            }
+            return const SizedBox.shrink();
           },
         ),
       ),
@@ -116,7 +119,7 @@ class _RiderMapTabState extends State<RiderMapTab>
         return BlocBuilder<RiderMapOrdersCubit, RiderMapOrdersState>(
           builder: (context, ordersState) {
             if (ordersState.isLoading && ordersState.orders.isEmpty) {
-              return const Center(child: LogistixInlineLoader());
+              return const Center(child: BootstrapInlineLoader());
             }
 
             if (ordersState.error != null && ordersState.orders.isEmpty) {
@@ -124,68 +127,74 @@ class _RiderMapTabState extends State<RiderMapTab>
             }
 
             final activeOrders = ordersState.orders;
-            final currentPos =
-                _liveRiderLocation ??
-                LatLng(initialPosition.latitude, initialPosition.longitude);
 
-            final markers = _buildMarkers(currentPos, activeOrders);
+            return ListenableBuilder(
+              listenable: Listenable.merge([_liveRiderLocation, _selectedOrderOverlay, _isLocationSelected]),
+              builder: (context, _) {
+                final currentPos =
+                    _liveRiderLocation.value ??
+                    LatLng(initialPosition.latitude, initialPosition.longitude);
 
-            return Stack(
-              children: [
-                Positioned.fill(
-                  bottom: 90,
-                  child: GoogleMap(
-                    style: LogistixMapTheme.cleanSlate,
-                    zoomControlsEnabled: false,
-                    myLocationButtonEnabled: false,
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        initialPosition.latitude,
-                        initialPosition.longitude,
-                      ),
-                      zoom: 15,
-                    ),
-                    markers: markers,
-                    onMapCreated: (c) => _mapController = c,
-                  ),
-                ),
+                final markers = _buildMarkers(currentPos, activeOrders);
 
-                if (_selectedOrderOverlay != null || _isLocationSelected)
-                  Positioned(
-                    top: MediaQuery.viewPaddingOf(context).top + 110,
-                    left: LogistixSpacing.lg,
-                    right: LogistixSpacing.lg,
-                    child: Center(
-                      child: RiderMarkerOverlayCard(
-                        isLocationSelected: _isLocationSelected,
-                        selectedOrder: _selectedOrderOverlay,
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      bottom: 90,
+                      child: GoogleMap(
+                        style: LogistixMapTheme.cleanSlate,
+                        zoomControlsEnabled: false,
+                        myLocationButtonEnabled: false,
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(
+                            initialPosition.latitude,
+                            initialPosition.longitude,
+                          ),
+                          zoom: 15,
+                        ),
+                        markers: markers,
+                        onMapCreated: (c) => _mapController = c,
                       ),
                     ),
-                  ),
 
-                RiderActiveOrdersSheet(
-                  activeOrders: activeOrders,
-                  sheetAnimationController: _sheetAnimationController,
-                  handleScaleAnimation: _handleScaleAnimation,
-                  onAnimateToLocation: _animateToLocation,
-                  onLocationSelectedChanged: (val) {
-                    setState(() => _isLocationSelected = val);
-                  },
-                ),
+                    if (_selectedOrderOverlay.value != null || _isLocationSelected.value)
+                      Positioned(
+                        top: MediaQuery.viewPaddingOf(context).top + 110,
+                        left: BootstrapSpacing.lg,
+                        right: BootstrapSpacing.lg,
+                        child: Center(
+                          child: RiderMarkerOverlayCard(
+                            isLocationSelected: _isLocationSelected.value,
+                            selectedOrder: _selectedOrderOverlay.value,
+                          ),
+                        ),
+                      ),
 
-                Positioned(
-                  left: LogistixSpacing.lg,
-                  right: LogistixSpacing.lg,
-                  child: SafeArea(
-                    child: RiderMapStatusOverlay(
-                      isLoading: ordersState.isLoading,
-                      rider: rider,
-                      liveRiderLocation: _liveRiderLocation,
+                    RiderActiveOrdersSheet(
+                      activeOrders: activeOrders,
+                      sheetAnimationController: _sheetAnimationController,
+                      handleScaleAnimation: _handleScaleAnimation,
                       onAnimateToLocation: _animateToLocation,
+                      onLocationSelectedChanged: (val) {
+                        _isLocationSelected.value = val;
+                      },
                     ),
-                  ),
-                ),
-              ],
+
+                    Positioned(
+                      left: BootstrapSpacing.lg,
+                      right: BootstrapSpacing.lg,
+                      child: SafeArea(
+                        child: RiderMapStatusOverlay(
+                          isLoading: ordersState.isLoading,
+                          rider: rider,
+                          liveRiderLocation: _liveRiderLocation.value,
+                          onAnimateToLocation: _animateToLocation,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             );
           },
         );
@@ -200,10 +209,8 @@ class _RiderMapTabState extends State<RiderMapTab>
         position: currentPos,
         zIndexInt: 2,
         onTap: () {
-          setState(() {
-            _selectedOrderOverlay = null;
-            _isLocationSelected = true;
-          });
+          _selectedOrderOverlay.value = null;
+          _isLocationSelected.value = true;
         },
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       ),
@@ -219,10 +226,8 @@ class _RiderMapTabState extends State<RiderMapTab>
             position: LatLng(order.pickupLat!, order.pickupLng!),
             alpha: isEnRoute ? 1.0 : 0.6,
             onTap: () {
-              setState(() {
-                _selectedOrderOverlay = order;
-                _isLocationSelected = false;
-              });
+              _selectedOrderOverlay.value = order;
+              _isLocationSelected.value = false;
             },
             icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueOrange,
@@ -237,10 +242,8 @@ class _RiderMapTabState extends State<RiderMapTab>
             markerId: MarkerId('${order.id}_dropoff'),
             position: LatLng(order.dropOffLat!, order.dropOffLng!),
             onTap: () {
-              setState(() {
-                _selectedOrderOverlay = order;
-                _isLocationSelected = false;
-              });
+              _selectedOrderOverlay.value = order;
+              _isLocationSelected.value = false;
             },
             icon: BitmapDescriptor.defaultMarkerWithHue(
               BitmapDescriptor.hueGreen,
@@ -262,7 +265,7 @@ class _ErrorView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: LogistixEntrance(
+        child: BootstrapEntrance(
           children: [
             Container(
               padding: const EdgeInsets.all(24),
@@ -313,7 +316,7 @@ class _PermissionDeniedView extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: LogistixEntrance(
+        child: BootstrapEntrance(
           children: [
             Container(
               padding: const EdgeInsets.all(24),
@@ -342,16 +345,16 @@ class _PermissionDeniedView extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
-            LogistixButton(
+            BootstrapButton(
               onPressed: onRetry,
               label: 'TRY AGAIN',
               icon: Icons.refresh_rounded,
             ),
             const SizedBox(height: 12),
-            LogistixButton(
+            BootstrapButton(
               onPressed: onOpenSettings,
               label: 'OPEN SETTINGS',
-              type: LogistixButtonType.outline,
+              type: BootstrapButtonType.outline,
               icon: Icons.settings_rounded,
             ),
           ],

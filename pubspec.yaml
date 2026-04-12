@@ -12,6 +12,7 @@ workspace:
   - modules/dispatcher/
   - modules/onboarding/
   - modules/rider/
+  - modules/__customer/
 
   - app/
 
@@ -32,6 +33,20 @@ melos:
       packageFilters:
         dependsOn: [build_runner]
 
-    pubupgrade:
+    build-clean:
+      description: "Run package build where applicable"
+      exec: dart run build_runner clean
+      packageFilters:
+        dependsOn: [build_runner]
+
+    analyze:
+      description: "Run package analysis"
+      exec: dart analyze
+
+    apply-fix:
+      description: "Run package analysis"
+      exec: dart fix --apply
+
+    pub-upgrade:
       exec: flutter pub upgrade
       description: Run "flutter pub upgrade" in all packages.

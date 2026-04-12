@@ -60,13 +60,13 @@ class _SignUpPageState extends State<SignUpPage> {
               signUpLoading: () => true,
               orElse: () => false,
             );
-            return LogistixButton(
+            return BootstrapButton(
               label: 'Create Account',
               isLoading: isLoading,
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   context.read<AuthBloc>().add(
-                        AuthEvent.signUp(
+                        AuthSignUp(
                           email: _emailController.text.trim(),
                           password: _passwordController.text,
                           name: _nameController.text.trim(),
@@ -82,23 +82,23 @@ class _SignUpPageState extends State<SignUpPage> {
             key: _formKey,
             child: Column(
               children: [
-                LogistixTextField(
+                BootstrapTextField(
                   label: 'Full Name',
                   controller: _nameController,
                   icon: Icons.person_outline,
                   textCapitalization: TextCapitalization.words,
                   validator: FormBuilderValidators.required(),
                 ),
-                const SizedBox(height: LogistixSpacing.md),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.md),
+                BootstrapTextField(
                   label: 'Email',
                   controller: _emailController,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: FormBuilderValidators.email(),
                 ),
-                const SizedBox(height: LogistixSpacing.md),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.md),
+                BootstrapTextField(
                   label: 'Password',
                   controller: _passwordController,
                   icon: Icons.lock_outline,
@@ -121,8 +121,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.md),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.md),
+                BootstrapTextField(
                   label: 'Confirm Password',
                   controller: _confirmPasswordController,
                   icon: Icons.lock_outline,
@@ -149,7 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     },
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.lg),
+                const SizedBox(height: BootstrapSpacing.lg),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -157,10 +157,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       'Already have an account? ',
                       style: context.textTheme.bodyMedium,
                     ),
-                    LogistixButton(
+                    BootstrapButton(
                       label: 'Sign In',
                       onPressed: () => context.go(AuthRoutes.login),
-                      type: LogistixButtonType.text,
+                      type: BootstrapButtonType.text,
                     ),
                   ],
                 ),

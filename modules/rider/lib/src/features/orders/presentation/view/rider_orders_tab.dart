@@ -56,7 +56,7 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+                            colors: [LogistixColors.primary, LogistixColors.secondaryDark],
                           ),
                         ),
                       ),
@@ -86,19 +86,19 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
               PinnedHeaderSliver(
                 child: Container(
                   color: LogistixColors.background,
-                  padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.md),
+                  padding: const EdgeInsets.symmetric(vertical: BootstrapSpacing.md),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: LogistixSpacing.lg,
+                          horizontal: BootstrapSpacing.lg,
                         ),
                         child: _SearchField(
                           onChanged: ordersCubit.searchOrders,
                         ),
                       ),
-                      const SizedBox(height: LogistixSpacing.md),
+                      const SizedBox(height: BootstrapSpacing.md),
                       const _StatusFilterList(),
                     ],
                   ),
@@ -108,13 +108,13 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: (state.searchQuery?.isEmpty ?? true)
-                      ? const LogistixEmptyView(
+                      ? const BootstrapEmptyView(
                           icon: Icons.list_alt_rounded,
                           title: 'No Active Orders',
                           description:
                               'You have no assigned orders at the moment.',
                         )
-                      : const LogistixEmptyView(
+                      : const BootstrapEmptyView(
                           icon: Icons.search_off_rounded,
                           title: 'No orders found',
                           description: 'Try adjusting your search filters.',
@@ -123,9 +123,9 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
               else
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(
-                    LogistixSpacing.lg,
+                    BootstrapSpacing.lg,
                     0,
-                    LogistixSpacing.lg,
+                    BootstrapSpacing.lg,
                     100,
                   ),
                   sliver: SliverList(
@@ -135,9 +135,9 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
                           if (state.isLoadingMore) {
                             return Padding(
                               padding: const EdgeInsets.all(
-                                LogistixSpacing.md,
+                                BootstrapSpacing.md,
                               ),
-                              child: LogistixShimmer(
+                              child: BootstrapShimmer(
                                 width: double.infinity,
                                 height: 120,
                                 borderRadius: BorderRadius.circular(24),
@@ -149,7 +149,7 @@ class _RiderOrdersTabState extends State<RiderOrdersTab> {
                         }
 
                         final order = state.orders[index];
-                        return LogistixEntrance(
+                        return BootstrapEntrance(
                           delay: Duration(milliseconds: index * 50),
                           children: [
                             OrderPreviewCard(
@@ -231,7 +231,7 @@ class _StatusFilterList extends StatelessWidget {
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.lg),
           child: Row(
             children: [
               _StatusChip(
@@ -271,9 +271,9 @@ class _StatusChip extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(right: LogistixSpacing.xs),
+        margin: const EdgeInsets.only(right: BootstrapSpacing.xs),
         padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.md, vertical: LogistixSpacing.sm),
+            horizontal: BootstrapSpacing.md, vertical: BootstrapSpacing.sm),
         decoration: BoxDecoration(
           color: isSelected ? LogistixColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(14),

@@ -1,27 +1,37 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+abstract class AuthEvent {
+  const AuthEvent();
+}
 
-part 'auth_event.freezed.dart';
+class AuthLogin extends AuthEvent {
+  const AuthLogin({required this.email, required this.password});
+  final String email;
+  final String password;
+}
 
-@freezed
-class AuthEvent with _$AuthEvent {
-  const factory AuthEvent.login({
-    required String email,
-    required String password,
-  }) = _Login;
-  const factory AuthEvent.signUp({
-    required String email,
-    required String password,
-    required String name,
-  }) = _SignUp;
-  const factory AuthEvent.forgotPassword({required String email}) =
-      _ForgotPassword;
-  const factory AuthEvent.verifyOtp({
-    required String email,
-    required String otp,
-  }) = _VerifyOtp;
-  const factory AuthEvent.resetPassword({
-    required String email,
-    required String newPassword,
-  }) = _ResetPassword;
-  const factory AuthEvent.logout() = _Logout;
+class AuthSignUp extends AuthEvent {
+  const AuthSignUp({required this.email, required this.password, required this.name});
+  final String email;
+  final String password;
+  final String name;
+}
+
+class AuthForgotPassword extends AuthEvent {
+  const AuthForgotPassword({required this.email});
+  final String email;
+}
+
+class AuthVerifyOtp extends AuthEvent {
+  const AuthVerifyOtp({required this.email, required this.otp});
+  final String email;
+  final String otp;
+}
+
+class AuthResetPassword extends AuthEvent {
+  const AuthResetPassword({required this.email, required this.newPassword});
+  final String email;
+  final String newPassword;
+}
+
+class AuthLogout extends AuthEvent {
+  const AuthLogout();
 }

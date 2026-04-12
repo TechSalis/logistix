@@ -1,9 +1,12 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
-import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
-import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:drift/drift.dart' hide Column;
+import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
+import 'package:rider/src/data/dtos/rider_heartbeat_request.dart';
+import 'package:rider/src/domain/repositories/rider_repository.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/orders/data/dtos/update_order_status_request.dart';
 import 'package:shared/shared.dart';
 
 class RiderRepositoryImpl implements RiderRepository {
@@ -62,13 +65,6 @@ class RiderRepositoryImpl implements RiderRepository {
   // WRITE operations - go to server
 
   @override
-  Future<Result<AppError, Rider?>> getRider(String riderId) async {
-    return Result.tryCatch(() async {
-      return _riderDao.getRider(riderId);
-    });
-  }
-
-  @override
   Future<Result<AppError, Rider>> fetchProfile() async {
     return Result.tryCatch(() async {
       final dto = await _remoteDataSource.fetchProfile();
@@ -89,15 +85,17 @@ class RiderRepositoryImpl implements RiderRepository {
       await _orderDao.upsertOrder(
         original.toDriftCompanion().copyWith(
               status: Value(status.value),
-              localUpdatedAt: Value(DateTime.now()),
             ),
       );
     }
 
     return Result.tryCatch(() async {
       try {
-        final dto =
-            await _remoteDataSource.updateOrderStatus(orderId, status.value);
+        final request = UpdateOrderStatusRequest(
+          orderId: orderId,
+          status: status.value,
+        );
+        final dto = await _remoteDataSource.updateOrderStatus(request);
 
         // Final update with server response
         await _orderDao.upsertOrder(dto.toDriftCompanion());
@@ -120,11 +118,12 @@ class RiderRepositoryImpl implements RiderRepository {
     int? batteryLevel,
   }) async {
     return Result.tryCatch(() async {
-      final dto = await _remoteDataSource.sendHeartbeat(
+      final request = RiderHeartbeatRequest(
         lat: lat,
         lng: lng,
         batteryLevel: batteryLevel,
       );
+      final dto = await _remoteDataSource.sendHeartbeat(request);
 
       // Update local DB with latest rider info (including status)
       await _riderDao.upsertRider(dto.toDriftCompanion());

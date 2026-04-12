@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:bootstrap/definitions/app_error.dart';
+import 'package:bootstrap/extensions/result_extensions.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
@@ -9,18 +9,22 @@ import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:shared/shared.dart';
 
 class RiderBloc extends Bloc<RiderEvent, RiderState> {
-  RiderBloc(this._repository, this._authStatusRepository, this._userStore)
-    : super(const RiderState.initial()) {
-    on<FetchProfile>(_onFetchProfile);
-    on<WatchProfile>(_onWatchProfile);
-    on<LocationUpdated>(_onLocationUpdated);
-    on<UpdateRiderEvent>(_onUpdateRider);
-    on<StatusChanged>(_onStatusChanged);
+  RiderBloc(this._repository, this._logoutUseCase, this._userStore)
+    : super(RiderState.initial) {
+    on<RiderEvent>((event, emit) async {
+       await event.map(
+         fetchProfile: (e) => _onFetchProfile(e, emit),
+         observeProfile: (e) => _onObserveProfile(e, emit),
+         locationUpdated: (e) => _onLocationUpdated(e, emit),
+         statusChanged: (e) => _onStatusChanged(e, emit),
+         updateRider: (e) => _onUpdateRider(e, emit),
+       );
+    });
   }
 
   final UserStore _userStore;
   final RiderRepository _repository;
-  final AuthStatusRepository _authStatusRepository;
+  final LogoutUseCase _logoutUseCase;
 
   StreamSubscription<Rider?>? _profileSubscription;
 
@@ -28,20 +32,21 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     LocationUpdated event,
     Emitter<RiderState> emit,
   ) async {
-    state.mapOrNull(loaded: (s) => emit(s.copyWith(location: event.position)));
+    final s = state;
+    if (s is RiderLoadedState) {
+      emit(s.copyWith(location: event.position));
+    }
   }
 
   Future<void> _onStatusChanged(
     StatusChanged event,
     Emitter<RiderState> emit,
   ) async {
-    state.mapOrNull(
-      loaded: (s) {
-        // Update rider's status from backend event
-        final updatedRider = s.rider.copyWith(status: event.status);
-        emit(s.copyWith(rider: updatedRider));
-      },
-    );
+    final s = state;
+    if (s is RiderLoadedState) {
+      final updatedRider = s.rider.copyWith(status: event.status);
+      emit(s.copyWith(rider: updatedRider));
+    }
   }
 
   Future<void> _onFetchProfile(
@@ -49,48 +54,55 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     Emitter<RiderState> emit,
   ) async {
     final rider = (await _userStore.getUser())?.riderProfile;
-
     emit(RiderState.loading(rider));
 
     final result = await _repository.fetchProfile();
 
     await result.map<FutureOr<void>>((error) async {
       if (rider == null) {
-        emit(const RiderState.error('Rider profile not found state'));
+        emit(RiderState.error('Rider profile not found. Please logout and try again.'));
       }
     }, (rider) => emit(RiderState.loaded(rider)));
   }
 
-  Future<void> _onWatchProfile(
-    WatchProfile event,
+  Future<void> _onObserveProfile(
+    ObserveProfile event,
     Emitter<RiderState> emit,
   ) async {
     unawaited(_profileSubscription?.cancel());
+
+    final riderId = event.riderId;
+    if (riderId.isEmpty) {
+      emit(RiderState.error('Authentication Error: Invalid Rider Session'));
+      return;
+    }
+
     _profileSubscription = _repository
-        .watchRiderProfile(event.riderId)
+        .watchRiderProfile(riderId)
         .listen(
-          (rider) => add(RiderEvent.updateRider(rider)),
+          (rider) => add(UpdateRiderEvent(rider)),
           onError: (Object error) {
             emit(
               RiderState.error(
                 (error is UserError ? error.message : null) ??
-                    'Failed to watch profile',
+                    'Live Connection Lost: Failed to monitor profile updates',
               ),
             );
           },
         );
   }
 
-  void logout() {
-    _authStatusRepository.setUnauthenticated();
-  }
+  late final logoutRunner = AsyncRunner<AppError, void>(() async {
+    final result = await _logoutUseCase();
+    return result.throwOrReturn();
+  });
 
-  late final supportRunner = AsyncRunner.withArg<String, AppError, void>(
+  late final supportRunner = AsyncRunner<AppError, void>(
     _launchSupportUrl,
   );
 
-  Future<void> _launchSupportUrl(String url) async {
-    await LauncherUtils.launchInBrowser(url);
+  Future<void> _launchSupportUrl() {
+    return LogistixLauncher.launchInBrowser(EnvConfig.instance.contactSupportUrl);
   }
 
   FutureOr<void> _onUpdateRider(
@@ -100,7 +112,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     if (event.rider != null) {
       emit(RiderState.loaded(event.rider!));
     } else {
-      emit(const RiderState.error('Failed to fetch rider data'));
+      emit(RiderState.error('Data Sync Error: Failed to retrieve latest rider profile'));
     }
   }
 

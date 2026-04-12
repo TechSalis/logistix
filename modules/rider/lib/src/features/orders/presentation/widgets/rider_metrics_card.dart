@@ -12,7 +12,7 @@ class RiderMetricsCard extends StatelessWidget {
     return BlocBuilder<RiderMetricsCubit, RiderMetricsState>(
       builder: (context, state) {
         if (state.error != null && state.metrics == null) {
-          return LogistixErrorView.small(
+          return BootstrapErrorView.small(
             message: state.error!,
             textColor: Colors.white70,
             iconColor: Colors.white70,
@@ -23,23 +23,23 @@ class RiderMetricsCard extends StatelessWidget {
         final metrics = state.metrics;
         final isLoading = state.isLoading && metrics == null;
 
-        return LogistixMetricsRow(
+        return BootstrapMetricsRow(
           items: [
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Total',
               value: (metrics?.totalOrders ?? 0).toString(),
               icon: Icons.shopping_bag_rounded,
               color: Colors.blueAccent,
               isLoading: isLoading,
             ),
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Pending',
               value: (metrics?.pendingOrders ?? 0).toString(),
               icon: Icons.pending_actions_rounded,
               color: Colors.orangeAccent,
               isLoading: isLoading,
             ),
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Done',
               value: (metrics?.deliveredOrders ?? 0).toString(),
               icon: Icons.check_circle_rounded,

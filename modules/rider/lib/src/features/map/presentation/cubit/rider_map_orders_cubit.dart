@@ -1,21 +1,33 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:shared/shared.dart';
 
-part 'rider_map_orders_cubit.freezed.dart';
-
-@freezed
-abstract class RiderMapOrdersState with _$RiderMapOrdersState {
-  const factory RiderMapOrdersState({
-    required List<Order> orders,
-    required bool isLoading,
-    String? error,
-  }) = _RiderMapOrdersState;
+class RiderMapOrdersState {
+  const RiderMapOrdersState({
+    required this.orders,
+    required this.isLoading,
+    this.error,
+  });
 
   factory RiderMapOrdersState.initial() =>
       const RiderMapOrdersState(orders: [], isLoading: false);
+
+  final List<Order> orders;
+  final bool isLoading;
+  final String? error;
+
+  RiderMapOrdersState copyWith({
+    List<Order>? orders,
+    bool? isLoading,
+    String? error,
+  }) {
+    return RiderMapOrdersState(
+      orders: orders ?? this.orders,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
 }
 
 /// Cubit for displaying rider's active orders on the map

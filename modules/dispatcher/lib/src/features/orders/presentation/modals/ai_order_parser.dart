@@ -12,7 +12,7 @@ class AIOrderParserDialog extends StatelessWidget {
   final String? initialValue;
 
   static Future<void> show(BuildContext context, {String? initialValue}) {
-    return LogistixDialog.show<void>(
+    return BootstrapDialog.show<void>(
       context: context,
       title: 'Order Auto-Fill',
       content: 'Extract details from text',
@@ -88,7 +88,7 @@ class _AIOrderParserFormState extends State<_AIOrderParserForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        LogistixTextField(
+        BootstrapTextField(
           controller: _aiController,
           icon: Icons.auto_awesome_rounded,
           lineCount: 4,
@@ -121,11 +121,11 @@ class _AIOrderParserFormState extends State<_AIOrderParserForm> {
         const SizedBox(height: 16),
         Align(
           alignment: Alignment.centerRight,
-          child: LogistixButton(
+          child: BootstrapButton(
             onPressed: _copyTemplate,
             icon: Icons.copy_rounded,
             label: 'Copy Template',
-            type: LogistixButtonType.text,
+            type: BootstrapButtonType.text,
           ),
         ),
         const SizedBox(height: 16),
@@ -152,7 +152,7 @@ class _AIOrderParserFormState extends State<_AIOrderParserForm> {
                 builder: (context, _) {
                   final text = _aiController.text;
                   final isRunning = state.status.isRunning;
-                  return LogistixButton(
+                  return BootstrapButton(
                     label: 'Process Text',
                     isLoading: isRunning,
                     onPressed: text.trim().isEmpty

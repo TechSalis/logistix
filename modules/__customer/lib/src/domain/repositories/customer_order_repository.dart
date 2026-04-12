@@ -1,6 +1,6 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
-import '../../data/dtos/customer_order_input.dart';
+import 'package:customer/src/data/dtos/customer_order_input.dart';
 import 'package:shared/shared.dart';
 
 abstract class CustomerOrderRepository {

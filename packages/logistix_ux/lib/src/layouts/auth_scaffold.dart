@@ -6,7 +6,7 @@ import 'package:logistix_ux/logistix_ux.dart';
 /// Features:
 /// - Floating decorative background circles
 /// - Sliver-based scrolling for smooth header transitions
-/// - Integrated [LogistixEntrance] animations for children
+/// - Integrated [BootstrapEntrance] animations for children
 class LogistixAuthScaffold extends StatelessWidget {
   const LogistixAuthScaffold({
     required this.children,
@@ -19,7 +19,7 @@ class LogistixAuthScaffold extends StatelessWidget {
     super.key,
   });
 
-  /// The main content of the page, automatically wrapped in [LogistixEntrance].
+  /// The main content of the page, automatically wrapped in [BootstrapEntrance].
   final List<Widget> children;
 
   /// Optional title shown below the header/icon.
@@ -88,14 +88,14 @@ class LogistixAuthScaffold extends StatelessWidget {
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: LogistixSpacing.lg,
+                            horizontal: BootstrapSpacing.lg,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (header != null) ...[
                                 Center(child: header),
-                                const SizedBox(height: LogistixSpacing.lg),
+                                const SizedBox(height: BootstrapSpacing.lg),
                               ],
                               if (title != null) ...[
                                 Text(
@@ -104,7 +104,7 @@ class LogistixAuthScaffold extends StatelessWidget {
                                   style: context.textTheme.headlineSmall?.bold
                                       .copyWith(color: LogistixColors.text),
                                 ),
-                                const SizedBox(height: LogistixSpacing.xs),
+                                const SizedBox(height: BootstrapSpacing.xs),
                               ],
                               if (subtitle != null) ...[
                                 Text(
@@ -114,9 +114,9 @@ class LogistixAuthScaffold extends StatelessWidget {
                                     color: LogistixColors.textSecondary,
                                   ),
                                 ),
-                                const SizedBox(height: LogistixSpacing.xxl),
+                                const SizedBox(height: BootstrapSpacing.xxl),
                               ],
-                              LogistixEntrance(
+                              BootstrapEntrance(
                                 children: children,
                               ),
                             ],
@@ -142,10 +142,10 @@ class LogistixAuthScaffold extends StatelessWidget {
               bottom: 0,
               child: Container(
                 padding: EdgeInsets.fromLTRB(
-                  LogistixSpacing.lg,
-                  LogistixSpacing.md,
-                  LogistixSpacing.lg,
-                  MediaQuery.of(context).padding.bottom + LogistixSpacing.md,
+                  BootstrapSpacing.lg,
+                  BootstrapSpacing.md,
+                  BootstrapSpacing.lg,
+                  MediaQuery.of(context).padding.bottom + BootstrapSpacing.md,
                 ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(

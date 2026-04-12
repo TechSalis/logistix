@@ -20,7 +20,7 @@ abstract class OnboardingRemoteDataSource {
 
 class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
     implements OnboardingRemoteDataSource {
-  OnboardingRemoteDataSourceImpl(super.graphql);
+  OnboardingRemoteDataSourceImpl(super.gqlService);
 
   @override
   Future<(OAuthToken, UserDto)> submitCustomerProfile() async {
@@ -92,9 +92,7 @@ class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
                 ${GqlFragments.riderFields}
               }
               companyProfile {
-                id
-                name
-                address
+                ${GqlFragments.companyFields}
               }
             }
           }
@@ -120,20 +118,21 @@ class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<(OAuthToken, UserDto)> submitDispatcherProfile(
     DispatcherProfileDto profile,
   ) async {
-    // TODO: save address placeId or coordinates
     const mutation =
         '''
         mutation SubmitDispatcherProfile(
-          \$companyName: String!
-          \$phoneNumber: String!
-          \$address: String!
-          \$cac: String!
+          \$companyName: String
+          \$phoneNumber: String
+          \$address: String
+          \$placeId: String
+          \$cac: String
         ) {
           submitDispatcherProfile(
             input: {
               companyName: \$companyName
               phoneNumber: \$phoneNumber
               address: \$address
+              placeId: \$placeId
               cac: \$cac
             }
           ) {
@@ -155,9 +154,7 @@ class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
                 ${GqlFragments.riderFields}
               }
               companyProfile {
-                id
-                name
-                address
+                ${GqlFragments.companyFields}
               }
             }
           }
@@ -171,6 +168,7 @@ class OnboardingRemoteDataSourceImpl extends BaseRemoteDataSource
         'companyName': profile.companyName,
         'phoneNumber': profile.phoneNumber,
         'address': profile.address,
+        'placeId': profile.placeId,
         'cac': profile.cac,
       },
     );

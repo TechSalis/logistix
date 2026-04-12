@@ -1,23 +1,23 @@
+import 'package:rider/src/data/dtos/rider_heartbeat_request.dart';
 import 'package:rider/src/data/dtos/rider_sync_dto.dart';
+import 'package:rider/src/data/dtos/rider_sync_request.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/orders/data/dtos/update_order_status_request.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRemoteDataSource {
 
-  Future<OrderDto> updateOrderStatus(String orderId, String status);
+  Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request);
 
-  Future<RiderDto> sendHeartbeat({
-    double? lat,
-    double? lng,
-    int? batteryLevel,
-  });
+  Future<RiderDto> sendHeartbeat(RiderHeartbeatRequest request);
 
-  Future<RiderSyncDto> syncData({double? since, int? limit, int? offset});
+  Future<RiderSyncDto> syncData(RiderSyncRequest request);
 
   Future<SyncManager> subscribeToAssignmentUpdates({
     required void Function(
+      String eventType,
       OrderDto? order,
       RiderDto? rider,
-      String eventType,
       RiderMetricsDto? metrics,
     )
     onData,
@@ -29,7 +29,9 @@ abstract class RiderRemoteDataSource {
 
 class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     implements RiderRemoteDataSource {
-  RiderRemoteDataSourceImpl(super.gqlService);
+  RiderRemoteDataSourceImpl(super.gqlService, this.syncManager);
+
+  final SyncManager syncManager;
 
   @override
   Future<RiderDto> fetchProfile() async {
@@ -51,7 +53,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<OrderDto> updateOrderStatus(String orderId, String status) async {
+  Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request) async {
     final result = await gqlService.mutate<Map<String, dynamic>>(
       '''
       mutation UpdateOrderStatus(\$orderId: ID!, \$status: String!, \$sessionId: String) {
@@ -61,9 +63,9 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
       }
     ''',
       variables: {
-        'orderId': orderId,
-        'status': status,
-        'sessionId': await gqlService.sessionId,
+        ...request.toJson(),
+        if (request.sessionId == null)
+          'sessionId': await gqlService.sessionId,
       },
     );
 
@@ -74,11 +76,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<RiderDto> sendHeartbeat({
-    double? lat,
-    double? lng,
-    int? batteryLevel,
-  }) async {
+  Future<RiderDto> sendHeartbeat(RiderHeartbeatRequest request) async {
     const mutation =
         '''
       mutation RiderHeartbeat(\$lat: Float, \$lng: Float, \$batteryLevel: Int) {
@@ -91,18 +89,14 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     final data = await mutate<Map<String, dynamic>>(
       mutation,
       key: 'riderHeartbeat',
-      variables: {'lat': lat, 'lng': lng, 'batteryLevel': batteryLevel},
+      variables: request.toJson(),
     );
 
     return RiderDto.fromJson(data);
   }
 
   @override
-  Future<RiderSyncDto> syncData({
-    double? since,
-    int? limit,
-    int? offset,
-  }) async {
+  Future<RiderSyncDto> syncData(RiderSyncRequest request) async {
     const queryDocument = '''
       query RiderSync(\$since: Float, \$limit: Int, \$offset: Int) {
         riderSync(since: \$since, limit: \$limit, offset: \$offset) {
@@ -123,7 +117,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
 
     final data = await query<Map<String, dynamic>>(
       queryDocument,
-      variables: {'since': since, 'limit': limit, 'offset': offset},
+      variables: request.toJson(),
       key: 'riderSync',
     );
 
@@ -133,15 +127,14 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   @override
   Future<SyncManager> subscribeToAssignmentUpdates({
     required void Function(
+      String eventType,
       OrderDto? order,
       RiderDto? rider,
-      String eventType,
       RiderMetricsDto? metrics,
     )
     onData,
     required Future<void> Function() onSync,
   }) async {
-    final syncManager = SyncManager(gqlService);
     await syncManager.startSubscription(
       subscriptionDocument: _riderAssignmentUpdatedSubscription,
       variables: {'sessionId': await gqlService.sessionId},
@@ -154,9 +147,9 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
         final metricsData = updateData['metrics'] as Map<String, dynamic>?;
 
         onData(
+          eventType,
           orderData != null ? OrderDto.fromJson(orderData) : null,
           riderData != null ? RiderDto.fromJson(riderData) : null,
-          eventType,
           metricsData != null ? RiderMetricsDto.fromJson(metricsData) : null,
         );
       },

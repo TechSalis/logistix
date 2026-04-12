@@ -1,16 +1,27 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class RiderProfileDto {
+  const RiderProfileDto({
+    required this.phoneNumber,
+    required this.registrationNumber,
+    this.companyId,
+  });
 
-part 'rider_profile_dto.freezed.dart';
-part 'rider_profile_dto.g.dart';
+  factory RiderProfileDto.fromJson(Map<String, dynamic> json) {
+    return RiderProfileDto(
+      phoneNumber: json['phoneNumber'] as String,
+      registrationNumber: json['registrationNumber'] as String,
+      companyId: json['companyId'] as String?,
+    );
+  }
 
-@freezed
-abstract class RiderProfileDto with _$RiderProfileDto {
-  const factory RiderProfileDto({
-    required String phoneNumber,
-    required String registrationNumber,
-    String? companyId,
-  }) = _RiderProfileDto;
+  final String phoneNumber;
+  final String registrationNumber;
+  final String? companyId;
 
-  factory RiderProfileDto.fromJson(Map<String, dynamic> json) =>
-      _$RiderProfileDtoFromJson(json);
+  Map<String, dynamic> toJson() {
+    return {
+      'phoneNumber': phoneNumber,
+      'registrationNumber': registrationNumber,
+      if (companyId != null) 'companyId': companyId,
+    };
+  }
 }

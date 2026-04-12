@@ -1,4 +1,4 @@
-abstract class LogistixDurations {
+abstract class BootstrapDurations {
   // Animation durations (in milliseconds)
   static const int instant = 0;
   static const int fastest = 100;

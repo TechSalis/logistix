@@ -10,7 +10,7 @@ abstract class LogistixDecorations {
   }) {
     return BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(radius ?? LogistixRadii.card),
+      borderRadius: BorderRadius.circular(radius ?? BootstrapRadii.card),
       border: Border.all(
         color: borderColor ?? LogistixColors.border,
         width: 1.2,

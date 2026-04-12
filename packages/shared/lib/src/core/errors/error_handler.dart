@@ -120,7 +120,7 @@ class ErrorHandler {
     if (GraphQLErrorCodes.isValidationError(code)) {
       return ValidationError(
         message: message,
-        fields: {'path': ?error.path?.join('.')},
+        fields: {'path': error.path?.join('.') ?? ''},
       );
     }
 

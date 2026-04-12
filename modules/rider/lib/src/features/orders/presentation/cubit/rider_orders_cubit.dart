@@ -2,24 +2,20 @@ import 'dart:async';
 import 'package:bootstrap/services/debouncer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:shared/shared.dart';
 
-part 'rider_orders_cubit.freezed.dart';
-
-@freezed
-abstract class RiderOrdersState with _$RiderOrdersState {
-  const factory RiderOrdersState({
-    required List<Order> orders,
-    required bool isSearching,
-    required bool isLoading,
-    required bool isLoadingMore,
-    required bool hasMore,
-    OrderStatus? selectedStatus,
-    String? searchQuery,
-    String? error,
-  }) = _RiderOrdersState;
+class RiderOrdersState {
+  const RiderOrdersState({
+    required this.orders,
+    required this.isSearching,
+    required this.isLoading,
+    required this.isLoadingMore,
+    required this.hasMore,
+    this.selectedStatus,
+    this.searchQuery,
+    this.error,
+  });
 
   factory RiderOrdersState.initial() => const RiderOrdersState(
     orders: [],
@@ -28,6 +24,38 @@ abstract class RiderOrdersState with _$RiderOrdersState {
     isLoadingMore: false,
     hasMore: true,
   );
+
+  final List<Order> orders;
+  final bool isSearching;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final OrderStatus? selectedStatus;
+  final String? searchQuery;
+  final String? error;
+
+  RiderOrdersState copyWith({
+    List<Order>? orders,
+    bool? isSearching,
+    bool? isLoading,
+    bool? isLoadingMore,
+    bool? hasMore,
+    OrderStatus? selectedStatus,
+    String? searchQuery,
+    String? error,
+    bool clearStatus = false,
+  }) {
+    return RiderOrdersState(
+      orders: orders ?? this.orders,
+      isSearching: isSearching ?? this.isSearching,
+      isLoading: isLoading ?? this.isLoading,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      hasMore: hasMore ?? this.hasMore,
+      selectedStatus: clearStatus ? null : (selectedStatus ?? this.selectedStatus),
+      searchQuery: searchQuery ?? this.searchQuery,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class RiderOrdersCubit extends Cubit<RiderOrdersState> {
@@ -43,11 +71,11 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
   StreamSubscription<List<Order>>? _ordersSubscription;
 
   // Pagination
-  static const int _pageSize = 20;
+  static const int _pageSize = 50;
 
   /// Initialize cubit with riderId (call after rider profile is loaded)
   void initialize() {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(state.copyWith(isLoading: true));
     _subscribeToOrders();
   }
 
@@ -84,7 +112,6 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
                   hasMore: hasMore,
                   isLoading: false,
                   isLoadingMore: false, // Reset pagination loader
-                  error: null,
                 ),
               );
             }
@@ -109,7 +136,7 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
         selectedStatus: status,
         orders: [], // Clear current orders to show shimmers
         isLoading: true, // Show loading state when switching tabs
-        error: null, // Clear errors when switching tabs
+        clearStatus: status == null,
       ),
     );
     _subscribeToOrders(); // Re-subscribe with new filters
@@ -122,7 +149,6 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
         isLoading: query.isNotEmpty,
         // Show loading during search if query not empty
         orders: query.isNotEmpty ? [] : state.orders,
-        error: null,
       ),
     );
 
@@ -136,7 +162,6 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
             searchQuery: query,
             isSearching: false,
             orders: query.isNotEmpty ? [] : state.orders,
-            error: null,
           ),
         );
         _subscribeToOrders(); // Re-subscribe with search query

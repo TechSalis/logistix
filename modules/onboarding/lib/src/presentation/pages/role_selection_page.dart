@@ -17,14 +17,14 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
 
   final List<RoleOption> _roles = const [
     RoleOption(
-      role: UserRole.rider,
+      role: UserRole.RIDER,
       title: 'Rider',
       description: 'Deliver packages and manage your routes.',
       icon: Icons.motorcycle_rounded,
       color: LogistixColors.primary,
     ),
     RoleOption(
-      role: UserRole.dispatcher,
+      role: UserRole.DISPATCHER,
       title: 'Dispatcher',
       description: 'Oversee operations and manage your fleet of riders.',
       icon: Icons.dashboard_customize_rounded,
@@ -36,7 +36,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
   Widget build(BuildContext context) {
     return LogistixAuthScaffold(
       header: Container(
-        padding: const EdgeInsets.all(LogistixSpacing.md),
+        padding: const EdgeInsets.all(BootstrapSpacing.md),
         decoration: BoxDecoration(
           color: LogistixColors.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
@@ -53,24 +53,36 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LogistixButton(
+          BootstrapButton(
             label: 'Continue',
             onPressed: _selectedRole == null
                 ? null
                 : () {
                     switch (_selectedRole!) {
-                      case UserRole.rider:
+                      case UserRole.RIDER:
                         context.push(OnboardingRoutes.riderOnboarding);
-                      case UserRole.dispatcher:
-                        context.push(OnboardingRoutes.dispatcherOnboarding);
+                      case UserRole.DISPATCHER:
+                        if (EnvConfig.instance.isSingleTenant) {
+                          context.read<OnboardingBloc>()
+                            ..add(
+                              OnboardingEvent.saveDispatcherOnboarding(),
+                            )
+                            ..add(
+                              OnboardingEvent.submitOnboarding(),
+                            );
+                        } else {
+                          context.push(OnboardingRoutes.dispatcherOnboarding);
+                        }
+                      case UserRole.CUSTOMER:
+                        break; // Not supported in onboarding
                     }
                   },
           ),
-          const SizedBox(height: LogistixSpacing.sm),
-          LogistixButton(
+          const SizedBox(height: BootstrapSpacing.sm),
+          BootstrapButton(
             label: 'Back to Login',
             onPressed: context.read<OnboardingBloc>().backToAuth,
-            type: LogistixButtonType.text,
+            type: BootstrapButtonType.text,
           ),
         ],
       ),
@@ -80,7 +92,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
           final isSelected = _selectedRole == roleOption.role;
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: LogistixSpacing.md),
+            padding: const EdgeInsets.only(bottom: BootstrapSpacing.md),
             child: _RoleCard(
               roleOption: roleOption,
               isSelected: isSelected,
@@ -108,7 +120,7 @@ class _RoleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LogistixCard(
+    return BootstrapCard(
       onTap: onTap,
       borderColor: isSelected ? roleOption.color : LogistixColors.border,
       borderRadius: BorderRadius.circular(24),
@@ -118,8 +130,8 @@ class _RoleCard extends StatelessWidget {
       child: Row(
         children: [
           AnimatedContainer(
-            duration: LogistixAnimations.normal,
-            padding: const EdgeInsets.all(LogistixSpacing.sm),
+            duration: BootstrapAnimations.normal,
+            padding: const EdgeInsets.all(BootstrapSpacing.sm),
             decoration: BoxDecoration(
               color: isSelected
                   ? roleOption.color
@@ -132,7 +144,7 @@ class _RoleCard extends StatelessWidget {
               color: isSelected ? Colors.white : roleOption.color,
             ),
           ),
-          const SizedBox(width: LogistixSpacing.lg),
+          const SizedBox(width: BootstrapSpacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +155,7 @@ class _RoleCard extends StatelessWidget {
                     color: LogistixColors.text,
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.xxs),
+                const SizedBox(height: BootstrapSpacing.xxs),
                 Text(
                   roleOption.description,
                   style: context.textTheme.bodyMedium?.copyWith(

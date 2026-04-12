@@ -3,6 +3,7 @@ import 'package:shared/shared.dart';
 /// Base class for all remote data sources to reduce boilerplate.
 abstract class BaseRemoteDataSource {
   BaseRemoteDataSource(this.gqlService);
+  
   final GraphQLService gqlService;
 
   /// Executes a mutation and extracts data from the result.
@@ -28,22 +29,5 @@ abstract class BaseRemoteDataSource {
       useCache: useCache,
     );
     return result.extractData<T>(key);
-  }
-
-  /// Helper for GraphQL subscriptions
-  Future<SyncManager> subscribe(
-    String document, {
-    required void Function(Map<String, dynamic> data) onData,
-    Future<void> Function()? onSync,
-    Map<String, dynamic>? variables,
-  }) async {
-    final manager = SyncManager(gqlService);
-    await manager.startSubscription(
-      subscriptionDocument: document,
-      variables: variables,
-      onData: (data) async => onData(data),
-      onSync: onSync,
-    );
-    return manager;
   }
 }

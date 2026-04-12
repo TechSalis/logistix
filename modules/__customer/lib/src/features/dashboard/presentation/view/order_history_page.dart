@@ -1,5 +1,5 @@
-import '../cubit/order_history_cubit.dart';
-import '../../../../presentation/router/customer_routes.dart';
+import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
+import 'package:customer/src/presentation/router/customer_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,7 +62,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+                        colors: [LogistixColors.primary, LogistixColors.secondaryDark],
                       ),
                     ),
                   ),
@@ -70,16 +70,16 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               ),
               if (state.isLoading && state.orders.isEmpty)
                 const SliverFillRemaining(
-                  child: Center(child: LogistixLoadingIndicator()),
+                  child: Center(child: BootstrapLoadingIndicator()),
                 )
               else if (state.error != null && state.orders.isEmpty)
                 SliverFillRemaining(
                   child: Center(
-                    child: LogistixEmptyView(
+                    child: BootstrapEmptyView(
                       title: 'Error loading history',
                       description: state.error,
                       icon: Icons.error_outline_rounded,
-                      action: LogistixButton(
+                      action: BootstrapButton(
                         onPressed: () => context.read<OrderHistoryCubit>().refresh(),
                         label: 'Retry',
                       ),
@@ -89,7 +89,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               else if (state.orders.isEmpty)
                 const SliverFillRemaining(
                   child: Center(
-                    child: LogistixEmptyView(
+                    child: BootstrapEmptyView(
                       title: 'No orders yet',
                       description: 'Your order history will appear here once you place an order.',
                       icon: Icons.history_rounded,
@@ -99,9 +99,9 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               else
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(
-                    LogistixSpacing.lg,
-                    LogistixSpacing.md,
-                    LogistixSpacing.lg,
+                    BootstrapSpacing.lg,
+                    BootstrapSpacing.md,
+                    BootstrapSpacing.lg,
                     100,
                   ),
                   sliver: SliverList(
@@ -111,13 +111,13 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
                           return state.isLoadingMore
                               ? const Padding(
                                   padding: EdgeInsets.all(16),
-                                  child: Center(child: LogistixLoadingIndicator()),
+                                  child: Center(child: BootstrapLoadingIndicator()),
                                 )
                               : const SizedBox.shrink();
                         }
                         
                         final order = state.orders[index];
-                        return LogistixEntrance(
+                        return BootstrapEntrance(
                           delay: Duration(milliseconds: index * 40),
                           children: [
                             OrderPreviewCard(

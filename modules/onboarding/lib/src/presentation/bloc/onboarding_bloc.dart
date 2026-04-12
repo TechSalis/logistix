@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onboarding/src/data/models/dispatcher_profile_dto.dart';
 import 'package:onboarding/src/data/models/rider_profile_dto.dart';
@@ -10,28 +9,13 @@ import 'package:shared/shared.dart';
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   OnboardingBloc(this._repository, this._authStatusRepository)
-    : super(const OnboardingState.initial()) {
+    : super(OnboardingState.initial()) {
     on<OnboardingEvent>((event, emit) async {
-      await event.when<FutureOr<void>>(
-        saveRiderOnboarding: (phoneNumber, registrationNumber, company) {
-          return _onSaveRiderOnboarding(
-            phoneNumber,
-            registrationNumber,
-            company,
-            emit,
-          );
-        },
-        saveDispatcherOnboarding: (companyName, phoneNumber, address, cac) {
-          return _onSaveDispatcherOnboarding(
-            companyName,
-            phoneNumber,
-            address,
-            cac,
-            emit,
-          );
-        },
-        saveCustomerOnboarding: () => emit(const OnboardingState.customer()),
-        submitOnboarding: () => _onSubmitOnboarding(emit),
+      await event.map<FutureOr<void>>(
+        saveRiderOnboarding: (e) => _onSaveRiderOnboarding(e, emit),
+        saveDispatcherOnboarding: (e) => _onSaveDispatcherOnboarding(e, emit),
+        saveCustomerOnboarding: (e) => emit(OnboardingState.customer()),
+        submitOnboarding: (e) => _onSubmitOnboarding(emit),
       );
     });
   }
@@ -42,45 +26,40 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   void backToAuth() => _authStatusRepository.setUnauthenticated();
 
   Future<void> _onSaveRiderOnboarding(
-    String phoneNumber,
-    String registrationNumber,
-    Company company,
+    SaveRiderOnboarding event,
     Emitter<OnboardingState> emit,
   ) async {
     emit(
       OnboardingState.rider(
-        phoneNumber: phoneNumber,
-        registrationNumber: registrationNumber,
-        company: company,
+        phoneNumber: event.phoneNumber,
+        registrationNumber: event.registrationNumber,
+        company: event.company,
       ),
     );
   }
 
   Future<void> _onSaveDispatcherOnboarding(
-    String companyName,
-    String phoneNumber,
-    String address,
-    String cac,
+    SaveDispatcherOnboarding event,
     Emitter<OnboardingState> emit,
   ) async {
     emit(
       OnboardingState.dispatcher(
-        companyName: companyName,
-        phoneNumber: phoneNumber,
-        address: address,
-        cac: cac,
+        companyName: event.companyName,
+        phoneNumber: event.phoneNumber,
+        address: event.address,
+        cac: event.cac,
       ),
     );
   }
 
   Future<void> _onSubmitOnboarding(Emitter<OnboardingState> emit) async {
-    await state.map<FutureOr<void>>(
-      initial: (value) {},
+    await state.maybeMap<FutureOr<void>>(
       rider: (state) async {
+        emit(state.copyWith(status: OnboardingStatus.loading));
         final profile = RiderProfileDto(
           phoneNumber: state.phoneNumber,
           registrationNumber: state.registrationNumber,
-          companyId: state.company.id,
+          companyId: state.company?.id,
         );
 
         final result = await _repository.submitRiderProfile(profile);
@@ -99,6 +78,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         );
       },
       dispatcher: (state) async {
+        emit(state.copyWith(status: OnboardingStatus.loading));
         final profile = DispatcherProfileDto(
           companyName: state.companyName,
           phoneNumber: state.phoneNumber,
@@ -108,35 +88,37 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
 
         final result = await _repository.submitDispatcherProfile(profile);
 
-        result.when(
-          data: (user) {
-            _authStatusRepository.setAuthenticated(user);
-            emit(state.copyWith(status: OnboardingStatus.success));
-          },
-          error: (error) => emit(
+        result.map(
+          (error) => emit(
             state.copyWith(
               status: OnboardingStatus.error,
               message: error.message,
             ),
           ),
+          (user) {
+            _authStatusRepository.setAuthenticated(user);
+            emit(state.copyWith(status: OnboardingStatus.success));
+          },
         );
       },
       customer: (state) async {
+        emit(state.copyWith(status: OnboardingStatus.loading));
         final result = await _repository.submitCustomerProfile();
 
-        result.when(
-          data: (user) {
-            _authStatusRepository.setAuthenticated(user);
-            emit(state.copyWith(status: OnboardingStatus.success));
-          },
-          error: (error) => emit(
+        result.map(
+          (error) => emit(
             state.copyWith(
               status: OnboardingStatus.error,
               message: error.message,
             ),
           ),
+          (user) {
+            _authStatusRepository.setAuthenticated(user);
+            emit(state.copyWith(status: OnboardingStatus.success));
+          },
         );
       },
+      orElse: () {},
     );
   }
 }

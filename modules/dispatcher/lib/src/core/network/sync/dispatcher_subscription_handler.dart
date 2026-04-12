@@ -1,4 +1,5 @@
 import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared/shared.dart';
 
@@ -15,15 +16,16 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
   @override
   @mustCallSuper
   Future<void> handleOrderUpdate(
-    OrderDto? orderDto,
-    String eventType, {
+    String eventType,
+    OrderDto? orderDto, {
     RiderDto? riderDto,
     DispatcherMetricsDto? dispatcherMetrics,
   }) async {
-    await super.handleOrderUpdate(orderDto, eventType, riderDto: riderDto);
+    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
 
     if (dispatcherMetrics != null) {
-      await _metricsStore.set(dispatcherMetrics);
+      final current = await _metricsStore.get() ?? const DispatcherMetricsDto();
+      await _metricsStore.set(current.merge(dispatcherMetrics));
     }
   }
 
@@ -37,7 +39,8 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
     await super.handleRiderUpdate(riderDto, eventType);
 
     if (dispatcherMetrics != null) {
-      await _metricsStore.set(dispatcherMetrics);
+      final current = await _metricsStore.get() ?? const DispatcherMetricsDto();
+      await _metricsStore.set(current.merge(dispatcherMetrics));
     }
   }
 }

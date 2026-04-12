@@ -1,4 +1,8 @@
 import 'package:auth/src/core/error_codes.dart';
+import 'package:auth/src/data/dtos/login_request.dart';
+import 'package:auth/src/data/dtos/reset_password_request.dart';
+import 'package:auth/src/data/dtos/sign_up_request.dart';
+import 'package:auth/src/data/dtos/verify_otp_request.dart';
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/codec.dart';
 import 'package:bootstrap/interfaces/http/oauth_token/models/oauth_token.dart';
@@ -7,23 +11,19 @@ import 'package:shared/shared.dart';
 /// Remote data source for authentication operations
 abstract class AuthRemoteDataSource {
   /// Login with email and password
-  Future<(OAuthToken, UserDto)> login(String email, String password);
+  Future<(OAuthToken, UserDto)> login(LoginRequest request);
 
   /// Sign up with email, password and name
-  Future<(OAuthToken, UserDto)> signUp(
-    String email,
-    String password,
-    String name,
-  );
+  Future<(OAuthToken, UserDto)> signUp(SignUpRequest request);
 
   /// Send password reset OTP
   Future<void> sendPasswordResetOtp(String email);
 
   /// Verify OTP
-  Future<void> verifyOtp(String email, String otp);
+  Future<void> verifyOtp(VerifyOtpRequest request);
 
   /// Reset password
-  Future<void> resetPassword(String email, String newPassword);
+  Future<void> resetPassword(ResetPasswordRequest request);
 
   /// Update FCM token
   Future<void> updateFcmToken(String token);
@@ -50,7 +50,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<(OAuthToken, UserDto)> login(String email, String password) async {
+  Future<(OAuthToken, UserDto)> login(LoginRequest request) async {
     const mutation =
         '''
         mutation Login(\$email: String!, \$password: String!) {
@@ -85,7 +85,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
     final data = await mutate<Map<String, dynamic>>(
       mutation,
       key: 'login',
-      variables: {'email': email, 'password': password},
+      variables: request.toJson(),
     );
 
     final tokenData = data['token'];
@@ -110,11 +110,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<(OAuthToken, UserDto)> signUp(
-    String email,
-    String password,
-    String name,
-  ) async {
+  Future<(OAuthToken, UserDto)> signUp(SignUpRequest request) async {
     const mutation =
         '''
         mutation Register(\$input: RegisterInput!) {
@@ -150,7 +146,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
       mutation,
       key: 'register',
       variables: {
-        'input': {'email': email, 'password': password, 'fullName': name},
+        'input': request.toJson(),
       },
     );
 
@@ -192,7 +188,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<void> verifyOtp(String email, String otp) async {
+  Future<void> verifyOtp(VerifyOtpRequest request) async {
     const mutation = r'''
         mutation VerifyOtp($email: String!, $otp: String!) {
           verifyOtp(email: $email, otp: $otp)
@@ -201,14 +197,14 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
     final result = await gqlService.mutate<Map<String, dynamic>>(
       mutation,
-      variables: {'email': email, 'otp': otp},
+      variables: request.toJson(),
     );
 
     result.throwIfException();
   }
 
   @override
-  Future<void> resetPassword(String email, String newPassword) async {
+  Future<void> resetPassword(ResetPasswordRequest request) async {
     const mutation = r'''
         mutation ResetPassword($email: String!, $newPassword: String!) {
           resetPassword(email: $email, newPassword: $newPassword)
@@ -217,9 +213,8 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
     final result = await gqlService.mutate<Map<String, dynamic>>(
       mutation,
-      variables: {'email': email, 'newPassword': newPassword},
+      variables: request.toJson(),
     );
-
     result.throwIfException();
   }
 }

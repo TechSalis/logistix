@@ -15,6 +15,11 @@ class DispatcherPage extends StatelessWidget {
       label: 'Orders',
     ),
     NavigationDestination(
+      icon: Icon(Icons.message_outlined),
+      selectedIcon: Icon(Icons.message),
+      label: 'Messages',
+    ),
+    NavigationDestination(
       icon: Icon(Icons.people_outline_rounded),
       selectedIcon: Icon(Icons.people_rounded),
       label: 'Riders',

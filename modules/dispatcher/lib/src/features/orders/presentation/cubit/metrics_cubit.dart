@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:dispatcher/src/domain/repositories/metrics_repository.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/orders/domain/repositories/metrics_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared/shared.dart';
 
 class MetricsState {
   MetricsState({required this.isLoading, this.metrics, this.error});

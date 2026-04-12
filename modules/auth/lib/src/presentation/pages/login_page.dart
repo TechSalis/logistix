@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:shared/shared.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -46,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
           tag: 'logo',
           child: LogistixAssets.images.icon.image(height: 80),
         ),
-        title: 'Logistix',
+        title: EnvConfig.instance.appName,
         subtitle: 'Precision in every step',
         footer: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
@@ -54,13 +55,13 @@ class _LoginPageState extends State<LoginPage> {
               loginLoading: () => true,
               orElse: () => false,
             );
-            return LogistixButton(
+            return BootstrapButton(
               label: 'Login',
               isLoading: isLoading,
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? true) {
                   context.read<AuthBloc>().add(
-                        AuthEvent.login(
+                        AuthLogin(
                           email: _emailController.text,
                           password: _passwordController.text,
                         ),
@@ -75,15 +76,15 @@ class _LoginPageState extends State<LoginPage> {
             key: _formKey,
             child: Column(
               children: [
-                LogistixTextField(
+                BootstrapTextField(
                   label: 'Email',
                   controller: _emailController,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: FormBuilderValidators.email(),
                 ),
-                const SizedBox(height: LogistixSpacing.md),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.md),
+                BootstrapTextField(
                   label: 'Password',
                   controller: _passwordController,
                   icon: Icons.lock_outline,
@@ -100,16 +101,16 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.xs),
+                const SizedBox(height: BootstrapSpacing.xs),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: LogistixButton(
+                  child: BootstrapButton(
                     label: 'Forgot Password?',
                     onPressed: () => context.push(AuthRoutes.forgotPassword),
-                    type: LogistixButtonType.text,
+                    type: BootstrapButtonType.text,
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.lg),
+                const SizedBox(height: BootstrapSpacing.lg),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -117,10 +118,10 @@ class _LoginPageState extends State<LoginPage> {
                       "Don't have an account? ",
                       style: context.textTheme.bodyMedium,
                     ),
-                    LogistixButton(
+                    BootstrapButton(
                       label: 'Sign Up',
                       onPressed: () => context.go(AuthRoutes.signUp),
-                      type: LogistixButtonType.text,
+                      type: BootstrapButtonType.text,
                     ),
                   ],
                 ),

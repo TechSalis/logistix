@@ -65,4 +65,16 @@ class GqlFragments {
     createdAt
     updatedAt
   ''';
+
+  static const String companyFields = '''
+    id
+    name
+    businessHandle
+    logoUrl
+    cac
+    address
+    placeId
+    createdAt
+    updatedAt
+  ''';
 }

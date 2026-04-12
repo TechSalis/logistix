@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract class LogistixRadii {
+abstract class BootstrapRadii {
   // Border radius values
   static const double none = 0;
   static const double xs = 4;

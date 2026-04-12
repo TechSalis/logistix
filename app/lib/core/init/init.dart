@@ -1,13 +1,11 @@
 import 'package:adapters/adapters.dart';
 import 'package:auth/auth.dart';
-import 'package:bootstrap/interfaces/di/di.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:dispatcher/dispatcher.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:logistix/core/module/app_module.dart';
-import 'package:logistix/core/services/share_intent_service.dart';
 import 'package:logistix/firebase_options.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:rider/rider.dart';
@@ -21,12 +19,11 @@ class AppInitialization {
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
       _initLogger(),
       initHiveForFlutter(),
-      Future.value(appLogger.init()),
     ]);
 
     final router = _prepareRouter(injector);
 
-    await Future.wait([
+    await Future.wait<void>([
       // 3. Initialize Network Service
       injector.get<GraphQLService>().init(
         EnvConfig.instance.graphqlUrl,
@@ -34,6 +31,8 @@ class AppInitialization {
       ),
       // 4. Start listening for share intents
       injector.get<ShareIntentService>().init(router),
+      // 5. Initialize Push Notifications
+      injector.get<PushNotificationService>().init(),
     ]);
 
     return router;

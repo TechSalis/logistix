@@ -1,10 +1,10 @@
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/equality_filter.dart';
-import '../../../../data/dtos/customer_order_input.dart';
-import '../../../../domain/entities/customer_order_type.dart';
-import '../cubit/customer_address_cubit.dart';
-import '../cubit/order_form_cubit.dart';
+import 'package:customer/src/data/dtos/customer_order_input.dart';
+import 'package:customer/src/domain/entities/customer_order_type.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/customer_address_cubit.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/order_form_cubit.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -98,25 +98,25 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
           body: Form(
             key: _formKey,
             child: ListView(
-              padding: const EdgeInsets.all(LogistixSpacing.lg),
+              padding: const EdgeInsets.all(BootstrapSpacing.lg),
               children: [
                 Text('Where from?', style: context.textTheme.titleMedium?.bold),
-                const SizedBox(height: LogistixSpacing.sm),
+                const SizedBox(height: BootstrapSpacing.sm),
                 _buildLocationDropdown(
                   label: widget.orderType.locationLabel,
                   icon: Icons.store_rounded,
                   isPickup: true,
                   onChanged: (val) => setState(() => _pickupLocation = val),
                 ),
-                const SizedBox(height: LogistixSpacing.lg),
+                const SizedBox(height: BootstrapSpacing.lg),
                 Text(
                   widget.orderType.payloadLabel,
                   style: context.textTheme.labelMedium?.bold.copyWith(
                     color: LogistixColors.textSecondary,
                   ),
                 ),
-                const SizedBox(height: LogistixSpacing.xs),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.xs),
+                BootstrapTextField(
                   controller: _payloadController,
                   icon: Icons.list_alt_rounded,
                   hintText: 'Enter order details...',
@@ -124,17 +124,17 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Required field' : null,
                 ),
-                const SizedBox(height: LogistixSpacing.xl),
+                const SizedBox(height: BootstrapSpacing.xl),
                 Text('Where to?', style: context.textTheme.titleMedium?.bold),
-                const SizedBox(height: LogistixSpacing.sm),
+                const SizedBox(height: BootstrapSpacing.sm),
                 _buildLocationDropdown(
                   label: 'Delivery Address',
                   icon: Icons.location_on_rounded,
                   isPickup: false,
                   onChanged: (val) => setState(() => _dropoffLocation = val),
                 ),
-                const SizedBox(height: LogistixSpacing.lg),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.lg),
+                BootstrapTextField(
                   controller: _dropoffPhoneController,
                   label: 'Recipient Phone',
                   icon: Icons.phone_rounded,
@@ -142,21 +142,21 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Required field' : null,
                 ),
-                const SizedBox(height: LogistixSpacing.lg),
-                LogistixTextField(
+                const SizedBox(height: BootstrapSpacing.lg),
+                BootstrapTextField(
                   controller: _descriptionController,
                   label: 'Extra Instructions',
                   icon: Icons.note_alt_rounded,
                   hintText: 'Any specific delivery instructions...',
                   lineCount: 2,
                 ),
-                const SizedBox(height: LogistixSpacing.xxl),
-                LogistixButton(
+                const SizedBox(height: BootstrapSpacing.xxl),
+                BootstrapButton(
                   onPressed: _submit,
                   label: 'Submit Order',
                   isLoading: state.isLoading,
                 ),
-                const SizedBox(height: LogistixSpacing.xxl),
+                const SizedBox(height: BootstrapSpacing.xxl),
               ],
             ),
           ),
@@ -183,7 +183,7 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
       ),
       popupProps: PopupProps.menu(
         showSearchBox: true,
-        loadingBuilder: (_, __) => const LogistixLoadingIndicator(),
+        loadingBuilder: (_, __) => const BootstrapLoadingIndicator(),
         searchFieldProps: TextFieldProps(
           autofocus: true,
           decoration: InputDecoration(

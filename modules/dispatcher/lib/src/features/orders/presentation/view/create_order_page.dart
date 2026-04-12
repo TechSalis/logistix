@@ -1,8 +1,9 @@
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
-import 'package:dispatcher/src/data/dtos/order_create_input.dart';
+import 'package:dispatcher/src/features/orders/data/dtos/order_create_input.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/create_order_cubit.dart';
+import 'package:dispatcher/src/features/orders/presentation/widgets/clear_orders_dialog.dart';
 import 'package:dispatcher/src/features/riders/presentation/widgets/rider_dropdown_search.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
 import 'package:flutter/material.dart';
@@ -41,24 +42,16 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
             title: const Text('Create Orders'),
             actions: [
               if (orderState.orders.isNotEmpty && !orderState.isLoading)
-                LogistixButton(
+                BootstrapButton(
                   label: 'Clear',
                   padding: EdgeInsets.zero,
                   onPressed: () {
-                    LogistixDialog.show<void>(
-                      context: context,
-                      title: 'Clear all orders?',
-                      content: 'This will remove all orders you have prepared.',
-                      primaryActionText: 'Clear All',
-                      type: LogistixDialogType.destructive,
-                      onPrimaryAction: (context) {
-                        createOrderCubit.reset();
-                        Navigator.pop(context);
-                      },
-                      secondaryActionText: 'Cancel',
+                    ClearOrdersDialog.show(
+                      context,
+                      onClear: createOrderCubit.reset,
                     );
                   },
-                  type: LogistixButtonType.text,
+                  type: BootstrapButtonType.text,
                 ),
             ],
           ),
@@ -67,8 +60,8 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
             child: ListView.builder(
               key: ValueKey(orderState.formKeyVersion),
               padding: const EdgeInsets.symmetric(
-                horizontal: LogistixSpacing.lg,
-                vertical: LogistixSpacing.xs,
+                horizontal: BootstrapSpacing.lg,
+                vertical: BootstrapSpacing.xs,
               ),
               itemCount: orderState.orders.length + 2,
               // +1 for banner, +1 for add button
@@ -83,20 +76,20 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                 if (orderIndex == orderState.orders.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(
-                      vertical: LogistixSpacing.lg,
+                      vertical: BootstrapSpacing.lg,
                     ),
-                    child: LogistixButton(
+                    child: BootstrapButton(
                       onPressed: createOrderCubit.addOrder,
                       icon: Icons.add_rounded,
                       label: 'Add Another Order',
-                      type: LogistixButtonType.outline,
+                      type: BootstrapButtonType.outline,
                       height: 52,
                     ),
                   );
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.only(top: LogistixSpacing.lg),
+                  padding: const EdgeInsets.only(top: BootstrapSpacing.lg),
                   child: _OrderInputCard(
                     index: orderIndex,
                     input: orderState.orders[orderIndex],
@@ -115,14 +108,14 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
           ),
           bottomNavigationBar: Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: LogistixSpacing.lg,
-              vertical: LogistixSpacing.sm,
+              horizontal: BootstrapSpacing.lg,
+              vertical: BootstrapSpacing.sm,
             ),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: LogistixColors.border)),
             ),
-            child: LogistixButton(
+            child: BootstrapButton(
               onPressed: () {
                 if (_formKey.currentState?.validate() != true) return;
                 createOrderCubit.submitOrders();
@@ -217,10 +210,10 @@ class _OrderInputCardState extends State<_OrderInputCard> {
 
   @override
   Widget build(BuildContext context) {
-    return LogistixCard(
+    return BootstrapCard(
       padding: const EdgeInsets.symmetric(
-        horizontal: LogistixSpacing.lg,
-        vertical: LogistixSpacing.sm,
+        horizontal: BootstrapSpacing.lg,
+        vertical: BootstrapSpacing.sm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,12 +222,12 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             children: [
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: LogistixSpacing.sm,
-                  vertical: LogistixSpacing.xxs,
+                  horizontal: BootstrapSpacing.sm,
+                  vertical: BootstrapSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
                   color: LogistixColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(LogistixRadii.sm),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.sm),
                 ),
                 child: Text(
                   'Order #${widget.index + 1}',
@@ -260,7 +253,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 ),
             ],
           ),
-          const SizedBox(height: LogistixSpacing.sm),
+          const SizedBox(height: BootstrapSpacing.sm),
           LogistixAddressPicker(
             labelText: 'Drop-off Address',
             hintText: 'Search drop-off address...',
@@ -278,12 +271,12 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               );
             },
           ),
-          const SizedBox(height: LogistixSpacing.md),
+          const SizedBox(height: BootstrapSpacing.md),
           Row(
             children: [
               Expanded(
                 flex: 4,
-                child: LogistixTextField(
+                child: BootstrapTextField(
                   label: 'Drop-off Phone',
                   initialValue: widget.input.dropOffPhone ?? '',
                   hintText: 'Enter phone number',
@@ -294,10 +287,10 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   },
                 ),
               ),
-              const SizedBox(width: LogistixSpacing.sm),
+              const SizedBox(width: BootstrapSpacing.sm),
               Expanded(
                 flex: 3,
-                child: LogistixTextField(
+                child: BootstrapTextField(
                   label: 'COD Amount',
                   initialValue: widget.input.codAmount?.toString() ?? '',
                   hintText: '₦ 0.00',
@@ -322,12 +315,12 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               ),
             ],
           ),
-          const SizedBox(height: LogistixSpacing.md),
+          const SizedBox(height: BootstrapSpacing.md),
           InkWell(
             onTap: () => setState(() => _isExpanded = !_isExpanded),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(BootstrapRadii.md),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.xs),
+              padding: const EdgeInsets.symmetric(vertical: BootstrapSpacing.xs),
               child: Row(
                 children: [
                   Icon(
@@ -337,7 +330,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                     size: 18,
                     color: LogistixColors.primary,
                   ),
-                  const SizedBox(width: LogistixSpacing.xs),
+                  const SizedBox(width: BootstrapSpacing.xs),
                   Text(
                     _isExpanded ? 'Show less' : 'Pickup & Schedule',
                     style: context.textTheme.labelMedium?.bold.copyWith(
@@ -357,7 +350,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             ),
           ),
           if (_isExpanded) ...[
-            const SizedBox(height: LogistixSpacing.md),
+            const SizedBox(height: BootstrapSpacing.md),
             LogistixAddressPicker(
               labelText: 'Pickup Address',
               hintText: 'Search pickup address...',
@@ -373,8 +366,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 );
               },
             ),
-            const SizedBox(height: LogistixSpacing.md),
-            LogistixTextField(
+            const SizedBox(height: BootstrapSpacing.md),
+            BootstrapTextField(
               label: 'Pickup Phone',
               initialValue: widget.input.pickupPhone ?? '',
               hintText: 'Enter phone number',
@@ -384,8 +377,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 widget.onUpdated(widget.input.copyWith(pickupPhone: val));
               },
             ),
-            const SizedBox(height: LogistixSpacing.md),
-            LogistixTextField(
+            const SizedBox(height: BootstrapSpacing.md),
+            BootstrapTextField(
               key: ValueKey('dt_${widget.input.scheduledAt}'),
               label: 'Scheduled Delivery (Optional)',
               initialValue: widget.input.scheduledAt != null
@@ -407,8 +400,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               //     : null,
             ),
           ],
-          const SizedBox(height: LogistixSpacing.md),
-          LogistixTextField(
+          const SizedBox(height: BootstrapSpacing.md),
+          BootstrapTextField(
             label: 'Order Description',
             initialValue: widget.input.description ?? '',
             hintText: 'e.g. 2 x Large Pizza, fragile item...',
@@ -417,7 +410,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               widget.onUpdated(widget.input.copyWith(description: val));
             },
           ),
-          const SizedBox(height: LogistixSpacing.md),
+          const SizedBox(height: BootstrapSpacing.md),
           _RiderSelector(
             selectedRider: widget.input.rider,
             onSelected: (rider) => widget.onUpdated(
@@ -438,8 +431,8 @@ class _AIPromptBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: LogistixSpacing.md,
-        vertical: LogistixSpacing.sm,
+        horizontal: BootstrapSpacing.md,
+        vertical: BootstrapSpacing.sm,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -448,7 +441,7 @@ class _AIPromptBanner extends StatelessWidget {
             LogistixColors.primary.withValues(alpha: 0.8),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(BootstrapRadii.lg),
         boxShadow: [
           BoxShadow(
             color: LogistixColors.primary.withValues(alpha: 0.2),
@@ -462,7 +455,7 @@ class _AIPromptBanner extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(LogistixSpacing.sm),
+              padding: const EdgeInsets.all(BootstrapSpacing.sm),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
@@ -473,7 +466,7 @@ class _AIPromptBanner extends StatelessWidget {
                 size: 24,
               ),
             ),
-            const SizedBox(width: LogistixSpacing.md),
+            const SizedBox(width: BootstrapSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,7 +511,7 @@ class _RiderSelector extends StatelessWidget {
             color: LogistixColors.textSecondary,
           ),
         ),
-        const SizedBox(height: LogistixSpacing.xs),
+        const SizedBox(height: BootstrapSpacing.xs),
         AssignRiderDropdownSearch(
           selectedRider: selectedRider,
           searchRiders: (filter) {

@@ -15,7 +15,7 @@ class SearchRidersUseCase {
       // 1. If we have a location AND NO search query, prioritize proximity
       if (lat != null && lng != null && query.isEmpty) {
         // Filter only online riders for auto-proximity sorting
-        return sorted.where((r) => r.status == RiderStatus.online).toList()
+        return sorted.where((r) => r.status == RiderStatus.ONLINE).toList()
           ..sort((a, b) {
             final distA = _calculateDistance(lat, lng, a.lastLat, a.lastLng);
             final distB = _calculateDistance(lat, lng, b.lastLat, b.lastLng);
@@ -38,9 +38,9 @@ class SearchRidersUseCase {
     // Status Weighting
     int statusScore(Rider r) {
       return switch (r.status) {
-        RiderStatus.online => 0,
-        RiderStatus.busy => 1,
-        RiderStatus.offline => 2,
+        RiderStatus.ONLINE => 0,
+        RiderStatus.BUSY => 1,
+        RiderStatus.OFFLINE => 2,
       };
     }
 

@@ -1,8 +1,8 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
-import '../datasources/order_remote_datasource.dart';
-import '../dtos/customer_order_input.dart';
-import '../../domain/repositories/customer_order_repository.dart';
+import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/data/dtos/customer_order_input.dart';
+import 'package:customer/src/domain/repositories/customer_order_repository.dart';
 import 'package:shared/shared.dart';
 
 class CustomerOrderRepositoryImpl implements CustomerOrderRepository {

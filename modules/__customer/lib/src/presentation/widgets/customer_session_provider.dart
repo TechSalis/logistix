@@ -1,4 +1,4 @@
-import '../../domain/usecases/manage_customer_session_usecase.dart';
+import 'package:customer/src/domain/usecases/manage_customer_session_usecase.dart';
 import 'package:flutter/material.dart';
 
 /// Widget that initializes and manages the customer session

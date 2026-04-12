@@ -23,7 +23,7 @@ class RiderMapStatusOverlay extends StatelessWidget {
       return _StatusContainer(
         child: Row(
           children: [
-            const LogistixShimmer(
+            const BootstrapShimmer(
               width: 52,
               height: 52,
               borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -34,13 +34,13 @@ class RiderMapStatusOverlay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  LogistixShimmer(
+                  BootstrapShimmer(
                     width: 120,
                     height: 16,
                     borderRadius: BorderRadius.circular(4),
                   ),
                   const SizedBox(height: 8),
-                  LogistixShimmer(
+                  BootstrapShimmer(
                     width: 80,
                     height: 12,
                     borderRadius: BorderRadius.circular(4),

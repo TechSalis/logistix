@@ -4,19 +4,24 @@ A Flutter monorepo for the **Logistix** logistics platform. The app serves two u
 
 ---
 
-## Tech Stack
-
-| Layer | Technology |
+| Tech | Detail |
 |---|---|
 | Framework | Flutter (Dart) |
-| State Management | BLoC / Cubit |
+| State Management | BLoC / Cubit (**Manual / Zero-Generation**) |
 | Navigation | GoRouter |
-| GraphQL Client | graphql_flutter |
-| Dependency Injection | GetIt (via `bootstrap`) |
-| Code Generation | Freezed, json_serializable, build_runner |
-| Monorepo Tooling | Melos |
-| Error Monitoring | Sentry |
-| Local Storage | HydratedBloc, Flutter Secure Storage |
+| Database | Drift (SQLite) |
+| Code Gen | Restricted to Persistence (Drift) & Assets |
+| Tooling | Melos, FVM |
+
+---
+
+## 📖 Comprehensive Documentation
+
+We have detailed documentation available for different aspects of the mobile project:
+
+- [**Architecture Overview**](docs/mobile/architecture.md) — Modular design, Zero-Generation pattern, and Session Management.
+- [**Implementation Guide**](docs/mobile/implementation_guide.md) — How to add features, manual DTO implementation, and SSOT patterns.
+- [**Tools & Commands**](docs/mobile/tools_and_commands.md) — Melos, FVM, and environment setup.
 
 ---
 
@@ -166,13 +171,15 @@ After login, `AppBloc` determines the user's role and onboarding status, then ro
 
 ### State Management Pattern
 
-Each feature follows the clean-architecture BLoC pattern:
+Each feature follows the Clean Architecture BLoC/Cubit pattern with a **Zero-Generation** approach:
 
 ```
-Event → Bloc → UseCase → Repository → DataSource (GraphQL)
+Event → Bloc → UseCase → Repository → DataSource (Remote/Local)
                  ↓
-              State (Freezed union)
+               State (Manual class hierarchy)
 ```
+- **No Freezed Unions**: States are implemented using abstract classes and explicit sub-types.
+- **SSOT**: Views listen to reactive streams from the local database.
 
 ---
 

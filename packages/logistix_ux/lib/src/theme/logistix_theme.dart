@@ -1,9 +1,7 @@
+import 'package:bootstrap/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logistix_ux/src/theme/extensions/theme_extensions.dart';
 import 'package:logistix_ux/src/tokens/colors.dart';
-import 'package:logistix_ux/src/tokens/radii.dart';
-import 'package:logistix_ux/src/tokens/spacing.dart';
 import 'package:logistix_ux/src/typography/text_styles.dart';
 
 class LogistixTheme {
@@ -40,7 +38,7 @@ class LogistixTheme {
         surfaceTintColor: Colors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         actionsPadding: const EdgeInsets.symmetric(
-          horizontal: LogistixSpacing.md,
+          horizontal: BootstrapSpacing.md,
         ),
         titleTextStyle: LogistixTextStyles.titleLarge.bold.copyWith(
           color: LogistixColors.text,
@@ -51,13 +49,13 @@ class LogistixTheme {
       ),
 
       // Card
-      cardTheme: const CardThemeData(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: LogistixColors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: LogistixRadii.borderRadiusCard,
-          side: BorderSide(color: LogistixColors.border, width: 1.2),
+          borderRadius: BorderRadius.circular(BootstrapRadii.card),
+          side: const BorderSide(color: LogistixColors.border, width: 1.2),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -70,12 +68,12 @@ class LogistixTheme {
           disabledBackgroundColor: LogistixColors.neutral200,
           disabledForegroundColor: LogistixColors.textTertiary,
           padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.buttonPaddingHorizontal,
-            vertical: LogistixSpacing.buttonPaddingVertical,
+            horizontal: BootstrapSpacing.buttonPaddingHorizontal,
+            vertical: BootstrapSpacing.buttonPaddingVertical,
           ),
           minimumSize: const Size(0, 44), // Reduced from 52
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(LogistixRadii.button),
+            borderRadius: BorderRadius.circular(BootstrapRadii.button),
           ),
         ),
       ),
@@ -86,12 +84,12 @@ class LogistixTheme {
           disabledForegroundColor: LogistixColors.textTertiary,
           side: const BorderSide(color: LogistixColors.border, width: 1.5),
           padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.buttonPaddingHorizontal,
-            vertical: LogistixSpacing.buttonPaddingVertical,
+            horizontal: BootstrapSpacing.buttonPaddingHorizontal,
+            vertical: BootstrapSpacing.buttonPaddingVertical,
           ),
           minimumSize: const Size(0, 44),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(LogistixRadii.button),
+            borderRadius: BorderRadius.circular(BootstrapRadii.button),
           ),
         ),
       ),
@@ -102,8 +100,8 @@ class LogistixTheme {
           disabledForegroundColor: LogistixColors.textTertiary,
           minimumSize: const Size(0, 44),
           padding: const EdgeInsets.symmetric(
-            horizontal: LogistixSpacing.buttonPaddingHorizontal,
-            vertical: LogistixSpacing.buttonPaddingVertical,
+            horizontal: BootstrapSpacing.buttonPaddingHorizontal,
+            vertical: BootstrapSpacing.buttonPaddingVertical,
           ),
         ),
       ),
@@ -116,7 +114,7 @@ class LogistixTheme {
           color: LogistixColors.textTertiary,
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: LogistixSpacing.lg,
+          horizontal: BootstrapSpacing.lg,
         ),
         prefixIconConstraints: const BoxConstraints(
           minWidth: 40,
@@ -127,29 +125,29 @@ class LogistixTheme {
           minHeight: 48,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderRadius: BorderRadius.circular(BootstrapRadii.input),
           borderSide: const BorderSide(
             color: LogistixColors.border,
             width: 1.2,
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderRadius: BorderRadius.circular(BootstrapRadii.input),
           borderSide: const BorderSide(
             color: LogistixColors.border,
             width: 1.2,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderRadius: BorderRadius.circular(BootstrapRadii.input),
           borderSide: const BorderSide(color: LogistixColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderRadius: BorderRadius.circular(BootstrapRadii.input),
           borderSide: const BorderSide(color: LogistixColors.error, width: 1.2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(LogistixRadii.input),
+          borderRadius: BorderRadius.circular(BootstrapRadii.input),
           borderSide: const BorderSide(color: LogistixColors.error, width: 2),
         ),
         labelStyle: const TextStyle(
@@ -166,14 +164,13 @@ class LogistixTheme {
         space: 1,
       ),
 
-      // Dialog
-      dialogTheme: const DialogThemeData(
+      dialogTheme: DialogThemeData(
         elevation: 0,
         backgroundColor: LogistixColors.surface,
         surfaceTintColor: Colors.transparent,
-        insetPadding: EdgeInsets.all(20),
+        insetPadding: const EdgeInsets.all(20),
         shape: RoundedRectangleBorder(
-          borderRadius: LogistixRadii.borderRadiusDialog,
+          borderRadius: BorderRadius.circular(BootstrapRadii.modal),
         ),
       ),
 
@@ -184,7 +181,7 @@ class LogistixTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(LogistixRadii.xxl),
+            top: Radius.circular(BootstrapRadii.xxl),
           ),
         ),
         showDragHandle: true,
@@ -197,8 +194,8 @@ class LogistixTheme {
           color: LogistixColors.textOnPrimary,
         ),
         behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(
-          borderRadius: LogistixRadii.borderRadiusMd,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(BootstrapRadii.md),
         ),
       ),
 

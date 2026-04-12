@@ -2,7 +2,6 @@ import 'package:bootstrap/services/run_once.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:logistix_ux/logistix_ux.dart';
 import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
@@ -45,14 +44,14 @@ class _RiderPageState extends State<RiderPage> {
   @override
   void initState() {
     super.initState();
-    riderBloc.add(const RiderEvent.fetchProfile());
+    riderBloc.add(RiderEvent.fetchProfile());
   }
 
   late final _startSessionIfNeeded = RunOnce.withArg((String riderId) {
     // Initialize cubits
     context.read<RiderOrdersCubit>().initialize();
     context.read<RiderMapOrdersCubit>().initialize();
-    riderBloc.add(RiderEvent.watchProfile(riderId));
+    riderBloc.add(RiderEvent.observeProfile(riderId));
 
     // Start session
     _sessionUseCase = context.read<RiderSessionManager>()
@@ -72,15 +71,15 @@ class _RiderPageState extends State<RiderPage> {
         listeners: [
           BlocListener<RiderBloc, RiderState>(
             listener: (context, state) {
-              state.mapOrNull(
-                loading: (state) {
-                  if (state.rider != null && state.rider!.isAccepted) {
-                    _startSessionIfNeeded(state.rider!.id);
+              state.whenOrNull(
+                loading: (rider) {
+                  if (rider != null && rider.permitStatus == PermitStatus.APPROVED) {
+                    _startSessionIfNeeded(rider.id);
                   }
                 },
-                loaded: (state) {
-                  if (state.rider.isAccepted) {
-                    _startSessionIfNeeded(state.rider.id);
+                loaded: (rider, orders, isLoading, loc) {
+                  if (rider.permitStatus == PermitStatus.APPROVED) {
+                    _startSessionIfNeeded(rider.id);
                   }
                 },
               );
@@ -90,9 +89,9 @@ class _RiderPageState extends State<RiderPage> {
             listener: (context, state) {
               state.whenOrNull(
                 ready: (position) {
-                  riderBloc.state.mapOrNull(
-                    loaded: (s) {
-                      if (s.rider.isAccepted) {
+                  riderBloc.state.whenOrNull(
+                    loaded: (rider, orders, isLoading, loc) {
+                      if (rider.permitStatus == PermitStatus.APPROVED) {
                         _sessionUseCase?.startHeartbeat();
                       }
                     },
@@ -110,37 +109,37 @@ class _RiderPageState extends State<RiderPage> {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    LogistixErrorView(
+                    BootstrapErrorView(
                       message: message,
                       onRetry: () {
-                        riderBloc.add(const RiderEvent.fetchProfile());
+                        riderBloc.add(RiderEvent.fetchProfile());
                       },
                     ),
-                    LogistixButton(
+                    BootstrapButton(
                       label: 'Logout',
-                      onPressed: riderBloc.logout,
-                      type: LogistixButtonType.danger,
+                      onPressed: riderBloc.logoutRunner.call,
+                      type: BootstrapButtonType.danger,
                       icon: Icons.logout,
                     ),
                   ],
                 );
               },
               loading: (rider) {
-                if (rider != null && !rider.isAccepted) {
+                if (rider != null && rider.permitStatus != PermitStatus.APPROVED) {
                   return RiderLockedPage(
                     onRefresh: () {
-                      riderBloc.add(const RiderEvent.fetchProfile());
+                      riderBloc.add(RiderEvent.fetchProfile());
                     },
                   );
                 }
 
-                return const Center(child: LogistixInlineLoader());
+                return const Center(child: BootstrapInlineLoader());
               },
               loaded: (rider, orders, isLoading, loc) {
-                if (!rider.isAccepted) {
+                if (rider.permitStatus != PermitStatus.APPROVED) {
                   return RiderLockedPage(
                     onRefresh: () {
-                      riderBloc.add(const RiderEvent.fetchProfile());
+                      riderBloc.add(RiderEvent.fetchProfile());
                     },
                   );
                 }

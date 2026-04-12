@@ -1,4 +1,4 @@
-import '../../data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/data/datasources/order_remote_datasource.dart';
 import 'package:shared/shared.dart';
 
 /// Performs a full catch-up sync for the Customer module.

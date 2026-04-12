@@ -1,4 +1,4 @@
-import 'package:bootstrap/core.dart';
+import 'package:adapters/adapters.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,6 +11,7 @@ import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/domain/usecases/rider_initial_sync_provider.dart';
 import 'package:rider/src/domain/usecases/sync_rider_data_usecase.dart';
 import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_metrics_cubit.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
@@ -21,13 +22,26 @@ class RiderModule extends Module<RouteBase> {
   const RiderModule();
 
   @override
+  void registerServices(DI injector) {
+    injector.registerSingleton<StreamableObjectStore<RiderMetricsDto>>(
+      StreamableSharedPrefsObjectStore(
+        RiderMetricsDto.fromJson,
+        RiderMetricsDto.toJsonFunc,
+      ),
+    );
+  }
+
+  @override
   Set<RouteBase> routes(DI injector) => {
     ShellRoute(
       builder: (context, state, child) => MultiRepositoryProvider(
         providers: [
           RepositoryProvider<RiderRemoteDataSource>(
             create: (context) {
-              return RiderRemoteDataSourceImpl(injector.get<GraphQLService>());
+              return RiderRemoteDataSourceImpl(
+                injector.get<GraphQLService>(),
+                injector.get<SyncManager>(),
+              );
             },
           ),
           RepositoryProvider<RiderSubscriptionHandler>(
@@ -64,7 +78,7 @@ class RiderModule extends Module<RouteBase> {
             BlocProvider<RiderBloc>(
               create: (context) => RiderBloc(
                 context.read<RiderRepository>(),
-                injector.get<AuthStatusRepository>(),
+                injector.get<LogoutUseCase>(),
                 injector.get<UserStore>(),
               ),
             ),
@@ -84,12 +98,13 @@ class RiderModule extends Module<RouteBase> {
           ],
           child: RepositoryProvider<RiderSessionManager>(
             create: (context) => RiderSessionManager(
-              context.read<RiderRemoteDataSource>(),
-              context.read<RiderSubscriptionHandler>(),
-              injector.get<RiderDao>(),
-              injector.get<LogistixDatabase>(),
-              context.read<SyncRiderDataUseCase>(),
-              context.read<RiderBloc>(),
+              dataSource: context.read<RiderRemoteDataSource>(),
+              subscriptionHandler: context.read<RiderSubscriptionHandler>(),
+              riderDao: injector.get<RiderDao>(),
+              database: injector.get<LogistixDatabase>(),
+              syncUseCase: context.read<SyncRiderDataUseCase>(),
+              riderBloc: context.read<RiderBloc>(),
+              initializeNotifications: injector.get<InitializeNotificationsUseCase>(),
             ),
             child: ToastServiceWidget(child: child),
           ),
@@ -112,9 +127,7 @@ class RiderModule extends Module<RouteBase> {
                 context,
                 error: error,
                 onRetry: retry,
-                onLogout: injector
-                    .get<AuthStatusRepository>()
-                    .setUnauthenticated,
+                onLogout: () => injector.get<LogoutUseCase>().call(),
               );
             },
           ),

@@ -1,31 +1,58 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/src/domain/entities/user.dart';
 
-part 'dispatcher_dto.freezed.dart';
-part 'dispatcher_dto.g.dart';
+class DispatcherDto {
+  const DispatcherDto({
+    required this.id,
+    required this.email,
+    required this.fullName,
+    this.companyId,
+    this.phoneNumber,
+  });
 
-@freezed
-abstract class DispatcherDto with _$DispatcherDto {
-  const factory DispatcherDto({
-    required String id,
-    required String email,
-    required String fullName,
-    String? companyId,
-    String? phoneNumber,
-  }) = _DispatcherDto;
+  final String id;
+  final String email;
+  final String fullName;
+  final String? companyId;
+  final String? phoneNumber;
 
-  factory DispatcherDto.fromJson(Map<String, dynamic> json) =>
-      _$DispatcherDtoFromJson(json);
+  factory DispatcherDto.fromJson(Map<String, dynamic> json) {
+    return DispatcherDto(
+      id: json['id'] as String,
+      email: json['email'] as String,
+      fullName: json['fullName'] as String,
+      companyId: json['companyId'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+    );
+  }
 
-  const DispatcherDto._();
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'fullName': fullName,
+      if (companyId != null) 'companyId': companyId,
+      if (phoneNumber != null) 'phoneNumber': phoneNumber,
+    };
+  }
 
   User toUserEntity() => User(
-    id: id,
-    email: email,
-    fullName: fullName,
-    isOnboarded: true,
-    role: UserRole.dispatcher,
-    companyId: companyId,
-    phoneNumber: phoneNumber,
-  );
+        id: id,
+        email: email,
+        fullName: fullName,
+        isOnboarded: true,
+        role: UserRole.DISPATCHER,
+        companyId: companyId,
+        phoneNumber: phoneNumber,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DispatcherDto &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          email == other.email;
+
+  @override
+  int get hashCode => id.hashCode ^ email.hashCode;
 }

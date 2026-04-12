@@ -18,15 +18,13 @@ class RiderDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RidersCubit, RidersState>(
       builder: (context, state) {
-        final rider = [
-          ...state.riders,
-          ...state.pendingRiders,
-        ].firstWhereOrNull((r) => r.id == riderId);
+        final riders = [...state.riders, ...state.pendingRiders];
+        final rider = riders.firstWhereOrNull((r) => r.id == riderId);
 
         if (rider == null) {
           return const Scaffold(
             backgroundColor: LogistixColors.background,
-            body: Center(child: LogistixLoadingIndicator()),
+            body: Center(child: BootstrapLoadingIndicator()),
           );
         }
 
@@ -40,30 +38,32 @@ class RiderDetailsPage extends StatelessWidget {
             iconTheme: const IconThemeData(color: LogistixColors.text),
             title: Text(
               'Rider Details',
-              style: context.textTheme.titleMedium?.bold,
+              style: context.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             actions: [
-              if (!rider.isAccepted)
+              if (rider.permitStatus != PermitStatus.APPROVED)
                 Padding(
-                  padding: const EdgeInsets.only(right: LogistixSpacing.md),
+                  padding: const EdgeInsets.only(right: BootstrapSpacing.md),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: LogistixSpacing.sm,
-                        vertical: LogistixSpacing.xxs,
+                        horizontal: BootstrapSpacing.sm,
+                        vertical: BootstrapSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
                         color: LogistixColors.warning.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(BootstrapRadii.lg),
                         border: Border.all(
                           color: LogistixColors.warning.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Text(
-                        'Pending',
-                        style: context.textTheme.labelSmall?.bold.copyWith(
-                          color: LogistixColors.warning,
-                          fontSize: 10,
+                        rider.permitStatus == PermitStatus.REJECTED ? 'Rejected' : 'Pending',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: rider.permitStatus == PermitStatus.REJECTED ? LogistixColors.error : LogistixColors.warning,
                         ),
                       ),
                     ),
@@ -73,18 +73,18 @@ class RiderDetailsPage extends StatelessWidget {
           ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
-              horizontal: LogistixSpacing.lg,
-              vertical: LogistixSpacing.xs,
+              horizontal: BootstrapSpacing.lg,
+              vertical: BootstrapSpacing.xs,
             ),
-            child: LogistixEntrance(
+            child: BootstrapEntrance(
               children: [
                 _RiderProfileHeader(rider: rider),
-                const SizedBox(height: LogistixSpacing.xl),
+                const SizedBox(height: BootstrapSpacing.xl),
                 if (rider.phoneNumber != null &&
                     rider.phoneNumber!.isNotEmpty)
                   _QuickActionsRow(rider: rider),
-                const SizedBox(height: LogistixSpacing.xl),
-                LogistixButton(
+                const SizedBox(height: BootstrapSpacing.xl),
+                BootstrapButton(
                   onPressed: hasLocation
                       ? () {
                           context.go(
@@ -97,20 +97,20 @@ class RiderDetailsPage extends StatelessWidget {
                   icon: Icons.map_rounded,
                 ),
                 if (rider.activeOrder != null) ...[
-                  const SizedBox(height: LogistixSpacing.xl),
+                  const SizedBox(height: BootstrapSpacing.xl),
                   const _SectionTitle(title: 'Current Delivery'),
-                  const SizedBox(height: LogistixSpacing.sm),
+                  const SizedBox(height: BootstrapSpacing.sm),
                   _ClickableOrderCard(order: rider.activeOrder!),
                 ],
-                const SizedBox(height: LogistixSpacing.xl),
+                const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Contact Information'),
-                const SizedBox(height: LogistixSpacing.sm),
+                const SizedBox(height: BootstrapSpacing.sm),
                 _ContactCard(rider: rider),
-                if (!rider.isAccepted) ...[
-                  const SizedBox(height: LogistixSpacing.xxl),
+                if (rider.permitStatus == PermitStatus.PENDING) ...[
+                  const SizedBox(height: BootstrapSpacing.xxl),
                   _ApprovalActions(rider: rider),
                 ],
-                const SizedBox(height: LogistixSpacing.xxxl),
+                const SizedBox(height: BootstrapSpacing.xxxl),
               ],
             ),
           ),
@@ -128,10 +128,10 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: context.textTheme.labelSmall?.bold.copyWith(
+      style: context.textTheme.labelSmall?.copyWith(
+        fontWeight: FontWeight.bold,
         color: LogistixColors.textTertiary,
         letterSpacing: 1.2,
-        fontSize: 11,
       ),
     );
   }
@@ -145,33 +145,35 @@ class _RiderProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LogistixAvatar(
+        BootstrapAvatar(
           name: rider.fullName,
           size: 100,
           statusColor: rider.status.color,
           useGradient: true,
         ),
-        const SizedBox(height: LogistixSpacing.lg),
+        const SizedBox(height: BootstrapSpacing.lg),
         Text(
           rider.fullName,
-          style: context.textTheme.headlineSmall?.bold,
+          style: context.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: LogistixSpacing.xs),
+        const SizedBox(height: BootstrapSpacing.xs),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _ProminentStatusBadge(status: rider.status),
             if (rider.batteryLevel != null) ...[
-              const SizedBox(width: LogistixSpacing.sm),
+              const SizedBox(width: BootstrapSpacing.sm),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: LogistixSpacing.sm,
-                  vertical: LogistixSpacing.xs,
+                  horizontal: BootstrapSpacing.sm,
+                  vertical: BootstrapSpacing.xs,
                 ),
                 decoration: BoxDecoration(
                   color: LogistixColors.surfaceDim,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.lg),
                   border: Border.all(
                     color: LogistixColors.border.withValues(alpha: 0.5),
                   ),
@@ -187,10 +189,11 @@ class _RiderProfileHeader extends StatelessWidget {
                           ? LogistixColors.success
                           : LogistixColors.error,
                     ),
-                    const SizedBox(width: LogistixSpacing.xs),
+                    const SizedBox(width: BootstrapSpacing.xs),
                     Text(
                       '${rider.batteryLevel}%',
-                      style: context.textTheme.labelSmall?.bold.copyWith(
+                      style: context.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
                         color: LogistixColors.textSecondary,
                       ),
                     ),
@@ -214,35 +217,35 @@ class _ProminentStatusBadge extends StatelessWidget {
     final color = status.color;
     IconData icon;
     switch (status) {
-      case RiderStatus.online:
+      case RiderStatus.ONLINE:
         icon = Icons.check_circle_rounded;
-      case RiderStatus.busy:
+      case RiderStatus.BUSY:
         icon = Icons.time_to_leave_rounded;
-      case RiderStatus.offline:
+      case RiderStatus.OFFLINE:
         icon = Icons.power_settings_new_rounded;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: LogistixSpacing.md,
-        vertical: LogistixSpacing.xs,
+        horizontal: BootstrapSpacing.md,
+        vertical: BootstrapSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(BootstrapRadii.xl),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 14),
-          const SizedBox(width: LogistixSpacing.xs),
+          const SizedBox(width: BootstrapSpacing.xs),
           Text(
             status.name,
-            style: context.textTheme.labelSmall?.bold.copyWith(
+            style: context.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.bold,
               color: color,
               letterSpacing: 0.5,
-              fontSize: 10,
             ),
           ),
         ],
@@ -269,7 +272,7 @@ class _QuickActionsRow extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(width: LogistixSpacing.md),
+        const SizedBox(width: BootstrapSpacing.md),
         Expanded(
           child: _QuickActionButton(
             icon: Icons.chat_bubble_rounded,
@@ -307,18 +310,21 @@ class _QuickActionButton extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(BootstrapRadii.xl),
           border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
-        padding: const EdgeInsets.symmetric(vertical: LogistixSpacing.sm),
+        padding: const EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, color: color, size: 24),
-            const SizedBox(width: LogistixSpacing.sm),
+            const SizedBox(width: BootstrapSpacing.sm),
             Text(
               label,
-              style: context.textTheme.labelMedium?.bold.copyWith(color: color),
+              style: context.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -336,10 +342,10 @@ class _ClickableOrderCard extends StatelessWidget {
     return AnimatedScaleTap(
       onTap: () => context.push(DispatcherRoutes.orderDetails(order.id)),
       child: Container(
-        padding: const EdgeInsets.all(LogistixSpacing.lg),
+        padding: const EdgeInsets.all(BootstrapSpacing.lg),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(BootstrapRadii.card),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -354,10 +360,10 @@ class _ClickableOrderCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(LogistixSpacing.sm),
+              padding: const EdgeInsets.all(BootstrapSpacing.sm),
               decoration: BoxDecoration(
                 color: LogistixColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(BootstrapRadii.xl),
               ),
               child: const Icon(
                 Icons.local_shipping_rounded,
@@ -365,22 +371,24 @@ class _ClickableOrderCard extends StatelessWidget {
                 size: 24,
               ),
             ),
-            const SizedBox(width: LogistixSpacing.md),
+            const SizedBox(width: BootstrapSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Order #${order.trackingNumber}',
-                    style: context.textTheme.titleMedium?.bold,
+                    style: context.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: LogistixSpacing.xxs),
+                  const SizedBox(height: BootstrapSpacing.xxs),
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: LogistixSpacing.xs,
-                          vertical: LogistixSpacing.xxs,
+                          horizontal: BootstrapSpacing.xs,
+                          vertical: BootstrapSpacing.xxs,
                         ),
                         decoration: BoxDecoration(
                           color: order.status.color.withValues(alpha: 0.1),
@@ -388,17 +396,18 @@ class _ClickableOrderCard extends StatelessWidget {
                         ),
                         child: Text(
                           order.status.label,
-                          style: context.textTheme.labelSmall?.bold.copyWith(
+                          style: context.textTheme.labelSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
                             color: order.status.color,
-                            fontSize: 9,
                           ),
                         ),
                       ),
-                      const SizedBox(width: LogistixSpacing.xs),
+                      const SizedBox(width: BootstrapSpacing.xs),
                       Expanded(
                         child: Text(
                           order.dropOffAddress,
-                          style: context.textTheme.bodySmall?.semiBold.copyWith(
+                          style: context.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w600,
                             color: LogistixColors.textSecondary,
                           ),
                           maxLines: 1,
@@ -410,7 +419,7 @@ class _ClickableOrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: LogistixSpacing.sm),
+            const SizedBox(width: BootstrapSpacing.sm),
             Icon(
               Icons.chevron_right_rounded,
               color: LogistixColors.textTertiary.withValues(alpha: 0.5),
@@ -429,14 +438,14 @@ class _ContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LogistixSettingsCard(
+    return BootstrapSettingsCard(
       children: [
-        LogistixSettingsTile(
+        BootstrapSettingsTile(
           icon: Icons.phone_rounded,
           title: 'Phone Number',
           subtitle: rider.phoneNumber ?? 'Not provided',
         ),
-        LogistixSettingsTile(
+        BootstrapSettingsTile(
           icon: Icons.email_rounded,
           title: 'Email Address',
           subtitle: rider.email,
@@ -466,18 +475,18 @@ class _ApprovalActions extends StatelessWidget {
         return Row(
           children: [
             Expanded(
-              child: LogistixButton(
+              child: BootstrapButton(
                 onPressed: isAnyProcessing
                     ? null
                     : () => context.read<RidersCubit>().rejectRider(rider.id),
                 label: 'Reject',
-                type: LogistixButtonType.outline,
+                type: BootstrapButtonType.outline,
                 isLoading: isRejecting,
               ),
             ),
-            const SizedBox(width: LogistixSpacing.md),
+            const SizedBox(width: BootstrapSpacing.md),
             Expanded(
-              child: LogistixButton(
+              child: BootstrapButton(
                 onPressed: isAnyProcessing
                     ? null
                     : () => context.read<RidersCubit>().acceptRider(rider.id),

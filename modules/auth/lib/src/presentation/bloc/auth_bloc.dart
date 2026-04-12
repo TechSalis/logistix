@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:auth/src/domain/repositories/auth_repository.dart';
 import 'package:auth/src/presentation/bloc/auth_event.dart';
 import 'package:auth/src/presentation/bloc/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,38 +11,48 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     this._userStore,
     AuthStatusRepository authStatus,
   ) : _authStatus = authStatus,
-      super(const AuthState.initial()) {
-    on<AuthEvent>((event, emit) async {
-      await event.when(
-        login: (email, password) => _onLogin(email, password, emit),
-        signUp: (email, password, name) =>
-            _onSignUp(email, password, name, emit),
-        forgotPassword: (email) => _onForgotPassword(email, emit),
-        verifyOtp: (email, otp) => _onVerifyOtp(email, otp, emit),
-        resetPassword: (email, newPassword) =>
-            _onResetPassword(email, newPassword, emit),
-        logout: () => _onLogout(emit),
-      );
-    });
+      super(const AuthInitial()) {
+    on<AuthLogin>((event, emit) => _onLogin(event.email, event.password, emit));
+    on<AuthSignUp>(
+      (event, emit) => _onSignUp(event.email, event.password, event.name, emit),
+    );
+    on<AuthForgotPassword>(
+      (event, emit) => _onForgotPassword(event.email, emit),
+    );
+    on<AuthVerifyOtp>(
+      (event, emit) => _onVerifyOtp(event.email, event.otp, emit),
+    );
+    on<AuthResetPassword>(
+      (event, emit) => _onResetPassword(event.email, event.newPassword, emit),
+    );
+    on<AuthLogout>((event, emit) => _onLogout(emit));
   }
+
   final AuthRepository _authRepository;
   final UserStore _userStore;
   final AuthStatusRepository _authStatus;
+
   Future<void> _onLogin(
     String email,
     String password,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthState.loginLoading());
+    emit(const AuthLoginLoading());
     final result = await _authRepository.login(email, password);
-    await result.map<FutureOr<void>>(
-      (error) => emit(
-        AuthState.loginError(error.message ?? 'Invalid credentials. Please check your email and password.'),
-      ),
+
+    result.map<FutureOr<void>>(
+      (error) {
+        emit(
+          AuthLoginError(
+            error.message ??
+                'Invalid credentials. Please check your email and password.',
+          ),
+        );
+      },
       (user) async {
         await _userStore.saveUser(user);
         _authStatus.setAuthenticated(user);
-        emit(const AuthState.loginSuccess());
+        emit(const AuthLoginSuccess());
       },
     );
   }
@@ -54,17 +63,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     String name,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthState.signUpLoading());
+    emit(const AuthSignUpLoading());
     final result = await _authRepository.signUp(
       email: email,
       password: password,
       name: name,
     );
 
-    await result.map(
+    result.map<FutureOr<void>>(
       (error) {
         emit(
-          AuthState.signUpError(
+          AuthSignUpError(
             error.message ?? 'Failed to create account. Please try again.',
           ),
         );
@@ -72,23 +81,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (user) async {
         await _userStore.saveUser(user);
         _authStatus.setAuthenticated(user);
-        emit(const AuthState.signUpSuccess());
+        emit(const AuthSignUpSuccess());
       },
     );
   }
 
   Future<void> _onForgotPassword(String email, Emitter<AuthState> emit) async {
-    emit(const AuthState.forgotPasswordLoading());
+    emit(const AuthForgotPasswordLoading());
     final result = await _authRepository.sendPasswordResetOtp(email: email);
 
     result.when(
       data: (_) {
-        emit(AuthState.otpSent(email: email));
+        emit(AuthOtpSent(email: email));
       },
       error: (error) {
         emit(
-          AuthState.forgotPasswordError(
-            error.message ?? 'Failed to send reset code. Please check your email.',
+          AuthForgotPasswordError(
+            error.message ??
+                'Failed to send reset code. Please check your email.',
           ),
         );
       },
@@ -100,16 +110,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     String otp,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthState.verifyOtpLoading());
+    emit(const AuthVerifyOtpLoading());
     final result = await _authRepository.verifyOtp(email: email, otp: otp);
 
     result.when(
       data: (_) {
-        emit(AuthState.otpVerified(email: email));
+        emit(AuthOtpVerified(email: email));
       },
       error: (error) {
         emit(
-          AuthState.verifyOtpError(
+          AuthVerifyOtpError(
             error.message ?? 'Verification failed. Please check the code.',
           ),
         );
@@ -122,17 +132,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     String newPassword,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthState.resetPasswordLoading());
+    emit(const AuthResetPasswordLoading());
     final result = await _authRepository.resetPassword(
       email: email,
       newPassword: newPassword,
     );
 
     result.when(
-      data: (_) => emit(const AuthState.passwordResetSuccess()),
+      data: (_) => emit(const AuthPasswordResetSuccess()),
       error: (error) {
         emit(
-          AuthState.resetPasswordError(
+          AuthResetPasswordError(
             error.message ?? 'Failed to reset password. Please try again.',
           ),
         );
@@ -142,6 +152,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogout(Emitter<AuthState> emit) async {
     _authStatus.setUnauthenticated();
-    emit(const AuthState.initial());
+    emit(const AuthInitial());
   }
 }

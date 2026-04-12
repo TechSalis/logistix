@@ -1,8 +1,8 @@
+import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
-import 'package:shared/shared.dart';
 
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({this.onRetry, super.key});
@@ -14,10 +14,10 @@ class OrderSummaryCard extends StatelessWidget {
     return BlocBuilder<MetricsCubit, MetricsState>(
       builder: (context, state) {
         if (state.isLoading) {
-          return const Center(child: LogistixInlineLoader());
+          return const Center(child: BootstrapInlineLoader());
         }
         if (state.error != null) {
-          return LogistixErrorView.small(
+          return BootstrapErrorView.small(
             message: state.error!,
             iconColor: LogistixColors.neutral100,
             textColor: LogistixColors.textOnPrimary,
@@ -36,23 +36,23 @@ class OrderSummaryCard extends StatelessWidget {
               busyRidersCount: 0,
             );
 
-        return LogistixMetricsRow(
+        return BootstrapMetricsRow(
           items: [
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Total',
               value: metrics.activeOrders.toString(),
               icon: Icons.shopping_bag_rounded,
               color: Colors.blueAccent,
             ),
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Pending',
               value: metrics.unassignedOrders.toString(),
               icon: Icons.hourglass_empty_rounded,
               color: Colors.orangeAccent,
             ),
-            LogistixMetricItem(
+            BootstrapMetricItem(
               label: 'Active',
-              value: (metrics.assignedOrders + metrics.enRouteOrders).toString(),
+              value: ((metrics.assignedOrders ?? 0) + (metrics.enRouteOrders ?? 0)).toString(),
               icon: Icons.bolt_rounded,
               color: Colors.greenAccent,
             ),

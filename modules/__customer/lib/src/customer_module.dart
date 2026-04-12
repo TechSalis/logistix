@@ -1,16 +1,15 @@
-import 'package:bootstrap/core.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
-import 'core/network/sync/customer_subscription_handler.dart';
-import 'data/datasources/order_remote_datasource.dart';
-import 'data/repositories/order_repository_impl.dart';
-import 'domain/repositories/customer_order_repository.dart';
-import 'domain/usecases/manage_customer_session_usecase.dart';
-import 'domain/usecases/sync_customer_data_usecase.dart';
-import 'features/dashboard/presentation/cubit/order_history_cubit.dart';
-import 'features/ordering/presentation/cubit/customer_address_cubit.dart';
-import 'features/ordering/presentation/cubit/order_form_cubit.dart';
-import 'presentation/router/customer_routes.dart';
-import 'presentation/widgets/customer_session_provider.dart';
+import 'package:customer/src/core/network/sync/customer_subscription_handler.dart';
+import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/data/repositories/order_repository_impl.dart';
+import 'package:customer/src/domain/repositories/customer_order_repository.dart';
+import 'package:customer/src/domain/usecases/manage_customer_session_usecase.dart';
+import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
+import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/customer_address_cubit.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/order_form_cubit.dart';
+import 'package:customer/src/presentation/router/customer_routes.dart';
+import 'package:customer/src/presentation/widgets/customer_session_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,6 +26,7 @@ class CustomerModule extends Module<RouteBase> {
               RepositoryProvider<CustomerOrderRemoteDataSource>(
                 create: (_) => CustomerOrderRemoteDataSourceImpl(
                   injector.get<GraphQLService>(),
+                  injector.get<SyncManager>(),
                 ),
               ),
               RepositoryProvider<CustomerOrderRepository>(

@@ -54,7 +54,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
       builder: (context, onboardingState) {
         return LogistixAuthScaffold(
           header: Container(
-            padding: const EdgeInsets.all(LogistixSpacing.lg),
+            padding: const EdgeInsets.all(BootstrapSpacing.lg),
             decoration: BoxDecoration(
               color: LogistixColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
@@ -69,13 +69,13 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
           subtitle:
               'Provide your company details to set up your dispatcher account.',
           onBack: () => context.pop(),
-          footer: LogistixButton(
+          footer: BootstrapButton(
             label: 'Complete Setup',
             isLoading: onboardingState.status == OnboardingStatus.loading,
             onPressed: _submitOnboarding,
           ),
           children: [
-            LogistixCard(
+            BootstrapCard(
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -88,15 +88,15 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                         prefixIcon: Icon(Icons.phone_outlined),
                       ),
                     ),
-                    const SizedBox(height: LogistixSpacing.lg),
-                    LogistixTextField(
+                    const SizedBox(height: BootstrapSpacing.lg),
+                    BootstrapTextField(
                       controller: _companyNameController,
                       label: 'Company Name',
                       icon: Icons.business_rounded,
                       validator: FormBuilderValidators.required(),
                       textCapitalization: TextCapitalization.words,
                     ),
-                    const SizedBox(height: LogistixSpacing.lg),
+                    const SizedBox(height: BootstrapSpacing.lg),
                     DropdownSearch<AddressDto>(
                       items: (String filter, _) async {
                         final cubit = context.read<AddressCubit>();
@@ -130,7 +130,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       popupProps: PopupProps.menu(
                         showSearchBox: true,
                         loadingBuilder: (_, __) =>
-                            const LogistixLoadingIndicator(),
+                            const BootstrapLoadingIndicator(),
                         searchFieldProps: const TextFieldProps(
                           autofocus: true,
                           autocorrect: false,
@@ -143,23 +143,21 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       validator: (address) =>
                           address == null ? 'Please select your address' : null,
                     ),
-                    const SizedBox(height: LogistixSpacing.lg),
-                    if (!EnvConfig.instance.isSingleTenant) ...[
-                      LogistixTextField(
-                        controller: _cacController,
-                        label: 'CAC Reg Number',
-                        icon: Icons.verified_rounded,
-                        hintText: 'RC123456 or BN123456',
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.match(
-                            RegExp(r'^(RC|BN)[0-9]{6,7}$'),
-                            errorText: 'Invalid CAC (RC/BN + 6-7 digits)',
-                          ),
-                        ]),
-                        textCapitalization: TextCapitalization.characters,
-                      ),
-                    ],
+                    const SizedBox(height: BootstrapSpacing.lg),
+                    BootstrapTextField(
+                      controller: _cacController,
+                      label: 'CAC Reg Number',
+                      icon: Icons.verified_rounded,
+                      hintText: 'RC123456 or BN123456',
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                        FormBuilderValidators.match(
+                          RegExp(r'^(RC|BN)[0-9]{6,7}$'),
+                          errorText: 'Invalid CAC (RC/BN + 6-7 digits)',
+                        ),
+                      ]),
+                      textCapitalization: TextCapitalization.characters,
+                    ),
                   ],
                 ),
               ),

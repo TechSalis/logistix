@@ -1,91 +1,59 @@
-import 'dart:async';
-
 import 'package:dispatcher/src/core/network/sync/dispatcher_subscription_handler.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
+import 'package:dispatcher/src/domain/usecases/dispatcher_sync_component.dart';
 import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
+import 'package:dispatcher/src/features/chat/domain/usecases/chat_session_manager.dart';
 import 'package:shared/shared.dart';
 
-/// Manages dispatcher session with real-time subscriptions
-///
-/// Architecture:
-/// - Subscriptions write to Drift via SubscriptionHandler
-class DispatcherSessionManager {
-  DispatcherSessionManager(
-    this._dataSource,
-    this._subscriptionHandler,
-    this._database,
-    this._syncDispatcherDataUseCase,
-  );
-
-  final DispatcherSessionRemoteDataSource _dataSource;
-  final DispatcherSubscriptionHandler _subscriptionHandler;
-  final LogistixDatabase _database;
-  final SyncDispatcherDataUseCase _syncDispatcherDataUseCase;
-
-  SyncManager? _orderSyncManager;
-  SyncManager? _riderSyncManager;
-  Timer? _syncTimer;
-  bool _isSyncing = false;
-
-  Future<void> start() async {
-    // 1. Subscribe to order updates (performs sync on connection and reconnection)
-    _orderSyncManager = await _dataSource.subscribeToOrderUpdates(
-      onData: (orderDto, eventType, metrics) async {
-        await _subscriptionHandler.handleOrderUpdate(
-          orderDto,
-          eventType,
+/// Concrete session coordinator for the Dispatcher module.
+/// 
+/// Instead of monolithic logic, it configures a list of [SessionComponent]s
+/// to handle orders, riders, chat, notifications, and periodic sync.
+class DispatcherSessionManager extends SessionCoordinator {
+  DispatcherSessionManager({
+    required DispatcherSessionRemoteDataSource dataSource,
+    required DispatcherSubscriptionHandler subscriptionHandler,
+    required LogistixDatabase database,
+    required SyncDispatcherDataUseCase syncUseCase,
+    required InitializeNotificationsUseCase initializeNotifications,
+    required ChatSessionManager chatSessionManager,
+  }) {
+    // 1. Core Data Synchronization
+    addComponent(DispatcherSyncComponent(syncUseCase, database));
+    
+    // 2. Orders Real-time Stream
+    addComponent(
+      RealtimeSubscriptionComponent(
+        name: 'orders',
+        subscribe: (onSync) => dataSource.subscribeToOrderUpdates(
+          onData: (order, event, metrics) => subscriptionHandler
+              .handleOrderUpdate(event, order,
           dispatcherMetrics: metrics,
-        );
-      },
-      onSync: _performSync,
+        ),
+          onSync: onSync,
+        ),
+      ),
     );
 
-    // 2. Subscribe to rider updates (performs sync on connection and reconnection)
-    _riderSyncManager = await _dataSource.subscribeToRiderUpdates(
-      onData: (riderDto, eventType, metrics) async {
-        await _subscriptionHandler.handleRiderUpdate(
-          riderDto,
-          eventType,
+    // 3. Riders Real-time Stream
+    addComponent(
+      RealtimeSubscriptionComponent(
+        name: 'riders',
+        subscribe: (onSync) => dataSource.subscribeToRiderUpdates(
+          onData: (rider, event, metrics) => subscriptionHandler
+              .handleRiderUpdate(rider, event,
           dispatcherMetrics: metrics,
-        );
-      },
+        ),
+        ),
+      ),
     );
 
-    // 3. Start periodic sync every 60 seconds (as fallback if subscriptions fail)
-    _syncTimer?.cancel();
-    _syncTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => _performSync(),
+    // 4. Chat Feature
+    addComponent(chatSessionManager);
+
+    addComponent(
+      NotificationComponent(initializeNotifications: initializeNotifications),
     );
-
-
-  }
-
-  Future<void> _performSync() async {
-    if (_isSyncing) return;
-    _isSyncing = true;
-
-    try {
-      final lastSyncTime = await _database.getLastSyncTime(
-        'dispatcher_last_sync',
-      );
-
-      final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
-
-      await _syncDispatcherDataUseCase(since: since);
-    } catch (e) {
-      // Handle overall sync error
-    } finally {
-      _isSyncing = false;
-    }
-  }
-
-  void stop() {
-    _orderSyncManager?.stop();
-    _orderSyncManager = null;
-    _riderSyncManager?.stop();
-    _riderSyncManager = null;
-    _syncTimer?.cancel();
-    _syncTimer = null;
+    addComponent(PeriodicSyncComponent(interval: const Duration(minutes: 2)));
   }
 }

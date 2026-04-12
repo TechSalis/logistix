@@ -1,5 +1,5 @@
-import '../../../../domain/repositories/customer_order_repository.dart';
-import '../cubit/order_details_cubit.dart';
+import 'package:customer/src/domain/repositories/customer_order_repository.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/order_details_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -33,12 +33,12 @@ class _OrderDetailsView extends StatelessWidget {
       body: BlocBuilder<OrderDetailsCubit, OrderDetailsState>(
         builder: (context, state) {
           if (state.isLoading && state.order == null) {
-            return const Center(child: LogistixLoadingIndicator());
+            return const Center(child: BootstrapLoadingIndicator());
           }
 
           if (state.error != null && state.order == null) {
             return Center(
-              child: LogistixEmptyView(
+              child: BootstrapEmptyView(
                 title: 'Order not found',
                 description: state.error,
                 icon: Icons.error_outline_rounded,
@@ -54,33 +54,33 @@ class _OrderDetailsView extends StatelessWidget {
               _OrderSliverAppBar(order: order),
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(LogistixSpacing.lg),
+                  padding: const EdgeInsets.all(BootstrapSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _OrderHeader(order: order),
-                      const SizedBox(height: LogistixSpacing.xl),
+                      const SizedBox(height: BootstrapSpacing.xl),
                       _StatusBanner(order: order),
-                      const SizedBox(height: LogistixSpacing.xl),
+                      const SizedBox(height: BootstrapSpacing.xl),
                       const _SectionTitle(title: 'Delivery Details'),
-                      const SizedBox(height: LogistixSpacing.sm),
+                      const SizedBox(height: BootstrapSpacing.sm),
                       _OrderLocationInfo(order: order),
-                      const SizedBox(height: LogistixSpacing.xl),
+                      const SizedBox(height: BootstrapSpacing.xl),
                       const _SectionTitle(title: 'Description'),
-                      const SizedBox(height: LogistixSpacing.xs),
+                      const SizedBox(height: BootstrapSpacing.xs),
                       Text(
                         order.description ?? 'No extra details provided',
                         style: context.textTheme.bodyMedium?.copyWith(
                           color: LogistixColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: LogistixSpacing.xl),
+                      const SizedBox(height: BootstrapSpacing.xl),
                       if (order.rider != null) ...[
                         const _SectionTitle(title: 'Assigned Rider'),
-                        const SizedBox(height: LogistixSpacing.sm),
+                        const SizedBox(height: BootstrapSpacing.sm),
                         _RiderCard(rider: order.rider!),
                       ],
-                      const SizedBox(height: LogistixSpacing.xxl),
+                      const SizedBox(height: BootstrapSpacing.xxl),
                     ],
                   ),
                 ),
@@ -108,7 +108,7 @@ class _OrderSliverAppBar extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [LogistixColors.primary, Color(0xFF4F46E5)],
+              colors: [LogistixColors.primary, LogistixColors.secondaryDark],
             ),
           ),
         ),
@@ -135,18 +135,18 @@ class _OrderHeader extends StatelessWidget {
             letterSpacing: 1.5,
           ),
         ),
-        const SizedBox(height: LogistixSpacing.xxs),
+        const SizedBox(height: BootstrapSpacing.xxs),
         Text(
           '#${order.trackingNumber}',
           style: context.textTheme.headlineSmall?.bold.copyWith(
             color: LogistixColors.text,
           ),
         ),
-        const SizedBox(height: LogistixSpacing.xs),
+        const SizedBox(height: BootstrapSpacing.xs),
         Row(
           children: [
             const Icon(Icons.access_time_rounded, size: 14, color: LogistixColors.textTertiary),
-            const SizedBox(width: LogistixSpacing.xs),
+            const SizedBox(width: BootstrapSpacing.xs),
             Text(
               dateFormat.format(order.createdAt.toLocal()),
               style: context.textTheme.bodySmall?.copyWith(color: LogistixColors.textTertiary),
@@ -166,7 +166,7 @@ class _StatusBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = order.status.color;
     return Container(
-      padding: const EdgeInsets.all(LogistixSpacing.lg),
+      padding: const EdgeInsets.all(BootstrapSpacing.lg),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
@@ -175,14 +175,14 @@ class _StatusBanner extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(LogistixSpacing.sm),
+            padding: const EdgeInsets.all(BootstrapSpacing.sm),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(order.status.icon, color: color, size: 28),
           ),
-          const SizedBox(width: LogistixSpacing.md),
+          const SizedBox(width: BootstrapSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +191,7 @@ class _StatusBanner extends StatelessWidget {
                   order.status.label,
                   style: context.textTheme.titleSmall?.bold.copyWith(color: color),
                 ),
-                const SizedBox(height: LogistixSpacing.xxs),
+                const SizedBox(height: BootstrapSpacing.xxs),
                 Text(
                   order.status.description,
                   style: context.textTheme.bodySmall?.copyWith(color: color.withValues(alpha: 0.8)),
@@ -231,25 +231,25 @@ class _OrderLocationInfo extends StatelessWidget {
     return Column(
       children: [
         if (order.pickupAddress?.isNotEmpty ?? false) ...[
-          LogistixInfoTile(
+          BootstrapInfoTile(
             icon: Icons.trip_origin_rounded,
             iconColor: LogistixColors.primary,
             title: 'Pickup',
             value: order.pickupAddress!,
             onTap: order.hasPickupPosition
-                ? () => LauncherUtils.openMap(order.pickupLat!, order.pickupLng!)
+                ? () => LogistixLauncher.openMap(order.pickupLat!, order.pickupLng!)
                 : null,
           ),
-          const SizedBox(height: LogistixSpacing.sm),
+          const SizedBox(height: BootstrapSpacing.sm),
         ],
-        LogistixInfoTile(
+        BootstrapInfoTile(
           icon: Icons.flag_rounded,
           iconColor: Colors.orange,
           title: 'Drop-off',
           value: order.dropOffAddress,
           isBold: true,
           onTap: order.hasDropOffPosition
-              ? () => LauncherUtils.openMap(order.dropOffLat!, order.dropOffLng!)
+              ? () => LogistixLauncher.openMap(order.dropOffLat!, order.dropOffLng!)
               : null,
         ),
       ],
@@ -263,7 +263,7 @@ class _RiderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LogistixCard(
+    return BootstrapCard(
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: LogistixColors.primary.withValues(alpha: 0.1),
@@ -274,7 +274,7 @@ class _RiderCard extends StatelessWidget {
         trailing: rider.phoneNumber != null
             ? IconButton(
                 icon: const Icon(Icons.call_rounded, color: LogistixColors.success),
-                onPressed: () => LauncherUtils.callNumber(rider.phoneNumber!),
+                onPressed: () => LogistixLauncher.callNumber(rider.phoneNumber!),
               )
             : null,
       ),

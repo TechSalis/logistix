@@ -1,17 +1,35 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared/shared.dart';
 
-part 'customer_sync_dto.freezed.dart';
-part 'customer_sync_dto.g.dart';
+class CustomerSyncDto {
+  const CustomerSyncDto({
+    required this.orders,
+    required this.lastUpdated,
+    this.deletedOrderIds = const [],
+  });
 
-@freezed
-abstract class CustomerSyncDto with _$CustomerSyncDto {
-  const factory CustomerSyncDto({
-    required List<OrderDto> orders,
-    required int lastUpdated,
-    @Default([]) List<String> deletedOrderIds,
-  }) = _CustomerSyncDto;
+  factory CustomerSyncDto.fromJson(Map<String, dynamic> json) {
+    return CustomerSyncDto(
+      orders: (json['orders'] as List<dynamic>?)
+              ?.map((e) => OrderDto.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      lastUpdated: json['lastUpdated'] as int? ?? 0,
+      deletedOrderIds: (json['deletedOrderIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
+    );
+  }
 
-  factory CustomerSyncDto.fromJson(Map<String, dynamic> json) =>
-      _$CustomerSyncDtoFromJson(json);
+  final List<OrderDto> orders;
+  final int lastUpdated;
+  final List<String> deletedOrderIds;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'orders': orders.map((e) => e.toJson()).toList(),
+      'lastUpdated': lastUpdated,
+      'deletedOrderIds': deletedOrderIds,
+    };
+  }
 }

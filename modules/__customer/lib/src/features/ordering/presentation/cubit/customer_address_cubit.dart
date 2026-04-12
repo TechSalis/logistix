@@ -12,12 +12,11 @@ class CustomerAddressCubit extends Cubit<void> {
   ) async {
     if (filter.isEmpty) return [];
     try {
-      final predictions =
-          await _placesService.getPredictionsWithType(filter, types);
+      final predictions = await _placesService.getPredictions(filter);
       return predictions
           .map(
             (p) => AddressDto(
-              address: p.description ?? p.title ?? '',
+              address: p.description ?? '',
               placeId: p.placeId,
             ),
           )

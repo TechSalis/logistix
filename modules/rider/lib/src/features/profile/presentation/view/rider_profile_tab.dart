@@ -1,4 +1,6 @@
-import 'package:bootstrap/extensions/string_extension.dart';
+import 'package:bootstrap/interfaces/toast/toast_service.dart';
+import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
+import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,25 +16,37 @@ class RiderProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final riderBloc = context.read<RiderBloc>();
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
-        child: BlocBuilder<RiderBloc, RiderState>(
-          builder: (context, riderState) {
-            return riderState.when(
-              initial: () => const Center(child: LogistixInlineLoader()),
-              loading: (_) => const Center(child: LogistixInlineLoader()),
-              error: (message) => LogistixErrorView(
-                message: message,
-                onRetry: () => context.read<RiderBloc>().add(
-                  const RiderEvent.fetchProfile(),
-                ),
-              ),
-              loaded: (rider, orders, isOrdersLoading, location) {
-                return SafeArea(child: _buildProfileContent(context, rider));
-              },
-            );
+        child: AsyncRunnerListener(
+          runner: riderBloc.logoutRunner,
+          listener: (context, state) {
+            if (state.status.isFailure) {
+              context.toast.showToast(
+                state.result?.error.message ?? 'Logout failed',
+                type: ToastType.error,
+              );
+            }
           },
+          child: BlocBuilder<RiderBloc, RiderState>(
+            builder: (context, riderState) {
+              return riderState.when(
+                initial: () => const Center(child: BootstrapInlineLoader()),
+                loading: (_) => const Center(child: BootstrapInlineLoader()),
+                error: (message) => BootstrapErrorView(
+                  message: message,
+                  onRetry: () => context.read<RiderBloc>().add(
+                        RiderEvent.fetchProfile(),
+                      ),
+                ),
+                loaded: (rider, orders, isOrdersLoading, location) {
+                  return SafeArea(child: _buildProfileContent(context, rider));
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -40,18 +54,18 @@ class RiderProfileTab extends StatelessWidget {
 
   Widget _buildProfileContent(BuildContext context, Rider rider) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: LogistixSpacing.lg),
-      child: LogistixEntrance(
+      padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.lg),
+      child: BootstrapEntrance(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: BootstrapSpacing.lg),
           _ProfileHeader(rider: rider),
-          const SizedBox(height: 24),
+          const SizedBox(height: BootstrapSpacing.lg),
           if (rider.activeOrder != null) ...[
             _ActiveOrderCard(order: rider.activeOrder!),
-            const SizedBox(height: 24),
+            const SizedBox(height: BootstrapSpacing.lg),
           ],
           const _SettingsSection(),
-          const SizedBox(height: 32),
+          const SizedBox(height: BootstrapSpacing.xl),
         ],
       ),
     );
@@ -69,14 +83,14 @@ class _ProfileHeader extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(BootstrapSpacing.xxs),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color: LogistixColors.primary.withValues(alpha: 0.1),
               ),
             ),
-            child: LogistixAvatar(
+            child: BootstrapAvatar(
               name: rider.fullName,
               size: 100,
               statusColor: rider.status.color,
@@ -86,7 +100,8 @@ class _ProfileHeader extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             rider.fullName,
-            style: context.textTheme.headlineSmall?.bold.copyWith(
+            style: context.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
               letterSpacing: -0.5,
             ),
             textAlign: TextAlign.center,
@@ -139,10 +154,10 @@ class _ActiveOrderCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(BootstrapSpacing.xs),
             decoration: BoxDecoration(
               color: LogistixColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
             ),
             child: const Icon(
               Icons.delivery_dining_rounded,
@@ -166,7 +181,9 @@ class _ActiveOrderCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '#${order.trackingNumber}',
-                  style: context.textTheme.titleSmall?.bold,
+                  style: context.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (order.description != null)
                   Text(
@@ -193,15 +210,15 @@ class _SettingsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LogistixSettingsCard(
+        BootstrapSettingsCard(
           title: 'SETTINGS',
           children: [
-            LogistixSettingsTile(
+            BootstrapSettingsTile(
               icon: Icons.person_outline_rounded,
               title: 'Account Info',
               onTap: () {},
             ),
-            LogistixSettingsTile(
+            BootstrapSettingsTile(
               icon: Icons.notifications_outlined,
               title: 'Notifications',
               onTap: () {},
@@ -215,9 +232,9 @@ class _SettingsSection extends StatelessWidget {
             final appVersion = snapshot.hasData
                 ? '${snapshot.data!.version} (${EnvConfig.instance.environment.capitalizeFirst()})'
                 : 'Loading...';
-            return LogistixSettingsCard(
+            return BootstrapSettingsCard(
               children: [
-                LogistixSettingsTile(
+                BootstrapSettingsTile(
                   icon: Icons.info_outline_rounded,
                   title: 'App Version',
                   subtitle: appVersion,
@@ -227,26 +244,17 @@ class _SettingsSection extends StatelessWidget {
           },
         ),
         const SizedBox(height: 16),
-        LogistixSettingsCard(
+        BootstrapSettingsCard(
           children: [
-            LogistixSettingsTile(
+            BootstrapSettingsTile(
               icon: Icons.logout_rounded,
               title: 'Logout',
               titleColor: LogistixColors.error,
               iconColor: LogistixColors.error,
               onTap: () {
-                LogistixDialog.show<void>(
-                  context: context,
-                  title: 'Logout',
-                  content: 'Are you sure you want to sign out?',
-                  icon: Icons.logout_rounded,
-                  type: LogistixDialogType.destructive,
-                  primaryActionText: 'Logout',
-                  secondaryActionText: 'Cancel',
-                  onPrimaryAction: (ctx) {
-                    context.read<RiderBloc>().logout();
-                    Navigator.pop(ctx);
-                  },
+                LogoutConfirmationDialog.show(
+                  context,
+                  onLogout: context.read<RiderBloc>().logoutRunner.call,
                 );
               },
             ),

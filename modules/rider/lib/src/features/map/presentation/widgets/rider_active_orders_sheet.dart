@@ -80,7 +80,7 @@ class RiderActiveOrdersSheet extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const SizedBox(height: LogistixSpacing.sm),
+                      const SizedBox(height: BootstrapSpacing.sm),
                       AnimatedBuilder(
                         animation: handleScaleAnimation,
                         builder: (context, child) {
@@ -108,14 +108,14 @@ class RiderActiveOrdersSheet extends StatelessWidget {
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: LogistixSpacing.lg,
-                            vertical: LogistixSpacing.sm,
+                            horizontal: BootstrapSpacing.lg,
+                            vertical: BootstrapSpacing.sm,
                           ),
                           child: Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(
-                                  LogistixSpacing.xs,
+                                  BootstrapSpacing.xs,
                                 ),
                                 decoration: BoxDecoration(
                                   color: LogistixColors.primary.withValues(
@@ -129,7 +129,7 @@ class RiderActiveOrdersSheet extends StatelessWidget {
                                   size: 20,
                                 ),
                               ),
-                              const SizedBox(width: LogistixSpacing.sm),
+                              const SizedBox(width: BootstrapSpacing.sm),
                               Text(
                                 'Active Orders',
                                 style: context.textTheme.titleMedium?.bold,
@@ -137,8 +137,8 @@ class RiderActiveOrdersSheet extends StatelessWidget {
                               const Spacer(),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: LogistixSpacing.sm,
-                                  vertical: LogistixSpacing.xs,
+                                  horizontal: BootstrapSpacing.sm,
+                                  vertical: BootstrapSpacing.xs,
                                 ),
                                 decoration: BoxDecoration(
                                   color: LogistixColors.primary,
@@ -162,15 +162,15 @@ class RiderActiveOrdersSheet extends StatelessWidget {
                 else
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(
-                      LogistixSpacing.md,
+                      BootstrapSpacing.md,
                       0,
-                      LogistixSpacing.md,
-                      LogistixSpacing.lg,
+                      BootstrapSpacing.md,
+                      BootstrapSpacing.lg,
                     ),
                     sliver: SliverList.separated(
                       itemCount: activeOrders.length,
                       separatorBuilder: (_, __) =>
-                          const SizedBox(height: LogistixSpacing.sm),
+                          const SizedBox(height: BootstrapSpacing.sm),
                       itemBuilder: (context, index) {
                         final order = activeOrders[index];
                         return _AnimatedOrderCard(
@@ -197,12 +197,12 @@ class _EmptyOrdersSliver extends StatelessWidget {
     return SliverFillRemaining(
       hasScrollBody: false,
       child: Padding(
-        padding: const EdgeInsets.all(LogistixSpacing.xl),
+        padding: const EdgeInsets.all(BootstrapSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(LogistixSpacing.lg),
+              padding: const EdgeInsets.all(BootstrapSpacing.lg),
               decoration: BoxDecoration(
                 color: LogistixColors.primary.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
@@ -213,14 +213,14 @@ class _EmptyOrdersSliver extends StatelessWidget {
                 color: LogistixColors.primary.withValues(alpha: 0.3),
               ),
             ),
-            const SizedBox(height: LogistixSpacing.md),
+            const SizedBox(height: BootstrapSpacing.md),
             Text(
               'No Active Orders',
               style: context.textTheme.titleMedium?.bold.copyWith(
                 color: LogistixColors.textSecondary,
               ),
             ),
-            const SizedBox(height: LogistixSpacing.xs),
+            const SizedBox(height: BootstrapSpacing.xs),
             Text(
               'New assignments will appear here',
               style: context.textTheme.bodyMedium?.copyWith(
@@ -279,8 +279,8 @@ class _AnimatedOrderCard extends StatelessWidget {
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: LogistixSpacing.sm,
-                    vertical: LogistixSpacing.xs,
+                    horizontal: BootstrapSpacing.sm,
+                    vertical: BootstrapSpacing.xs,
                   ),
                   decoration: BoxDecoration(
                     color: LogistixColors.primary.withValues(alpha: 0.1),
@@ -294,7 +294,7 @@ class _AnimatedOrderCard extends StatelessWidget {
                         size: 14,
                         color: LogistixColors.primary,
                       ),
-                      const SizedBox(width: LogistixSpacing.xxs),
+                      const SizedBox(width: BootstrapSpacing.xxs),
                       Text(
                         'MAP',
                         style: context.textTheme.labelSmall?.bold.copyWith(

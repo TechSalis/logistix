@@ -42,28 +42,23 @@ class _RiderOrderDetailsView extends StatelessWidget {
       backgroundColor: LogistixColors.background,
       body: BlocConsumer<RiderOrderDetailsCubit, RiderOrderDetailsState>(
         listener: (context, state) {
-          state.whenOrNull(
-            error: (message) {
-              context.toast.showToast(message, type: ToastType.error);
-            },
-          );
+          if (state is RiderOrderDetailsError) {
+            context.toast.showToast(state.message, type: ToastType.error);
+          }
         },
         builder: (context, state) {
-          return state.when(
-            initial: () => const SizedBox.shrink(),
-            loading: () => const _OrderDetailsShimmer(),
-            error: (message) => LogistixErrorView(message: message),
-            loaded: (order) => _OrderLoadedContent(order: order),
-          );
+          if (state is RiderOrderDetailsInitial) return const SizedBox.shrink();
+          if (state is RiderOrderDetailsLoading) return const _OrderDetailsShimmer();
+          if (state is RiderOrderDetailsError) return BootstrapErrorView(message: state.message);
+          if (state is RiderOrderDetailsLoaded) return _OrderLoadedContent(order: state.order);
+          return const SizedBox.shrink();
         },
       ),
       bottomNavigationBar:
           BlocBuilder<RiderOrderDetailsCubit, RiderOrderDetailsState>(
             builder: (context, state) {
-              return state.maybeWhen(
-                loaded: (order) => _BottomActionCta(order: order),
-                orElse: () => const SizedBox.shrink(),
-              );
+              if (state is RiderOrderDetailsLoaded) return _BottomActionCta(order: state.order);
+              return const SizedBox.shrink();
             },
           ),
     );
@@ -85,24 +80,24 @@ class _OrderLoadedContent extends StatelessWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: LogistixSpacing.lg,
-              vertical: LogistixSpacing.sm,
+              horizontal: BootstrapSpacing.lg,
+              vertical: BootstrapSpacing.sm,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _OrderHeader(order: order, dateFormat: dateFormat),
-                const SizedBox(height: LogistixSpacing.xl),
+                const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Delivery Details'),
-                const SizedBox(height: LogistixSpacing.md),
+                const SizedBox(height: BootstrapSpacing.md),
                 if (order.pickupAddress?.isNotEmpty ?? false) ...[
-                  LogistixInfoTile(
+                  BootstrapInfoTile(
                     icon: Icons.trip_origin_rounded,
                     iconColor: LogistixColors.primary,
                     title: 'Pickup',
                     value: order.pickupAddress!,
                     onTap: order.hasPickupPosition
-                        ? () => LauncherUtils.openMap(
+                        ? () => LogistixLauncher.openMap(
                             order.pickupLat!,
                             order.pickupLng!,
                           )
@@ -111,25 +106,25 @@ class _OrderLoadedContent extends StatelessWidget {
                   if (order.pickupPhone?.isNotEmpty ?? false)
                     Padding(
                       padding: const EdgeInsets.only(left: 32),
-                      child: LogistixInfoTile(
+                      child: BootstrapInfoTile(
                         icon: Icons.phone_rounded,
                         iconColor: LogistixColors.primary,
                         title: 'Call Sender',
                         value: order.pickupPhone!,
                         onTap: () =>
-                            LauncherUtils.callNumber(order.pickupPhone!),
+                            LogistixLauncher.callNumber(order.pickupPhone!),
                       ),
                     ),
                   const SizedBox(height: 12),
                 ],
-                LogistixInfoTile(
+                BootstrapInfoTile(
                   icon: Icons.flag_rounded,
                   iconColor: Colors.orange,
                   title: 'Drop-off',
                   value: order.dropOffAddress,
                   isBold: true,
                   onTap: order.hasDropOffPosition
-                      ? () => LauncherUtils.openMap(
+                      ? () => LogistixLauncher.openMap(
                           order.dropOffLat!,
                           order.dropOffLng!,
                         )
@@ -138,7 +133,7 @@ class _OrderLoadedContent extends StatelessWidget {
                 if (order.description != null &&
                     order.description!.isNotEmpty) ...[
                   const SizedBox(height: 12),
-                  LogistixInfoTile(
+                  BootstrapInfoTile(
                     icon: Icons.description_rounded,
                     iconColor: LogistixColors.textTertiary,
                     title: 'Description',
@@ -233,7 +228,7 @@ class _StatusBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: status.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(LogistixRadii.md),
+        borderRadius: BorderRadius.circular(BootstrapRadii.md),
         border: Border.all(color: status.color.withValues(alpha: 0.2)),
       ),
       child: Text(
@@ -269,14 +264,14 @@ class _BottomActionCta extends StatelessWidget {
         runner: cubit.unassignRunner,
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
-          return LogistixButton(
+          return BootstrapButton(
             onPressed: cubit.unassignRunner.call,
             foregroundColor: LogistixColors.error,
             backgroundColor: LogistixColors.error,
             isLoading: isLoading,
             icon: Icons.cancel_rounded,
             label: 'Unassign',
-            type: LogistixButtonType.outline,
+            type: BootstrapButtonType.outline,
           );
         },
       ),
@@ -301,7 +296,7 @@ class _BottomActionCta extends StatelessWidget {
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
 
-          return LogistixButton(
+          return BootstrapButton(
             onPressed: isLoading ? null : cubit.startDeliveryRunner.call,
             label: isLoading ? 'Starting...' : 'Start Delivery',
             icon: Icons.play_arrow_rounded,
@@ -330,7 +325,7 @@ class _BottomActionCta extends StatelessWidget {
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
 
-          return LogistixButton(
+          return BootstrapButton(
             onPressed: isLoading ? null : cubit.markDeliveredRunner.call,
             backgroundColor: LogistixColors.success,
             isLoading: isLoading,
@@ -366,8 +361,8 @@ class _BottomActionCta extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: LogistixSpacing.lg,
-        vertical: LogistixSpacing.md,
+        horizontal: BootstrapSpacing.lg,
+        vertical: BootstrapSpacing.md,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -379,8 +374,8 @@ class _BottomActionCta extends StatelessWidget {
           ),
         ],
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(LogistixRadii.xl),
-          topRight: Radius.circular(LogistixRadii.xl),
+          topLeft: Radius.circular(BootstrapRadii.xl),
+          topRight: Radius.circular(BootstrapRadii.xl),
         ),
       ),
       child: actionButton,
@@ -399,7 +394,7 @@ class _OrderDetailsShimmer extends StatelessWidget {
         children: [
           Stack(
             children: [
-              const LogistixShimmer(
+              const BootstrapShimmer(
                 height: 300,
                 width: double.infinity,
                 borderRadius: BorderRadius.zero,
@@ -418,14 +413,14 @@ class _OrderDetailsShimmer extends StatelessWidget {
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        LogistixShimmer(width: 120, height: 16),
+                        BootstrapShimmer(width: 120, height: 16),
                         SizedBox(height: 8),
-                        LogistixShimmer(width: 200, height: 32),
+                        BootstrapShimmer(width: 200, height: 32),
                         SizedBox(height: 12),
-                        LogistixShimmer(width: 150, height: 14),
+                        BootstrapShimmer(width: 150, height: 14),
                       ],
                     ),
-                    LogistixShimmer(
+                    BootstrapShimmer(
                       width: 100,
                       height: 36,
                       borderRadius: BorderRadius.circular(12),
@@ -433,21 +428,21 @@ class _OrderDetailsShimmer extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 40),
-                const LogistixShimmer(width: 150, height: 20),
+                const BootstrapShimmer(width: 150, height: 20),
                 const SizedBox(height: 20),
-                LogistixShimmer(
+                BootstrapShimmer(
                   width: double.infinity,
                   height: 100,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 const SizedBox(height: 16),
-                LogistixShimmer(
+                BootstrapShimmer(
                   width: double.infinity,
                   height: 100,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 const SizedBox(height: 16),
-                LogistixShimmer(
+                BootstrapShimmer(
                   width: double.infinity,
                   height: 100,
                   borderRadius: BorderRadius.circular(24),

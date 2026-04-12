@@ -1,13 +1,41 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+class AddressDto {
+  const AddressDto({required this.address, this.placeId});
 
-part 'address_dto.freezed.dart';
-part 'address_dto.g.dart';
+  factory AddressDto.fromJson(Map<String, dynamic> json) {
+    return AddressDto(
+      address: json['address'] as String,
+      placeId: json['placeId'] as String?,
+    );
+  }
 
-@freezed
-abstract class AddressDto with _$AddressDto {
-  const factory AddressDto({required String address, String? placeId}) =
-      _AddressDto;
+  final String address;
+  final String? placeId;
 
-  factory AddressDto.fromJson(Map<String, dynamic> json) =>
-      _$AddressDtoFromJson(json);
+  AddressDto copyWith({
+    String? address,
+    String? placeId,
+  }) {
+    return AddressDto(
+      address: address ?? this.address,
+      placeId: placeId ?? this.placeId,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'address': address,
+      if (placeId != null) 'placeId': placeId,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AddressDto &&
+          runtimeType == other.runtimeType &&
+          address == other.address &&
+          placeId == other.placeId;
+
+  @override
+  int get hashCode => address.hashCode ^ placeId.hashCode;
 }

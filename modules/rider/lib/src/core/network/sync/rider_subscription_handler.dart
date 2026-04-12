@@ -1,4 +1,5 @@
 import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 class RiderSubscriptionHandler extends BaseSubscriptionHandler {
@@ -13,12 +14,12 @@ class RiderSubscriptionHandler extends BaseSubscriptionHandler {
 
   @override
   Future<void> handleOrderUpdate(
-    OrderDto? orderDto,
-    String eventType, {
+    String eventType,
+    OrderDto? orderDto, {
     RiderDto? riderDto,
     RiderMetricsDto? riderMetrics,
   }) async {
-    await super.handleOrderUpdate(orderDto, eventType, riderDto: riderDto);
+    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
 
     if (riderMetrics != null) {
       await _metricsStore.set(riderMetrics);

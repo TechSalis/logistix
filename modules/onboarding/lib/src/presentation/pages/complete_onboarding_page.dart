@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
+import 'package:shared/shared.dart';
 
 class CompleteOnboardingPage extends StatefulWidget {
   const CompleteOnboardingPage({super.key});
@@ -18,7 +19,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
   void initState() {
     super.initState();
     context.read<OnboardingBloc>().add(
-      const OnboardingEvent.submitOnboarding(),
+      OnboardingEvent.submitOnboarding(),
     );
   }
 
@@ -32,10 +33,10 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
       },
       builder: (context, state) {
         if (state.status == OnboardingStatus.success) {
-          return const Scaffold(
-            body: LogistixSuccessView(
+          return Scaffold(
+            body: BootstrapSuccessView(
               title: 'Account Ready!',
-              message: 'Your profile has been set up successfully. Welcome to Logistix!',
+              message: 'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.appName}!',
             ),
           );
         }
@@ -43,7 +44,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
         return Scaffold(
           body: Center(
             child: Padding(
-              padding: const EdgeInsets.all(LogistixSpacing.xxl),
+              padding: const EdgeInsets.all(BootstrapSpacing.xxl),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -54,7 +55,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
                       color: LogistixColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const LogistixLoadingIndicator(),
+                    child: const BootstrapLoadingIndicator(),
                   )
                       .animate()
                       .scale(
@@ -63,7 +64,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
                         curve: Curves.easeOutBack,
                       )
                       .fade(duration: 400.ms),
-                  const SizedBox(height: LogistixSpacing.xxl),
+                  const SizedBox(height: BootstrapSpacing.xxl),
                   Text(
                     'Completing your account',
                     textAlign: TextAlign.center,
@@ -72,7 +73,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
                       letterSpacing: -0.5,
                     ),
                   ).animate(delay: 200.ms).fade().slideY(begin: 0.2),
-                  const SizedBox(height: LogistixSpacing.md),
+                  const SizedBox(height: BootstrapSpacing.md),
                   Text(
                     'Setting up your dashboard. One moment...',
                     textAlign: TextAlign.center,

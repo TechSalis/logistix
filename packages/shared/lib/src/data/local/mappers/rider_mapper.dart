@@ -11,6 +11,7 @@ extension RiderDtoToDrift on RiderDto {
       fullName: fullName,
       companyId: companyId,
       status: status,
+      permitStatus: Value(permitStatus),
       phoneNumber: Value(phoneNumber),
       fcmToken: Value(fcmToken),
       isAccepted: Value(isAccepted),
@@ -24,7 +25,7 @@ extension RiderDtoToDrift on RiderDto {
   }
 }
 
-extension RiderDataToEntity on Rider {
+extension RiderDataToEntity on RiderRow {
   rider_entities.Rider toEntity() {
     return rider_entities.Rider(
       id: id,
@@ -38,6 +39,7 @@ extension RiderDataToEntity on Rider {
       lastLng: lastLng,
       batteryLevel: batteryLevel,
       isAccepted: isAccepted,
+      permitStatus: rider_entities.PermitStatusX.fromString(permitStatus),
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -58,6 +60,7 @@ extension RiderEntityToDrift on rider_entities.Rider {
       lastLng: Value(lastLng),
       batteryLevel: Value(batteryLevel),
       isAccepted: Value(isAccepted),
+      permitStatus: Value(permitStatus.value),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       localUpdatedAt: DateTime.now(),

@@ -1,9 +1,10 @@
+export 'package:shared/shared.dart' show AuthRepository;
+
 export 'src/auth_module.dart';
 export 'src/core/error_codes.dart';
 export 'src/data/datasources/auth_remote_datasource.dart';
 export 'src/data/repositories/auth_repository_impl.dart';
 export 'src/domain/entities/login_response.dart';
-export 'src/domain/repositories/auth_repository.dart';
 export 'src/presentation/bloc/auth_bloc.dart';
 export 'src/presentation/bloc/auth_event.dart';
 export 'src/presentation/bloc/auth_state.dart';
