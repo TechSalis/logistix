@@ -75,4 +75,28 @@ class ConversationDto {
         customerName: customerName,
         companyId: '', // Will be filled by repository if needed
       );
+
+      ConversationDto copyWith({
+        String? id,
+        ChatPlatform? platform,
+        String? platformId,
+        DateTime? lastMessageAt,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        bool? autoReplyEnabled,
+        ChatMessageDto? lastMessage,
+        String? customerName,
+      }) {
+        return ConversationDto(
+          id: id ?? this.id,
+          platform: platform ?? this.platform,
+          platformId: platformId ?? this.platformId,
+          lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+          createdAt: createdAt ?? this.createdAt,
+          updatedAt: updatedAt ?? this.updatedAt,
+          autoReplyEnabled: autoReplyEnabled ?? this.autoReplyEnabled,
+          lastMessage: lastMessage ?? this.lastMessage,
+          customerName: customerName ?? this.customerName,
+        );
+      }
 }

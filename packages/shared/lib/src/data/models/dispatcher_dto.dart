@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared/src/domain/entities/user.dart';
 
+@immutable
 class DispatcherDto {
   const DispatcherDto({
     required this.id,
@@ -8,12 +10,6 @@ class DispatcherDto {
     this.companyId,
     this.phoneNumber,
   });
-
-  final String id;
-  final String email;
-  final String fullName;
-  final String? companyId;
-  final String? phoneNumber;
 
   factory DispatcherDto.fromJson(Map<String, dynamic> json) {
     return DispatcherDto(
@@ -24,6 +20,12 @@ class DispatcherDto {
       phoneNumber: json['phoneNumber'] as String?,
     );
   }
+
+  final String id;
+  final String email;
+  final String fullName;
+  final String? companyId;
+  final String? phoneNumber;
 
   Map<String, dynamic> toJson() {
     return {

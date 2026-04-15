@@ -54,7 +54,6 @@ export 'src/presentation/extensions/datetime_extension.dart';
 export 'src/presentation/extensions/status_styling.dart';
 export 'src/presentation/pages/sync_page.dart';
 export 'src/presentation/widgets/logistix_address_picker.dart';
-export 'src/presentation/widgets/logout_confirmation_dialog.dart';
 export 'src/presentation/widgets/map_info_cards.dart';
 export 'src/presentation/widgets/order_preview_card.dart';
 export 'src/startup/data/datasources/app_remote_datasource.dart';

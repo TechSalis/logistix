@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:adapters/adapters.dart';
 import 'package:flutter/widgets.dart';
 
 /// Base interface for all modular session operations (Sync, Heartbeat, Chat, etc.)
@@ -21,9 +22,8 @@ abstract class SessionComponent {
 
 /// A centralized host that manages the lifecycle and resources of multiple [SessionComponent]s.
 class SessionCoordinator {
-  SessionCoordinator({
-    List<SessionComponent>? components,
-  }) : _components = components ?? [];
+  SessionCoordinator({List<SessionComponent>? components})
+    : _components = components ?? [];
 
   final List<SessionComponent> _components;
   bool _isActive = false;
@@ -49,7 +49,9 @@ class SessionCoordinator {
       try {
         await component.start();
       } catch (e) {
-        debugPrint('[SessionCoordinator] Failed to start component ${component.id}: $e');
+        appLogger.error(
+          '[SessionCoordinator] Failed to start component ${component.id}: $e',
+        );
       }
     }
   }
@@ -61,7 +63,9 @@ class SessionCoordinator {
       try {
         await component.sync();
       } catch (e) {
-        debugPrint('[SessionCoordinator] Sync failed for ${component.id}: $e');
+        appLogger.error(
+          '[SessionCoordinator] Sync failed for ${component.id}: $e',
+        );
       }
     }
   }
@@ -75,7 +79,9 @@ class SessionCoordinator {
       try {
         await component.stop();
       } catch (e) {
-        debugPrint('[SessionCoordinator] Failed to stop component ${component.id}: $e');
+        appLogger.error(
+          '[SessionCoordinator] Failed to stop component ${component.id}: $e',
+        );
       }
     }
   }

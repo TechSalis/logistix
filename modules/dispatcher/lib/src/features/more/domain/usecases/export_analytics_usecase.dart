@@ -1,6 +1,7 @@
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:dispatcher/src/features/more/domain/repositories/analytics_repository.dart';
+import 'package:shared/shared.dart';
 
 class ExportAnalyticsUseCase {
   ExportAnalyticsUseCase(this._repository);
@@ -10,11 +11,13 @@ class ExportAnalyticsUseCase {
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
+    List<OrderStatus>? statuses,
   }) {
     return _repository.exportAnalytics(
       startDate: startDate,
       endDate: endDate,
       riderId: riderId,
+      statuses: statuses,
     );
   }
 }

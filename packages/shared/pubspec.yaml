@@ -14,11 +14,13 @@ dependencies:
   adapters:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap-adapters
-      ref: v0.5.3
+      ref: v0.5.5
+
   bootstrap:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap
-      ref: v0.5.3
+      ref: v0.5.5
+
   logistix_ux:
     path: ../logistix_ux
 
@@ -42,6 +44,8 @@ dependencies:
   dropdown_search: ^6.0.2
   url_launcher: ^6.3.2
   dio: ^5.9.2
+  intl: ^0.20.2
+  lucide_icons_flutter: ^3.1.12
 
 dev_dependencies:
   flutter_test:

@@ -45,6 +45,9 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
             company: _company,
           ),
         );
+    
+    // Navigate to complete onboarding page
+    context.push(OnboardingRoutes.completeOnboarding);
   }
 
   @override

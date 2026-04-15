@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared/src/domain/entities/company_integration.dart';
 
+@immutable
 class CompanyIntegrationDto {
   const CompanyIntegrationDto({
     required this.id,
@@ -9,13 +11,6 @@ class CompanyIntegrationDto {
     this.createdAt,
     this.updatedAt,
   });
-
-  final String id;
-  final String platform;
-  final String platformId;
-  final bool isActive;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
 
   factory CompanyIntegrationDto.fromEntity(CompanyIntegration entity) =>
       CompanyIntegrationDto(
@@ -41,6 +36,13 @@ class CompanyIntegrationDto {
           : null,
     );
   }
+
+  final String id;
+  final String platform;
+  final String platformId;
+  final bool isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   Map<String, dynamic> toJson() {
     return {

@@ -31,7 +31,7 @@ class PlatformActivationForm extends StatefulWidget {
   }) {
     return BootstrapDialog.show<void>(
       context: context,
-      title: 'Activate ${platform.name.capitalizeFirst()}',
+      title: 'Activate ${platform.name.toLowerCase().capitalizeFirst()}',
       content: 'Fill in your contact details for activation.',
       icon: Icons.rocket_launch_outlined,
       actionsBuilder: (dialogContext) {

@@ -27,6 +27,7 @@ void main() async {
       child: LogistixApp(
         appRouter: appRouter,
         getAppBloc: injector.get<AppBloc>,
+        graphQLService: injector.get<GraphQLService>(),
       ),
     ),
   );
@@ -34,24 +35,44 @@ void main() async {
   FlutterNativeSplash.remove();
 }
 
-class LogistixApp extends StatelessWidget {
+class LogistixApp extends StatefulWidget {
   const LogistixApp({
     required this.appRouter,
     required this.getAppBloc,
+    required this.graphQLService,
     super.key,
   });
 
   final ValueGetter<AppBloc> getAppBloc;
   final GoRouter appRouter;
+  final GraphQLService graphQLService;
+
+  @override
+  State<LogistixApp> createState() => _LogistixAppState();
+}
+
+class _LogistixAppState extends State<LogistixApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    widget.graphQLService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     void redirect(AppState state) {
       state.whenOrNull(
-        unauthenticated: () => appRouter.go(ModuleRoutePaths.auth),
-        needsOnboarding: (_) => appRouter.go(ModuleRoutePaths.onboarding),
+        unauthenticated: () => widget.appRouter.go(ModuleRoutePaths.auth),
+        needsOnboarding: (_) => widget.appRouter.go(ModuleRoutePaths.onboarding),
         authenticated: (_, role) {
-          appRouter.go(switch (role) {
+          widget.appRouter.go(switch (role) {
             UserRole.RIDER => ModuleRoutePaths.rider,
             UserRole.DISPATCHER => ModuleRoutePaths.dispatcher,
             UserRole.CUSTOMER => ModuleRoutePaths.auth,
@@ -61,13 +82,13 @@ class LogistixApp extends StatelessWidget {
     }
 
     return BlocProvider(
-      create: (_) => getAppBloc()..add(const AppEvent.initialize()),
+      create: (_) => widget.getAppBloc()..add(const AppEvent.initialize()),
       child: BlocListener<AppBloc, AppState>(
         listener: (context, state) => redirect(state),
         child: MaterialApp.router(
           title: EnvConfig.instance.appName,
           theme: LogistixTheme.lightTheme,
-          routerConfig: appRouter,
+          routerConfig: widget.appRouter,
         ),
       ),
     );

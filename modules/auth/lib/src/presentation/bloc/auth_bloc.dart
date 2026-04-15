@@ -40,7 +40,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthLoginLoading());
     final result = await _authRepository.login(email, password);
 
-    result.map<FutureOr<void>>(
+    await result.map<FutureOr<void>>(
       (error) {
         emit(
           AuthLoginError(
@@ -70,7 +70,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       name: name,
     );
 
-    result.map<FutureOr<void>>(
+    await result.map<FutureOr<void>>(
       (error) {
         emit(
           AuthSignUpError(

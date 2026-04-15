@@ -90,54 +90,92 @@ class _OrderLoadedContent extends StatelessWidget {
                 const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Delivery Details'),
                 const SizedBox(height: BootstrapSpacing.md),
-                if (order.pickupAddress?.isNotEmpty ?? false) ...[
-                  BootstrapInfoTile(
-                    icon: Icons.trip_origin_rounded,
-                    iconColor: LogistixColors.primary,
-                    title: 'Pickup',
-                    value: order.pickupAddress!,
-                    onTap: order.hasPickupPosition
-                        ? () => LogistixLauncher.openMap(
-                            order.pickupLat!,
-                            order.pickupLng!,
-                          )
-                        : null,
-                  ),
-                  if (order.pickupPhone?.isNotEmpty ?? false)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 32),
-                      child: BootstrapInfoTile(
-                        icon: Icons.phone_rounded,
-                        iconColor: LogistixColors.primary,
-                        title: 'Call Sender',
-                        value: order.pickupPhone!,
-                        onTap: () =>
-                            LogistixLauncher.callNumber(order.pickupPhone!),
+                
+                // Main Details Card
+                Container(
+                  decoration: BoxDecoration(
+                    color: LogistixColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: LogistixColors.black.withValues(alpha: 0.03)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: LogistixColors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                  const SizedBox(height: 12),
-                ],
-                BootstrapInfoTile(
-                  icon: Icons.flag_rounded,
-                  iconColor: Colors.orange,
-                  title: 'Drop-off',
-                  value: order.dropOffAddress,
-                  isBold: true,
-                  onTap: order.hasDropOffPosition
-                      ? () => LogistixLauncher.openMap(
-                          order.dropOffLat!,
-                          order.dropOffLng!,
-                        )
-                      : null,
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(BootstrapSpacing.md),
+                  child: Column(
+                    children: [
+                      if (order.pickupAddress?.isNotEmpty ?? false) ...[
+                        BootstrapInfoTile(
+                          icon: Icons.trip_origin_rounded,
+                          iconColor: LogistixColors.primary,
+                          title: 'Pickup',
+                          value: order.pickupAddress!,
+                          onTap: order.hasPickupPosition
+                              ? () => LogistixLauncher.openMap(order.pickupLat!, order.pickupLng!)
+                              : null,
+                        ),
+                        if (order.pickupPhone?.isNotEmpty ?? false)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 32, top: 4),
+                            child: BootstrapInfoTile(
+                              icon: Icons.phone_rounded,
+                              iconColor: LogistixColors.primary,
+                              title: 'Call Sender',
+                              value: order.pickupPhone!,
+                              onTap: () => LogistixLauncher.callNumber(order.pickupPhone!),
+                            ),
+                          ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
+                          child: Divider(height: 1, color: LogistixColors.background),
+                        ),
+                      ],
+                      BootstrapInfoTile(
+                        icon: Icons.flag_rounded,
+                        iconColor: LogistixColors.orange,
+                        title: 'Drop-off',
+                        value: order.dropOffAddress,
+                        isBold: true,
+                        onTap: order.hasDropOffPosition
+                            ? () => LogistixLauncher.openMap(order.dropOffLat!, order.dropOffLng!)
+                            : null,
+                      ),
+                      if (order.description != null && order.description!.isNotEmpty) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
+                          child: Divider(height: 1, color: LogistixColors.background),
+                        ),
+                        BootstrapInfoTile(
+                          icon: Icons.description_rounded,
+                          iconColor: LogistixColors.textTertiary,
+                          title: 'Description',
+                          value: order.description!,
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                if (order.description != null &&
-                    order.description!.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  BootstrapInfoTile(
-                    icon: Icons.description_rounded,
-                    iconColor: LogistixColors.textTertiary,
-                    title: 'Description',
-                    value: order.description!,
+
+                if (order.scheduledAt != null) ...[
+                  const SizedBox(height: BootstrapSpacing.md),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: LogistixColors.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: LogistixColors.primary.withValues(alpha: 0.1)),
+                    ),
+                    padding: const EdgeInsets.all(BootstrapSpacing.md),
+                    child: BootstrapInfoTile(
+                      icon: Icons.calendar_today_rounded,
+                      iconColor: LogistixColors.primary,
+                      title: 'Scheduled Delivery',
+                      value: order.scheduledAt!.toScheduleString(),
+                      isBold: true,
+                    ),
                   ),
                 ],
               ],
@@ -365,10 +403,10 @@ class _BottomActionCta extends StatelessWidget {
         vertical: BootstrapSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: LogistixColors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: LogistixColors.black.withValues(alpha: 0.08),
             blurRadius: 15,
             offset: const Offset(0, -4),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// DispatcherPage acts as the Shell for the dispatcher module's tabs.
 /// It uses a BottomNavigationBar with StatefulNavigationShell to preserve tab state.
@@ -10,23 +11,20 @@ class DispatcherPage extends StatelessWidget {
 
   static const List<NavigationDestination> _navItems = [
     NavigationDestination(
-      icon: Icon(Icons.list_alt_rounded),
-      selectedIcon: Icon(Icons.list_alt_rounded),
-      label: 'Orders',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.message_outlined),
-      selectedIcon: Icon(Icons.message),
+      icon: Icon(LucideIcons.messageSquare, size: 21),
+      selectedIcon: Icon(LucideIcons.messageSquare, size: 23),
       label: 'Messages',
     ),
     NavigationDestination(
-      icon: Icon(Icons.people_outline_rounded),
-      selectedIcon: Icon(Icons.people_rounded),
+      icon: Icon(LucideIcons.package),
+      label: 'Orders',
+    ),
+    NavigationDestination(
+      icon: Icon(LucideIcons.users),
       label: 'Riders',
     ),
     NavigationDestination(
-      icon: Icon(Icons.more_horiz_rounded),
-      selectedIcon: Icon(Icons.more_horiz_rounded),
+      icon: Icon(Icons.more_horiz),
       label: 'More',
     ),
   ];

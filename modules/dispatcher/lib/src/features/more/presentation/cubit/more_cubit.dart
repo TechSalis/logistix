@@ -111,6 +111,7 @@ class MoreCubit extends Cubit<MoreState> {
           startDate: params.startDate,
           endDate: params.endDate,
           riderId: params.riderId,
+          statuses: params.statuses,
         );
         final csv = result.throwOrReturn();
         return _saveToTempFile(csv, 'analytics_export');
@@ -183,8 +184,9 @@ class MoreCubit extends Cubit<MoreState> {
 }
 
 class ExportParams {
-  ExportParams({this.startDate, this.endDate, this.riderId});
+  ExportParams({this.startDate, this.endDate, this.riderId, this.statuses});
   final DateTime? startDate;
   final DateTime? endDate;
   final String? riderId;
+  final List<OrderStatus>? statuses;
 }

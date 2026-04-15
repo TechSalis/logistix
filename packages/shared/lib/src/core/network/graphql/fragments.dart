@@ -20,6 +20,7 @@ class GqlFragments {
     trackingCode
     status
     deliveredAt
+    scheduledAt
     createdAt
     updatedAt
   ''';
@@ -29,7 +30,6 @@ class GqlFragments {
     email
     fullName
     phoneNumber
-    fcmToken
     companyId
     status
     lastLat
@@ -54,16 +54,6 @@ class GqlFragments {
     totalOrders
     pendingOrders
     deliveredOrders
-  ''';
-
-  static const String customerFields = '''
-    id
-    email
-    fullName
-    phoneNumber
-    fcmToken
-    createdAt
-    updatedAt
   ''';
 
   static const String companyFields = '''

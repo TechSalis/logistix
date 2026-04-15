@@ -51,17 +51,20 @@ class ChatSessionManager extends SessionComponent {
           );
         }
       },
-      onSync: () async {
-        final lastSync = await _database.getLastSyncTime(
-          ChatSyncKey.chatLastSync,
-        );
-        await _syncUseCase(since: lastSync?.millisecondsSinceEpoch.toDouble());
-      },
+      onSync: sync,
     );
   }
 
   @override
-  Future<void> stop() {
-    return _typingController.close();
+  Future<void> sync() async {
+    final lastSync = await _database.getLastSyncTime(
+      SyncKeys.chatLastSync,
+    );
+    await _syncUseCase(since: lastSync?.millisecondsSinceEpoch.toDouble());
+  }
+
+  @override
+  Future<void> stop() async {
+    await _typingController.close();
   }
 }

@@ -81,13 +81,11 @@ class GraphQLService {
     client = GraphQLClient(
       link: link,
       cache: GraphQLCache(store: HiveStore()),
-      queryRequestTimeout: const Duration(seconds: 20),
+      queryRequestTimeout: const Duration(seconds: 30),
     );
   }
 
-  void dispose() {
-    _wsLink?.dispose();
-  }
+  void dispose() => _wsLink?.dispose();
 
   Stream<QueryResult<T>> subscribe<T>(
     String document, {
@@ -327,33 +325,59 @@ class GraphQLService {
   }
 
   static Future<OAuthToken?> defaultRefreshToken(
-    OAuthToken? currentToken,
+    OAuthToken currentToken,
     GraphQLClient _,
   ) async {
-    final refreshToken = currentToken?.refreshToken;
+    final refreshToken = currentToken.refreshToken;
     if (refreshToken == null) return null;
+    
     final refreshClient = GraphQLClient(
-      link: HttpLink(EnvConfig.instance.graphqlUrl),
+      link: HttpLink(
+        EnvConfig.instance.graphqlUrl,
+        defaultHeaders: {'x-client-key': EnvConfig.instance.clientKey},
+      ),
       cache: GraphQLCache(),
     );
-    final result = await refreshClient.mutate<Map<String, dynamic>>(
-      MutationOptions<Map<String, dynamic>>(
-        document: gql(r'''
-                  mutation RefreshToken($token: String!) {
-                    refreshToken(token: $token) {
-                      access_token
-                      refresh_token
-                      token_type
-                      expires_in
+    
+    try {
+      final result = await refreshClient.mutate<Map<String, dynamic>>(
+        MutationOptions<Map<String, dynamic>>(
+          document: gql(r'''
+                    mutation RefreshToken($token: String!) {
+                      refreshToken(token: $token) {
+                        access_token
+                        refresh_token
+                        token_type
+                        expires_in
+                      }
                     }
-                  }
-                '''),
-        variables: {'token': refreshToken},
-      ),
-    );
-    if (result.hasException) throw result.exception!;
-    final data = result.data?['refreshToken'];
-    if (data == null) return null;
-    return const OAuthTokenCodec().decode(data as Map<String, dynamic>);
+                  '''),
+          variables: {'token': refreshToken},
+        ),
+      );
+      
+      if (result.hasException) {
+        final exception = result.exception!;
+        final graphQLErrors = exception.graphqlErrors;
+        
+        // Check if refresh token is expired or invalid
+        if (graphQLErrors.isNotEmpty) {
+          final code = graphQLErrors.first.extensions?['code']?.toString();
+          if (code == 'UNAUTHORIZED' || code == 'INVALID_REFRESH_TOKEN') {
+            return null; // Signal that refresh failed and user should be logged out
+          }
+        }
+        
+        throw exception;
+      }
+      
+      final data = result.data?['refreshToken'];
+      if (data == null) return null;
+      
+      return const OAuthTokenCodec().decode(data as Map<String, dynamic>);
+    } catch (e) {
+      // Log the error but don't rethrow - return null to trigger logout
+      return null;
+    }
   }
 }

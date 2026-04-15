@@ -96,12 +96,6 @@ class RiderDetailsPage extends StatelessWidget {
                   label: hasLocation ? 'View on Map' : 'Location Unavailable',
                   icon: Icons.map_rounded,
                 ),
-                if (rider.activeOrder != null) ...[
-                  const SizedBox(height: BootstrapSpacing.xl),
-                  const _SectionTitle(title: 'Current Delivery'),
-                  const SizedBox(height: BootstrapSpacing.sm),
-                  _ClickableOrderCard(order: rider.activeOrder!),
-                ],
                 const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Contact Information'),
                 const SizedBox(height: BootstrapSpacing.sm),
@@ -110,6 +104,8 @@ class RiderDetailsPage extends StatelessWidget {
                   const SizedBox(height: BootstrapSpacing.xxl),
                   _ApprovalActions(rider: rider),
                 ],
+                const SizedBox(height: BootstrapSpacing.xl),
+                _ActiveOrdersSection(riderId: rider.id),
                 const SizedBox(height: BootstrapSpacing.xxxl),
               ],
             ),
@@ -333,104 +329,6 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-class _ClickableOrderCard extends StatelessWidget {
-  const _ClickableOrderCard({required this.order});
-  final Order order;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedScaleTap(
-      onTap: () => context.push(DispatcherRoutes.orderDetails(order.id)),
-      child: Container(
-        padding: const EdgeInsets.all(BootstrapSpacing.lg),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(BootstrapRadii.card),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-          border: Border.all(
-            color: LogistixColors.primary.withValues(alpha: 0.05),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(BootstrapSpacing.sm),
-              decoration: BoxDecoration(
-                color: LogistixColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(BootstrapRadii.xl),
-              ),
-              child: const Icon(
-                Icons.local_shipping_rounded,
-                color: LogistixColors.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: BootstrapSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Order #${order.trackingNumber}',
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: BootstrapSpacing.xxs),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: BootstrapSpacing.xs,
-                          vertical: BootstrapSpacing.xxs,
-                        ),
-                        decoration: BoxDecoration(
-                          color: order.status.color.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          order.status.label,
-                          style: context.textTheme.labelSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: order.status.color,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: BootstrapSpacing.xs),
-                      Expanded(
-                        child: Text(
-                          order.dropOffAddress,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: LogistixColors.textSecondary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: BootstrapSpacing.sm),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: LogistixColors.textTertiary.withValues(alpha: 0.5),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ContactCard extends StatelessWidget {
   const _ContactCard({required this.rider});
 
@@ -492,6 +390,64 @@ class _ApprovalActions extends StatelessWidget {
                     : () => context.read<RidersCubit>().acceptRider(rider.id),
                 label: 'Accept Rider',
                 isLoading: isAccepting,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ActiveOrdersSection extends StatelessWidget {
+  const _ActiveOrdersSection({required this.riderId});
+  final String riderId;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<List<Order>>(
+      stream: context.read<OrderDao>().watchOrders(
+        riderId: riderId,
+        statuses: [OrderStatus.ASSIGNED, OrderStatus.EN_ROUTE],
+        limit: 3,
+      ),
+      builder: (context, snapshot) {
+        final orders = snapshot.data ?? [];
+
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            orders.isEmpty) {
+          return const Center(child: BootstrapInlineLoader());
+        }
+
+        if (orders.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _SectionTitle(title: 'Active Orders'),
+                BootstrapButton(
+                  type: BootstrapButtonType.text,
+                  onPressed: () {
+                    context.go(DispatcherRoutes.orders);
+                  },
+                  label: 'View All',
+                ),
+              ],
+            ),
+            const SizedBox(height: BootstrapSpacing.sm),
+            ...orders.map(
+              (order) => Padding(
+                padding: const EdgeInsets.only(bottom: BootstrapSpacing.md),
+                child: OrderPreviewCard(
+                  order: order,
+                  onTap: () =>
+                      context.push(DispatcherRoutes.orderDetails(order.id)),
+                ),
               ),
             ),
           ],

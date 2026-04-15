@@ -25,7 +25,7 @@ class RiderRepositoryImpl implements RiderRepository {
   }) {
     return _riderDao.watchRiders(
       searchQuery: searchQuery,
-      statuses: statuses?.map((e) => e.value).toList(),
+      statuses: statuses?.map((e) => e.name).toList(),
       limit: limit,
       afterFullName: afterFullName,
       afterId: afterId,
@@ -43,22 +43,12 @@ class RiderRepositoryImpl implements RiderRepository {
     try {
       final riders = await _riderDao.getRiders(
         searchQuery: searchQuery,
-        statuses: statuses?.map((e) => e.value).toList(),
+        statuses: statuses?.map((e) => e.name).toList(),
         limit: limit,
         afterFullName: afterFullName,
         afterId: afterId,
       );
       return Result.data(riders);
-    } catch (e) {
-      return Result.error(AppError(message: e.toString()));
-    }
-  }
-
-  @override
-  Future<Result<AppError, Rider?>> getRider(String riderId) async {
-    try {
-      final rider = await _riderDao.getRider(riderId);
-      return Result.data(rider);
     } catch (e) {
       return Result.error(AppError(message: e.toString()));
     }
@@ -81,6 +71,16 @@ class RiderRepositoryImpl implements RiderRepository {
       await _dataSource.rejectRider(riderId);
       await _riderDao.deleteRider(riderId);
       return const Result.data(null);
+    } catch (e) {
+      return Result.error(AppError(message: e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<AppError, List<Order>>> getRiderOrders(String riderId, {int limit = 10, int offset = 0}) async {
+    try {
+      final dtos = await _dataSource.getRiderOrders(riderId, limit: limit, offset: offset);
+      return Result.data(dtos.map((e) => e.toEntity()).toList());
     } catch (e) {
       return Result.error(AppError(message: e.toString()));
     }

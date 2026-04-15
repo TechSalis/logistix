@@ -1,4 +1,3 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onboarding/src/presentation/pages/complete_onboarding_page.dart';
 import 'package:onboarding/src/presentation/pages/dispatcher_onboarding_page.dart';
@@ -32,7 +31,6 @@ abstract class OnboardingRoutes {
 }
 
 /// Onboarding module route configuration
-@internal
 List<RouteBase> get onboardingRoutes => [
   GoRoute(
     path: _OnboardingPaths.roleSelection,

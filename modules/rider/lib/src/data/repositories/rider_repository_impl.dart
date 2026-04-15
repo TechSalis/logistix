@@ -83,9 +83,7 @@ class RiderRepositoryImpl implements RiderRepository {
     // Optimistic local update
     if (original != null) {
       await _orderDao.upsertOrder(
-        original.toDriftCompanion().copyWith(
-              status: Value(status.value),
-            ),
+        original.toDriftCompanion().copyWith(status: Value(status.name)),
       );
     }
 
@@ -93,7 +91,7 @@ class RiderRepositoryImpl implements RiderRepository {
       try {
         final request = UpdateOrderStatusRequest(
           orderId: orderId,
-          status: status.value,
+          status: status.name,
         );
         final dto = await _remoteDataSource.updateOrderStatus(request);
 

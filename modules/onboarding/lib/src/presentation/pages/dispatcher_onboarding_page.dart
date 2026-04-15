@@ -39,13 +39,16 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
     }
 
     context.read<OnboardingBloc>().add(
-          OnboardingEvent.saveDispatcherOnboarding(
-            companyName: _companyNameController.text,
-            phoneNumber: _phoneNumber?.completeNumber ?? '',
-            address: _selectedAddress!.address,
-            cac: _cacController.text,
-          ),
-        );
+      OnboardingEvent.saveDispatcherOnboarding(
+        companyName: _companyNameController.text,
+        phoneNumber: _phoneNumber?.completeNumber ?? '',
+        address: _selectedAddress!.address,
+        cac: _cacController.text,
+      ),
+    );
+
+    // Navigate to complete onboarding page
+    context.push(OnboardingRoutes.completeOnboarding);
   }
 
   @override
@@ -118,7 +121,9 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       },
                       suffixProps: const DropdownSuffixProps(
                         clearButtonProps: ClearButtonProps(isVisible: true),
-                        dropdownButtonProps: DropdownButtonProps(isVisible: false),
+                        dropdownButtonProps: DropdownButtonProps(
+                          isVisible: false,
+                        ),
                       ),
                       decoratorProps: const DropDownDecoratorProps(
                         decoration: InputDecoration(
@@ -129,8 +134,9 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       ),
                       popupProps: PopupProps.menu(
                         showSearchBox: true,
-                        loadingBuilder: (_, __) =>
-                            const BootstrapLoadingIndicator(),
+                        loadingBuilder: (_, __) {
+                          return const BootstrapLoadingIndicator();
+                        },
                         searchFieldProps: const TextFieldProps(
                           autofocus: true,
                           autocorrect: false,
@@ -140,8 +146,11 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                           ),
                         ),
                       ),
-                      validator: (address) =>
-                          address == null ? 'Please select your address' : null,
+                      validator: (address) {
+                        return address == null
+                            ? 'Please select your address'
+                            : null;
+                      },
                     ),
                     const SizedBox(height: BootstrapSpacing.lg),
                     BootstrapTextField(

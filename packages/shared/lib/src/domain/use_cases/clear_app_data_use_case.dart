@@ -1,3 +1,4 @@
+// ignore_for_file: experimental_member_use
 import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/definitions/usecase.dart';
 import 'package:bootstrap/interfaces/http/token_store.dart';

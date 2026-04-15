@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -10,6 +11,8 @@ part 'database.g.dart';
 
 // ── Tables ─────────────────────────────────────────────────────────
 
+@TableIndex(name: 'idx_orders_status_date', columns: {#status, #createdAt})
+@TableIndex(name: 'idx_orders_priority_date', columns: {#isPriority, #createdAt})
 @DataClassName('OrderRow')
 class Orders extends Table {
   TextColumn get id => text()();
@@ -49,7 +52,7 @@ class Dispatchers extends Table {
   TextColumn get fullName => text()();
   TextColumn get companyId => text().nullable()();
   TextColumn get phoneNumber => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('DISPATCHER'))();
+  TextColumn get role => text().withDefault(Constant(UserRole.DISPATCHER.name))();
   BoolColumn get isOnboarded => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().nullable()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
@@ -65,10 +68,9 @@ class Riders extends Table {
   TextColumn get fullName => text()();
   TextColumn get companyId => text()();
   TextColumn get status => text()(); // OFFLINE, ONLINE, BUSY
-  TextColumn get permitStatus => text().withDefault(const Constant('PENDING'))();
+  TextColumn get permitStatus => text().withDefault(Constant(PermitStatus.PENDING.name))();
   TextColumn get phoneNumber => text().nullable()();
-  TextColumn get fcmToken => text().nullable()();
-  TextColumn get role => text().withDefault(const Constant('RIDER'))();
+  TextColumn get role => text().withDefault(Constant(UserRole.RIDER.name))();
   BoolColumn get isOnboarded => boolean().withDefault(const Constant(true))();
   RealColumn get lastLat => real().nullable()();
   RealColumn get lastLng => real().nullable()();
@@ -92,6 +94,7 @@ class SyncMetadata extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+@TableIndex(name: 'idx_conversations_org_feed', columns: {#companyId, #lastMessageAt})
 @DataClassName('ConversationRow')
 class Conversations extends Table {
   TextColumn get id => text()();
@@ -113,6 +116,7 @@ class Conversations extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_messages_conversation_feed', columns: {#conversationId, #isDeleted, #createdAt})
 @DataClassName('ChatMessageRow')
 class ChatMessages extends Table {
   TextColumn get id => text()();
@@ -126,7 +130,7 @@ class ChatMessages extends Table {
   TextColumn get staleParentId => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   TextColumn get externalId => text().nullable()();
-  TextColumn get status => text().withDefault(const Constant('SENT'))();
+  TextColumn get status => text().withDefault(Constant(MessageStatus.SENT.name))();
   DateTimeColumn get createdAt => dateTime()();
 
   @override

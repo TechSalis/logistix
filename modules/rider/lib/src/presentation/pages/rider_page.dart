@@ -2,6 +2,7 @@ import 'package:bootstrap/services/run_once.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
 import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
@@ -22,18 +23,18 @@ class RiderPage extends StatefulWidget {
 class _RiderPageState extends State<RiderPage> {
   static const List<NavigationDestination> _navItems = [
     NavigationDestination(
-      icon: Icon(Icons.map_outlined),
-      selectedIcon: Icon(Icons.map_rounded),
+      icon: Icon(LucideIcons.map),
+      selectedIcon: Icon(LucideIcons.map),
       label: 'Home',
     ),
     NavigationDestination(
-      icon: Icon(Icons.list_alt_rounded),
-      selectedIcon: Icon(Icons.list_alt_rounded),
+      icon: Icon(LucideIcons.package),
+      selectedIcon: Icon(LucideIcons.package),
       label: 'Orders',
     ),
     NavigationDestination(
-      icon: Icon(Icons.person_outline_rounded),
-      selectedIcon: Icon(Icons.person_rounded),
+      icon: Icon(LucideIcons.user),
+      selectedIcon: Icon(LucideIcons.user),
       label: 'Profile',
     ),
   ];
@@ -54,8 +55,7 @@ class _RiderPageState extends State<RiderPage> {
     riderBloc.add(RiderEvent.observeProfile(riderId));
 
     // Start session
-    _sessionUseCase = context.read<RiderSessionManager>()
-      ..startSession();
+    _sessionUseCase = context.read<RiderSessionManager>()..startSession();
   });
 
   @override
@@ -67,40 +67,22 @@ class _RiderPageState extends State<RiderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MultiBlocListener(
-        listeners: [
-          BlocListener<RiderBloc, RiderState>(
-            listener: (context, state) {
-              state.whenOrNull(
-                loading: (rider) {
-                  if (rider != null && rider.permitStatus == PermitStatus.APPROVED) {
-                    _startSessionIfNeeded(rider.id);
-                  }
-                },
-                loaded: (rider, orders, isLoading, loc) {
-                  if (rider.permitStatus == PermitStatus.APPROVED) {
-                    _startSessionIfNeeded(rider.id);
-                  }
-                },
-              );
+      body: BlocListener<RiderBloc, RiderState>(
+        listener: (context, state) {
+          state.whenOrNull(
+            loading: (rider) {
+              if (rider != null &&
+                  rider.permitStatus == PermitStatus.APPROVED) {
+                _startSessionIfNeeded(rider.id);
+              }
             },
-          ),
-          BlocListener<MapCubit, MapState>(
-            listener: (context, state) {
-              state.whenOrNull(
-                ready: (position) {
-                  riderBloc.state.whenOrNull(
-                    loaded: (rider, orders, isLoading, loc) {
-                      if (rider.permitStatus == PermitStatus.APPROVED) {
-                        _sessionUseCase?.startHeartbeat();
-                      }
-                    },
-                  );
-                },
-              );
+            loaded: (rider, orders, isLoading, loc) {
+              if (rider.permitStatus == PermitStatus.APPROVED) {
+                _startSessionIfNeeded(rider.id);
+              }
             },
-          ),
-        ],
+          );
+        },
         child: BlocBuilder<RiderBloc, RiderState>(
           builder: (context, state) {
             return state.when(
@@ -119,13 +101,14 @@ class _RiderPageState extends State<RiderPage> {
                       label: 'Logout',
                       onPressed: riderBloc.logoutRunner.call,
                       type: BootstrapButtonType.danger,
-                      icon: Icons.logout,
+                      icon: LucideIcons.logOut,
                     ),
                   ],
                 );
               },
               loading: (rider) {
-                if (rider != null && rider.permitStatus != PermitStatus.APPROVED) {
+                if (rider != null &&
+                    rider.permitStatus != PermitStatus.APPROVED) {
                   return RiderLockedPage(
                     onRefresh: () {
                       riderBloc.add(RiderEvent.fetchProfile());

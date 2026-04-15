@@ -14,11 +14,13 @@ dependencies:
   adapters:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap-adapters
-      ref: v0.5.3
+      ref: v0.5.5
+
   bootstrap:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap
-      ref: v0.5.3
+      ref: v0.5.5
+
   logistix_ux:
     path: ../../packages/logistix_ux
   shared:

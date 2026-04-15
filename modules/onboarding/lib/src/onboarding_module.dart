@@ -56,17 +56,7 @@ class OnboardingModule extends Module<RouteBase> {
               create: (context) => AddressCubit(injector.get<PlacesService>()),
             ),
           ],
-          child: BlocListener<OnboardingBloc, OnboardingState>(
-            listener: (context, state) {
-              state.mapOrNull(
-                rider: (_) => context.go(OnboardingRoutes.completeOnboarding),
-                dispatcher: (_) {
-                  context.go(OnboardingRoutes.completeOnboarding);
-                },
-              );
-            },
-            child: ToastServiceWidget(child: child),
-          ),
+          child: ToastServiceWidget(child: child),
         ),
       ),
       routes: [

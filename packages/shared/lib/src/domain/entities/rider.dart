@@ -1,4 +1,4 @@
-import 'package:shared/shared.dart';
+// ignore_for_file: constant_identifier_names
 
 class Rider {
   const Rider({
@@ -8,8 +8,6 @@ class Rider {
     required this.status,
     required this.companyId,
     this.phoneNumber,
-    this.fcmToken,
-    this.activeOrder,
     this.lastLat,
     this.lastLng,
     this.batteryLevel,
@@ -25,8 +23,6 @@ class Rider {
   final RiderStatus status;
   final String companyId;
   final String? phoneNumber;
-  final String? fcmToken;
-  final Order? activeOrder;
   final double? lastLat;
   final double? lastLng;
   final int? batteryLevel;
@@ -42,7 +38,6 @@ class Rider {
     String? companyId,
     RiderStatus? status,
     String? phoneNumber,
-    String? fcmToken,
     double? lastLat,
     double? lastLng,
     int? batteryLevel,
@@ -58,7 +53,6 @@ class Rider {
       companyId: companyId ?? this.companyId,
       status: status ?? this.status,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      fcmToken: fcmToken ?? this.fcmToken,
       lastLat: lastLat ?? this.lastLat,
       lastLng: lastLng ?? this.lastLng,
       batteryLevel: batteryLevel ?? this.batteryLevel,
@@ -75,8 +69,6 @@ enum RiderStatus { ONLINE, BUSY, OFFLINE }
 enum PermitStatus { PENDING, APPROVED, REJECTED }
 
 extension PermitStatusX on PermitStatus {
-  String get value => name;
-  
   static PermitStatus fromString(String status) {
     switch (status.toUpperCase()) {
       case 'APPROVED':
@@ -91,7 +83,6 @@ extension PermitStatusX on PermitStatus {
 }
 
 extension RiderStatusX on RiderStatus {
-  String get value => name;
   String get label {
     switch (this) {
       case RiderStatus.ONLINE:

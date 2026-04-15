@@ -10,6 +10,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     this.appRepo,
     this._clearAppDataUseCase,
     this._authStatusRepository,
+    this._initNotificationsUseCase,
   ) : super(const AppState.initializing()) {
     _authSubscription = _authStatusRepository.session.listen((session) {
       add(AppEvent.sessionStatusChanged(session));
@@ -26,13 +27,27 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final ClearAppDataUseCase _clearAppDataUseCase;
   final AppRepository appRepo;
   final AuthStatusRepository _authStatusRepository;
+  final InitializeNotificationsUseCase _initNotificationsUseCase;
 
   late final StreamSubscription<AuthSession> _authSubscription;
+  StreamSubscription<void>? _notificationSubscription;
 
   @override
   Future<void> close() {
     _authSubscription.cancel();
+    _notificationSubscription?.cancel();
     return super.close();
+  }
+
+  Future<void> _startNotifications() async {
+    await _notificationSubscription?.cancel();
+    final result = await _initNotificationsUseCase();
+    result.when(data: (sub) => _notificationSubscription = sub);
+  }
+
+  void _stopNotifications() {
+    _notificationSubscription?.cancel();
+    _notificationSubscription = null;
   }
 
   Future<void> _onInitialize(Emitter<AppState> emit) async {
@@ -63,6 +78,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   ) async {
     switch (session.status) {
       case AuthStatus.unauthenticated:
+        _stopNotifications();
         await _clearAppDataUseCase();
         emit(const AppState.unauthenticated());
       case AuthStatus.authenticated:
@@ -73,6 +89,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
               role: session.user!.role!,
             ),
           );
+          await _startNotifications();
         }
       case AuthStatus.onboarding:
         if (session.user != null) {

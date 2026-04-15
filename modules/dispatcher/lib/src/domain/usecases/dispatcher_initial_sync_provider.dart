@@ -1,6 +1,7 @@
 import 'package:adapters/adapters.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
+import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usecase.dart';
 import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
@@ -14,11 +15,14 @@ class DispatcherInitialSyncProvider implements InitialSyncProvider {
   DispatcherInitialSyncProvider({
     required LogistixDatabase database,
     required SyncDispatcherDataUseCase syncDispatcherDataUseCase,
+    required SyncChatDataUseCase syncChatDataUseCase,
   }) : _database = database,
-       _syncDispatcherDataUseCase = syncDispatcherDataUseCase;
+       _syncDispatcherDataUseCase = syncDispatcherDataUseCase,
+       _syncChatDataUseCase = syncChatDataUseCase;
 
   final LogistixDatabase _database;
   final SyncDispatcherDataUseCase _syncDispatcherDataUseCase;
+  final SyncChatDataUseCase _syncChatDataUseCase;
 
   @override
   Future<void> performInitialSync() async {
@@ -30,6 +34,12 @@ class DispatcherInitialSyncProvider implements InitialSyncProvider {
 
     try {
       await _syncDispatcherDataUseCase(since: since);
+
+      final chatLastSyncTime = await _database.getLastSyncTime(
+        ChatSyncKey.chatLastSync,
+      );
+      final chatSince = chatLastSyncTime?.millisecondsSinceEpoch.toDouble();
+      await _syncChatDataUseCase(since: chatSince);
     } catch (e, s) {
       appLogger.exception(e, stack: s);
     }

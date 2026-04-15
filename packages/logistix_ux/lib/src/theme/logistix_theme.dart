@@ -1,8 +1,6 @@
-import 'package:bootstrap/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logistix_ux/src/tokens/colors.dart';
-import 'package:logistix_ux/src/typography/text_styles.dart';
+import 'package:logistix_ux/logistix_ux.dart';
 
 class LogistixTheme {
   static ThemeData get lightTheme {
@@ -10,7 +8,7 @@ class LogistixTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       fontFamily: LogistixTextStyles.fontFamily,
-
+      cardColor: LogistixColors.background,
       // Color Scheme
       colorScheme: const ColorScheme.light(
         primary: LogistixColors.primary,
@@ -23,8 +21,8 @@ class LogistixTheme {
         surfaceContainerHighest: LogistixColors.neutral100,
         outline: LogistixColors.border,
         outlineVariant: LogistixColors.borderStrong,
-        shadow: Colors.black,
-        scrim: Colors.black,
+        shadow: LogistixColors.black,
+        scrim: LogistixColors.black,
       ),
 
       scaffoldBackgroundColor: LogistixColors.background,
@@ -33,9 +31,9 @@ class LogistixTheme {
         elevation: 0,
         // scrolledUnderElevation: 1,
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: LogistixColors.transparent,
         foregroundColor: LogistixColors.text,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: LogistixColors.transparent,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         actionsPadding: const EdgeInsets.symmetric(
           horizontal: BootstrapSpacing.md,
@@ -52,7 +50,7 @@ class LogistixTheme {
       cardTheme: CardThemeData(
         elevation: 0,
         color: LogistixColors.surface,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: LogistixColors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(BootstrapRadii.card),
           side: const BorderSide(color: LogistixColors.border, width: 1.2),
@@ -167,10 +165,10 @@ class LogistixTheme {
       dialogTheme: DialogThemeData(
         elevation: 0,
         backgroundColor: LogistixColors.surface,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: LogistixColors.transparent,
         insetPadding: const EdgeInsets.all(20),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(BootstrapRadii.modal),
+          borderRadius: BorderRadius.circular(BootstrapRadii.dialog),
         ),
       ),
 
@@ -178,7 +176,7 @@ class LogistixTheme {
       bottomSheetTheme: const BottomSheetThemeData(
         elevation: 0,
         backgroundColor: LogistixColors.surface,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: LogistixColors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(BootstrapRadii.xxl),

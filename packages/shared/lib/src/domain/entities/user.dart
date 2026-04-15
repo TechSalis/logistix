@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'package:shared/shared.dart';
 
 class User {
@@ -12,7 +13,6 @@ class User {
     this.riderProfile,
     this.companyProfile,
     this.sessionId,
-    this.fcmToken,
     this.createdAt,
     this.updatedAt,
   });
@@ -27,7 +27,6 @@ class User {
   final Rider? riderProfile;
   final Company? companyProfile;
   final String? sessionId;
-  final String? fcmToken;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -42,7 +41,6 @@ class User {
     Rider? riderProfile,
     Company? companyProfile,
     String? sessionId,
-    String? fcmToken,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -57,7 +55,6 @@ class User {
       riderProfile: riderProfile ?? this.riderProfile,
       companyProfile: companyProfile ?? this.companyProfile,
       sessionId: sessionId ?? this.sessionId,
-      fcmToken: fcmToken ?? this.fcmToken,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -67,16 +64,7 @@ class User {
 enum UserRole { RIDER, DISPATCHER, CUSTOMER }
 
 extension UserRoleX on UserRole {
-  String get value => name;
-
-  static UserRole? fromString(String? role) {
-    if (role == null) return null;
-    try {
-      return UserRole.values.firstWhere(
-        (e) => e.name == role.toUpperCase(),
-      );
-    } catch (e) {
-      return null;
-    }
+  static UserRole fromString(String role) {
+    return UserRole.values.firstWhere((e) => e.name == role.toUpperCase());
   }
 }

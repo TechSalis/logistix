@@ -3,7 +3,7 @@ import 'package:logistix_ux/logistix_ux.dart';
 
 abstract class LogistixDecorations {
   static BoxDecoration card({
-    Color color = Colors.white,
+    Color color = LogistixColors.white,
     double? radius,
     Color? borderColor,
     bool showShadow = true,
@@ -18,7 +18,7 @@ abstract class LogistixDecorations {
       boxShadow: [
         if (showShadow)
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: LogistixColors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),

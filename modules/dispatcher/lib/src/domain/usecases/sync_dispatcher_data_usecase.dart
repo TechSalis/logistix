@@ -1,7 +1,7 @@
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:dispatcher/src/data/dtos/dispatcher_sync_request.dart';
-import 'package:dispatcher/src/features/chat/data/mappers/chat_mapper.dart';
+
 import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
@@ -16,20 +16,17 @@ class SyncDispatcherDataUseCase {
     required RiderDao riderDao,
     required StreamableObjectStore<DispatcherMetricsDto> metricsStore,
     required LogistixDatabase database,
-    required UserStore userStore,
   }) : _remoteDataSource = remoteDataSource,
        _orderDao = orderDao,
        _riderDao = riderDao,
        _metricsStore = metricsStore,
-       _database = database,
-       _userStore = userStore;
+       _database = database;
 
   final DispatcherSessionRemoteDataSource _remoteDataSource;
   final OrderDao _orderDao;
   final RiderDao _riderDao;
   final StreamableObjectStore<DispatcherMetricsDto> _metricsStore;
   final LogistixDatabase _database;
-  final UserStore _userStore;
 
   Future<void> call({double? since, int limit = 200}) async {
     var offset = 0;

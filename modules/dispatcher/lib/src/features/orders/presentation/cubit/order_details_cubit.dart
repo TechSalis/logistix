@@ -11,8 +11,7 @@ import 'package:shared/shared.dart';
 part 'order_details_state.dart';
 
 class OrderDetailsCubit extends Cubit<OrderDetailsState> {
-  OrderDetailsCubit(this._orderRepository)
-    : super(const OrderDetailsInitial());
+  OrderDetailsCubit(this._orderRepository) : super(const OrderDetailsInitial());
 
   final OrderRepository _orderRepository;
 
@@ -36,6 +35,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
     _orderSubscription?.cancel();
     _orderSubscription = _orderRepository.watchOrder(id).listen((order) {
       if (isClosed) return;
+
       if (order != null) {
         emit(OrderDetailsLoaded(order));
       } else if (state is! OrderDetailsLoaded) {
@@ -46,13 +46,21 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
 
   Future<void> shareOrder(Order order) async {
     final trackingLink = LogistixTracking.generateLink(
-      trackingNumber: order.trackingNumber,
-      trackingCode: order.trackingCode ?? '',
+      order.trackingNumber,
+      trackingCode: order.trackingCode,
     );
 
     final trackingText =
-        '📦 Track Your Order: #${order.trackingNumber}\n'
-        'Link: $trackingLink';
+        '📦 Order #${order.trackingNumber}\n'
+        'Status: ${order.status.label}\n'
+        '${order.description != null ? 'Description: ${order.description}\n' : ''}'
+        'Drop-off: ${order.dropOffAddress}\n'
+        '${order.pickupAddress != null ? 'Pickup: ${order.pickupAddress}\n' : ''}'
+        '${order.dropOffPhone != null ? 'Contact: ${order.dropOffPhone}\n' : ''}'
+        '${order.rider != null ? 'Rider: ${order.rider!.fullName}\n' : ''}'
+        '${order.codAmount != null ? 'COD: \$${order.codAmount!.toStringAsFixed(2)}\n' : ''}'
+        '${order.isPriority ? '⚡ Priority Order\n' : ''}'
+        '\n🔗 Track: $trackingLink';
 
     await SharePlus.instance.share(
       ShareParams(
@@ -123,7 +131,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
     result.throwOrReturn();
   }
 
-  Future<void> openMap(double lat, double lng) async {
-    await LogistixLauncher.openMap(lat, lng);
+  Future<void> openMap(double lat, double lng) {
+    return LogistixLauncher.openMap(lat, lng);
   }
 }

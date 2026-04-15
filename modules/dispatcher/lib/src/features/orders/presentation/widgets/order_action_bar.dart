@@ -4,6 +4,7 @@ import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/features/orders/presentation/cubit/order_details_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
 class OrderActionBar extends StatelessWidget {
@@ -27,7 +28,8 @@ class OrderActionBar extends StatelessWidget {
             Expanded(flex: 3, child: _MarkDeliveredButton()),
           ],
         );
-      default:
+      case OrderStatus.DELIVERED:
+      case OrderStatus.CANCELLED:
         actionButton = null;
     }
 

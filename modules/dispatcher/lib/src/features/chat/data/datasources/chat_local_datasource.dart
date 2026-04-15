@@ -19,10 +19,27 @@ class ChatLocalDataSource {
 
   // ── Conversations ────────────────────────────────────────────────
 
-  Stream<List<ConversationDto>> watchConversations() {
+  Stream<List<ConversationDto>> watchConversations({int limit = 50}) {
     return chatDao
-        .watchConversationsByCompany(companyId)
+        .watchConversationsByCompany(companyId, limit: limit)
         .map((entities) => entities.map((e) => e.toDto()).toList());
+  }
+
+  Future<List<ConversationDto>> getConversationsPaginated({
+    required int offset,
+    required int limit,
+  }) async {
+    final entities = await chatDao.getConversationsPaginated(
+      companyId: companyId,
+      offset: offset,
+      limit: limit,
+    );
+    return entities.map((e) => e.toDto()).toList();
+  }
+
+  Future<ConversationDto?> getConversationById(String conversationId) async {
+    final entity = await chatDao.getConversationById(conversationId);
+    return entity?.toDto();
   }
 
   Future<void> cacheConversations(List<ConversationDto> dtos) async {

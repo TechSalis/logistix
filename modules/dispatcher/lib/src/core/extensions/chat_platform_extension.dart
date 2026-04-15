@@ -5,8 +5,8 @@ import 'package:shared/shared.dart';
 /// Centralised mapping from [ChatPlatform] to display name and icon widget.
 ///
 /// Use these everywhere instead of duplicating switch-cases:
-///   • [ChatPlatform.displayName]  → human-readable label
-///   • [ChatPlatform.icon()]        → SVG icon widget (sized by caller)
+///   • `displayName`  → human-readable label
+///   • `icon()`        → SVG icon widget (sized by caller)
 extension ChatPlatformX on ChatPlatform {
   /// Human-readable label, e.g. "WhatsApp", "Facebook".
   String get displayName {

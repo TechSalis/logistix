@@ -16,7 +16,6 @@ class UserDto {
     this.riderProfile,
     this.companyProfile,
     this.sessionId,
-    this.fcmToken,
     this.createdAt,
     this.updatedAt,
   });
@@ -37,7 +36,6 @@ class UserDto {
           ? CompanyDto.fromJson(json['companyProfile'] as Map<String, dynamic>)
           : null,
       sessionId: json['sessionId'] as String?,
-      fcmToken: json['fcmToken'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -63,7 +61,6 @@ class UserDto {
           ? CompanyDto.fromEntity(user.companyProfile!)
           : null,
       sessionId: user.sessionId,
-      fcmToken: user.fcmToken,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     );
@@ -81,7 +78,6 @@ class UserDto {
   final RiderDto? riderProfile;
   final CompanyDto? companyProfile;
   final String? sessionId;
-  final String? fcmToken;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -97,7 +93,6 @@ class UserDto {
       if (riderProfile != null) 'riderProfile': riderProfile!.toJson(),
       if (companyProfile != null) 'companyProfile': companyProfile!.toJson(),
       if (sessionId != null) 'sessionId': sessionId,
-      if (fcmToken != null) 'fcmToken': fcmToken,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
@@ -108,13 +103,12 @@ class UserDto {
     email: email,
     fullName: fullName,
     isOnboarded: isOnboarded,
-    role: entities.UserRoleX.fromString(role),
+    role: role == null ? null : entities.UserRoleX.fromString(role!),
     companyId: companyId,
     phoneNumber: phoneNumber,
     riderProfile: riderProfile?.toEntity(),
     companyProfile: companyProfile?.toEntity(),
     sessionId: sessionId,
-    fcmToken: fcmToken,
     createdAt: createdAt,
     updatedAt: updatedAt,
   );

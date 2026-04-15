@@ -31,7 +31,7 @@ class RiderHeartbeatComponent extends SessionComponent {
   Future<void> start() async {
     // Initial heartbeat
     await _sendHeartbeat();
-    
+
     // Periodic heartbeats
     _timer = Timer.periodic(interval, (_) => _sendHeartbeat());
   }

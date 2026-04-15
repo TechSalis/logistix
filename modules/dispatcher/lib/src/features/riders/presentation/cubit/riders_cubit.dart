@@ -100,8 +100,8 @@ class RidersCubit extends Cubit<RidersState> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
 
-  void _initSubscription() {
-    _ridersSubscription?.cancel();
+  Future<void> _initSubscription() async {
+    await _ridersSubscription?.cancel();
     _ridersSubscription = _repo
         .watchRiders(
           searchQuery: state.searchQuery,
@@ -133,7 +133,7 @@ class RidersCubit extends Cubit<RidersState> {
     emit(state.copyWith(isLoading: true));
     
     _limit = 50;
-    _initSubscription();
+    await _initSubscription();
 
     final result = await _repo.getRiders(
       searchQuery: state.searchQuery,
@@ -219,7 +219,9 @@ class RidersCubit extends Cubit<RidersState> {
   }
 
   void selectRider(Rider? rider) {
-    emit(state.copyWith(selectedRider: rider, clearSelectedRider: rider == null));
+    emit(
+      state.copyWith(selectedRider: rider, clearSelectedRider: rider == null),
+    );
   }
 
   void selectRiderById(String id) {
@@ -235,8 +237,8 @@ class RidersCubit extends Cubit<RidersState> {
   }
 
   @override
-  Future<void> close() {
-    _ridersSubscription?.cancel();
+  Future<void> close() async {
+    await _ridersSubscription?.cancel();
     return super.close();
   }
 }

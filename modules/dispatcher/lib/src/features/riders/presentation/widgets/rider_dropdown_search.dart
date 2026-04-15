@@ -42,7 +42,7 @@ class RiderDropdownSearch extends StatelessWidget {
       enabled: enabled,
       label: label,
       isLarge: isLarge,
-      showUnassign: false,
+      canRemove: false,
     );
   }
 }
@@ -90,7 +90,7 @@ class AssignRiderDropdownSearch extends StatelessWidget {
       enabled: enabled,
       label: label,
       isLarge: isLarge,
-      showUnassign: true,
+      canRemove: true,
     );
   }
 }
@@ -104,7 +104,7 @@ class _RiderDropdownSearchBase extends StatefulWidget {
     required this.enabled,
     required this.label,
     required this.isLarge,
-    required this.showUnassign,
+    required this.canRemove,
     this.onUnassign,
   });
 
@@ -116,7 +116,7 @@ class _RiderDropdownSearchBase extends StatefulWidget {
   final bool enabled;
   final String label;
   final bool isLarge;
-  final bool showUnassign;
+  final bool canRemove;
 
   @override
   State<_RiderDropdownSearchBase> createState() =>
@@ -149,7 +149,6 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
     return Container(
       constraints: BoxConstraints(minHeight: widget.isLarge ? 70 : 50),
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(BootstrapRadii.xl),
         border: Border.all(color: LogistixColors.border.withValues(alpha: 0.8)),
         boxShadow: [
@@ -174,27 +173,12 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
         decoratorProps: DropDownDecoratorProps(
           decoration: InputDecoration(
             isDense: true,
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+            fillColor: context.theme.inputDecorationTheme.fillColor,
             constraints: BoxConstraints(maxHeight: widget.isLarge ? 70 : 44),
           ),
         ),
         popupProps: PopupProps.menu(
           showSearchBox: true,
-          containerBuilder: (context, child) => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: child,
-          ),
           loadingBuilder: (_, __) => const BootstrapLoadingIndicator(),
           searchFieldProps: const TextFieldProps(
             autofocus: true,
@@ -279,7 +263,7 @@ class _RiderDropdownSearchBaseState extends State<_RiderDropdownSearchBase> {
                   ],
                 ),
               ),
-              if (widget.showUnassign &&
+              if (widget.canRemove &&
                   !widget.isCompleted &&
                   (widget.onUnassign != null || _localRider != null))
                 Padding(
@@ -515,7 +499,7 @@ class _StatusRow extends StatelessWidget {
           style: context.textTheme.labelSmall?.copyWith(color: statusColor),
         ),
         const SizedBox(width: BootstrapSpacing.xs),
-        const Icon(Icons.star_rounded, size: 14, color: Colors.amber),
+        const Icon(Icons.star_rounded, size: 14, color: LogistixColors.amber),
         const SizedBox(width: 2),
         Text(
           '4.8', // Placeholder for actual rating

@@ -72,7 +72,7 @@ class LogistixAuthScaffold extends StatelessWidget {
                     slivers: [
                       SliverAppBar(
                         floating: true,
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: LogistixColors.transparent,
                         elevation: 0,
                         leading: onBack != null
                             ? IconButton(
@@ -152,9 +152,9 @@ class LogistixAuthScaffold extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withValues(alpha: 0),
-                      Colors.white.withValues(alpha: 0.8),
-                      Colors.white,
+                      LogistixColors.white.withValues(alpha: 0),
+                      LogistixColors.white.withValues(alpha: 0.8),
+                      LogistixColors.white,
                     ],
                     stops: const [0, 0.4, 1],
                   ),

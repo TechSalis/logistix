@@ -15,7 +15,7 @@ dependencies:
   bootstrap:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap
-      ref: v0.5.3
+      ref: v0.5.5
 
   # Animation & UI
   flutter_animate: ^4.5.0
@@ -23,6 +23,7 @@ dependencies:
   # Utils
   intl: ^0.20.0
   shimmer: ^3.0.0
+  lucide_icons_flutter: ^3.1.12
 
 dev_dependencies:
   flutter_test:

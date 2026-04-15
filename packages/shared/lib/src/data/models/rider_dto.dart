@@ -1,4 +1,4 @@
-import 'package:shared/src/data/models/order_dto.dart';
+
 import 'package:shared/src/domain/entities/rider.dart';
 
 class RiderDto {
@@ -9,8 +9,6 @@ class RiderDto {
     required this.status,
     required this.companyId,
     this.phoneNumber,
-    this.fcmToken,
-    this.activeOrder,
     this.lastLat,
     this.lastLng,
     this.batteryLevel,
@@ -25,14 +23,13 @@ class RiderDto {
     email: rider.email,
     fullName: rider.fullName,
     companyId: rider.companyId,
-    status: rider.status.value,
+    status: rider.status.name,
     phoneNumber: rider.phoneNumber,
-    fcmToken: rider.fcmToken,
     lastLat: rider.lastLat,
     lastLng: rider.lastLng,
     batteryLevel: rider.batteryLevel,
     isAccepted: rider.isAccepted,
-    permitStatus: rider.permitStatus.value,
+    permitStatus: rider.permitStatus.name,
     createdAt: rider.createdAt,
     updatedAt: rider.updatedAt,
   );
@@ -45,15 +42,11 @@ class RiderDto {
       status: json['status'] as String,
       companyId: json['companyId'] as String,
       phoneNumber: json['phoneNumber'] as String?,
-      fcmToken: json['fcmToken'] as String?,
-      activeOrder: json['activeOrder'] != null
-          ? OrderDto.fromJson(json['activeOrder'] as Map<String, dynamic>)
-          : null,
       lastLat: (json['lastLat'] as num?)?.toDouble(),
       lastLng: (json['lastLng'] as num?)?.toDouble(),
       batteryLevel: json['batteryLevel'] as int?,
       isAccepted: json['isAccepted'] as bool? ?? false,
-      permitStatus: json['permitStatus'] as String? ?? 'PENDING',
+      permitStatus: json['permitStatus'] as String? ?? PermitStatus.PENDING.name,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -69,8 +62,7 @@ class RiderDto {
   final String status;
   final String companyId;
   final String? phoneNumber;
-  final String? fcmToken;
-  final OrderDto? activeOrder;
+
   final double? lastLat;
   final double? lastLng;
   final int? batteryLevel;
@@ -87,8 +79,7 @@ class RiderDto {
       'status': status,
       'companyId': companyId,
       if (phoneNumber != null) 'phoneNumber': phoneNumber,
-      if (fcmToken != null) 'fcmToken': fcmToken,
-      if (activeOrder != null) 'activeOrder': activeOrder!.toJson(),
+
       if (lastLat != null) 'lastLat': lastLat,
       if (lastLng != null) 'lastLng': lastLng,
       if (batteryLevel != null) 'batteryLevel': batteryLevel,
@@ -106,8 +97,7 @@ class RiderDto {
     companyId: companyId,
     status: RiderStatusX.fromString(status),
     phoneNumber: phoneNumber,
-    fcmToken: fcmToken,
-    activeOrder: activeOrder?.toEntity(),
+
     lastLat: lastLat,
     lastLng: lastLng,
     batteryLevel: batteryLevel,

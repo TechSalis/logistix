@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_positional_boolean_parameters
 import 'package:geolocator/geolocator.dart';
 import 'package:shared/shared.dart';
 

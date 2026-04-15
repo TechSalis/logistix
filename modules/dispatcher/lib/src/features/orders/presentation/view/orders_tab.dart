@@ -185,6 +185,7 @@ class _StatusFilterList extends StatelessWidget {
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.lg),
+          clipBehavior: Clip.none, // Prevent shadow clipping
           child: Row(
             children: [
               BootstrapChoiceChip(
@@ -207,5 +208,3 @@ class _StatusFilterList extends StatelessWidget {
     );
   }
 }
-
-

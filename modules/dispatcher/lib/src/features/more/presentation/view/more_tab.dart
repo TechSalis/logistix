@@ -48,8 +48,9 @@ class MoreTab extends StatelessWidget {
                 builder: (context, state) {
                   final appVersion = state.maybeWhen(
                     loaded: (packageInfo, _) {
-                      return '${packageInfo.version} '
-                          '(${EnvConfig.instance.environment.capitalizeFirst()})';
+                      final environment = EnvConfig.instance.environment;
+                      return '${packageInfo.version}'
+                          '${environment == 'production' ? '' : ' (${environment.capitalizeFirst()})'}';
                     },
                     orElse: () => 'Loading...',
                   );
@@ -68,15 +69,16 @@ class MoreTab extends StatelessWidget {
                           _buildProfileHeader(state),
                           const SizedBox(height: 32),
                           BootstrapSettingsCard(
-                            title: 'INTEGRATIONS & WEBHOOKS',
+                            title: 'INTEGRATIONS',
                             children: [
                               BootstrapSettingsTile(
                                 icon: Icons.rocket_launch_outlined,
-                                title: 'Channel Automation',
+                                title: 'Platform Automation',
                                 iconColor: LogistixColors.primary,
                                 titleColor: LogistixColors.primary,
                                 subtitle: _getIntegrationsSummary(user),
-                                onTap: () => _showPlatformPicker(context, state),
+                                onTap: () =>
+                                    _showPlatformPicker(context, state),
                               ),
                             ],
                           ),
@@ -87,12 +89,12 @@ class MoreTab extends StatelessWidget {
                               ExportTile(
                                 runner: cubit.exportAnalyticsRunner,
                                 icon: Icons.analytics_outlined,
-                                title: 'Analytics Export',
-                                subtitle: 'Export performance metrics',
+                                title: 'Orders Export',
+                                subtitle: 'Export orders and metrics',
                                 onTap: () => _showExportOptions(
                                   context,
-                                  title: 'Export Analytics',
-                                  showRiderFilter: false,
+                                  title: 'Export Your Orders',
+                                  showRiderFilter: true,
                                   onParamsSelected: cubit.exportAnalyticsRunner,
                                 ),
                               ),
@@ -209,7 +211,7 @@ class MoreTab extends StatelessWidget {
     required String title,
     required bool showRiderFilter,
     required AsyncRunnerWithArg<ExportParams, AppError, String>
-        onParamsSelected,
+    onParamsSelected,
   }) async {
     final params = await ExportOptionsSheet.show(
       context,
@@ -227,9 +229,11 @@ class MoreTab extends StatelessWidget {
     AsyncState<AppError, String> state,
   ) {
     if (state.status.isSuccess && state.result?.data != null) {
-      Share.shareXFiles(
-        [XFile(state.result!.data)],
-        subject: 'Analytics Export',
+      SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(state.result!.data)],
+          subject: 'Orders Export',
+        ),
       );
     } else if (state.status.isFailure) {
       context.toast.showToast(
@@ -240,10 +244,7 @@ class MoreTab extends StatelessWidget {
   }
 
   void _confirmLogout(BuildContext context, MoreCubit cubit) {
-    LogoutConfirmationDialog.show(
-      context,
-      onLogout: cubit.logoutRunner.call,
-    );
+    LogoutConfirmationDialog.show(context, onLogout: cubit.logoutRunner.call);
   }
 
   void _showComingSoon(BuildContext context, String feature) {
@@ -286,7 +287,8 @@ class MoreTab extends StatelessWidget {
         .toList();
 
     if (active.isEmpty) {
-      return 'Setup pending for ${integrations.length} channels';
+      return 'Setup pending for ${integrations.length} '
+          '${'channel'.pluralize(count: integrations.length)}';
     }
 
     return 'Active: ${active.join(", ")}';

@@ -3,6 +3,7 @@ import 'package:dispatcher/src/features/chat/presentation/cubit/chat_cubit.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ChatInputBar extends StatefulWidget {
   const ChatInputBar({
@@ -60,7 +61,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
         children: [
           IconButton(
             onPressed: widget.onMedia,
-            icon: const Icon(Icons.attach_file),
+            icon: const Icon(LucideIcons.paperclip),
             color: LogistixColors.textSecondary,
           ),
           Expanded(
@@ -127,7 +128,7 @@ class _SendButton extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : const Icon(Icons.send),
+                  : const Icon(LucideIcons.send),
               style: IconButton.styleFrom(
                 backgroundColor: LogistixColors.primary,
                 foregroundColor: Colors.white,

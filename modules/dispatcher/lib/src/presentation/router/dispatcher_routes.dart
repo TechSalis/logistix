@@ -10,7 +10,6 @@ import 'package:dispatcher/src/features/riders/presentation/view/rider_details_p
 import 'package:dispatcher/src/features/riders/presentation/view/riders_tab.dart';
 import 'package:dispatcher/src/presentation/pages/dispatcher_page.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared/shared.dart';
 
@@ -48,13 +47,33 @@ abstract class DispatcherRoutes {
 }
 
 /// Dispatcher module route configuration using StatefulShellRoute
-@internal
 List<RouteBase> get dispatcherRoutes => [
   StatefulShellRoute.indexedStack(
+    redirect: (context, state) => const RedirectGuard(
+      DispatcherRoutes.orders,
+      from: DispatcherRoutes.rootPath,
+    ).redirect(context, state.fullPath),
     builder: (_, _, navigationShell) {
       return DispatcherPage(navigationShell: navigationShell);
     },
     branches: [
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: DispatcherRoutes.chats,
+            builder: (context, state) => const ChatsTab(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) {
+                  final id = state.pathParameters['id']!;
+                  return ChatDetailPage(conversationId: id);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
       StatefulShellBranch(
         routes: [
           GoRoute(
@@ -88,11 +107,7 @@ List<RouteBase> get dispatcherRoutes => [
                             ),
                           );
                         },
-                        child: Center(
-                          child: AIOrderParserDialog(
-                            initialValue: initialValue,
-                          ),
-                        ),
+                        child: AIOrderParserDialog(initialValue: initialValue),
                       );
                     },
                   ),
@@ -103,23 +118,6 @@ List<RouteBase> get dispatcherRoutes => [
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
                   return OrderDetailsPage(orderId: id);
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-      StatefulShellBranch(
-        routes: [
-          GoRoute(
-            path: DispatcherRoutes.chats,
-            builder: (context, state) => const ChatsTab(),
-            routes: [
-              GoRoute(
-                path: ':id',
-                builder: (context, state) {
-                  final id = state.pathParameters['id']!;
-                  return ChatDetailPage(conversationId: id);
                 },
               ),
             ],

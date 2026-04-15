@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class LoginPage extends StatefulWidget {
@@ -79,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                 BootstrapTextField(
                   label: 'Email',
                   controller: _emailController,
-                  icon: Icons.email_outlined,
+                  icon: LucideIcons.mail,
                   keyboardType: TextInputType.emailAddress,
                   validator: FormBuilderValidators.email(),
                 ),
@@ -87,14 +88,14 @@ class _LoginPageState extends State<LoginPage> {
                 BootstrapTextField(
                   label: 'Password',
                   controller: _passwordController,
-                  icon: Icons.lock_outline,
+                  icon: LucideIcons.lock,
                   obscureText: _obscurePassword,
                   validator: FormBuilderValidators.required(),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
                     ),
                     onPressed: () {
                       setState(() => _obscurePassword = !_obscurePassword);

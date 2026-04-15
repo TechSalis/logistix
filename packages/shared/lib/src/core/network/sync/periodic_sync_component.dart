@@ -6,10 +6,12 @@ class PeriodicSyncComponent extends SessionComponent {
   PeriodicSyncComponent({
     required this.interval,
     this.initialDelay = const Duration(seconds: 5),
+    this.onTrigger,
   });
 
   final Duration interval;
   final Duration initialDelay;
+  final Future<void> Function()? onTrigger;
   Timer? _timer;
 
   @override
@@ -23,7 +25,15 @@ class PeriodicSyncComponent extends SessionComponent {
 
   void _startPeriodicTimer() {
     _timer?.cancel();
-    _timer = Timer.periodic(interval, (_) => sync());
+    _timer = Timer.periodic(interval, (_) => _trigger());
+  }
+
+  Future<void> _trigger() async {
+    if (onTrigger != null) {
+      await onTrigger!();
+    } else {
+      await sync();
+    }
   }
 
   @override

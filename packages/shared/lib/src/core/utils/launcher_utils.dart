@@ -1,6 +1,10 @@
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart' as ul;
 
 class LogistixLauncher {
+  static Future<bool> Function(Uri url) canLaunchUrl = ul.canLaunchUrl;
+  static Future<void> Function(Uri url, {ul.LaunchMode mode}) launchUrl =
+      ul.launchUrl;
+
   static Future<void> openMap(double lat, double lng) async {
     final googleAppUrl = Uri.parse('google.navigation:q=$lat,$lng');
     final webUrl = Uri.parse(
@@ -8,12 +12,11 @@ class LogistixLauncher {
     );
 
     if (await canLaunchUrl(googleAppUrl)) {
-      await launchInBrowser(googleAppUrl.toString());
-      return;
+      return launchInBrowser(googleAppUrl.toString());
     }
 
     if (await canLaunchUrl(webUrl)) {
-      await launchInBrowser(webUrl.toString());
+      return launchInBrowser(webUrl.toString());
     }
   }
 
@@ -26,7 +29,7 @@ class LogistixLauncher {
 
   static Future<void> launchInBrowser(
     String url, {
-    LaunchMode mode = LaunchMode.externalApplication,
+    ul.LaunchMode mode = ul.LaunchMode.externalApplication,
   }) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {

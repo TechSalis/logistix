@@ -8,7 +8,7 @@ import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:shared/shared.dart';
 
 /// Concrete session coordinator for the Rider module.
-/// 
+///
 /// Replaces monolithic logic with pluggable components for assignment updates,
 /// location heartbeats, push notifications, and background sync.
 class RiderSessionManager extends SessionCoordinator {
@@ -19,7 +19,6 @@ class RiderSessionManager extends SessionCoordinator {
     required LogistixDatabase database,
     required SyncRiderDataUseCase syncUseCase,
     required RiderBloc riderBloc,
-    required InitializeNotificationsUseCase initializeNotifications,
   }) {
     // 1. Assignment Stream
     addComponent(
@@ -52,20 +51,15 @@ class RiderSessionManager extends SessionCoordinator {
 
     // 4. Shared Infrastructure
     addComponent(
-      NotificationComponent(initializeNotifications: initializeNotifications),
+      PeriodicSyncComponent(
+        interval: const Duration(minutes: 2),
+        onTrigger: sync,
+      ),
     );
-    addComponent(PeriodicSyncComponent(interval: const Duration(minutes: 2)));
   }
 
   /// Compatibility methods for manual control
   Future<void> startSession() => start();
+  
   void stopSession() => stop();
-
-  void startHeartbeat() {
-    // In the new architecture, heartbeat starts with the session
-  }
-
-  void stopHeartbeat() {
-    // Individual component control could be added if necessary
-  }
 }

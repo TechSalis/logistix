@@ -3,6 +3,7 @@ import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:shared/shared.dart';
@@ -18,17 +19,18 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
   @override
   void initState() {
     super.initState();
-    context.read<OnboardingBloc>().add(
-      OnboardingEvent.submitOnboarding(),
-    );
+    context.read<OnboardingBloc>().add(OnboardingEvent.submitOnboarding());
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OnboardingBloc, OnboardingState>(
       listener: (context, state) {
-        if (state.status == OnboardingStatus.error && state.message != null) {
-          context.toast.showToast(state.message!, type: ToastType.error);
+        if (state.status == OnboardingStatus.error) {
+          if (state.message != null) {
+            context.toast.showToast(state.message!, type: ToastType.error);
+          }
+          context.pop();
         }
       },
       builder: (context, state) {
@@ -36,7 +38,8 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
           return Scaffold(
             body: BootstrapSuccessView(
               title: 'Account Ready!',
-              message: 'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.appName}!',
+              message:
+                  'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.appName}!',
             ),
           );
         }
@@ -49,14 +52,14 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: LogistixColors.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const BootstrapLoadingIndicator(),
-                  )
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: LogistixColors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const BootstrapLoadingIndicator(),
+                      )
                       .animate()
                       .scale(
                         duration: 600.ms,

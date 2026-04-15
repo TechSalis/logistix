@@ -43,6 +43,8 @@ class OrdersState {
     OrderStatus? selectedStatus,
     String? searchQuery,
     String? error,
+    bool clearStatus = false,
+    bool clearError = false,
   }) {
     return OrdersState(
       orders: orders ?? this.orders,
@@ -50,9 +52,10 @@ class OrdersState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
-      selectedStatus: selectedStatus ?? this.selectedStatus,
+      selectedStatus:
+          clearStatus ? null : (selectedStatus ?? this.selectedStatus),
       searchQuery: searchQuery ?? this.searchQuery,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }
@@ -73,8 +76,8 @@ class OrdersCubit extends Cubit<OrdersState> {
   bool _isLoadingMore = false;
   int _limit = 50;
 
-  void _initSubscription() {
-    _ordersSubscription?.cancel();
+  Future<void> _initSubscription() async {
+    await _ordersSubscription?.cancel();
     _ordersSubscription = _repo.watchOrders(
       status: state.selectedStatus != null ? [state.selectedStatus!] : null,
       searchQuery: state.searchQuery,
@@ -87,7 +90,8 @@ class OrdersCubit extends Cubit<OrdersState> {
           case OrderStatus.EN_ROUTE: return 0;
           case OrderStatus.ASSIGNED: return 1;
           case OrderStatus.UNASSIGNED: return 2;
-          default: return 3;
+          case OrderStatus.DELIVERED: return 3;
+          case OrderStatus.CANCELLED: return 3;
         }
       }
 
@@ -109,8 +113,13 @@ class OrdersCubit extends Cubit<OrdersState> {
   Future<void> refresh() async {
     if (isClosed) return;
     _limit = 50;
-    _initSubscription();
-    emit(state.copyWith(isLoading: true, orders: []));
+    await _initSubscription();
+    emit(state.copyWith(
+      isLoading: true,
+      orders: [],
+      clearError: true,
+      hasMore: true,
+    ));
 
     final result = await _repo.getOrders(
       status: state.selectedStatus != null ? [state.selectedStatus!] : null,
@@ -125,7 +134,13 @@ class OrdersCubit extends Cubit<OrdersState> {
   }
 
   void filterByStatus(OrderStatus? status) {
-    emit(state.copyWith(selectedStatus: status, orders: [], isLoading: true));
+    emit(state.copyWith(
+      selectedStatus: status,
+      clearStatus: status == null,
+      orders: [],
+      isLoading: true,
+      clearError: true,
+    ));
     refresh();
   }
 
@@ -163,8 +178,8 @@ class OrdersCubit extends Cubit<OrdersState> {
   }
 
   @override
-  Future<void> close() {
-    _ordersSubscription?.cancel();
+  Future<void> close() async {
+    await _ordersSubscription?.cancel();
     scrollController.dispose();
     return super.close();
   }

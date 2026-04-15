@@ -12,9 +12,9 @@ class AuthSession {
   const AuthSession.unauthenticated()
     : status = AuthStatus.unauthenticated,
       user = null;
-  const AuthSession.authenticated(User this.user)
+  const AuthSession.authenticated(this.user)
     : status = AuthStatus.authenticated;
-  const AuthSession.onboarding(User this.user) : status = AuthStatus.onboarding;
+  const AuthSession.onboarding(this.user) : status = AuthStatus.onboarding;
 
   final AuthStatus status;
   final User? user;

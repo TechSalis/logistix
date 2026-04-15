@@ -60,10 +60,6 @@ class RiderProfileTab extends StatelessWidget {
           const SizedBox(height: BootstrapSpacing.lg),
           _ProfileHeader(rider: rider),
           const SizedBox(height: BootstrapSpacing.lg),
-          if (rider.activeOrder != null) ...[
-            _ActiveOrderCard(order: rider.activeOrder!),
-            const SizedBox(height: BootstrapSpacing.lg),
-          ],
           const _SettingsSection(),
           const SizedBox(height: BootstrapSpacing.xl),
         ],
@@ -123,78 +119,6 @@ class _ProfileHeader extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ActiveOrderCard extends StatelessWidget {
-  const _ActiveOrderCard({required this.order});
-  final Order order;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            LogistixColors.primary.withValues(alpha: 0.08),
-            LogistixColors.primary.withValues(alpha: 0.03),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: LogistixColors.primary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(BootstrapSpacing.xs),
-            decoration: BoxDecoration(
-              color: LogistixColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(BootstrapRadii.xl),
-            ),
-            child: const Icon(
-              Icons.delivery_dining_rounded,
-              color: LogistixColors.primary,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Active Order',
-                  style: context.textTheme.labelSmall?.copyWith(
-                    color: LogistixColors.primary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '#${order.trackingNumber}',
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (order.description != null)
-                  Text(
-                    order.description!,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: LogistixColors.textSecondary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-              ],
             ),
           ),
         ],

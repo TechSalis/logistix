@@ -44,6 +44,7 @@ class RiderOrdersState {
     String? searchQuery,
     String? error,
     bool clearStatus = false,
+    bool clearError = false,
   }) {
     return RiderOrdersState(
       orders: orders ?? this.orders,
@@ -51,9 +52,10 @@ class RiderOrdersState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasMore: hasMore ?? this.hasMore,
-      selectedStatus: clearStatus ? null : (selectedStatus ?? this.selectedStatus),
+      selectedStatus:
+          clearStatus ? null : (selectedStatus ?? this.selectedStatus),
       searchQuery: searchQuery ?? this.searchQuery,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }
@@ -75,7 +77,7 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
 
   /// Initialize cubit with riderId (call after rider profile is loaded)
   void initialize() {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, clearError: true));
     _subscribeToOrders();
   }
 
@@ -86,9 +88,7 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
     _ordersSubscription?.cancel();
 
     // Use status enum directly
-    final statuses = state.selectedStatus == null
-        ? null
-        : [state.selectedStatus!];
+    final statuses = state.selectedStatus == null ? null : [state.selectedStatus!];
 
     // Priority sort for "All" tab to show active orders first
     final isPrioritySort = state.selectedStatus == null;
@@ -112,6 +112,7 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
                   hasMore: hasMore,
                   isLoading: false,
                   isLoadingMore: false, // Reset pagination loader
+                  clearError: true,
                 ),
               );
             }
@@ -137,6 +138,7 @@ class RiderOrdersCubit extends Cubit<RiderOrdersState> {
         orders: [], // Clear current orders to show shimmers
         isLoading: true, // Show loading state when switching tabs
         clearStatus: status == null,
+        clearError: true,
       ),
     );
     _subscribeToOrders(); // Re-subscribe with new filters

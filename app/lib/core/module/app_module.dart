@@ -15,12 +15,6 @@ class AppModule extends Module<RouteBase> {
   @override
   void registerServices(DI injector) {
     // Foundation - App-level services
-
-    final tokenStoreRefresh = TokenStoreFreshDioAdapterInterceptor(
-      createTokenStore(),
-      refreshUrl: EnvConfig.instance.refreshUrl,
-    );
-
     injector
       ..registerSingleton<Logger>(const SentryLogger())
       ..registerSingleton<TokenStore>(SecureTokenStore())
@@ -36,7 +30,10 @@ class AppModule extends Module<RouteBase> {
         () => DioFactory.build(
           baseUrl: EnvConfig.instance.apiUrl,
           interceptors: [
-            tokenStoreRefresh,
+            TokenStoreFreshDioAdapterInterceptor(
+              injector.get<TokenStore>(),
+              refreshUrl: EnvConfig.instance.refreshUrl,
+            ),
             InterceptorsWrapper(
               onRequest: (options, handler) {
                 options.headers['x-client-key'] = EnvConfig.instance.clientKey;
@@ -88,9 +85,15 @@ class AppModule extends Module<RouteBase> {
           injector.get<UserStore>(),
         ),
       )
+      ..registerLazySingleton<InitializeNotificationsUseCase>(
+        () => InitializeNotificationsUseCase(
+          injector.get<PushNotificationService>(),
+          injector.get<AppRepository>(),
+        ),
+      )
       // Register AppBloc for global app state and initialization
-      ..registerSingleton<AppBloc>(
-        AppBloc(
+      ..registerLazySingleton<AppBloc>(
+        () => AppBloc(
           injector.get<AppRepository>(),
           ClearAppDataUseCase(
             injector.get<TokenStore>(),
@@ -99,16 +102,11 @@ class AppModule extends Module<RouteBase> {
             injector.get<LogistixDatabase>(),
           ),
           injector.get<AuthStatusRepository>(),
+          injector.get<InitializeNotificationsUseCase>(),
         ),
       )
       ..registerLazySingleton<PushNotificationService>(
         PushNotificationServiceImpl.new,
-      )
-      ..registerLazySingleton<InitializeNotificationsUseCase>(
-        () => InitializeNotificationsUseCase(
-          injector.get<PushNotificationService>(),
-          injector.get<AppRepository>(),
-        ),
       )
       ..registerLazySingleton<ShareIntentService>(
         () => ShareIntentService(userStore: injector.get<UserStore>()),

@@ -15,7 +15,6 @@ class RiderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = rider.status.color;
-    final activeOrder = rider.activeOrder;
     final riderColor = RiderMapUtils.getColor(rider.id);
 
     return RepaintBoundary(
@@ -82,12 +81,13 @@ class RiderCard extends StatelessWidget {
                                 const SizedBox(width: BootstrapSpacing.xs),
                                 Flexible(
                                   child: Text(
-                                    rider.status.value.capitalizeFirst(),
-                                    style: context.textTheme.labelSmall?.bold.copyWith(
-                                      color: statusColor,
-                                      letterSpacing: 0.5,
-                                      fontSize: 10,
-                                    ),
+                                    rider.status.label,
+                                    style: context.textTheme.labelSmall?.bold
+                                        .copyWith(
+                                          color: statusColor,
+                                          letterSpacing: 0.5,
+                                          fontSize: 10,
+                                        ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -97,9 +97,10 @@ class RiderCard extends StatelessWidget {
                                   Expanded(
                                     child: Text(
                                       '  •  ${rider.phoneNumber}',
-                                      style: context.textTheme.labelSmall?.copyWith(
-                                        color: LogistixColors.textTertiary,
-                                      ),
+                                      style: context.textTheme.labelSmall
+                                          ?.copyWith(
+                                            color: LogistixColors.textTertiary,
+                                          ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -113,12 +114,10 @@ class RiderCard extends StatelessWidget {
                       if (isPending)
                         BlocBuilder<RidersCubit, RidersState>(
                           builder: (context, state) {
-                            final isAccepting = state.acceptingRiderIds.contains(
-                              rider.id,
-                            );
-                            final isRejecting = state.rejectingRiderIds.contains(
-                              rider.id,
-                            );
+                            final isAccepting = state.acceptingRiderIds
+                                .contains(rider.id);
+                            final isRejecting = state.rejectingRiderIds
+                                .contains(rider.id);
                             final isProcessing = isAccepting || isRejecting;
 
                             return Row(
@@ -169,94 +168,6 @@ class RiderCard extends StatelessWidget {
                       ],
                     ],
                   ),
-                  if (activeOrder != null) ...[
-                    const SizedBox(height: BootstrapSpacing.md),
-                    Container(
-                      padding: const EdgeInsets.all(BootstrapSpacing.sm),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            LogistixColors.primary.withValues(alpha: 0.06),
-                            LogistixColors.primary.withValues(alpha: 0.02),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(BootstrapRadii.xl),
-                        border: Border.all(
-                          color: LogistixColors.primary.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(BootstrapSpacing.xs),
-                            decoration: BoxDecoration(
-                              color: LogistixColors.primary.withValues(
-                                alpha: 0.1,
-                              ),
-                              borderRadius: BorderRadius.circular(BootstrapRadii.md),
-                            ),
-                            child: const Icon(
-                              Icons.local_shipping_rounded,
-                              size: 18,
-                              color: LogistixColors.primary,
-                            ),
-                          ),
-                          const SizedBox(width: BootstrapSpacing.sm),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        'ACTIVE ORDER',
-                                        style: context.textTheme.labelSmall?.bold.copyWith(
-                                          color: LogistixColors.textTertiary,
-                                          letterSpacing: 0.5,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    const SizedBox(width: BootstrapSpacing.xs),
-                                    const Spacer(),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 6,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: LogistixColors.primary.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius:
-                                            BorderRadius.circular(BootstrapRadii.xs),
-                                      ),
-                                      child: Text(
-                                        activeOrder.status.label,
-                                        style: context.textTheme.labelSmall?.bold.copyWith(
-                                          color: LogistixColors.primary,
-                                          fontSize: 9,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: BootstrapSpacing.xxs),
-                                Text(
-                                  activeOrder.dropOffAddress,
-                                  style: context.textTheme.bodySmall?.bold,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:bootstrap/definitions/result.dart';
 import 'package:dispatcher/src/features/more/data/datasources/analytics_remote_datasource.dart';
 import 'package:dispatcher/src/features/more/data/dtos/analytics_export_request.dart';
 import 'package:dispatcher/src/features/more/domain/repositories/analytics_repository.dart';
+import 'package:shared/shared.dart';
 
 class AnalyticsRepositoryImpl implements AnalyticsRepository {
   const AnalyticsRepositoryImpl(this._dataSource);
@@ -13,6 +14,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
+    List<OrderStatus>? statuses,
   }) async {
     return Result.tryCatch(
       () => _dataSource.exportAnalytics(
@@ -20,6 +22,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
           startDate: startDate,
           endDate: endDate,
           riderId: riderId,
+          statuses: statuses,
         ),
       ),
     );

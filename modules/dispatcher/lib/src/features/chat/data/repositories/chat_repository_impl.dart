@@ -5,42 +5,56 @@ import 'package:bootstrap/definitions/result.dart';
 import 'package:dispatcher/src/features/chat/data/datasources/chat_local_datasource.dart';
 import 'package:dispatcher/src/features/chat/data/datasources/chat_remote_datasource.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/chat_message_dto.dart';
-import 'package:dispatcher/src/features/chat/data/dtos/get_conversations_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/get_messages_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/send_media_message_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/send_message_request.dart';
 import 'package:dispatcher/src/features/chat/data/dtos/toggle_ai_request.dart';
 import 'package:dispatcher/src/features/chat/domain/repositories/chat_repository.dart';
 import 'package:dispatcher/src/features/chat/domain/usecases/chat_session_manager.dart';
+import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usecase.dart';
 import 'package:shared/shared.dart';
 
 /// Strategic, minimal, reactive Repository for Logistix Chat.
 ///
-/// Refined to follow the strict SSOT (Single Source of Truth) pattern:
-/// - UI observes the Local DB directly.
-/// - ChatSessionManager handles all background synchronization.
+/// Hybrid approach:
+/// - Real-time streams backed directly by Drift with offset scaling
+/// - Background persistence maintains SSOT in local DB
 class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.sessionManager,
+    required this.syncUseCase,
+    required this.database,
   });
 
   final ChatRemoteDataSource remoteDataSource;
   final ChatLocalDataSource localDataSource;
   final ChatSessionManager sessionManager;
+  final SyncChatDataUseCase syncUseCase;
+  final LogistixDatabase database;
 
   @override
   String? get currentUserId => localDataSource.userId;
 
+  // ── Syncing ──────────────────────────────────────────────
+
   @override
-  Future<Result<AppError, List<Conversation>>> fetchConversations() async {
+  Future<Conversation?> getConversation(String id) async {
+    final dto = await localDataSource.getConversationById(id);
+    return dto?.toEntity();
+  }
+
+  @override
+  Future<Result<AppError, void>> syncConversations() async {
     try {
-      final dtos = await remoteDataSource.getConversations(
-        const GetConversationsRequest(limit: 100),
+      final lastSyncTime = await database.getLastSyncTime(
+        SyncKeys.chatLastSync,
       );
-      await localDataSource.cacheConversations(dtos);
-      return Result.data(dtos.map((e) => e.toEntity()).toList());
+      final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
+
+      await syncUseCase(since: since);
+      return const Result.data(null);
     } catch (e) {
       return Result.error(AppError(message: e.toString()));
     }
@@ -59,9 +73,12 @@ class ChatRepositoryImpl implements ChatRepository {
   // ── Reactive Watchers ────────────────────────────────────────────
 
   @override
-  Stream<List<Conversation>> watchConversations() {
+  Stream<List<Conversation>> watchConversations({int limit = 50}) {
+    // Attempt delta sync instead of full fetch
+    syncConversations();
+
     return localDataSource
-        .watchConversations()
+        .watchConversations(limit: limit)
         .map((dtos) => dtos.map((e) => e.toEntity()).toList());
   }
 
@@ -69,7 +86,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Stream<List<ChatMessage>> watchMessages(String conversationId, {int? limit}) {
     // Catch-up for specific conversation history
     _syncMessages(conversationId, limit: limit);
-    
+
     return localDataSource
         .watchMessages(conversationId, limit: limit ?? 50)
         .map((dtos) => dtos.map((e) => e.toEntity()).toList());
@@ -77,8 +94,9 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<TypingStatus?> watchTyping(String conversationId) {
-    return sessionManager.typingStream
-        .where((t) => t == null || t.conversationId == conversationId);
+    return sessionManager.typingStream.where(
+      (t) => t == null || t.conversationId == conversationId,
+    );
   }
 
   // ── Sync Logic (Internal) ────────────────────────────────────────

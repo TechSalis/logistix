@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'package:shared/shared.dart';
 
 class Order {
@@ -147,9 +148,20 @@ extension SubscriptionEventTypeX on SubscriptionEventType {
 }
 
 extension OrderStatusX on OrderStatus {
-  String get value => name;
-
-  String get label => value.replaceAll('_', ' ');
+  String get label {
+    switch (this) {
+      case OrderStatus.UNASSIGNED:
+        return 'Unassigned';
+      case OrderStatus.ASSIGNED:
+        return 'Assigned';
+      case OrderStatus.EN_ROUTE:
+        return 'En Route';
+      case OrderStatus.DELIVERED:
+        return 'Delivered';
+      case OrderStatus.CANCELLED:
+        return 'Cancelled';
+    }
+  }
 
   static OrderStatus fromString(String status) {
     return OrderStatus.values.firstWhere(

@@ -87,7 +87,7 @@ extension OrderEntityToDrift on order_entities.Order {
       description: Value(description),
       createdBy: Value(createdBy),
       trackingNumber: trackingNumber,
-      status: status.value,
+      status: status.name,
       deliveredAt: Value(deliveredAt),
       scheduledAt: Value(scheduledAt),
       createdAt: createdAt,

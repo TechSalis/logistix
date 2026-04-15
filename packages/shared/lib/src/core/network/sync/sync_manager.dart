@@ -1,3 +1,4 @@
+// ignore_for_file: constant_identifier_names
 import 'dart:async';
 import 'dart:math';
 import 'package:bootstrap/interfaces/connectivity/connectivity.dart';
@@ -203,9 +204,7 @@ class SyncManager {
   }
 
   Future<void> _cancelAllListeners() async {
-    for (final listener in _listeners) {
-      await listener.cancel();
-    }
+    await Future.wait(_listeners.map((listener) => listener.cancel()));
     _listeners.clear();
   }
 

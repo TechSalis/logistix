@@ -150,6 +150,8 @@ class DispatcherModule extends Module<RouteBase> {
               remoteDataSource: context.read<ChatRemoteDataSource>(),
               localDataSource: context.read<ChatLocalDataSource>(),
               sessionManager: context.read<ChatSessionManager>(),
+              syncUseCase: context.read<SyncChatDataUseCase>(),
+              database: injector.get<LogistixDatabase>(),
             ),
           ),
           RepositoryProvider<SearchRidersUseCase>(
@@ -166,7 +168,6 @@ class DispatcherModule extends Module<RouteBase> {
               metricsStore: injector
                   .get<StreamableObjectStore<DispatcherMetricsDto>>(),
               database: injector.get<LogistixDatabase>(),
-              userStore: injector.get<UserStore>(),
             ),
           ),
         ],
@@ -215,8 +216,6 @@ class DispatcherModule extends Module<RouteBase> {
                       .read<DispatcherSubscriptionHandler>(),
                   database: injector.get<LogistixDatabase>(),
                   syncUseCase: context.read<SyncDispatcherDataUseCase>(),
-                  initializeNotifications: injector
-                      .get<InitializeNotificationsUseCase>(),
                   chatSessionManager: context.read<ChatSessionManager>(),
                 ),
                 child: ToastServiceWidget(child: child),
@@ -234,6 +233,7 @@ class DispatcherModule extends Module<RouteBase> {
               database: injector.get<LogistixDatabase>(),
               syncDispatcherDataUseCase: context
                   .read<SyncDispatcherDataUseCase>(),
+              syncChatDataUseCase: context.read<SyncChatDataUseCase>(),
             ).performInitialSync(),
             onSuccess: () => context.go(DispatcherRoutes.orders),
             onError: (context, e, retry) {
@@ -241,7 +241,7 @@ class DispatcherModule extends Module<RouteBase> {
                 context,
                 error: e,
                 onRetry: retry,
-                onLogout: () => injector.get<LogoutUseCase>().call(),
+                onLogout: injector.get<LogoutUseCase>().call,
               );
             },
           ),

@@ -20,12 +20,15 @@ class OrderAddressSection extends StatelessWidget {
             title: 'Pickup',
             value: order.pickupAddress!,
             onTap: order.hasPickupPosition
-                ? () => LogistixLauncher.openMap(order.pickupLat!, order.pickupLng!)
+                ? () => LogistixLauncher.openMap(
+                    order.pickupLat!,
+                    order.pickupLng!,
+                  )
                 : null,
           ),
           if (order.pickupPhone?.isNotEmpty ?? false)
             Padding(
-              padding: const EdgeInsets.only(left: BootstrapSpacing.xxl),
+              padding: const EdgeInsets.only(left: BootstrapSpacing.xl),
               child: BootstrapInfoTile(
                 icon: Icons.phone_rounded,
                 iconColor: LogistixColors.primary,
@@ -38,20 +41,22 @@ class OrderAddressSection extends StatelessWidget {
         ],
         BootstrapInfoTile(
           icon: Icons.flag_rounded,
-          iconColor: Colors.orange,
+          iconColor: LogistixColors.orange,
           title: 'Drop-off',
           value: order.dropOffAddress,
-          isBold: true,
           onTap: order.hasDropOffPosition
-              ? () => LogistixLauncher.openMap(order.dropOffLat!, order.dropOffLng!)
+              ? () => LogistixLauncher.openMap(
+                  order.dropOffLat!,
+                  order.dropOffLng!,
+                )
               : null,
         ),
         if (order.dropOffPhone?.isNotEmpty ?? false)
           Padding(
-            padding: const EdgeInsets.only(left: BootstrapSpacing.xxl),
+            padding: const EdgeInsets.only(left: BootstrapSpacing.xl),
             child: BootstrapInfoTile(
               icon: Icons.phone_forwarded_rounded,
-              iconColor: Colors.orange,
+              iconColor: LogistixColors.orange,
               title: 'Call Receiver',
               value: order.dropOffPhone!,
               onTap: () => LogistixLauncher.callNumber(order.dropOffPhone!),
@@ -60,9 +65,11 @@ class OrderAddressSection extends StatelessWidget {
         const SizedBox(height: BootstrapSpacing.md),
         BootstrapInfoTile(
           icon: Icons.payments_rounded,
-          iconColor: Colors.green,
+          iconColor: LogistixColors.green,
           title: 'COD',
-          value: order.codAmount != null && order.codAmount! > 0 ? '₦${order.codAmount!.toStringAsFixed(0)}' : 'None',
+          value: order.codAmount != null && order.codAmount! > 0
+              ? '₦${order.codAmount!.toStringAsFixed(0)}'
+              : 'N/A',
         ),
       ],
     );

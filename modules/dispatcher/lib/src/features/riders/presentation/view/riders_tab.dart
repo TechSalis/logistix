@@ -163,6 +163,7 @@ class RidersListView extends StatelessWidget {
                               child: const Icon(
                                 Icons.map_rounded,
                                 color: LogistixColors.primary,
+                                size: 23,
                               ),
                             ),
                           ),
@@ -181,30 +182,6 @@ class RidersListView extends StatelessWidget {
               final filteredActive = state.filteredRiders;
               final filteredPending = state.filteredPendingRiders;
               final isEmpty = filteredActive.isEmpty && filteredPending.isEmpty;
-
-              if (state.isLoading &&
-                  state.riders.isEmpty &&
-                  state.pendingRiders.isEmpty) {
-                return SliverPadding(
-                  padding: const EdgeInsets.all(BootstrapSpacing.md),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: BootstrapSpacing.md,
-                        ),
-                        child: BootstrapShimmer(
-                          width: double.infinity,
-                          height: 120,
-                          borderRadius: BorderRadius.circular(
-                            BootstrapRadii.xxl,
-                          ),
-                        ),
-                      );
-                    }, childCount: 5),
-                  ),
-                );
-              }
 
               if (state.error != null && state.riders.isEmpty) {
                 return SliverFillRemaining(

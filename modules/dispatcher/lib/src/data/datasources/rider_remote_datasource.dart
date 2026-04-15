@@ -4,6 +4,7 @@ import 'package:shared/shared.dart';
 abstract class RiderRemoteDataSource {
   Future<RiderDto> acceptRider(String riderId);
   Future<void> rejectRider(String riderId);
+  Future<List<OrderDto>> getRiderOrders(String riderId, {int limit = 10, int offset = 0});
 }
 
 class RiderRemoteDataSourceImpl implements RiderRemoteDataSource {
@@ -67,5 +68,33 @@ class RiderRemoteDataSourceImpl implements RiderRemoteDataSource {
     if (result.hasException) {
       throw ErrorHandler.fromException(result.exception);
     }
+  }
+
+  @override
+  Future<List<OrderDto>> getRiderOrders(String riderId, {int limit = 10, int offset = 0}) async {
+    const query =
+        '''
+      query GetRiderOrders(\$riderId: ID!, \$limit: Int, \$offset: Int) {
+        riderOrders(riderId: \$riderId, limit: \$limit, offset: \$offset) {
+          ${GqlFragments.orderFields}        
+        }
+      }
+    ''';
+
+    final result = await _gqlService.query<Map<String, dynamic>>(
+      query,
+      variables: {
+        'riderId': riderId,
+        'limit': limit,
+        'offset': offset,
+      },
+    );
+
+    if (result.hasException) {
+      throw ErrorHandler.fromException(result.exception);
+    }
+
+    final list = result.data?['riderOrders'] as List<dynamic>?;
+    return list?.map((e) => OrderDto.fromJson(e as Map<String, dynamic>)).toList() ?? [];
   }
 }

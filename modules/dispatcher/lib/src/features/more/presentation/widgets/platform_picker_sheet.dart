@@ -56,137 +56,158 @@ class _PlatformPickerSheetState extends State<PlatformPickerSheet> {
     final cubit = context.read<MoreCubit>();
     final runner = cubit.fetchIntegrationsRunner;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        BootstrapSpacing.xxl,
-        0,
-        BootstrapSpacing.xxl,
-        BootstrapSpacing.xxxl,
-      ),
-      child: AsyncRunnerBuilder(
-        runner: runner,
-        builder: (context, runnerState, _) {
-          return widget.state.maybeWhen(
-            loaded: (_, user) {
-              final integrations =
-                  user?.companyProfile?.integrations ?? <CompanyIntegration>[];
+    return SizedBox(
+      height: 500,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          BootstrapSpacing.lg,
+          0,
+          BootstrapSpacing.lg,
+          BootstrapSpacing.xl,
+        ),
+        child: AsyncRunnerBuilder(
+          runner: runner,
+          builder: (context, runnerState, _) {
+            return widget.state.maybeWhen(
+              loaded: (_, user) {
+                final integrations =
+                    user?.companyProfile?.integrations ??
+                    <CompanyIntegration>[];
 
-              if (runnerState.status.isRunning && integrations.isEmpty) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: BootstrapSpacing.xxxl,
-                    ),
-                    child: BootstrapInlineLoader(),
-                  ),
-                );
-              }
-
-              if (runnerState.status.isFailure && integrations.isEmpty) {
-                return _buildErrorState(runner);
-              }
-
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Connect Platforms',
-                        style: context.textTheme.headlineLarge,
+                if (runnerState.status.isRunning && integrations.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: BootstrapSpacing.xxxl,
                       ),
-                      if (runnerState.status.isRunning)
-                        const BootstrapInlineLoader(size: 16),
-                    ],
-                  ),
-                  const SizedBox(height: BootstrapSpacing.xs),
-                  Text.rich(
-                    TextSpan(
+                      child: BootstrapInlineLoader(),
+                    ),
+                  );
+                }
+
+                if (runnerState.status.isFailure && integrations.isEmpty) {
+                  return _buildErrorState(runner);
+                }
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        const TextSpan(
-                          text:
-                              'Select a channel to automate your logistics with ',
-                        ),
-                        TextSpan(
-                          text: '${EnvConfig.instance.appName} Automation.',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.all(BootstrapSpacing.sm),
+                          decoration: BoxDecoration(
+                            color: LogistixColors.primary.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(
+                              BootstrapRadii.lg,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.hub_outlined,
+                            color: LogistixColors.primary,
+                            size: 20,
                           ),
                         ),
+                        const SizedBox(width: BootstrapSpacing.md),
+                        Expanded(
+                          child: Text(
+                            'Connect Platforms',
+                            style: context.textTheme.titleLarge?.semiBold,
+                          ),
+                        ),
+                        if (runnerState.status.isRunning)
+                          const BootstrapInlineLoader(size: 16),
                       ],
                     ),
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: LogistixColors.textSecondary,
+                    const SizedBox(height: BootstrapSpacing.md),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text:
+                                'Select a channel to automate your logistics with ',
+                          ),
+                          TextSpan(
+                            text: '${EnvConfig.instance.appName} Automation.',
+                            style: context.textTheme.bodyMedium?.semiBold,
+                          ),
+                        ],
+                      ),
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: LogistixColors.textSecondary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: BootstrapSpacing.xxl),
-                  if (runnerState.status.isFailure)
-                    _buildInlineError(
-                      runnerState.result?.error.message ?? 'Refresh failed',
-                      runner,
+                    const SizedBox(height: BootstrapSpacing.lg),
+                    if (runnerState.status.isFailure)
+                      _buildInlineError(
+                        runnerState.result?.error.message ?? 'Refresh failed',
+                        runner,
+                      ),
+                    _PlatformTile(
+                      leading: ChatPlatform.WHATSAPP.icon(),
+                      title: 'WhatsApp Business',
+                      subtitle: _getPlatformStatus(
+                        integrations,
+                        ChatPlatform.WHATSAPP,
+                      ),
+                      color: const Color(0xFF25D366),
+                      isActive: _isPlatformActive(
+                        integrations,
+                        ChatPlatform.WHATSAPP,
+                      ),
+                      isPending: _isPlatformPending(
+                        integrations,
+                        ChatPlatform.WHATSAPP,
+                      ),
+                      onTap: () =>
+                          widget.onPlatformSelected(ChatPlatform.WHATSAPP),
                     ),
-                  _PlatformTile(
-                    leading: ChatPlatform.WHATSAPP.icon(),
-                    title: 'WhatsApp Business',
-                    subtitle: _getPlatformStatus(
-                      integrations,
-                      ChatPlatform.WHATSAPP,
+                    _PlatformTile(
+                      leading: ChatPlatform.INSTAGRAM.icon(),
+                      title: 'Instagram DM',
+                      subtitle: _getPlatformStatus(
+                        integrations,
+                        ChatPlatform.INSTAGRAM,
+                      ),
+                      color: const Color(0xFFE4405F),
+                      enabled: false,
+                      onTap: () =>
+                          widget.onPlatformSelected(ChatPlatform.INSTAGRAM),
                     ),
-                    color: const Color(0xFF25D366),
-                    isActive: _isPlatformActive(
-                      integrations,
-                      ChatPlatform.WHATSAPP,
+                    _PlatformTile(
+                      leading: ChatPlatform.FACEBOOK.icon(),
+                      title: 'Facebook Messenger',
+                      subtitle: _getPlatformStatus(
+                        integrations,
+                        ChatPlatform.FACEBOOK,
+                      ),
+                      color: const Color(0xFF1877F2),
+                      enabled: false,
+                      onTap: () =>
+                          widget.onPlatformSelected(ChatPlatform.FACEBOOK),
                     ),
-                    isPending: _isPlatformPending(
-                      integrations,
-                      ChatPlatform.WHATSAPP,
+                    _PlatformTile(
+                      leading: ChatPlatform.TIKTOK.icon(),
+                      title: 'TikTok Automation',
+                      subtitle: _getPlatformStatus(
+                        integrations,
+                        ChatPlatform.TIKTOK,
+                      ),
+                      color: Colors.black,
+                      enabled: false,
+                      onTap: () =>
+                          widget.onPlatformSelected(ChatPlatform.TIKTOK),
                     ),
-                    onTap: () =>
-                        widget.onPlatformSelected(ChatPlatform.WHATSAPP),
-                  ),
-                  _PlatformTile(
-                    leading: ChatPlatform.INSTAGRAM.icon(),
-                    title: 'Instagram DM',
-                    subtitle: _getPlatformStatus(
-                      integrations,
-                      ChatPlatform.INSTAGRAM,
-                    ),
-                    color: const Color(0xFFE4405F),
-                    enabled: false,
-                    onTap: () =>
-                        widget.onPlatformSelected(ChatPlatform.INSTAGRAM),
-                  ),
-                  _PlatformTile(
-                    leading: ChatPlatform.FACEBOOK.icon(),
-                    title: 'Facebook Messenger',
-                    subtitle: _getPlatformStatus(
-                      integrations,
-                      ChatPlatform.FACEBOOK,
-                    ),
-                    color: const Color(0xFF1877F2),
-                    enabled: false,
-                    onTap: () =>
-                        widget.onPlatformSelected(ChatPlatform.FACEBOOK),
-                  ),
-                  _PlatformTile(
-                    leading: ChatPlatform.TIKTOK.icon(),
-                    title: 'TikTok Automation',
-                    subtitle: _getPlatformStatus(
-                      integrations,
-                      ChatPlatform.TIKTOK,
-                    ),
-                    color: Colors.black,
-                    enabled: false,
-                    onTap: () => widget.onPlatformSelected(ChatPlatform.TIKTOK),
-                  ),
-                ],
-              );
-            },
-            orElse: () => const SizedBox(),
-          );
-        },
+                  ],
+                );
+              },
+              orElse: () => const SizedBox(),
+            );
+          },
+        ),
       ),
     );
   }
@@ -319,7 +340,10 @@ class _PlatformTile extends StatelessWidget {
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(BootstrapRadii.xl),
           child: Container(
-            padding: const EdgeInsets.all(BootstrapSpacing.lg),
+            padding: const EdgeInsets.symmetric(
+              horizontal: BootstrapSpacing.md,
+              vertical: BootstrapSpacing.sm,
+            ),
             decoration: BoxDecoration(
               color: LogistixColors.surface,
               borderRadius: BorderRadius.circular(BootstrapRadii.xl),
@@ -342,8 +366,8 @@ class _PlatformTile extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(BootstrapRadii.lg),

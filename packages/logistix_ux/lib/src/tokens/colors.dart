@@ -38,4 +38,13 @@ abstract class LogistixColors {
   // Border
   static const Color border = Color(0xFFE2E8F0);
   static const Color borderStrong = Color(0xFFCBD5E1);
+
+  // Common colors (replacing Flutter's Colors.*)
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+  static const Color transparent = Color(0x00000000);
+  static const Color orange = Color(0xFFF97316); // orange-500 (consistent with warning tone)
+  static const Color green = Color(0xFF10B981); // emerald-500 (consistent with success)
+  static const Color grey = Color(0xFF6B7280); // gray-500
+  static const Color amber = Color(0xFFFBBF24); // amber-400 (for ratings/stars)
 }

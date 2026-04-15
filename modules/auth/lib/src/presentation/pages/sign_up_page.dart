@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:shared/shared.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -52,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
           tag: 'logo',
           child: LogistixAssets.images.icon.image(height: 64),
         ),
-        title: 'Join Logistix',
+        title: 'Join ${EnvConfig.instance.appName}',
         subtitle: 'Create your account to get started',
         footer: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {

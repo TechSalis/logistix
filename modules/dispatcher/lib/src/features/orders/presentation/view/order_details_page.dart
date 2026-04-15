@@ -73,15 +73,60 @@ class _OrderLoadedContent extends StatelessWidget {
               children: [
                 _OrderHeader(order: order, dateFormat: dateFormat),
                 const SizedBox(height: BootstrapSpacing.xl),
-                OrderAddressSection(order: order),
+
+                // Premium details card
+                Container(
+                  decoration: BoxDecoration(
+                    color: LogistixColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: LogistixColors.black.withValues(alpha: 0.03)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: LogistixColors.black.withValues(alpha: 0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(BootstrapSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OrderAddressSection(order: order),
+                      
+                      if (order.description?.isNotEmpty ?? false) ...[
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
+                          child: Divider(height: 1, color: LogistixColors.background),
+                        ),
+                        BootstrapInfoTile(
+                          icon: Icons.description_rounded,
+                          iconColor: LogistixColors.textTertiary,
+                          title: 'Description',
+                          value: order.description!,
+                          isDimmed: true,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
                 
-                if (order.description?.isNotEmpty ?? false) ...[
-                  const SizedBox(height: BootstrapSpacing.sm),
-                  BootstrapInfoTile(
-                    icon: Icons.description_rounded,
-                    iconColor: LogistixColors.textTertiary,
-                    title: 'Description',
-                    value: order.description!,
+                if (order.scheduledAt != null) ...[
+                  const SizedBox(height: BootstrapSpacing.md),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: LogistixColors.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: LogistixColors.primary.withValues(alpha: 0.1)),
+                    ),
+                    padding: const EdgeInsets.all(BootstrapSpacing.md),
+                    child: BootstrapInfoTile(
+                      icon: Icons.calendar_today_rounded,
+                      iconColor: LogistixColors.primary,
+                      title: 'Scheduled Delivery',
+                      value: order.scheduledAt!.toScheduleString(),
+                      isBold: true,
+                    ),
                   ),
                 ],
                 
@@ -181,7 +226,7 @@ class _ExternalAppBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(color: LogistixColors.secondary, borderRadius: BorderRadius.circular(BootstrapRadii.xs)),
-      child: Text('APP', style: context.textTheme.labelSmall?.bold.copyWith(color: Colors.white)),
+      child: Text('APP', style: context.textTheme.labelSmall?.bold.copyWith(color: LogistixColors.white)),
     );
   }
 }

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class AddressDto {
   const AddressDto({required this.address, this.placeId});
 

@@ -104,7 +104,6 @@ class RiderModule extends Module<RouteBase> {
               database: injector.get<LogistixDatabase>(),
               syncUseCase: context.read<SyncRiderDataUseCase>(),
               riderBloc: context.read<RiderBloc>(),
-              initializeNotifications: injector.get<InitializeNotificationsUseCase>(),
             ),
             child: ToastServiceWidget(child: child),
           ),

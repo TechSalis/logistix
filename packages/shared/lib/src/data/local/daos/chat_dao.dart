@@ -4,18 +4,44 @@ import 'package:drift/drift.dart';
 import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/mappers/chat_mapper.dart';
 
+part 'chat_dao.g.dart';
+
 @DriftAccessor(tables: [Conversations, ChatMessages])
 class ChatDao extends DatabaseAccessor<LogistixDatabase> {
   ChatDao(super.db);
 
   // ── Conversations ────────────────────────────────────────────────
 
-  Stream<List<Conversation>> watchConversationsByCompany(String companyId) {
+  Stream<List<Conversation>> watchConversationsByCompany(
+    String companyId, {
+    int limit = 50,
+  }) {
     return (select(db.conversations)
           ..where((c) => c.companyId.equals(companyId))
-          ..orderBy([(t) => OrderingTerm.desc(t.lastMessageAt)]))
+          ..orderBy([(t) => OrderingTerm.desc(t.lastMessageAt)])
+          ..limit(limit))
         .watch()
         .map((rows) => rows.map((r) => r.toEntity()).toList());
+  }
+
+  Future<List<Conversation>> getConversationsPaginated({
+    required String companyId,
+    required int offset,
+    required int limit,
+  }) async {
+    final rows = await (select(db.conversations)
+          ..where((c) => c.companyId.equals(companyId))
+          ..orderBy([(t) => OrderingTerm.desc(t.lastMessageAt)])
+          ..limit(limit, offset: offset))
+        .get();
+    return rows.map((r) => r.toEntity()).toList();
+  }
+
+  Future<Conversation?> getConversationById(String conversationId) async {
+    final row = await (select(db.conversations)
+          ..where((c) => c.id.equals(conversationId)))
+        .getSingleOrNull();
+    return row?.toEntity();
   }
 
   // ── Messages ─────────────────────────────────────────────────────

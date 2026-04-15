@@ -1,3 +1,4 @@
+// ignore_for_file: cascade_invocations
 import 'package:drift/drift.dart';
 import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/mappers/order_mapper.dart';
@@ -84,7 +85,7 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
     final query = select(db.orders).addColumns([amount]);
     
     if (statuses != null && statuses.isNotEmpty) {
-      query.where(db.orders.status.isIn(statuses.map((s) => s.value).toList()));
+      query.where(db.orders.status.isIn(statuses.map((s) => s.name).toList()));
     }
     if (riderId != null) {
       query.where(db.orders.riderId.equals(riderId));
@@ -105,7 +106,7 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
     ]);
 
     if (statuses != null && statuses.isNotEmpty) {
-      query.where(db.orders.status.isIn(statuses.map((s) => s.value).toList()));
+      query.where(db.orders.status.isIn(statuses.map((s) => s.name).toList()));
     }
     
     if (riderId != null) {

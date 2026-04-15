@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
@@ -187,20 +186,20 @@ class _OrderInputCardState extends State<_OrderInputCard> {
     if (date != null && mounted) {
       final time = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.fromDateTime(
-          widget.input.scheduledAt ?? DateTime.now(),
-        ),
+        initialTime: widget.input.scheduledAt != null
+            ? TimeOfDay.fromDateTime(widget.input.scheduledAt!)
+            : const TimeOfDay(hour: 8, minute: 0),
       );
 
-      if (time != null && mounted) {
+      if (mounted) {
         widget.onUpdated(
           widget.input.copyWith(
             scheduledAt: DateTime(
               date.year,
               date.month,
               date.day,
-              time.hour,
-              time.minute,
+              time?.hour ?? 0,
+              time?.minute ?? 0,
             ),
           ),
         );
@@ -320,7 +319,9 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             onTap: () => setState(() => _isExpanded = !_isExpanded),
             borderRadius: BorderRadius.circular(BootstrapRadii.md),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: BootstrapSpacing.xs),
+              padding: const EdgeInsets.symmetric(
+                vertical: BootstrapSpacing.xs,
+              ),
               child: Row(
                 children: [
                   Icon(
@@ -381,23 +382,21 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             BootstrapTextField(
               key: ValueKey('dt_${widget.input.scheduledAt}'),
               label: 'Scheduled Delivery (Optional)',
-              initialValue: widget.input.scheduledAt != null
-                  ? DateFormat(
-                      'MMM dd, yyyy • hh:mm a',
-                    ).format(widget.input.scheduledAt!)
-                  : '',
+              initialValue: widget.input.scheduledAt?.toScheduleString() ?? '',
               readOnly: true,
+              suffixIcon: widget.input.scheduledAt != null
+                  ? GestureDetector(
+                      onTap: () {
+                        widget.onUpdated(
+                          widget.input.copyWith(scheduledAt: null),
+                        );
+                      },
+                      child: const Icon(Icons.close, size: 18),
+                    )
+                  : null,
               onTap: _pickDateTime,
               hintText: 'Select date & time',
               icon: Icons.calendar_today_rounded,
-              // suffix: widget.input.scheduledAt != null
-              //     ? IconButton(
-              //         icon: const Icon(Icons.close, size: 14),
-              //         onPressed: () => widget.onUpdated(
-              //           widget.input.copyWith(scheduledAt: null),
-              //         ),
-              //       )
-              //     : null,
             ),
           ],
           const SizedBox(height: BootstrapSpacing.md),

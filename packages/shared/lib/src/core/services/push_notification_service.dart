@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:adapters/logger/logger.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
-import 'package:flutter/material.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
@@ -17,7 +16,7 @@ abstract class PushNotificationService {
 class PushNotificationServiceImpl implements PushNotificationService {
   PushNotificationServiceImpl();
 
-  final _tokenController = StreamController<String>.broadcast();
+  static final _tokenController = StreamController<String>.broadcast();
 
   @override
   Stream<String> get onTokenRefresh => _tokenController.stream;
@@ -33,7 +32,7 @@ class PushNotificationServiceImpl implements PushNotificationService {
           channelName: 'Basic notifications',
           channelDescription: 'Notification channel for basic tests',
           defaultColor: LogistixColors.primary,
-          ledColor: Colors.white,
+          ledColor: LogistixColors.white,
           importance: NotificationImportance.High,
         ),
       ],
@@ -47,9 +46,7 @@ class PushNotificationServiceImpl implements PushNotificationService {
     );
 
     await AwesomeNotificationsFcm().initialize(
-      onFcmTokenHandle: (token) async {
-        _tokenController.add(token);
-      },
+      onFcmTokenHandle: _onFcmTokenHandle,
       onFcmSilentDataHandle: _onFcmSilentDataHandle,
       debug: EnvConfig.instance.isDevelopment,
     );
@@ -76,6 +73,10 @@ class PushNotificationServiceImpl implements PushNotificationService {
     } catch (e) {
       appLogger.error('Error deleting FCM token: $e');
     }
+  }
+
+  static Future<void> _onFcmTokenHandle(String token) async {
+    _tokenController.add(token);
   }
 
   static Future<void> _onFcmSilentDataHandle(FcmSilentData data) async {

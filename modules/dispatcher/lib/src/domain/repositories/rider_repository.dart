@@ -21,7 +21,7 @@ abstract class RiderRepository {
 
   Stream<Rider?> watchRider(String id);
 
-  Future<Result<AppError, Rider?>> getRider(String riderId);
   Future<Result<AppError, void>> acceptRider(String riderId);
   Future<Result<AppError, void>> rejectRider(String riderId);
+  Future<Result<AppError, List<Order>>> getRiderOrders(String riderId, {int limit = 10, int offset = 0});
 }

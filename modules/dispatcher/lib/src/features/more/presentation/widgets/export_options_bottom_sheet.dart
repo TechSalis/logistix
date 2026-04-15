@@ -48,6 +48,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
   DateTime? _startDate;
   DateTime? _endDate;
   Rider? _selectedRider;
+  List<OrderStatus> _selectedStatuses = [];
 
   Future<void> _selectDateRange() async {
     final picked = await showDateRangePicker(
@@ -78,10 +79,25 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
     }
   }
 
+  void _toggleStatus(OrderStatus status) {
+    setState(() {
+      if (_selectedStatuses.contains(status)) {
+        _selectedStatuses.remove(status);
+      } else {
+        _selectedStatuses.add(status);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+      padding: const EdgeInsets.fromLTRB(
+        BootstrapSpacing.lg,
+        0,
+        BootstrapSpacing.lg,
+        BootstrapSpacing.xl,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -89,10 +105,10 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(BootstrapSpacing.sm),
                 decoration: BoxDecoration(
                   color: LogistixColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(BootstrapRadii.lg),
                 ),
                 child: const Icon(
                   Icons.file_download_outlined,
@@ -100,40 +116,86 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: BootstrapSpacing.md),
               Expanded(
                 child: Text(
                   widget.title,
-                  style: context.textTheme.titleLarge?.bold,
+                  style: context.textTheme.titleLarge?.semiBold,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: BootstrapSpacing.md),
           Text(
-            'Date Range',
-            style: context.textTheme.labelSmall?.bold.copyWith(
+            'Configure your export settings to generate a detailed report of your logistics data across orders and riders.',
+            style: context.textTheme.bodyMedium?.copyWith(
               color: LogistixColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: BootstrapSpacing.lg),
+
+          // ─── Status Filter ──────────────────────────────────────────────────────────
+          Text(
+            'Order Status'.toUpperCase(),
+            style: context.textTheme.labelSmall?.semiBold.copyWith(
+              color: LogistixColors.textSecondary,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: BootstrapSpacing.sm),
+          Wrap(
+            spacing: BootstrapSpacing.xs,
+            runSpacing: BootstrapSpacing.xs,
+            children: [
+              BootstrapChoiceChip(
+                label: 'All',
+                isSelected: _selectedStatuses.isEmpty,
+                onTap: () => setState(() => _selectedStatuses = []),
+              ),
+              ...OrderStatus.values.map(
+                (status) => BootstrapChoiceChip(
+                  label: status.label,
+                  isSelected: _selectedStatuses.contains(status),
+                  onTap: () => _toggleStatus(status),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: BootstrapSpacing.lg),
+          // ─── Date Range ─────────────────────────────────────────────────────────────
+          Text(
+            'Date Range'.toUpperCase(),
+            style: context.textTheme.labelSmall?.semiBold.copyWith(
+              color: LogistixColors.textSecondary,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: BootstrapSpacing.sm),
           InkWell(
             onTap: _selectDateRange,
             borderRadius: BorderRadius.circular(BootstrapRadii.input),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(
+                horizontal: BootstrapSpacing.md,
+                vertical: BootstrapSpacing.md,
+              ),
               decoration: BoxDecoration(
-                color: LogistixColors.background,
+                color: context.theme.inputDecorationTheme.fillColor,
+                border: Border.fromBorderSide(
+                  context.theme.inputDecorationTheme.border!.borderSide,
+                ),
                 borderRadius: BorderRadius.circular(BootstrapRadii.input),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.calendar_today_rounded,
                     size: 20,
-                    color: LogistixColors.primary,
+                    color: _startDate != null
+                        ? LogistixColors.primary
+                        : LogistixColors.textTertiary,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: BootstrapSpacing.md),
                   Expanded(
                     child: Text(
                       _startDate != null && _endDate != null
@@ -150,30 +212,34 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
               ),
             ),
           ),
+
+          // ─── Rider Filter ──────────────────────────────────────────────────────────
           if (widget.showRiderFilter) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: BootstrapSpacing.lg),
             Text(
-              'Filter by Rider',
-              style: context.textTheme.labelSmall?.bold.copyWith(
+              'Filter by Rider'.toUpperCase(),
+              style: context.textTheme.labelSmall?.semiBold.copyWith(
                 color: LogistixColors.textSecondary,
+                letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(height: 8),
-            AssignRiderDropdownSearch(
+            const SizedBox(height: BootstrapSpacing.sm),
+            RiderDropdownSearch(
+              // Updated from AssignRiderDropdownSearch
               selectedRider: _selectedRider,
-              searchRiders: (filter) =>
-                  context.read<SearchRidersUseCase>().call(filter),
+              searchRiders: context.read<SearchRidersUseCase>().call,
               onChanged: (rider) => setState(() => _selectedRider = rider),
-              label: 'Search or select a rider',
+              label: 'Select a rider (Optional)',
             ),
           ],
-          const SizedBox(height: 32),
+          const SizedBox(height: BootstrapSpacing.xl),
           BootstrapButton(
             onPressed: () {
               final params = ExportParams(
                 startDate: _startDate,
                 endDate: _endDate,
                 riderId: _selectedRider?.id,
+                statuses: _selectedStatuses.isEmpty ? null : _selectedStatuses,
               );
               Navigator.pop(context, params);
             },

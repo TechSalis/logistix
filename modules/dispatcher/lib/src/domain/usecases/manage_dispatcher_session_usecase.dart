@@ -15,7 +15,6 @@ class DispatcherSessionManager extends SessionCoordinator {
     required DispatcherSubscriptionHandler subscriptionHandler,
     required LogistixDatabase database,
     required SyncDispatcherDataUseCase syncUseCase,
-    required InitializeNotificationsUseCase initializeNotifications,
     required ChatSessionManager chatSessionManager,
   }) {
     // 1. Core Data Synchronization
@@ -52,8 +51,7 @@ class DispatcherSessionManager extends SessionCoordinator {
     addComponent(chatSessionManager);
 
     addComponent(
-      NotificationComponent(initializeNotifications: initializeNotifications),
+      PeriodicSyncComponent(interval: const Duration(minutes: 2), onTrigger: sync),
     );
-    addComponent(PeriodicSyncComponent(interval: const Duration(minutes: 2)));
   }
 }

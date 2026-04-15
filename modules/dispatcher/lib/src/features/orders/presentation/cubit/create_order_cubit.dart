@@ -34,13 +34,14 @@ class CreateOrderState {
     int? formKeyVersion,
     String? error,
     bool? success,
+    bool clearError = false,
   }) {
     return CreateOrderState(
       orders: orders ?? this.orders,
       riders: riders ?? this.riders,
       isLoading: isLoading ?? this.isLoading,
       formKeyVersion: formKeyVersion ?? this.formKeyVersion,
-      error: error ?? this.error,
+      error: clearError ? null : (error ?? this.error),
       success: success ?? this.success,
     );
   }
@@ -66,6 +67,7 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
   void addOrder() {
     emit(
       state.copyWith(
+        clearError: true,
         orders: [
           ...state.orders,
           const OrderCreateInput(dropOffAddress: ''),
@@ -79,18 +81,18 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
     final orderToDuplicate = state.orders[index];
     final newList = List<OrderCreateInput>.from(state.orders)
       ..insert(index + 1, orderToDuplicate.copyWith());
-    emit(state.copyWith(orders: newList));
+    emit(state.copyWith(orders: newList, clearError: true));
   }
 
   void removeOrder(int index) {
     if (state.orders.isEmpty) return;
     final newList = List<OrderCreateInput>.from(state.orders)..removeAt(index);
-    emit(state.copyWith(orders: newList));
+    emit(state.copyWith(orders: newList, clearError: true));
   }
 
   void updateOrder(int index, OrderCreateInput order) {
     final newList = List<OrderCreateInput>.from(state.orders)..[index] = order;
-    emit(state.copyWith(orders: newList));
+    emit(state.copyWith(orders: newList, clearError: true));
   }
 
   late final parseWithAi = AsyncRunner.withArg<String, AppError, void>((
@@ -127,7 +129,7 @@ class CreateOrderCubit extends Cubit<CreateOrderState> {
       return;
     }
 
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, clearError: true));
 
     final result = await _orderRepo.createBulkOrders(validOrders);
 

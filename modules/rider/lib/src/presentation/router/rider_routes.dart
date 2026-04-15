@@ -1,4 +1,3 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rider/src/features/map/presentation/view/rider_map_tab.dart';
 import 'package:rider/src/features/orders/presentation/view/rider_orders_tab.dart';
@@ -28,7 +27,6 @@ abstract class RiderRoutes {
 }
 
 /// Rider module route configuration using StatefulShellRoute
-@internal
 List<RouteBase> get riderRoutes => [
   StatefulShellRoute.indexedStack(
     builder: (context, state, navigationShell) {

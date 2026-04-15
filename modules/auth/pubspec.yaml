@@ -14,11 +14,12 @@ dependencies:
   adapters:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap-adapters
-      ref: v0.5.3
+      ref: v0.5.5
+
   bootstrap:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap
-      ref: v0.5.3
+      ref: v0.5.5
       
   logistix_ux:
     path: ../../packages/logistix_ux
@@ -33,6 +34,7 @@ dependencies:
   dio: ^5.9.2
 
   form_builder_validators: any
+  lucide_icons_flutter: ^3.1.12
 dev_dependencies:
   flutter_test:
     sdk: flutter

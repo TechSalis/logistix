@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dispatcher/src/features/more/data/dtos/analytics_export_request.dart';
 
+// ignore: one_member_abstracts
 abstract class AnalyticsRemoteDataSource {
   Future<String> exportAnalytics(AnalyticsExportRequest request);
 }

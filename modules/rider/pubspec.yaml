@@ -14,11 +14,13 @@ dependencies:
   adapters:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap-adapters
-      ref: v0.5.3
+      ref: v0.5.5
+
   bootstrap:
     git:
       url: https://github.com/Enri-code/flutter-bootstrap
-      ref: v0.5.3
+      ref: v0.5.5
+
   auth:
     path: ../auth
   logistix_ux:
@@ -37,6 +39,7 @@ dependencies:
   freezed_annotation: ^3.1.0
 
   drift: any
+  lucide_icons_flutter: ^3.1.12
 dev_dependencies:
   flutter_test:
     sdk: flutter

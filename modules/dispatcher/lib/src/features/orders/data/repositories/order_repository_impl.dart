@@ -102,7 +102,7 @@ class OrderRepositoryImpl implements OrderRepository {
 
     final result = await Result.tryCatch<AppError, void>(() async {
       final dto = await _remoteDataSource.updateOrderStatus(
-        UpdateOrderStatusRequest(orderId: orderId, status: status.value),
+        UpdateOrderStatusRequest(orderId: orderId, status: status.name),
       );
       await _orderDao.upsertOrder(dto.toDriftCompanion());
     });
@@ -165,7 +165,7 @@ class OrderRepositoryImpl implements OrderRepository {
       final dto = await _remoteDataSource.updateOrderStatus(
         UpdateOrderStatusRequest(
           orderId: orderId,
-          status: OrderStatus.UNASSIGNED.value,
+          status: OrderStatus.UNASSIGNED.name,
         ),
       );
 

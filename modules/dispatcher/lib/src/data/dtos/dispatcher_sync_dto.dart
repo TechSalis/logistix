@@ -1,5 +1,5 @@
 import 'package:dispatcher/src/domain/entities/dispatcher_sync.dart';
-import 'package:dispatcher/src/features/chat/data/dtos/conversation_dto.dart';
+
 import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
