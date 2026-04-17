@@ -19,13 +19,7 @@ class ChatsTab extends StatefulWidget {
 class _ChatsTabState extends State<ChatsTab>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<ChatPlatform?> _tabs = [
-    null,
-    ChatPlatform.WHATSAPP,
-    ChatPlatform.FACEBOOK,
-    ChatPlatform.INSTAGRAM,
-    ChatPlatform.TIKTOK,
-  ];
+  List<ChatPlatform?> _tabs = [null];
 
   @override
   void initState() {
@@ -213,71 +207,163 @@ class _ChatsTabState extends State<ChatsTab>
     return integrations.any((i) => i.platform == platform && i.isActive);
   }
 
+  void _updateTabs(List<CompanyIntegration> integrations) {
+    final newTabs = [
+      null,
+      ...ChatPlatform.values.where(
+        (p) => _isPlatformIntegrated(integrations, p),
+      ),
+    ];
+
+    if (newTabs.length != _tabs.length ||
+        !newTabs.every((t) => _tabs.contains(t))) {
+      setState(() {
+        _tabs = newTabs;
+        _tabController.dispose();
+        _tabController = TabController(length: _tabs.length, vsync: this);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion(
-      value: SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        body: Column(
-          children: [
-            SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: LogistixColors.border.withValues(alpha: 0.5),
-                      width: 0.5,
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, state) {
+        return BlocConsumer<MoreCubit, MoreState>(
+          listener: (context, moreState) {
+            moreState.whenOrNull(
+              loaded: (_, user) {
+                _updateTabs(user?.companyProfile?.integrations ?? []);
+              },
+            );
+          },
+          builder: (context, moreState) {
+            final integrations = moreState.maybeWhen(
+              loaded: (_, user) =>
+                  user?.companyProfile?.integrations ?? <CompanyIntegration>[],
+              orElse: () => <CompanyIntegration>[],
+            );
+
+            // If only "All" tab and no active/requested integrations, show empty state
+            if (_tabs.length == 1 && integrations.isEmpty) {
+              return _buildGlobalEmptyState(context);
+            }
+
+            return AnnotatedRegion(
+              value: SystemUiOverlayStyle.dark,
+              child: Scaffold(
+                body: Column(
+                  children: [
+                    SafeArea(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          border: Border(
+                            bottom: BorderSide(
+                              color: LogistixColors.border.withValues(
+                                alpha: 0.5,
+                              ),
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                        child: TabBar(
+                          controller: _tabController,
+                          isScrollable: _tabs.length > 3,
+                          tabAlignment: _tabs.length > 3
+                              ? TabAlignment.start
+                              : TabAlignment.center,
+                          labelPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                          ),
+                          indicatorColor: LogistixColors.primary,
+                          labelColor: LogistixColors.primary,
+                          unselectedLabelColor: LogistixColors.textSecondary,
+                          tabs: _tabs
+                              .map(
+                                (platform) => Tab(child: _buildTab(platform)),
+                              )
+                              .toList(),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 20),
-                  indicatorColor: LogistixColors.primary,
-                  labelColor: LogistixColors.primary,
-                  unselectedLabelColor: LogistixColors.textSecondary,
-                  tabs: _tabs
-                      .map((platform) => Tab(child: _buildTab(platform)))
-                      .toList(),
+                    Expanded(
+                      child: state.isLoading && state.conversations.isEmpty
+                          ? const Center(child: BootstrapInlineLoader())
+                          : TabBarView(
+                              controller: _tabController,
+                              children: _tabs.map((platform) {
+                                return _buildTabContent(
+                                  context,
+                                  platform,
+                                  state.conversations,
+                                  integrations,
+                                );
+                              }).toList(),
+                            ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            Expanded(
-              child: BlocBuilder<ChatCubit, ChatState>(
-                builder: (context, state) {
-                  return BlocBuilder<MoreCubit, MoreState>(
-                    builder: (context, moreState) {
-                      final integrations = moreState.maybeWhen(
-                        loaded: (_, user) =>
-                            user?.companyProfile?.integrations ??
-                            <CompanyIntegration>[],
-                        orElse: () => <CompanyIntegration>[],
-                      );
+            );
+          },
+        );
+      },
+    );
+  }
 
-                      if (state.isLoading && state.conversations.isEmpty) {
-                        return const Center(child: BootstrapInlineLoader());
-                      }
-
-                      return TabBarView(
-                        controller: _tabController,
-                        children: _tabs.map((platform) {
-                          return _buildTabContent(
-                            context,
-                            platform,
-                            state.conversations,
-                            integrations,
-                          );
-                        }).toList(),
-                      );
-                    },
-                  );
+  Widget _buildGlobalEmptyState(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(BootstrapSpacing.xxl),
+          child: BootstrapEntrance(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: LogistixColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_outlined,
+                  size: 48,
+                  color: LogistixColors.primary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'AI Dispatcher is Ready',
+                style: context.textTheme.headlineSmall?.semiBold,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Connect your first communication channel to start automating your logistics and chatting with customers.',
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodyLarge?.copyWith(
+                  color: LogistixColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 32),
+              BootstrapButton(
+                label: 'Setup AI Integration',
+                onPressed: () {
+                  context.push(DispatcherRoutes.requestIntegration);
+                },
+                icon: Icons.add_link_rounded,
+                width: 240,
+              ),
+              const SizedBox(height: 16),
+              BootstrapButton(
+                label: 'View More Settings',
+                type: BootstrapButtonType.outline,
+                onPressed: () {
+                  context.go(DispatcherRoutes.more);
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

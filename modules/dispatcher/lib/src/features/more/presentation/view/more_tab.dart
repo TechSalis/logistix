@@ -4,11 +4,12 @@ import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
 import 'package:dispatcher/src/features/more/presentation/widgets/export_options_bottom_sheet.dart';
-import 'package:dispatcher/src/features/more/presentation/widgets/platform_picker_sheet.dart';
 import 'package:dispatcher/src/features/more/presentation/widgets/platform_widgets.dart';
+import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared/shared.dart';
@@ -77,8 +78,9 @@ class MoreTab extends StatelessWidget {
                                 iconColor: LogistixColors.primary,
                                 titleColor: LogistixColors.primary,
                                 subtitle: _getIntegrationsSummary(user),
-                                onTap: () =>
-                                    _showPlatformPicker(context, state),
+                                onTap: () => context.push(
+                                  DispatcherRoutes.requestIntegration,
+                                ),
                               ),
                             ],
                           ),
@@ -249,30 +251,6 @@ class MoreTab extends StatelessWidget {
 
   void _showComingSoon(BuildContext context, String feature) {
     context.toast.showToast('$feature coming soon', type: ToastType.info);
-  }
-
-  void _showPlatformPicker(BuildContext context, MoreState state) {
-    final moreCubit = context.read<MoreCubit>();
-    final toastService = ToastServiceProvider.of(context);
-
-    PlatformPickerSheet.show(
-      context,
-      state: state,
-      onPlatformSelected: (platform) {
-        if (platform == ChatPlatform.WHATSAPP) {
-          Navigator.pop(context);
-          PlatformActivationForm.show(
-            context,
-            platform: platform,
-            runner: moreCubit.requestIntegrationRunner,
-            toastService: toastService,
-            user: state is MoreLoaded ? state.user : null,
-          );
-        } else {
-          _showComingSoon(context, platform.name.capitalizeFirst());
-        }
-      },
-    );
   }
 
   String _getIntegrationsSummary(User? user) {

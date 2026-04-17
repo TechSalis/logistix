@@ -17,26 +17,6 @@ class PlatformPickerSheet extends StatefulWidget {
   final MoreState state;
   final void Function(ChatPlatform) onPlatformSelected;
 
-  static Future<void> show(
-    BuildContext context, {
-    required MoreState state,
-    required void Function(ChatPlatform) onPlatformSelected,
-  }) {
-    return showModalBottomSheet<void>(
-      context: context,
-      showDragHandle: true,
-      useSafeArea: true,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      builder: (context) => PlatformPickerSheet(
-        state: state,
-        onPlatformSelected: onPlatformSelected,
-      ),
-    );
-  }
-
   @override
   State<PlatformPickerSheet> createState() => _PlatformPickerSheetState();
 }

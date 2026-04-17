@@ -2,6 +2,7 @@ import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:dispatcher/src/features/chat/presentation/pages/chat_detail_page.dart';
 import 'package:dispatcher/src/features/chat/presentation/pages/chats_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
+import 'package:dispatcher/src/features/more/presentation/view/request_integration_page.dart';
 import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/create_order_page.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/order_details_page.dart';
@@ -44,6 +45,7 @@ abstract class DispatcherRoutes {
   static String riderDetails(String id) => '$riders/$id';
 
   static const String more = '$rootPath/${_DispatcherPaths.more}';
+  static const String requestIntegration = '$more/request';
 }
 
 /// Dispatcher module route configuration using StatefulShellRoute
@@ -159,6 +161,32 @@ List<RouteBase> get dispatcherRoutes => [
           GoRoute(
             path: DispatcherRoutes.more,
             builder: (context, state) => const MoreTab(),
+            routes: [
+              GoRoute(
+                path: 'request',
+                pageBuilder: (context, state) {
+                  return CustomTransitionPage(
+                    key: state.pageKey,
+                    opaque: false,
+                    barrierDismissible: true,
+                    barrierColor: Colors.black54,
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          return SlideTransition(
+                            position: animation.drive(
+                              Tween<Offset>(
+                                begin: const Offset(0, 1),
+                                end: Offset.zero,
+                              ).chain(CurveTween(curve: Curves.easeOutQuart)),
+                            ),
+                            child: child,
+                          );
+                        },
+                    child: const RequestIntegrationPage(),
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),

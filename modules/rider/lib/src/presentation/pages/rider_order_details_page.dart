@@ -48,16 +48,24 @@ class _RiderOrderDetailsView extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is RiderOrderDetailsInitial) return const SizedBox.shrink();
-          if (state is RiderOrderDetailsLoading) return const _OrderDetailsShimmer();
-          if (state is RiderOrderDetailsError) return BootstrapErrorView(message: state.message);
-          if (state is RiderOrderDetailsLoaded) return _OrderLoadedContent(order: state.order);
+          if (state is RiderOrderDetailsLoading) {
+            return const _OrderDetailsShimmer();
+          }
+          if (state is RiderOrderDetailsError) {
+            return BootstrapErrorView(message: state.message);
+          }
+          if (state is RiderOrderDetailsLoaded) {
+            return _OrderLoadedContent(order: state.order);
+          }
           return const SizedBox.shrink();
         },
       ),
       bottomNavigationBar:
           BlocBuilder<RiderOrderDetailsCubit, RiderOrderDetailsState>(
             builder: (context, state) {
-              if (state is RiderOrderDetailsLoaded) return _BottomActionCta(order: state.order);
+              if (state is RiderOrderDetailsLoaded) {
+                return _BottomActionCta(order: state.order);
+              }
               return const SizedBox.shrink();
             },
           ),
@@ -90,13 +98,15 @@ class _OrderLoadedContent extends StatelessWidget {
                 const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Delivery Details'),
                 const SizedBox(height: BootstrapSpacing.md),
-                
+
                 // Main Details Card
                 Container(
                   decoration: BoxDecoration(
                     color: LogistixColors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: LogistixColors.black.withValues(alpha: 0.03)),
+                    border: Border.all(
+                      color: LogistixColors.black.withValues(alpha: 0.03),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: LogistixColors.black.withValues(alpha: 0.02),
@@ -115,7 +125,10 @@ class _OrderLoadedContent extends StatelessWidget {
                           title: 'Pickup',
                           value: order.pickupAddress!,
                           onTap: order.hasPickupPosition
-                              ? () => LogistixLauncher.openMap(order.pickupLat!, order.pickupLng!)
+                              ? () => LogistixLauncher.openMap(
+                                  order.pickupLat!,
+                                  order.pickupLng!,
+                                )
                               : null,
                         ),
                         if (order.pickupPhone?.isNotEmpty ?? false)
@@ -126,12 +139,19 @@ class _OrderLoadedContent extends StatelessWidget {
                               iconColor: LogistixColors.primary,
                               title: 'Call Sender',
                               value: order.pickupPhone!,
-                              onTap: () => LogistixLauncher.callNumber(order.pickupPhone!),
+                              onTap: () => LogistixLauncher.callNumber(
+                                order.pickupPhone!,
+                              ),
                             ),
                           ),
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
-                          child: Divider(height: 1, color: LogistixColors.background),
+                          padding: EdgeInsets.symmetric(
+                            vertical: BootstrapSpacing.sm,
+                          ),
+                          child: Divider(
+                            height: 1,
+                            color: LogistixColors.background,
+                          ),
                         ),
                       ],
                       BootstrapInfoTile(
@@ -141,13 +161,22 @@ class _OrderLoadedContent extends StatelessWidget {
                         value: order.dropOffAddress,
                         isBold: true,
                         onTap: order.hasDropOffPosition
-                            ? () => LogistixLauncher.openMap(order.dropOffLat!, order.dropOffLng!)
+                            ? () => LogistixLauncher.openMap(
+                                order.dropOffLat!,
+                                order.dropOffLng!,
+                              )
                             : null,
                       ),
-                      if (order.description != null && order.description!.isNotEmpty) ...[
+                      if (order.description != null &&
+                          order.description!.isNotEmpty) ...[
                         const Padding(
-                          padding: EdgeInsets.symmetric(vertical: BootstrapSpacing.sm),
-                          child: Divider(height: 1, color: LogistixColors.background),
+                          padding: EdgeInsets.symmetric(
+                            vertical: BootstrapSpacing.sm,
+                          ),
+                          child: Divider(
+                            height: 1,
+                            color: LogistixColors.background,
+                          ),
                         ),
                         BootstrapInfoTile(
                           icon: Icons.description_rounded,
@@ -166,7 +195,9 @@ class _OrderLoadedContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: LogistixColors.primary.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: LogistixColors.primary.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: LogistixColors.primary.withValues(alpha: 0.1),
+                      ),
                     ),
                     padding: const EdgeInsets.all(BootstrapSpacing.md),
                     child: BootstrapInfoTile(
@@ -296,6 +327,12 @@ class _BottomActionCta extends StatelessWidget {
             error?.message ?? 'Failed to unassign order',
             type: ToastType.error,
           );
+        } else if (state.status.isSuccess) {
+          Navigator.of(context).pop();
+          context.toast.showToast(
+            'Order unassigned successfully',
+            type: ToastType.success,
+          );
         }
       },
       child: AsyncRunnerBuilder(
@@ -303,7 +340,19 @@ class _BottomActionCta extends StatelessWidget {
         builder: (context, state, _) {
           final isLoading = state.status.isRunning;
           return BootstrapButton(
-            onPressed: cubit.unassignRunner.call,
+            onPressed: isLoading
+                ? null
+                : () {
+                    BootstrapDialog.show<bool>(
+                      context: context,
+                      title: 'Unassign Order?',
+                      content:
+                          'Are you sure you want to return this order to the pool? You will no longer be responsible for it.',
+                      primaryActionText: 'Unassign',
+                      onPrimaryAction: (_) => cubit.unassignRunner(),
+                      // isDestructive: true,
+                    );
+                  },
             foregroundColor: LogistixColors.error,
             backgroundColor: LogistixColors.error,
             isLoading: isLoading,
@@ -327,6 +376,8 @@ class _BottomActionCta extends StatelessWidget {
             error?.message ?? 'Failed to start delivery',
             type: ToastType.error,
           );
+        } else if (state.status.isSuccess) {
+          context.toast.showToast('Delivery started', type: ToastType.success);
         }
       },
       child: AsyncRunnerBuilder(
@@ -355,6 +406,12 @@ class _BottomActionCta extends StatelessWidget {
           context.toast.showToast(
             error?.message ?? 'Failed to mark order as delivered',
             type: ToastType.error,
+          );
+        } else if (state.status.isSuccess) {
+          Navigator.of(context).pop();
+          context.toast.showToast(
+            'Order delivered! Great job.',
+            type: ToastType.success,
           );
         }
       },
