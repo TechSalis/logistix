@@ -2,9 +2,16 @@ import 'package:shared/src/core/config/env_config.dart';
 
 class LogistixTracking {
   static String generateLink(String trackingNumber, {String? trackingCode}) {
-    final base = EnvConfig.instance.trackingLink;
-    var link = '$base/track/$trackingNumber';
-    if (trackingCode != null) link += '?code=$trackingCode';
+    var base = EnvConfig.instance.trackingLink;
+    if (base.endsWith('/')) {
+      base = base.substring(0, base.length - 1);
+    }
+
+    var link = '$base/$trackingNumber';
+    if (trackingCode != null && trackingCode.isNotEmpty) {
+      link += '?code=$trackingCode';
+    }
+
     return link;
   }
 }
