@@ -52,7 +52,7 @@ class RiderHeartbeatComponent extends SessionComponent {
     // Hierarchical Logic:
     // - Use position if provided (50m hardware trigger).
     // - If not provided (60s timer), only use GPS if we've moved > 2m (Micro-movement guard).
-    Position? posToSend = position;
+    var posToSend = position;
 
     if (posToSend == null && _lastSentPosition != null) {
       final currentPos = await Geolocator.getLastKnownPosition();

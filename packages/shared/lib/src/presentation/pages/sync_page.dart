@@ -2,7 +2,7 @@ import 'package:bootstrap/definitions/app_error.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
-import 'package:shared/src/core/config/env_config.dart';
+import 'package:shared/src/core/config/project_config.dart';
 
 /// A centralized, "dumb" page for performing critical asynchronous operations.
 ///
@@ -195,7 +195,7 @@ class _SyncPageState extends State<SyncPage>
                 LogistixAssets.images.icon.image(height: 120, width: 120),
                 const SizedBox(height: 24),
                 Text(
-                  EnvConfig.instance.brandName,
+                  ProjectConfig.brandName,
                   style: context.textTheme.headlineLarge?.bold.copyWith(
                     letterSpacing: 1.2,
                   ),

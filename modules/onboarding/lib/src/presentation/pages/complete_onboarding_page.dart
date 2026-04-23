@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:shared/shared.dart';
+import 'package:shared/src/core/config/project_config.dart';
 
 class CompleteOnboardingPage extends StatefulWidget {
   const CompleteOnboardingPage({super.key});
@@ -35,11 +36,11 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
       },
       builder: (context, state) {
         if (state.status == OnboardingStatus.success) {
-          return Scaffold(
+          return const Scaffold(
             body: BootstrapSuccessView(
               title: 'Account Ready!',
               message:
-                  'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.brandName}!',
+                  'Your profile has been set up successfully. Welcome to ${ProjectConfig.brandName}!',
             ),
           );
         }

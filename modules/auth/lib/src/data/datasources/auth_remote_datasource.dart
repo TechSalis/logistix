@@ -223,7 +223,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<void> deactivateAccount() async {
-    const mutation = r'''
+    const mutation = '''
         mutation DeactivateAccount {
           deactivateAccount
         }

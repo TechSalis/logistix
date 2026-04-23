@@ -10,6 +10,7 @@ import 'package:logistix/startup/presentation/bloc/app_state.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared/shared.dart';
+import 'package:shared/src/core/config/project_config.dart';
 
 void main() async {
   FlutterNativeSplash.preserve(
@@ -86,7 +87,7 @@ class _LogistixAppState extends State<LogistixApp> with WidgetsBindingObserver {
       child: BlocListener<AppBloc, AppState>(
         listener: (context, state) => redirect(state),
         child: MaterialApp.router(
-          title: EnvConfig.instance.brandName,
+          title: ProjectConfig.brandName,
           theme: LogistixTheme.lightTheme,
           routerConfig: widget.appRouter,
         ),

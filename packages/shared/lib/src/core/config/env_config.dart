@@ -1,3 +1,4 @@
+
 /// Generic Environment Configuration using --dart-define values
 class EnvConfig {
   String get apiUrl => const String.fromEnvironment('API_URL');
@@ -10,7 +11,6 @@ class EnvConfig {
   String get environment => const String.fromEnvironment('ENVIRONMENT');
   String get trackingLink => const String.fromEnvironment('TRACKING_LINK');
   String get clientKey => const String.fromEnvironment('CLIENT_KEY');
-  String get brandName => const String.fromEnvironment('SYSTEM_BRAND');
   
   bool get isSingleTenant =>
       const String.fromEnvironment('SYSTEM_MODE') == 'SINGLE_TENANT';

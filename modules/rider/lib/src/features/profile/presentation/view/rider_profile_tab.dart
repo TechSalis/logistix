@@ -4,6 +4,7 @@ import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
@@ -11,7 +12,6 @@ import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:rider/src/presentation/router/rider_routes.dart';
 import 'package:shared/shared.dart';
-import 'package:go_router/go_router.dart';
 
 class RiderProfileTab extends StatelessWidget {
   const RiderProfileTab({super.key});

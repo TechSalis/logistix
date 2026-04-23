@@ -167,7 +167,7 @@ List<RouteBase> get dispatcherRoutes => [
               GoRoute(
                 path: 'account',
                 builder: (context, state) {
-                  final user = state.extra as User;
+                  final user = state.extra! as User;
                   return AccountPage(user: user);
                 },
               ),

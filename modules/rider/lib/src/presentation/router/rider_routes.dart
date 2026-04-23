@@ -73,7 +73,7 @@ List<RouteBase> get riderRoutes => [
                GoRoute(
                  path: 'account',
                  builder: (context, state) {
-                    final rider = state.extra as Rider;
+                  final rider = state.extra! as Rider;
                     return RiderAccountPage(rider: rider);
                  },
                ),

@@ -10,7 +10,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-import 'package:shared/shared.dart';
+import 'package:shared/src/core/config/project_config.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
           tag: 'logo',
           child: LogistixAssets.images.icon.image(height: 80),
         ),
-        title: EnvConfig.instance.brandName,
+        title: ProjectConfig.brandName,
         subtitle: 'Precision in every step',
         footer: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
