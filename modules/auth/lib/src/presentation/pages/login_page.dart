@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
           tag: 'logo',
           child: LogistixAssets.images.icon.image(height: 80),
         ),
-        title: EnvConfig.instance.appName,
+        title: EnvConfig.instance.brandName,
         subtitle: 'Precision in every step',
         footer: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {

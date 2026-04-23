@@ -195,7 +195,7 @@ class _SyncPageState extends State<SyncPage>
                 LogistixAssets.images.icon.image(height: 120, width: 120),
                 const SizedBox(height: 24),
                 Text(
-                  EnvConfig.instance.appName,
+                  EnvConfig.instance.brandName,
                   style: context.textTheme.headlineLarge?.bold.copyWith(
                     letterSpacing: 1.2,
                   ),

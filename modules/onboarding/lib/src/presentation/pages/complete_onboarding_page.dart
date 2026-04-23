@@ -39,7 +39,7 @@ class _CompleteOnboardingPageState extends State<CompleteOnboardingPage> {
             body: BootstrapSuccessView(
               title: 'Account Ready!',
               message:
-                  'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.appName}!',
+                  'Your profile has been set up successfully. Welcome to ${EnvConfig.instance.brandName}!',
             ),
           );
         }

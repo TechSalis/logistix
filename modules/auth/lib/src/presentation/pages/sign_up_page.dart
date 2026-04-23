@@ -53,7 +53,7 @@ class _SignUpPageState extends State<SignUpPage> {
           tag: 'logo',
           child: LogistixAssets.images.icon.image(height: 64),
         ),
-        title: 'Join ${EnvConfig.instance.appName}',
+        title: 'Join ${EnvConfig.instance.brandName}',
         subtitle: 'Create your account to get started',
         footer: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {

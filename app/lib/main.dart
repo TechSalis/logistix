@@ -86,7 +86,7 @@ class _LogistixAppState extends State<LogistixApp> with WidgetsBindingObserver {
       child: BlocListener<AppBloc, AppState>(
         listener: (context, state) => redirect(state),
         child: MaterialApp.router(
-          title: EnvConfig.instance.appName,
+          title: EnvConfig.instance.brandName,
           theme: LogistixTheme.lightTheme,
           routerConfig: widget.appRouter,
         ),

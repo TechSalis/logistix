@@ -111,7 +111,7 @@ class _PlatformPickerSheetState extends State<PlatformPickerSheet> {
                                 'Select a channel to automate your logistics with ',
                           ),
                           TextSpan(
-                            text: '${EnvConfig.instance.appName} Automation.',
+                            text: '${EnvConfig.instance.brandName} Automation.',
                             style: context.textTheme.bodyMedium?.semiBold,
                           ),
                         ],
