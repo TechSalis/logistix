@@ -79,6 +79,7 @@ class RiderModule extends Module<RouteBase> {
               create: (context) => RiderBloc(
                 context.read<RiderRepository>(),
                 injector.get<LogoutUseCase>(),
+                injector.get<DeactivateAccountUseCase>(),
                 injector.get<UserStore>(),
               ),
             ),

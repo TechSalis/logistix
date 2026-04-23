@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bootstrap/services/async_runner/async_runner.dart';
-import 'package:collection/collection.dart';
 import 'package:dispatcher/src/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:dispatcher/src/features/chat/presentation/widgets/chat_app_bar_title.dart';
 import 'package:dispatcher/src/features/chat/presentation/widgets/chat_input_bar.dart';

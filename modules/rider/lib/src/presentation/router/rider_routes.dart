@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:rider/src/features/map/presentation/view/rider_map_tab.dart';
 import 'package:rider/src/features/orders/presentation/view/rider_orders_tab.dart';
+import 'package:rider/src/features/profile/presentation/view/rider_account_page.dart';
 import 'package:rider/src/features/profile/presentation/view/rider_profile_tab.dart';
 import 'package:rider/src/presentation/pages/rider_order_details_page.dart';
 import 'package:rider/src/presentation/pages/rider_page.dart';
@@ -24,6 +25,7 @@ abstract class RiderRoutes {
   static String orderDetails(String id) => '$orders/$id';
 
   static const String profile = '$rootPath/${_RiderPaths.profile}';
+  static const String account = '$profile/account';
 }
 
 /// Rider module route configuration using StatefulShellRoute
@@ -67,6 +69,15 @@ List<RouteBase> get riderRoutes => [
           GoRoute(
             path: RiderRoutes.profile,
             builder: (context, state) => const RiderProfileTab(),
+            routes: [
+               GoRoute(
+                 path: 'account',
+                 builder: (context, state) {
+                    final rider = state.extra as Rider;
+                    return RiderAccountPage(rider: rider);
+                 },
+               ),
+            ],
           ),
         ],
       ),

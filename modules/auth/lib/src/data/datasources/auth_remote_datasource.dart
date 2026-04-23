@@ -27,6 +27,9 @@ abstract class AuthRemoteDataSource {
 
   /// Update FCM token
   Future<void> updateFcmToken(String token);
+
+  /// Deactivate account
+  Future<void> deactivateAccount();
 }
 
 class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
@@ -215,6 +218,18 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
       mutation,
       variables: request.toJson(),
     );
+    result.throwIfException();
+  }
+
+  @override
+  Future<void> deactivateAccount() async {
+    const mutation = r'''
+        mutation DeactivateAccount {
+          deactivateAccount
+        }
+      ''';
+
+    final result = await gqlService.mutate<Map<String, dynamic>>(mutation);
     result.throwIfException();
   }
 }

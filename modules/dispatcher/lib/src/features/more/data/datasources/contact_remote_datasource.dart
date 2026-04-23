@@ -15,12 +15,13 @@ class ContactRemoteDataSourceImpl extends BaseRemoteDataSource
     ActivationRequestDto request,
   ) async {
     const mutationDoc = r'''
-      mutation RequestIntegration($platform: MappingPlatform!, $name: String!, $phone: String!, $email: String!) {
-        requestIntegration(platform: $platform, name: $name, phone: $phone, email: $email) {
+      mutation RequestIntegration($platform: MappingPlatform!, $name: String!, $phone: String!, $email: String!, $useDedicatedNumber: Boolean) {
+        requestIntegration(platform: $platform, name: $name, phone: $phone, email: $email, useDedicatedNumber: $useDedicatedNumber) {
           id
           platform
           platformId
           isActive
+          useDedicatedNumber
           createdAt
           updatedAt
         }
@@ -45,6 +46,7 @@ class ContactRemoteDataSourceImpl extends BaseRemoteDataSource
           platform
           platformId
           isActive
+          useDedicatedNumber
           createdAt
           updatedAt
         }

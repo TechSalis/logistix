@@ -19,4 +19,5 @@ abstract class AuthRepository {
     required String newPassword,
   });
   Future<Result<AppError, void>> updateFcmToken(String token);
+  Future<Result<AppError, void>> deactivateAccount();
 }

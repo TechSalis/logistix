@@ -6,13 +6,14 @@ import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:shared/shared.dart';
 
-/// Component that periodically reports rider location and updates status.
+/// Component that handles status heartbeats and distance-aware location updates.
 class RiderHeartbeatComponent extends SessionComponent {
   RiderHeartbeatComponent({
     required RiderRemoteDataSource dataSource,
     required RiderDao riderDao,
     required RiderBloc riderBloc,
-    this.interval = const Duration(seconds: 30),
+    this.heartbeatInterval = const Duration(seconds: 60),
+    this.distanceThreshold = 50, // meters
   }) : _dataSource = dataSource,
        _riderDao = riderDao,
        _riderBloc = riderBloc;
@@ -20,47 +21,70 @@ class RiderHeartbeatComponent extends SessionComponent {
   final RiderRemoteDataSource _dataSource;
   final RiderDao _riderDao;
   final RiderBloc _riderBloc;
-  final Duration interval;
+  final Duration heartbeatInterval;
+  final int distanceThreshold;
 
-  Timer? _timer;
+  Timer? _heartbeatTimer;
+  StreamSubscription<Position>? _positionSubscription;
+  Position? _lastSentPosition;
 
   @override
   String get id => 'rider_heartbeat';
 
   @override
   Future<void> start() async {
-    // Initial heartbeat
-    await _sendHeartbeat();
+    // 1. Status Heartbeat (Time-based: 60s)
+    _heartbeatTimer = Timer.periodic(heartbeatInterval, (_) => _sendPulse());
 
-    // Periodic heartbeats
-    _timer = Timer.periodic(interval, (_) => _sendHeartbeat());
+    // 2. Hardware-Throttled Movement (Distance-based)
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: LocationSettings(
+        accuracy: LocationAccuracy.medium,
+        distanceFilter: distanceThreshold,
+      ),
+    ).listen((pos) => _sendPulse(position: pos));
+
+    // Initial pulse
+    await _sendPulse();
   }
 
-  Future<void> _sendHeartbeat() async {
-    try {
-      Position? position;
-      try {
-        final isEnabled = await Geolocator.isLocationServiceEnabled();
-        if (isEnabled) {
-          position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              timeLimit: Duration(seconds: 3),
-            ),
-          );
-        }
-      } catch (_) {}
+  Future<void> _sendPulse({Position? position}) async {
+    // Hierarchical Logic:
+    // - Use position if provided (50m hardware trigger).
+    // - If not provided (60s timer), only use GPS if we've moved > 2m (Micro-movement guard).
+    Position? posToSend = position;
 
+    if (posToSend == null && _lastSentPosition != null) {
+      final currentPos = await Geolocator.getLastKnownPosition();
+      if (currentPos != null) {
+        final distance = Geolocator.distanceBetween(
+          _lastSentPosition!.latitude,
+          _lastSentPosition!.longitude,
+          currentPos.latitude,
+          currentPos.longitude,
+        );
+        if (distance >= 2.0) {
+          posToSend = currentPos;
+        }
+      }
+    }
+
+    if (posToSend != null) {
+      _lastSentPosition = posToSend;
+    }
+
+    try {
       final riderDto = await _dataSource.sendHeartbeat(
         RiderHeartbeatRequest(
-          lat: position?.latitude,
-          lng: position?.longitude,
+          lat: posToSend?.latitude,
+          lng: posToSend?.longitude,
         ),
       );
 
       if (_riderBloc.isClosed) return;
 
-      if (position != null) {
-        _riderBloc.add(RiderEvent.locationUpdated(position));
+      if (posToSend != null) {
+        _riderBloc.add(RiderEvent.locationUpdated(posToSend));
       }
 
       await _riderDao.upsertRider(riderDto.toDriftCompanion());
@@ -71,7 +95,9 @@ class RiderHeartbeatComponent extends SessionComponent {
 
   @override
   Future<void> stop() async {
-    _timer?.cancel();
-    _timer = null;
+    _heartbeatTimer?.cancel();
+    _positionSubscription?.cancel();
+    _heartbeatTimer = null;
+    _positionSubscription = null;
   }
 }

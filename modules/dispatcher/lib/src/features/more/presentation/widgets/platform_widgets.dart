@@ -58,6 +58,7 @@ class _PlatformActivationFormState extends State<PlatformActivationForm> {
   late final TextEditingController _emailCtrl;
   late final TextEditingController _nameCtrl;
   late final TextEditingController _phoneCtrl;
+  bool _useDedicatedNumber = false;
 
   @override
   void initState() {
@@ -121,6 +122,15 @@ class _PlatformActivationFormState extends State<PlatformActivationForm> {
                 keyboardType: TextInputType.phone,
                 hintText: '+234...',
               ),
+              const SizedBox(height: BootstrapSpacing.md),
+              SwitchListTile.adaptive(
+                title: Text('Use dedicated number', style: context.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                subtitle: Text('Get a fully branded phone number exclusively for your logistics company.', style: context.textTheme.bodySmall),
+                value: _useDedicatedNumber,
+                onChanged: (val) => setState(() => _useDedicatedNumber = val),
+                contentPadding: EdgeInsets.zero,
+                activeColor: LogistixColors.primary,
+              ),
               const SizedBox(height: BootstrapSpacing.xxl),
               if (runnerState.status.isFailure) ...[
                 Container(
@@ -152,6 +162,7 @@ class _PlatformActivationFormState extends State<PlatformActivationForm> {
                     name: _nameCtrl.text,
                     phone: _phoneCtrl.text,
                     platform: widget.platform,
+                    useDedicatedNumber: _useDedicatedNumber,
                   ),
                 ),
               ),

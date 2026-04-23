@@ -8,6 +8,7 @@ class CompanyIntegrationDto {
     required this.platform,
     required this.platformId,
     required this.isActive,
+    this.useDedicatedNumber = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -18,6 +19,7 @@ class CompanyIntegrationDto {
         platform: entity.platform.name,
         platformId: entity.platformId,
         isActive: entity.isActive,
+        useDedicatedNumber: entity.useDedicatedNumber,
         createdAt: entity.createdAt,
         updatedAt: entity.updatedAt,
       );
@@ -28,6 +30,7 @@ class CompanyIntegrationDto {
       platform: json['platform'] as String,
       platformId: json['platformId'] as String,
       isActive: json['isActive'] as bool? ?? true,
+      useDedicatedNumber: json['useDedicatedNumber'] as bool? ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
@@ -41,6 +44,7 @@ class CompanyIntegrationDto {
   final String platform;
   final String platformId;
   final bool isActive;
+  final bool useDedicatedNumber;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -50,6 +54,7 @@ class CompanyIntegrationDto {
       'platform': platform,
       'platformId': platformId,
       'isActive': isActive,
+      'useDedicatedNumber': useDedicatedNumber,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
     };
@@ -60,6 +65,7 @@ class CompanyIntegrationDto {
         platform: ChatPlatform.fromString(platform),
         platformId: platformId,
         isActive: isActive,
+        useDedicatedNumber: useDedicatedNumber,
         createdAt: createdAt,
         updatedAt: updatedAt,
       );

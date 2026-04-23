@@ -19,6 +19,7 @@ class CompanyIntegration {
     required this.platform,
     required this.platformId,
     required this.isActive,
+    this.useDedicatedNumber = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -27,6 +28,7 @@ class CompanyIntegration {
   final ChatPlatform platform;
   final String platformId;
   final bool isActive;
+  final bool useDedicatedNumber;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 }

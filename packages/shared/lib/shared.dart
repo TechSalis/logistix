@@ -45,6 +45,7 @@ export 'src/domain/repositories/auth_repository.dart';
 export 'src/domain/repositories/auth_status_repository.dart';
 export 'src/domain/services/places_service.dart';
 export 'src/domain/use_cases/clear_app_data_use_case.dart';
+export 'src/domain/use_cases/deactivate_account_use_case.dart';
 export 'src/domain/use_cases/initialize_notifications_use_case.dart';
 export 'src/domain/use_cases/logout_use_case.dart';
 export 'src/presentation/cubit/address_cubit.dart';

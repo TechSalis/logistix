@@ -9,8 +9,12 @@ import 'package:rider/src/presentation/bloc/rider_state.dart';
 import 'package:shared/shared.dart';
 
 class RiderBloc extends Bloc<RiderEvent, RiderState> {
-  RiderBloc(this._repository, this._logoutUseCase, this._userStore)
-    : super(RiderState.initial) {
+  RiderBloc(
+    this._repository, 
+    this._logoutUseCase, 
+    this._deactivateAccountUseCase,
+    this._userStore
+  ) : super(RiderState.initial) {
     on<RiderEvent>((event, emit) async {
        await event.map(
          fetchProfile: (e) => _onFetchProfile(e, emit),
@@ -18,6 +22,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
          locationUpdated: (e) => _onLocationUpdated(e, emit),
          statusChanged: (e) => _onStatusChanged(e, emit),
          updateRider: (e) => _onUpdateRider(e, emit),
+         deactivateAccount: (e) => deactivateAccountRunner.call(),
        );
     });
   }
@@ -25,6 +30,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
   final UserStore _userStore;
   final RiderRepository _repository;
   final LogoutUseCase _logoutUseCase;
+  final DeactivateAccountUseCase _deactivateAccountUseCase;
 
   StreamSubscription<Rider?>? _profileSubscription;
 
@@ -94,6 +100,11 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
 
   late final logoutRunner = AsyncRunner<AppError, void>(() async {
     final result = await _logoutUseCase();
+    return result.throwOrReturn();
+  });
+
+  late final deactivateAccountRunner = AsyncRunner<AppError, void>(() async {
+    final result = await _deactivateAccountUseCase();
     return result.throwOrReturn();
   });
 

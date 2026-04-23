@@ -204,6 +204,7 @@ class DispatcherModule extends Module<RouteBase> {
                 RequestIntegrationUseCase(context.read<ContactRepository>()),
                 GetIntegrationsUseCase(context.read<ContactRepository>()),
                 injector.get<LogoutUseCase>(),
+                injector.get<DeactivateAccountUseCase>(),
               ),
             ),
           ],

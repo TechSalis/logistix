@@ -10,25 +10,28 @@ class AuthModule extends Module<RouteBase> {
   const AuthModule();
 
   @override
+  void registerServices(DI injector) {
+    injector.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(
+        AuthRemoteDataSourceImpl(injector.get<GraphQLService>()),
+        injector.get<TokenStore>(),
+      ),
+    );
+  }
+
+  @override
   Set<RouteBase> routes(DI injector) => {
     ShellRoute(
       builder: (context, state, child) {
-        // Create AuthBloc locally for this module
-        return RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-            AuthRemoteDataSourceImpl(injector.get<GraphQLService>()),
-            injector.get<TokenStore>(),
-          ),
-          child: BlocProvider<AuthBloc>(
-            create: (context) {
-              return AuthBloc(
-                context.read<AuthRepository>(),
-                injector.get<UserStore>(),
-                injector.get<AuthStatusRepository>(),
-              );
-            },
-            child: ToastServiceWidget(child: child),
-          ),
+        return BlocProvider<AuthBloc>(
+          create: (context) {
+            return AuthBloc(
+              injector.get<AuthRepository>(),
+              injector.get<UserStore>(),
+              injector.get<AuthStatusRepository>(),
+            );
+          },
+          child: ToastServiceWidget(child: child),
         );
       },
       routes: [

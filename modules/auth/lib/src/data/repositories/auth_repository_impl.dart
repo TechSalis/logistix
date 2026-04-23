@@ -88,4 +88,11 @@ class AuthRepositoryImpl implements AuthRepository {
       await _dataSource.updateFcmToken(token);
     });
   }
+
+  @override
+  Future<Result<AppError, void>> deactivateAccount() async {
+    return Result.tryCatch<AppError, void>(() async {
+      await _dataSource.deactivateAccount();
+    });
+  }
 }

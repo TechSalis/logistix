@@ -1,6 +1,7 @@
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:dispatcher/src/features/chat/presentation/pages/chat_detail_page.dart';
 import 'package:dispatcher/src/features/chat/presentation/pages/chats_tab.dart';
+import 'package:dispatcher/src/features/more/presentation/view/account_page.dart';
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/request_integration_page.dart';
 import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
@@ -45,6 +46,7 @@ abstract class DispatcherRoutes {
   static String riderDetails(String id) => '$riders/$id';
 
   static const String more = '$rootPath/${_DispatcherPaths.more}';
+  static const String account = '$more/account';
   static const String requestIntegration = '$more/request';
 }
 
@@ -162,6 +164,13 @@ List<RouteBase> get dispatcherRoutes => [
             path: DispatcherRoutes.more,
             builder: (context, state) => const MoreTab(),
             routes: [
+              GoRoute(
+                path: 'account',
+                builder: (context, state) {
+                  final user = state.extra as User;
+                  return AccountPage(user: user);
+                },
+              ),
               GoRoute(
                 path: 'request',
                 pageBuilder: (context, state) {

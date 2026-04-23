@@ -70,6 +70,21 @@ class MoreTab extends StatelessWidget {
                           _buildProfileHeader(state),
                           const SizedBox(height: 32),
                           BootstrapSettingsCard(
+                            title: 'ACCOUNT & TERMINAL',
+                            children: [
+                              BootstrapSettingsTile(
+                                icon: Icons.account_circle_outlined,
+                                title: 'Account Information',
+                                subtitle: 'Manage your profile and terminal info',
+                                onTap: () => context.push(
+                                  DispatcherRoutes.account,
+                                  extra: user,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          BootstrapSettingsCard(
                             title: 'INTEGRATIONS',
                             children: [
                               BootstrapSettingsTile(

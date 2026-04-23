@@ -9,7 +9,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
+import 'package:rider/src/presentation/router/rider_routes.dart';
 import 'package:shared/shared.dart';
+import 'package:go_router/go_router.dart';
 
 class RiderProfileTab extends StatelessWidget {
   const RiderProfileTab({super.key});
@@ -60,7 +62,7 @@ class RiderProfileTab extends StatelessWidget {
           const SizedBox(height: BootstrapSpacing.lg),
           _ProfileHeader(rider: rider),
           const SizedBox(height: BootstrapSpacing.lg),
-          const _SettingsSection(),
+          _SettingsSection(rider: rider),
           const SizedBox(height: BootstrapSpacing.xl),
         ],
       ),
@@ -128,7 +130,8 @@ class _ProfileHeader extends StatelessWidget {
 }
 
 class _SettingsSection extends StatelessWidget {
-  const _SettingsSection();
+  const _SettingsSection({required this.rider});
+  final Rider rider;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +143,7 @@ class _SettingsSection extends StatelessWidget {
             BootstrapSettingsTile(
               icon: Icons.person_outline_rounded,
               title: 'Account Info',
-              onTap: () {},
+              onTap: () => context.push(RiderRoutes.account, extra: rider),
             ),
             BootstrapSettingsTile(
               icon: Icons.notifications_outlined,

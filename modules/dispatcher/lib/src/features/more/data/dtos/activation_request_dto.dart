@@ -6,6 +6,7 @@ class ActivationRequestDto {
     required this.name,
     required this.phone,
     required this.platform,
+    this.useDedicatedNumber = false,
   });
 
   factory ActivationRequestDto.fromJson(Map<String, dynamic> json) {
@@ -14,6 +15,7 @@ class ActivationRequestDto {
       name: json['name'] as String,
       phone: json['phone'] as String,
       platform: ChatPlatform.fromString(json['platform'] as String),
+      useDedicatedNumber: json['useDedicatedNumber'] as bool? ?? false,
     );
   }
 
@@ -21,6 +23,7 @@ class ActivationRequestDto {
   final String name;
   final String phone;
   final ChatPlatform platform;
+  final bool useDedicatedNumber;
 
   Map<String, dynamic> toJson() {
     return {
@@ -28,6 +31,7 @@ class ActivationRequestDto {
       'name': name,
       'phone': phone,
       'platform': platform.name,
+      'useDedicatedNumber': useDedicatedNumber,
     };
   }
 }

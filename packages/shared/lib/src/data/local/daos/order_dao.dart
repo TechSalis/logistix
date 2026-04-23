@@ -4,6 +4,7 @@ import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/mappers/order_mapper.dart';
 import 'package:shared/src/data/local/mappers/rider_mapper.dart';
 import 'package:shared/src/domain/entities/order.dart' as entities;
+import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 
 part 'order_dao.g.dart';
 
@@ -111,10 +112,21 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
     
     if (riderId != null) {
       if (includeUnassigned) {
-        query.where(db.orders.riderId.equals(riderId) | db.orders.riderId.isNull());
+        query.where(
+          db.orders.riderId.equals(riderId) | 
+          db.orders.riderId.isNull() |
+          (db.orders.status.isIn([entities.OrderStatus.ASSIGNED.name, entities.OrderStatus.EN_ROUTE.name]) & 
+           db.riders.status.equals(rider_entities.RiderStatus.OFFLINE.name))
+        );
       } else {
         query.where(db.orders.riderId.equals(riderId));
       }
+    } else if (includeUnassigned) {
+      query.where(
+        db.orders.riderId.isNull() | 
+        (db.orders.status.isIn([entities.OrderStatus.ASSIGNED.name, entities.OrderStatus.EN_ROUTE.name]) & 
+         db.riders.status.equals(rider_entities.RiderStatus.OFFLINE.name))
+      );
     }
 
     if (createdBy != null) {

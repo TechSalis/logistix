@@ -111,6 +111,12 @@ class AppModule extends Module<RouteBase> {
       ..registerLazySingleton<ShareIntentService>(
         () => ShareIntentService(userStore: injector.get<UserStore>()),
       )
+      ..registerLazySingleton<DeactivateAccountUseCase>(
+        () => DeactivateAccountUseCase(
+          injector.get<AuthRepository>(),
+          injector.get<LogoutUseCase>(),
+        ),
+      )
       ..registerLazySingleton<PlacesService>(PlacesService.new);
   }
 

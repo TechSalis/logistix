@@ -83,6 +83,42 @@ class OrderPreviewCard extends StatelessWidget {
                       ),
                     ],
                     const Spacer(),
+                    if (order.rider != null && order.rider!.status == RiderStatus.OFFLINE) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: LogistixColors.error,
+                          borderRadius: BorderRadius.circular(4),
+                          boxShadow: [
+                            BoxShadow(
+                              color: LogistixColors.error.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              LucideIcons.zapOff,
+                              size: 10,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'RIDER OFFLINE',
+                              style: context.textTheme.labelSmall?.bold.copyWith(
+                                color: Colors.white,
+                                fontSize: 9,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.sm, vertical: 4),
                       decoration: BoxDecoration(
