@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
+import 'package:intl/intl.dart';
 
 class CustomerOrderFormPage extends StatefulWidget {
   const CustomerOrderFormPage({required this.orderType, super.key});
@@ -28,6 +29,7 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
 
   AddressDto? _pickupLocation;
   AddressDto? _dropoffLocation;
+  DateTime? _scheduledAt;
 
   @override
   void initState() {
@@ -79,9 +81,60 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
       pickupPlaceId: _pickupLocation!.placeId,
       dropOffPhone: _dropoffPhoneController.text,
       description: description,
+      scheduledAt: _scheduledAt?.toIso8601String(),
     );
 
     context.read<OrderFormCubit>().submitOrder(input);
+  }
+
+  Widget _buildSchedulePicker() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Schedule Delivery (Optional)', style: context.textTheme.labelMedium?.bold),
+        const SizedBox(height: BootstrapSpacing.xs),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.calendar_today_rounded, color: LogistixColors.primary),
+          title: Text(
+            _scheduledAt == null
+                ? 'Deliver as soon as possible'
+                : 'Deliver at: ${DateFormat('MMM dd, yyyy HH:mm').format(_scheduledAt!)}',
+          ),
+          trailing: _scheduledAt != null
+              ? IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => setState(() => _scheduledAt = null),
+                )
+              : const Icon(Icons.chevron_right),
+          onTap: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime.now(),
+              lastDate: DateTime.now().add(const Duration(days: 30)),
+            );
+            if (date != null && mounted) {
+              final time = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay.now(),
+              );
+              if (time != null && mounted) {
+                setState(() {
+                  _scheduledAt = DateTime(
+                    date.year,
+                    date.month,
+                    date.day,
+                    time.hour,
+                    time.minute,
+                  );
+                });
+              }
+            }
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -150,6 +203,8 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
                   hintText: 'Any specific delivery instructions...',
                   lineCount: 2,
                 ),
+                const SizedBox(height: BootstrapSpacing.lg),
+                _buildSchedulePicker(),
                 const SizedBox(height: BootstrapSpacing.xxl),
                 BootstrapButton(
                   onPressed: _submit,

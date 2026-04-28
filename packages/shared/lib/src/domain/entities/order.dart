@@ -5,13 +5,13 @@ class Order {
   const Order({
     required this.id,
     required this.dropOffAddress,
+    required this.pickupAddress,
     required this.trackingNumber,
     required this.status,
     required this.createdAt,
     this.dropOffPlaceId,
     this.dropOffLat,
     this.dropOffLng,
-    this.pickupAddress,
     this.pickupPlaceId,
     this.pickupLat,
     this.pickupLng,
@@ -33,13 +33,13 @@ class Order {
 
   final String id;
   final String dropOffAddress;
+  final String pickupAddress;
   final String trackingNumber;
   final OrderStatus status;
   final DateTime createdAt;
   final String? dropOffPlaceId;
   final double? dropOffLat;
   final double? dropOffLng;
-  final String? pickupAddress;
   final String? pickupPlaceId;
   final double? pickupLat;
   final double? pickupLng;
@@ -61,13 +61,13 @@ class Order {
   Order copyWith({
     String? id,
     String? dropOffAddress,
+    String? pickupAddress,
     String? trackingNumber,
     OrderStatus? status,
     DateTime? createdAt,
     String? dropOffPlaceId,
     double? dropOffLat,
     double? dropOffLng,
-    String? pickupAddress,
     String? pickupPlaceId,
     double? pickupLat,
     double? pickupLng,
@@ -89,13 +89,13 @@ class Order {
     return Order(
       id: id ?? this.id,
       dropOffAddress: dropOffAddress ?? this.dropOffAddress,
+      pickupAddress: pickupAddress ?? this.pickupAddress,
       trackingNumber: trackingNumber ?? this.trackingNumber,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       dropOffPlaceId: dropOffPlaceId ?? this.dropOffPlaceId,
       dropOffLat: dropOffLat ?? this.dropOffLat,
       dropOffLng: dropOffLng ?? this.dropOffLng,
-      pickupAddress: pickupAddress ?? this.pickupAddress,
       pickupPlaceId: pickupPlaceId ?? this.pickupPlaceId,
       pickupLat: pickupLat ?? this.pickupLat,
       pickupLng: pickupLng ?? this.pickupLng,
