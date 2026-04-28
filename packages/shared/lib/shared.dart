@@ -1,6 +1,7 @@
 export 'package:bootstrap/core.dart';
 
 export 'src/core/config/env_config.dart';
+export 'src/core/config/project_config.dart';
 export 'src/core/errors/error_codes.dart';
 export 'src/core/errors/error_handler.dart';
 export 'src/core/network/graphql/base_remote_datasource.dart';
