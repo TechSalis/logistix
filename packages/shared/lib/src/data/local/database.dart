@@ -16,7 +16,7 @@ part 'database.g.dart';
 @DataClassName('OrderRow')
 class Orders extends Table {
   TextColumn get id => text()();
-  TextColumn get pickupAddress => text().nullable()();
+  TextColumn get pickupAddress => text()();
   RealColumn get pickupLat => real().nullable()();
   RealColumn get pickupLng => real().nullable()();
   TextColumn get pickupPlaceId => text().nullable()();
@@ -25,7 +25,7 @@ class Orders extends Table {
   RealColumn get dropOffLng => real().nullable()();
   TextColumn get dropOffPlaceId => text().nullable()();
   TextColumn get riderId => text().nullable()();
-  RealColumn get codAmount => real().nullable()();
+  RealColumn get price => real().nullable()();
   TextColumn get pickupPhone => text().nullable()();
   TextColumn get dropOffPhone => text().nullable()();
   TextColumn get companyId => text().nullable()();

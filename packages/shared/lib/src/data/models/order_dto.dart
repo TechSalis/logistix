@@ -8,7 +8,7 @@ class OrderDto {
     required this.trackingNumber,
     required this.status,
     required this.createdAt,
-    this.pickupAddress,
+    required this.pickupAddress,
     this.pickupPlaceId,
     this.pickupLat,
     this.pickupLng,
@@ -20,7 +20,7 @@ class OrderDto {
     this.rider,
     this.companyId,
     this.assignedCompanyId,
-    this.codAmount,
+    this.price,
     this.description,
     this.createdBy,
     this.pickupPhone,
@@ -37,7 +37,7 @@ class OrderDto {
       trackingNumber: json['trackingNumber'] as String,
       status: json['status'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      pickupAddress: json['pickupAddress'] as String?,
+      pickupAddress: json['pickupAddress'] as String,
       pickupPlaceId: json['pickupPlaceId'] as String?,
       pickupLat: (json['pickupLat'] as num?)?.toDouble(),
       pickupLng: (json['pickupLng'] as num?)?.toDouble(),
@@ -51,7 +51,7 @@ class OrderDto {
           : null,
       companyId: json['companyId'] as String?,
       assignedCompanyId: json['assignedCompanyId'] as String?,
-      codAmount: (json['codAmount'] as num?)?.toDouble(),
+      price: (json['price'] as num?)?.toDouble(),
       description: json['description'] as String?,
       createdBy: json['createdBy'] as String?,
       pickupPhone: json['pickupPhone'] as String?,
@@ -73,7 +73,7 @@ class OrderDto {
   final String trackingNumber;
   final String status;
   final DateTime createdAt;
-  final String? pickupAddress;
+  final String pickupAddress;
   final String? pickupPlaceId;
   final double? pickupLat;
   final double? pickupLng;
@@ -85,7 +85,7 @@ class OrderDto {
   final RiderDto? rider;
   final String? companyId;
   final String? assignedCompanyId;
-  final double? codAmount;
+  final double? price;
   final String? description;
   final String? createdBy;
   final String? pickupPhone;
@@ -101,7 +101,7 @@ class OrderDto {
       'trackingNumber': trackingNumber,
       'status': status,
       'createdAt': createdAt.toIso8601String(),
-      if (pickupAddress != null) 'pickupAddress': pickupAddress,
+      'pickupAddress': pickupAddress,
       if (pickupPlaceId != null) 'pickupPlaceId': pickupPlaceId,
       if (pickupLat != null) 'pickupLat': pickupLat,
       if (pickupLng != null) 'pickupLng': pickupLng,
@@ -113,7 +113,7 @@ class OrderDto {
       if (rider != null) 'rider': rider!.toJson(),
       if (companyId != null) 'companyId': companyId,
       if (assignedCompanyId != null) 'assignedCompanyId': assignedCompanyId,
-      if (codAmount != null) 'codAmount': codAmount,
+      if (price != null) 'price': price,
       if (description != null) 'description': description,
       if (createdBy != null) 'createdBy': createdBy,
       if (pickupPhone != null) 'pickupPhone': pickupPhone,
@@ -138,7 +138,7 @@ class OrderDto {
     dropOffPlaceId: dropOffPlaceId,
     dropOffLat: dropOffLat,
     dropOffLng: dropOffLng,
-    codAmount: codAmount,
+    price: price,
     description: description,
     createdBy: createdBy,
     pickupPhone: pickupPhone,

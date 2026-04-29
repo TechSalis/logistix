@@ -12,7 +12,7 @@ abstract class OrderCreateInput with _$OrderCreateInput {
     String? pickupAddress,
     String? pickupPlaceId,
     String? description,
-    double? codAmount,
+    double? price,
     String? pickupPhone,
     String? dropOffPhone,
     @JsonKey(includeFromJson: false, includeToJson: false) String? companyId,

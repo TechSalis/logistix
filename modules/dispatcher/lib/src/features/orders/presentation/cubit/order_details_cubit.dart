@@ -55,10 +55,10 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
         'Status: ${order.status.label}\n'
         '${order.description != null ? 'Description: ${order.description}\n' : ''}'
         'Drop-off: ${order.dropOffAddress}\n'
-        '${order.pickupAddress != null ? 'Pickup: ${order.pickupAddress}\n' : ''}'
+        '${'Pickup: ${order.pickupAddress}\n'}'
         '${order.dropOffPhone != null ? 'Contact: ${order.dropOffPhone}\n' : ''}'
         '${order.rider != null ? 'Rider: ${order.rider!.fullName}\n' : ''}'
-        '${order.codAmount != null ? 'COD: \$${order.codAmount!.toStringAsFixed(2)}\n' : ''}'
+        '${order.price != null ? 'Price: \$${order.price!.toStringAsFixed(2)}\n' : ''}'
         '${order.isPriority ? '⚡ Priority Order\n' : ''}'
         '\n🔗 Track: $trackingLink';
 

@@ -111,7 +111,7 @@ class _OrderPlaceholderHeader extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Pickup: ${order.pickupAddress ?? 'Lagos, Nigeria'}',
+            'Pickup: ${order.pickupAddress}',
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

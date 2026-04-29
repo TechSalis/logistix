@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared/src/data/models/company_config_dto.dart';
 import 'package:shared/src/data/models/company_integration_dto.dart';
 import 'package:shared/src/domain/entities/company.dart';
 
@@ -12,6 +13,7 @@ class CompanyDto {
     this.cac,
     this.address,
     this.placeId,
+    this.config,
     this.integrations,
     this.createdAt,
     this.updatedAt,
@@ -25,6 +27,9 @@ class CompanyDto {
         cac: company.cac,
         address: company.address,
         placeId: company.placeId,
+        config: company.config != null
+            ? CompanyConfigDto.fromEntity(company.config!)
+            : null,
         integrations: company.integrations
             ?.map(CompanyIntegrationDto.fromEntity)
             .toList(),
@@ -41,6 +46,9 @@ class CompanyDto {
       cac: json['cac'] as String?,
       address: json['address'] as String?,
       placeId: json['placeId'] as String?,
+      config: json['config'] != null
+          ? CompanyConfigDto.fromJson(json['config'] as Map<String, dynamic>)
+          : null,
       integrations: (json['integrations'] as List<dynamic>?)
           ?.map((e) => CompanyIntegrationDto.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -60,6 +68,7 @@ class CompanyDto {
   final String? cac;
   final String? address;
   final String? placeId;
+  final CompanyConfigDto? config;
   final List<CompanyIntegrationDto>? integrations;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -73,6 +82,7 @@ class CompanyDto {
       if (cac != null) 'cac': cac,
       if (address != null) 'address': address,
       if (placeId != null) 'placeId': placeId,
+      if (config != null) 'config': config!.toJson(),
       if (integrations != null)
         'integrations': integrations!.map((e) => e.toJson()).toList(),
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
@@ -88,6 +98,7 @@ class CompanyDto {
         cac: cac,
         address: address,
         placeId: placeId,
+        config: config?.toEntity(),
         integrations: integrations?.map((e) => e.toEntity()).toList(),
         createdAt: createdAt,
         updatedAt: updatedAt,

@@ -27,7 +27,9 @@ class OrderPreviewCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: LogistixColors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: LogistixColors.black.withValues(alpha: 0.03)),
+            border: Border.all(
+              color: LogistixColors.black.withValues(alpha: 0.03),
+            ),
             boxShadow: [
               BoxShadow(
                 color: LogistixColors.black.withValues(alpha: 0.04),
@@ -47,8 +49,14 @@ class OrderPreviewCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: LogistixColors.background,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  border: Border(bottom: BorderSide(color: LogistixColors.black.withValues(alpha: 0.03))),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: LogistixColors.black.withValues(alpha: 0.03),
+                    ),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -59,40 +67,58 @@ class OrderPreviewCard extends StatelessWidget {
                         color: statusColor,
                         shape: BoxShape.circle,
                         boxShadow: [
-                           BoxShadow(color: statusColor.withValues(alpha: 0.4), blurRadius: 4, spreadRadius: 1),
+                          BoxShadow(
+                            color: statusColor.withValues(alpha: 0.4),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(width: BootstrapSpacing.sm),
                     Text(
                       '#${order.trackingNumber}',
-                      style: context.textTheme.labelLarge?.bold.copyWith(color: LogistixColors.text),
+                      style: context.textTheme.labelLarge?.bold.copyWith(
+                        color: LogistixColors.text,
+                      ),
                     ),
                     if (order.companyId == null) ...[
                       const SizedBox(width: BootstrapSpacing.xs),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: LogistixColors.secondary,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           'APP',
-                          style: context.textTheme.labelSmall?.bold.copyWith(color: LogistixColors.white, fontSize: 9),
+                          style: context.textTheme.labelSmall?.bold.copyWith(
+                            color: LogistixColors.white,
+                            fontSize: 9,
+                          ),
                         ),
                       ),
                     ],
                     const Spacer(),
-                    if (order.rider != null && order.rider!.status == RiderStatus.OFFLINE) ...[
+                    if (order.rider != null &&
+                        order.rider!.status == RiderStatus.OFFLINE) ...[
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           color: LogistixColors.error,
                           borderRadius: BorderRadius.circular(4),
                           boxShadow: [
                             BoxShadow(
-                              color: LogistixColors.error.withValues(alpha: 0.3),
+                              color: LogistixColors.error.withValues(
+                                alpha: 0.3,
+                              ),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -109,25 +135,32 @@ class OrderPreviewCard extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'RIDER OFFLINE',
-                              style: context.textTheme.labelSmall?.bold.copyWith(
-                                color: Colors.white,
-                                fontSize: 9,
-                                letterSpacing: 0.5,
-                              ),
+                              style: context.textTheme.labelSmall?.bold
+                                  .copyWith(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    letterSpacing: 0.5,
+                                  ),
                             ),
                           ],
                         ),
                       ),
                     ],
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.sm, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: BootstrapSpacing.sm,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         order.status.label,
-                        style: context.textTheme.labelSmall?.bold.copyWith(color: statusColor, fontSize: 10),
+                        style: context.textTheme.labelSmall?.bold.copyWith(
+                          color: statusColor,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ],
@@ -140,20 +173,41 @@ class OrderPreviewCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (order.pickupAddress?.isNotEmpty ?? false)
-                       _buildTimelineItem(context, 'Pickup', order.pickupAddress!, LucideIcons.mapPin, LogistixColors.primary, true),
-                    if (order.pickupAddress?.isNotEmpty ?? false)
-                       _buildTimelineDottedLine(),
-                    _buildTimelineItem(context, 'Drop-off', order.dropOffAddress, LucideIcons.flag, LogistixColors.orange, false),
+                    if (order.pickupAddress.isNotEmpty)
+                      _buildTimelineItem(
+                        context,
+                        'Pickup',
+                        order.pickupAddress,
+                        LucideIcons.mapPin,
+                        LogistixColors.primary,
+                        true,
+                      ),
+                    if (order.pickupAddress.isNotEmpty)
+                      _buildTimelineDottedLine(),
+                    _buildTimelineItem(
+                      context,
+                      'Drop-off',
+                      order.dropOffAddress,
+                      LucideIcons.flag,
+                      LogistixColors.orange,
+                      false,
+                    ),
 
                     if (order.scheduledAt != null) ...[
                       const SizedBox(height: BootstrapSpacing.md),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.sm, vertical: BootstrapSpacing.xs),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: BootstrapSpacing.sm,
+                          vertical: BootstrapSpacing.xs,
+                        ),
                         decoration: BoxDecoration(
                           color: LogistixColors.primary.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: LogistixColors.primary.withValues(alpha: 0.1)),
+                          border: Border.all(
+                            color: LogistixColors.primary.withValues(
+                              alpha: 0.1,
+                            ),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -166,7 +220,8 @@ class OrderPreviewCard extends StatelessWidget {
                             const SizedBox(width: BootstrapSpacing.xs),
                             Text(
                               order.scheduledAt!.toScheduleString(),
-                              style: context.textTheme.labelMedium?.bold.copyWith(color: LogistixColors.primary),
+                              style: context.textTheme.labelMedium?.bold
+                                  .copyWith(color: LogistixColors.primary),
                             ),
                           ],
                         ),
@@ -175,7 +230,10 @@ class OrderPreviewCard extends StatelessWidget {
 
                     if (action != null) ...[
                       const SizedBox(height: BootstrapSpacing.md),
-                      Divider(color: LogistixColors.black.withValues(alpha: 0.05), height: 1),
+                      Divider(
+                        color: LogistixColors.black.withValues(alpha: 0.05),
+                        height: 1,
+                      ),
                       const SizedBox(height: BootstrapSpacing.sm),
                       Align(alignment: Alignment.centerRight, child: action),
                     ],
@@ -189,40 +247,56 @@ class OrderPreviewCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineItem(BuildContext context, String label, String address, IconData icon, Color color, bool isDimmed) {
-     return Row(
-       crossAxisAlignment: CrossAxisAlignment.start,
-       children: [
-         Container(
-           margin: const EdgeInsets.only(top: 2),
-           padding: const EdgeInsets.all(4),
-           decoration: BoxDecoration(
-             color: color.withValues(alpha: 0.1),
-             shape: BoxShape.circle,
-           ),
-           child: Icon(icon, size: 12, color: color),
-         ),
-         const SizedBox(width: BootstrapSpacing.sm),
-         Expanded(
-           child: Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               Text(label, style: context.textTheme.labelSmall?.bold.copyWith(color: LogistixColors.textTertiary, fontSize: 10, letterSpacing: 0.5)),
-               const SizedBox(height: 2),
-               Text(
-                 address,
-                 style: context.textTheme.bodySmall?.copyWith(
-                   color: isDimmed ? LogistixColors.textSecondary : LogistixColors.text,
-                   fontWeight: isDimmed ? FontWeight.normal : FontWeight.w600,
-                 ),
-                 maxLines: 2,
-                 overflow: TextOverflow.ellipsis,
-               ),
-             ],
-           ),
-         ),
-       ],
-     );
+  Widget _buildTimelineItem(
+    BuildContext context,
+    String label,
+    String address,
+    IconData icon,
+    Color color,
+    bool isDimmed,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 2),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 12, color: color),
+        ),
+        const SizedBox(width: BootstrapSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: context.textTheme.labelSmall?.bold.copyWith(
+                  color: LogistixColors.textTertiary,
+                  fontSize: 10,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                address,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: isDimmed
+                      ? LogistixColors.textSecondary
+                      : LogistixColors.text,
+                  fontWeight: isDimmed ? FontWeight.normal : FontWeight.w600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildTimelineDottedLine() {

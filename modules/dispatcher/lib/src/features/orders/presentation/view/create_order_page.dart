@@ -290,8 +290,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               Expanded(
                 flex: 3,
                 child: BootstrapTextField(
-                  label: 'COD Amount',
-                  initialValue: widget.input.codAmount?.toString() ?? '',
+                  label: 'Price',
+                  initialValue: widget.input.price?.toString() ?? '',
                   hintText: '₦ 0.00',
                   icon: Icons.payments_rounded,
                   keyboardType: TextInputType.number,
@@ -306,7 +306,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                     final stripped = val.replaceAll(RegExp('[^0-9]'), '');
                     widget.onUpdated(
                       widget.input.copyWith(
-                        codAmount: double.tryParse(stripped),
+                        price: double.tryParse(stripped),
                       ),
                     );
                   },

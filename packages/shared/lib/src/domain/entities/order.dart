@@ -20,7 +20,7 @@ class Order {
     this.rider,
     this.companyId,
     this.assignedCompanyId,
-    this.codAmount,
+    this.price,
     this.description,
     this.scheduledAt,
     this.createdBy,
@@ -48,7 +48,7 @@ class Order {
   final Rider? rider;
   final String? companyId;
   final String? assignedCompanyId;
-  final double? codAmount;
+  final double? price;
   final String? description;
   final DateTime? scheduledAt;
   final String? createdBy;
@@ -76,7 +76,7 @@ class Order {
     Rider? rider,
     String? companyId,
     String? assignedCompanyId,
-    double? codAmount,
+    double? price,
     String? description,
     DateTime? scheduledAt,
     String? createdBy,
@@ -104,7 +104,7 @@ class Order {
       rider: rider ?? this.rider,
       companyId: companyId ?? this.companyId,
       assignedCompanyId: assignedCompanyId ?? this.assignedCompanyId,
-      codAmount: codAmount ?? this.codAmount,
+      price: price ?? this.price,
       description: description ?? this.description,
       scheduledAt: scheduledAt ?? this.scheduledAt,
       createdBy: createdBy ?? this.createdBy,

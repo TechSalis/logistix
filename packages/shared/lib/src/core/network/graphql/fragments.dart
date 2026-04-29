@@ -12,7 +12,7 @@ class GqlFragments {
     dropOffPlaceId
     dropOffLat
     dropOffLng
-    codAmount
+    price
     pickupPhone
     dropOffPhone
     description
@@ -64,6 +64,9 @@ class GqlFragments {
     cac
     address
     placeId
+    config {
+      tier
+    }
     createdAt
     updatedAt
   ''';

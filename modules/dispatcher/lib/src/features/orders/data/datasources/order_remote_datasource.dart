@@ -121,7 +121,7 @@ class OrderRemoteDataSourceImpl extends BaseRemoteDataSource
             dropOffAddress
             pickupPhone
             dropOffPhone
-            codAmount
+            price
             description
           }
         }

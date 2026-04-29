@@ -28,9 +28,7 @@ class AppRemoteDataSourceImpl implements AppRemoteDataSource {
               ${GqlFragments.riderFields}
             }
             companyProfile {
-              id
-              name
-              address
+              ${GqlFragments.companyFields}
             }
           }
         }

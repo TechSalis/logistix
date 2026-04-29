@@ -16,15 +16,18 @@ class OrderRepositoryImpl implements OrderRepository {
     required OrderDao orderDao,
     required RiderDao riderDao,
     required PlacesService placesService,
+    required UserStore userStore,
   }) : _remoteDataSource = remoteDataSource,
        _orderDao = orderDao,
        _riderDao = riderDao,
-       _placesService = placesService;
+       _placesService = placesService,
+       _userStore = userStore;
 
   final OrderRemoteDataSource _remoteDataSource;
   final OrderDao _orderDao;
   final RiderDao _riderDao;
   final PlacesService _placesService;
+  final UserStore _userStore;
 
   // READ operations - stream from local Drift DB
   @override
@@ -226,7 +229,11 @@ class OrderRepositoryImpl implements OrderRepository {
       }
 
       // 2. Telemetry Fallback - Capture text and parse on backend if local parser struggles
-      if (results == null || localResult.needsRemoteFallback) {
+      // Gated to STARTER and PROFESSIONAL tiers
+      final tier = _userStore.user?.companyProfile?.config?.tier ?? BillingTier.free;
+      final hasAiAccess = tier == BillingTier.starter || tier == BillingTier.professional;
+
+      if (hasAiAccess && (results == null || localResult.needsRemoteFallback)) {
         try {
           final remoteResults = await _remoteDataSource.parseTextToOrders(text);
           if (remoteResults.isNotEmpty) {

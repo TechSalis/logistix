@@ -81,6 +81,7 @@ class DispatcherModule extends Module<RouteBase> {
               orderDao: injector.get<OrderDao>(),
               riderDao: injector.get<RiderDao>(),
               placesService: injector.get<PlacesService>(),
+              userStore: injector.get<UserStore>(),
             ),
           ),
           RepositoryProvider<RiderRepository>(

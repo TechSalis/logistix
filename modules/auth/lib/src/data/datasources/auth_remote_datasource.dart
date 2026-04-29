@@ -76,9 +76,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
                 ${GqlFragments.riderFields}
               }
               companyProfile {
-                id
-                name
-                address
+                ${GqlFragments.companyFields}
               }
             }
           }
@@ -136,9 +134,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
                 ${GqlFragments.riderFields}
               }
               companyProfile {
-                id
-                name
-                address
+                ${GqlFragments.companyFields}
               }
             }
           }

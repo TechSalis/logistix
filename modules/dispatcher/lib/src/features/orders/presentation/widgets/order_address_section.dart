@@ -13,12 +13,12 @@ class OrderAddressSection extends StatelessWidget {
       children: [
         const _SectionTitle(title: 'Delivery Details'),
         const SizedBox(height: BootstrapSpacing.md),
-        if (order.pickupAddress?.isNotEmpty ?? false) ...[
+        if (order.pickupAddress.isNotEmpty) ...[
           BootstrapInfoTile(
             icon: Icons.trip_origin_rounded,
             iconColor: LogistixColors.primary,
             title: 'Pickup',
-            value: order.pickupAddress!,
+            value: order.pickupAddress,
             onTap: order.hasPickupPosition
                 ? () => LogistixLauncher.openMap(
                     order.pickupLat!,
@@ -67,8 +67,8 @@ class OrderAddressSection extends StatelessWidget {
           icon: Icons.payments_rounded,
           iconColor: LogistixColors.green,
           title: 'COD',
-          value: order.codAmount != null && order.codAmount! > 0
-              ? '₦${order.codAmount!.toStringAsFixed(0)}'
+          value: order.price != null && order.price! > 0
+              ? '₦${order.price!.toStringAsFixed(0)}'
               : 'N/A',
         ),
       ],

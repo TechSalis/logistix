@@ -1,3 +1,4 @@
+import 'package:shared/src/domain/entities/company_config.dart';
 import 'package:shared/src/domain/entities/company_integration.dart';
 
 class Company {
@@ -9,6 +10,7 @@ class Company {
     this.cac,
     this.address,
     this.placeId,
+    this.config,
     this.integrations,
     this.createdAt,
     this.updatedAt,
@@ -21,6 +23,7 @@ class Company {
   final String? cac;
   final String? address;
   final String? placeId;
+  final CompanyConfig? config;
   final List<CompanyIntegration>? integrations;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -33,6 +36,7 @@ class Company {
     String? cac,
     String? address,
     String? placeId,
+    CompanyConfig? config,
     List<CompanyIntegration>? integrations,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -45,6 +49,7 @@ class Company {
       cac: cac ?? this.cac,
       address: address ?? this.address,
       placeId: placeId ?? this.placeId,
+      config: config ?? this.config,
       integrations: integrations ?? this.integrations,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

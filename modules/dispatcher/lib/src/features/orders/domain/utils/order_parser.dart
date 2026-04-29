@@ -734,7 +734,7 @@ class _Engine {
       pickupAddress:  pickupAddr,
       pickupPhone:    pickupPh,
       dropOffPhone:   dropOffPh,
-      codAmount:      amount,
+      price:          amount,
       description:    description.isEmpty ? null : description,
     );
 

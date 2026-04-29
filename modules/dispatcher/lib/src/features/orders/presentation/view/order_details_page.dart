@@ -134,14 +134,24 @@ class _OrderLoadedContent extends StatelessWidget {
                 _RiderSection(order: order),
                 const SizedBox(height: BootstrapSpacing.xl),
                 
-                Center(
-                  child: BootstrapButton(
-                    onPressed: () => context.read<OrderDetailsCubit>().shareOrder(order),
-                    label: 'Share Tracking Link',
-                    icon: Icons.share_rounded,
-                    type: BootstrapButtonType.outline,
-                    width: 280,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final user = context.read<UserStore>().user;
+                    final tier = user?.companyProfile?.config?.tier ?? BillingTier.free;
+                    final isFreeTier = tier == BillingTier.free;
+
+                    return Center(
+                      child: BootstrapButton(
+                        onPressed: isFreeTier 
+                            ? null 
+                            : () => context.read<OrderDetailsCubit>().shareOrder(order),
+                        label: isFreeTier ? 'Upgrade to Share Link' : 'Share Tracking Link',
+                        icon: isFreeTier ? Icons.lock_rounded : Icons.share_rounded,
+                        type: BootstrapButtonType.outline,
+                        width: 280,
+                      ),
+                    );
+                  }
                 ),
                 const SizedBox(height: BootstrapSpacing.xl),
               ],
