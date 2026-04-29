@@ -8,7 +8,7 @@ extension OrderDtoToDrift on OrderDto {
   OrdersCompanion toDriftCompanion() {
     return OrdersCompanion.insert(
       id: id,
-      pickupAddress: Value(pickupAddress),
+      pickupAddress: pickupAddress,
       pickupLat: Value(pickupLat),
       pickupLng: Value(pickupLng),
       pickupPlaceId: Value(pickupPlaceId),
@@ -70,7 +70,7 @@ extension OrderEntityToDrift on order_entities.Order {
   OrdersCompanion toDriftCompanion() {
     return OrdersCompanion.insert(
       id: id,
-      pickupAddress: Value(pickupAddress),
+      pickupAddress: pickupAddress,
       pickupLat: Value(pickupLat),
       pickupLng: Value(pickupLng),
       pickupPlaceId: Value(pickupPlaceId),
