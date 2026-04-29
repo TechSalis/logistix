@@ -6,13 +6,13 @@ import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 
 extension OrderDtoToDrift on OrderDto {
   OrdersCompanion toDriftCompanion() {
-    return OrdersCompanion.insert(
-      id: id,
-      pickupAddress: pickupAddress,
+    return OrdersCompanion(
+      id: Value(id),
+      pickupAddress: Value(pickupAddress),
       pickupLat: Value(pickupLat),
       pickupLng: Value(pickupLng),
       pickupPlaceId: Value(pickupPlaceId),
-      dropOffAddress: dropOffAddress,
+      dropOffAddress: Value(dropOffAddress),
       dropOffLat: Value(dropOffLat),
       dropOffLng: Value(dropOffLng),
       dropOffPlaceId: Value(dropOffPlaceId),
@@ -24,13 +24,12 @@ extension OrderDtoToDrift on OrderDto {
       assignedCompanyId: Value(assignedCompanyId),
       description: Value(description),
       createdBy: Value(createdBy),
-      trackingNumber: trackingNumber,
-      status: status,
+      trackingNumber: Value(trackingNumber),
+      status: Value(status),
       deliveredAt: Value(deliveredAt),
       scheduledAt: Value(scheduledAt),
-      createdAt: createdAt,
+      createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      localUpdatedAt: DateTime.now(),
     );
   }
 }
@@ -68,13 +67,13 @@ extension OrderDriftToEntity on OrderRow {
 
 extension OrderEntityToDrift on order_entities.Order {
   OrdersCompanion toDriftCompanion() {
-    return OrdersCompanion.insert(
-      id: id,
-      pickupAddress: pickupAddress,
+    return OrdersCompanion(
+      id: Value(id),
+      pickupAddress: Value(pickupAddress),
       pickupLat: Value(pickupLat),
       pickupLng: Value(pickupLng),
       pickupPlaceId: Value(pickupPlaceId),
-      dropOffAddress: dropOffAddress,
+      dropOffAddress: Value(dropOffAddress),
       dropOffLat: Value(dropOffLat),
       dropOffLng: Value(dropOffLng),
       dropOffPlaceId: Value(dropOffPlaceId),
@@ -86,13 +85,12 @@ extension OrderEntityToDrift on order_entities.Order {
       assignedCompanyId: Value(assignedCompanyId),
       description: Value(description),
       createdBy: Value(createdBy),
-      trackingNumber: trackingNumber,
-      status: status.name,
+      trackingNumber: Value(trackingNumber),
+      status: Value(status.name),
       deliveredAt: Value(deliveredAt),
       scheduledAt: Value(scheduledAt),
-      createdAt: createdAt,
+      createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      localUpdatedAt: DateTime.now(),
     );
   }
 }

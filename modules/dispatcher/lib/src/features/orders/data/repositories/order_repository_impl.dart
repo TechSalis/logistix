@@ -94,27 +94,14 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<Result<AppError, void>> updateOrderStatus(
     String orderId,
     OrderStatus status,
-  ) async {
-    final currentOrder = await _orderDao.getOrder(orderId);
-
-    // Optimistically update local DB
-    if (currentOrder != null) {
-      final updated = currentOrder.copyWith(status: status);
-      await _orderDao.upsertOrder(updated.toDriftCompanion());
-    }
-
-    final result = await Result.tryCatch<AppError, void>(() async {
-      final dto = await _remoteDataSource.updateOrderStatus(
+  ) {
+    return _optimisticUpdate(
+      orderId: orderId,
+      applyLocal: (order) => order.copyWith(status: status),
+      remoteCall: () => _remoteDataSource.updateOrderStatus(
         UpdateOrderStatusRequest(orderId: orderId, status: status.name),
-      );
-      await _orderDao.upsertOrder(dto.toDriftCompanion());
-    });
-
-    if (result.isError && currentOrder != null) {
-      await _orderDao.upsertOrder(currentOrder.toDriftCompanion());
-    }
-
-    return result;
+      ),
+    );
   }
 
   @override
@@ -122,64 +109,35 @@ class OrderRepositoryImpl implements OrderRepository {
     String orderId,
     Rider rider,
   ) async {
-    final currentOrder = await _orderDao.getOrder(orderId);
-
-    // Optimistically update local DB
-    if (currentOrder != null) {
-      final updated = currentOrder.copyWith(
+    return _optimisticUpdate(
+      orderId: orderId,
+      applyLocal: (order) => order.copyWith(
         riderId: rider.id,
         rider: rider,
         status: OrderStatus.ASSIGNED,
-      );
-      await Future.wait<void>([
-        _riderDao.upsertRider(rider.toDriftCompanion()),
-        _orderDao.upsertOrder(updated.toDriftCompanion()),
-      ]);
-    }
-
-    final result = await Result.tryCatch<AppError, void>(() async {
-      final dto = await _remoteDataSource.assignOrder(
-        AssignOrderRequest(orderId: orderId, riderId: rider.id),
-      );
-      await _orderDao.upsertOrder(dto.toDriftCompanion());
-    });
-
-    if (result.isError && currentOrder != null) {
-      await _orderDao.upsertOrder(currentOrder.toDriftCompanion());
-    }
-
-    return result;
+      ),
+      remoteCall: () async {
+        // Riders are syncable too, so we upsert here
+        await _riderDao.upsertRider(rider.toDriftCompanion());
+        return _remoteDataSource.assignOrder(
+          AssignOrderRequest(orderId: orderId, riderId: rider.id),
+        );
+      },
+    );
   }
 
   @override
-  Future<Result<AppError, void>> unassignRider(String orderId) async {
-    final currentOrder = await _orderDao.getOrder(orderId);
-
-    // Optimistically update local DB
-    if (currentOrder != null) {
-      await _orderDao.upsertOrder(
-        currentOrder
-            .copyWith(status: OrderStatus.UNASSIGNED)
-            .toDriftCompanion(),
-      );
-    }
-
-    final result = await Result.tryCatch<AppError, void>(() async {
-      final dto = await _remoteDataSource.updateOrderStatus(
+  Future<Result<AppError, void>> unassignRider(String orderId) {
+    return _optimisticUpdate(
+      orderId: orderId,
+      applyLocal: (order) => order.copyWith(status: OrderStatus.UNASSIGNED),
+      remoteCall: () => _remoteDataSource.updateOrderStatus(
         UpdateOrderStatusRequest(
           orderId: orderId,
           status: OrderStatus.UNASSIGNED.name,
         ),
-      );
-
-      await _orderDao.upsertOrder(dto.toDriftCompanion());
-    });
-
-    if (result.isError && currentOrder != null) {
-      await _orderDao.upsertOrder(currentOrder.toDriftCompanion());
-    }
-
-    return result;
+      ),
+    );
   }
 
   @override
@@ -188,22 +146,29 @@ class OrderRepositoryImpl implements OrderRepository {
   }
 
   @override
-  Future<Result<AppError, void>> rejectOrder(String orderId) async {
+  Future<Result<AppError, void>> rejectOrder(String orderId) {
+    return _optimisticUpdate(
+      orderId: orderId,
+      applyLocal: (order) => order.copyWith(status: OrderStatus.UNASSIGNED),
+      remoteCall: () => _remoteDataSource.rejectOrder(orderId),
+    );
+  }
+
+  /// High-performance helper to coordinate optimistic local updates with remote sync and automatic rollback.
+  Future<Result<AppError, void>> _optimisticUpdate({
+    required String orderId,
+    required Order Function(Order) applyLocal,
+    required Future<OrderDto> Function() remoteCall,
+  }) async {
     final currentOrder = await _orderDao.getOrder(orderId);
 
-    // Optimistically update local DB - we can remove the assignedCompanyId,
-    // but Drift entities might not have assignedCompanyId directly if not in schema.
-    // For now, setting status back to 'unassigned' and clearing rider works too.
     if (currentOrder != null) {
-      await _orderDao.upsertOrder(
-        currentOrder
-            .copyWith(status: OrderStatus.UNASSIGNED)
-            .toDriftCompanion(),
-      );
+      final updated = applyLocal(currentOrder);
+      await _orderDao.upsertOrder(updated.toDriftCompanion());
     }
 
     final result = await Result.tryCatch<AppError, void>(() async {
-      final dto = await _remoteDataSource.rejectOrder(orderId);
+      final dto = await remoteCall();
       await _orderDao.upsertOrder(dto.toDriftCompanion());
     });
 

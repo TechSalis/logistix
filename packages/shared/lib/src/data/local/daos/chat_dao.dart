@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:shared/src/data/local/daos/syncable_dao_mixin.dart';
 import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/mappers/chat_mapper.dart';
 
 part 'chat_dao.g.dart';
 
 @DriftAccessor(tables: [Conversations, ChatMessages])
-class ChatDao extends DatabaseAccessor<LogistixDatabase> {
+class ChatDao extends DatabaseAccessor<LogistixDatabase> with SyncableDaoMixin {
   ChatDao(super.db);
 
   // ── Conversations ────────────────────────────────────────────────
@@ -73,18 +74,13 @@ class ChatDao extends DatabaseAccessor<LogistixDatabase> {
   // ── Persistence ──────────────────────────────────────────────────
 
   Future<void> upsertConversation(ConversationsCompanion companion) async {
-    final id = companion.id.value;
-
-    await transaction(() async {
-      final existing = await (select(db.conversations)..where((c) => c.id.equals(id))).getSingleOrNull();
-      
-      final shouldUpdate = existing == null || 
-          (companion.updatedAt.present && companion.updatedAt.value.isAfter(existing.updatedAt));
-
-      if (shouldUpdate) {
-        await into(db.conversations).insertOnConflictUpdate(companion);
-      }
-    });
+    await performSyncUpsert(
+      table: db.conversations,
+      companion: companion,
+      id: companion.id.present ? companion.id.value : null,
+      incomingUpdate: companion.updatedAt.present ? companion.updatedAt.value : null,
+      getExistingUpdate: (row) => row.updatedAt,
+    );
   }
 
   Future<void> upsertMessage(ChatMessagesCompanion companion) =>

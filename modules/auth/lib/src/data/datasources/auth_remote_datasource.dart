@@ -54,8 +54,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<(OAuthToken, UserDto)> login(LoginRequest request) async {
-    const mutation =
-        '''
+    const mutation = '''
         mutation Login(\$email: String!, \$password: String!) {
           login(email: \$email, password: \$password) {
             token {
@@ -65,19 +64,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
               expires_in
             }
             user {
-              id
-              email
-              fullName
-              role
-              phoneNumber
-              isOnboarded
-              companyId
-              riderProfile {
-                ${GqlFragments.riderFields}
-              }
-              companyProfile {
-                ${GqlFragments.companyFields}
-              }
+              ${GqlFragments.userFields}
             }
           }
         }
@@ -89,6 +76,10 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
       variables: request.toJson(),
     );
 
+    return _decodeAuthResponse(data);
+  }
+
+  (OAuthToken, UserDto) _decodeAuthResponse(Map<String, dynamic> data) {
     final tokenData = data['token'];
     if (tokenData == null) {
       throw const AppError(
@@ -112,8 +103,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<(OAuthToken, UserDto)> signUp(SignUpRequest request) async {
-    const mutation =
-        '''
+    const mutation = '''
         mutation Register(\$input: RegisterInput!) {
           register(input: \$input) {
             token {
@@ -123,19 +113,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
               expires_in
             }
             user {
-              id
-              email
-              fullName
-              role
-              phoneNumber
-              isOnboarded
-              companyId
-              riderProfile {
-                ${GqlFragments.riderFields}
-              }
-              companyProfile {
-                ${GqlFragments.companyFields}
-              }
+              ${GqlFragments.userFields}
             }
           }
         }
@@ -149,25 +127,7 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
       },
     );
 
-    final tokenData = data['token'];
-    if (tokenData == null) {
-      throw const AppError(
-        message: 'Token not found in server response',
-        code: AuthErrorCodes.missingToken,
-      );
-    }
-
-    final token = const OAuthTokenCodec().decode(tokenData);
-    if (token == null) {
-      throw const AppError(
-        message: 'Invalid token format from server',
-        code: AuthErrorCodes.invalidToken,
-      );
-    }
-
-    final userDto = UserDto.fromJson(data['user'] as Map<String, dynamic>);
-
-    return (token, userDto);
+    return _decodeAuthResponse(data);
   }
 
   @override

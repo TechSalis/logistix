@@ -1,6 +1,7 @@
 // ignore_for_file: cascade_invocations
 import 'package:drift/drift.dart';
 import 'package:shared/src/data/local/database.dart';
+import 'package:shared/src/data/local/daos/syncable_dao_mixin.dart';
 import 'package:shared/src/data/local/mappers/order_mapper.dart';
 import 'package:shared/src/data/local/mappers/rider_mapper.dart';
 import 'package:shared/src/domain/entities/order.dart' as entities;
@@ -9,7 +10,7 @@ import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 part 'order_dao.g.dart';
 
 @DriftAccessor(tables: [Orders, Riders])
-class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
+class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin, SyncableDaoMixin {
   OrderDao(super.db);
 
   // ── Read Operations ─────────────────────────────────────────────
@@ -185,22 +186,13 @@ class OrderDao extends DatabaseAccessor<LogistixDatabase> with _$OrderDaoMixin {
   }
 
   Future<void> _performUpsert(OrdersCompanion order) async {
-    final id = order.id.value;
-    final incomingUpdate = order.updatedAt.value;
-
-    if (incomingUpdate == null) {
-      await into(db.orders).insertOnConflictUpdate(order);
-      return;
-    }
-
-    final existing = await (select(db.orders)..where((o) => o.id.equals(id)))
-        .getSingleOrNull();
-
-    if (existing == null ||
-        existing.updatedAt == null ||
-        incomingUpdate.isAfter(existing.updatedAt!)) {
-      await into(db.orders).insertOnConflictUpdate(order);
-    }
+    await performSyncUpsert(
+      table: db.orders,
+      companion: order,
+      id: order.id.present ? order.id.value : null,
+      incomingUpdate: order.updatedAt.present ? order.updatedAt.value : null,
+      getExistingUpdate: (row) => row.updatedAt,
+    );
   }
 
   Future<void> deleteOrder(String id) {

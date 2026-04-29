@@ -1,12 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:shared/shared.dart';
 import 'package:shared/src/data/local/database.dart';
+import 'package:shared/src/data/local/daos/syncable_dao_mixin.dart';
 import 'package:shared/src/domain/entities/rider.dart' as entities;
 
 part 'rider_dao.g.dart';
 
 @DriftAccessor(tables: [Riders])
-class RiderDao extends DatabaseAccessor<LogistixDatabase> with _$RiderDaoMixin {
+class RiderDao extends DatabaseAccessor<LogistixDatabase> with _$RiderDaoMixin, SyncableDaoMixin {
   RiderDao(super.db);
 
   // ── Read Operations ─────────────────────────────────────────────
@@ -108,22 +109,13 @@ class RiderDao extends DatabaseAccessor<LogistixDatabase> with _$RiderDaoMixin {
   }
 
   Future<void> _performUpsert(RidersCompanion rider) async {
-    final id = rider.id.value;
-    final incomingUpdate = rider.updatedAt.value;
-
-    if (incomingUpdate == null) {
-      await into(db.riders).insertOnConflictUpdate(rider);
-      return;
-    }
-
-    final existing = await (select(db.riders)..where((r) => r.id.equals(id)))
-        .getSingleOrNull();
-
-    if (existing == null ||
-        existing.updatedAt == null ||
-        incomingUpdate.isAfter(existing.updatedAt!)) {
-      await into(db.riders).insertOnConflictUpdate(rider);
-    }
+    await performSyncUpsert(
+      table: db.riders,
+      companion: rider,
+      id: rider.id.present ? rider.id.value : null,
+      incomingUpdate: rider.updatedAt.present ? rider.updatedAt.value : null,
+      getExistingUpdate: (row) => row.updatedAt,
+    );
   }
 
   Future<void> deleteRider(String id) async {

@@ -175,4 +175,29 @@ extension OrderX on Order {
   bool get hasPickupPosition => pickupLat != null && pickupLng != null;
   bool get hasDropOffPosition => dropOffLat != null && dropOffLng != null;
   bool get hasLocation => hasPickupPosition || hasDropOffPosition;
+
+  /// Returns whether the user is authorized to share this order based on their billing tier.
+  bool canShare(BillingTier tier) => tier != BillingTier.free;
+
+  /// Generates a standardized share text for this order.
+  String toShareText(String trackingLink) {
+    final buffer = StringBuffer()
+      ..writeln('📦 Order #$trackingNumber')
+      ..writeln('Status: ${status.label}');
+
+    if (description?.isNotEmpty ?? false) {
+      buffer.writeln('Description: $description');
+    }
+
+    buffer.writeln('Drop-off: $dropOffAddress');
+    buffer.writeln('Pickup: $pickupAddress');
+
+    if (dropOffPhone != null) buffer.writeln('Contact: $dropOffPhone');
+    if (rider != null) buffer.writeln('Rider: ${rider!.fullName}');
+    if (price != null) buffer.writeln('Price: \$${price!.toStringAsFixed(2)}');
+    if (isPriority) buffer.writeln('⚡ Priority Order');
+
+    buffer.writeln('\n🔗 Track: $trackingLink');
+    return buffer.toString();
+  }
 }

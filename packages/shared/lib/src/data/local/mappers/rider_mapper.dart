@@ -5,12 +5,12 @@ import 'package:shared/src/domain/entities/rider.dart' as rider_entities;
 
 extension RiderDtoToDrift on RiderDto {
   RidersCompanion toDriftCompanion() {
-    return RidersCompanion.insert(
-      id: id,
-      email: email,
-      fullName: fullName,
-      companyId: companyId,
-      status: status,
+    return RidersCompanion(
+      id: Value(id),
+      email: Value(email),
+      fullName: Value(fullName),
+      companyId: Value(companyId),
+      status: Value(status),
       permitStatus: Value(permitStatus),
       phoneNumber: Value(phoneNumber),
       isAccepted: Value(isAccepted),
@@ -19,7 +19,6 @@ extension RiderDtoToDrift on RiderDto {
       batteryLevel: Value(batteryLevel),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      localUpdatedAt: DateTime.now(),
     );
   }
 }
@@ -46,12 +45,12 @@ extension RiderDataToEntity on RiderRow {
 
 extension RiderEntityToDrift on rider_entities.Rider {
   RidersCompanion toDriftCompanion() {
-    return RidersCompanion.insert(
-      id: id,
-      email: email,
-      fullName: fullName,
-      companyId: companyId,
-      status: status.name,
+    return RidersCompanion(
+      id: Value(id),
+      email: Value(email),
+      fullName: Value(fullName),
+      companyId: Value(companyId),
+      status: Value(status.name),
       phoneNumber: Value(phoneNumber),
       lastLat: Value(lastLat),
       lastLng: Value(lastLng),
@@ -60,7 +59,6 @@ extension RiderEntityToDrift on rider_entities.Rider {
       permitStatus: Value(permitStatus.name),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
-      localUpdatedAt: DateTime.now(),
     );
   }
 }

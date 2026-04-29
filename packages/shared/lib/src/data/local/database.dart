@@ -38,7 +38,6 @@ class Orders extends Table {
   DateTimeColumn get deliveredAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
-  DateTimeColumn get localUpdatedAt => dateTime()(); // For delta sync
   BoolColumn get isPriority => boolean().withDefault(const Constant(false))();
 
   @override
@@ -78,7 +77,6 @@ class Riders extends Table {
   BoolColumn get isAccepted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().nullable()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
-  DateTimeColumn get localUpdatedAt => dateTime()(); // For delta sync
 
   @override
   Set<Column> get primaryKey => {id};

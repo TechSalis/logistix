@@ -27,16 +27,16 @@ extension ConversationRowX on ConversationRow {
 
 extension ConversationEntityX on Conversation {
   ConversationsCompanion toDriftCompanion() {
-    return ConversationsCompanion.insert(
-      id: id,
-      platform: platform.name,
-      platformId: platformId,
-      lastMessageAt: lastMessageAt,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+    return ConversationsCompanion(
+      id: Value(id),
+      platform: Value(platform.name),
+      platformId: Value(platformId),
+      lastMessageAt: Value(lastMessageAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
       autoReplyEnabled: Value(autoReplyEnabled),
       customerName: Value(customerName),
-      companyId: companyId,
+      companyId: Value(companyId),
       lastMessageId: Value(lastMessageId),
       lastMessageBody: Value(lastMessageBody),
       lastMessageSenderType: Value(lastMessageSenderType?.name),
@@ -67,11 +67,11 @@ extension ChatMessageRowX on ChatMessageRow {
 
 extension ChatMessageEntityX on ChatMessage {
   ChatMessagesCompanion toDriftCompanion() {
-    return ChatMessagesCompanion.insert(
-      id: id,
-      conversationId: conversationId,
-      body: body,
-      senderType: senderType.name,
+    return ChatMessagesCompanion(
+      id: Value(id),
+      conversationId: Value(conversationId),
+      body: Value(body),
+      senderType: Value(senderType.name),
       senderId: Value(senderId),
       senderName: Value(senderName),
       mediaUrl: Value(mediaUrl),
@@ -80,7 +80,7 @@ extension ChatMessageEntityX on ChatMessage {
       isDeleted: Value(isDeleted),
       externalId: Value(externalId),
       status: Value(status.name),
-      createdAt: createdAt,
+      createdAt: Value(createdAt),
     );
   }
 }

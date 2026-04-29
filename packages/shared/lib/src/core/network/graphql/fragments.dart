@@ -70,4 +70,22 @@ class GqlFragments {
     createdAt
     updatedAt
   ''';
+
+  static const String userFields = '''
+    id
+    email
+    fullName
+    role
+    phoneNumber
+    isOnboarded
+    companyId
+    riderProfile {
+      $riderFields
+    }
+    companyProfile {
+      $companyFields
+    }
+    createdAt
+    updatedAt
+  ''';
 }

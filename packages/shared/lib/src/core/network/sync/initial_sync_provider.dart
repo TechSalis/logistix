@@ -1,8 +1,6 @@
 // ignore_for_file: one_member_abstracts
 import 'dart:async';
 
-import 'package:shared/shared.dart' show SyncPage;
-
 import 'package:shared/src/presentation/pages/sync_page.dart' show SyncPage;
 
 /// Interface for module-specific initial synchronization logic.

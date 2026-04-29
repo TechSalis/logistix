@@ -206,7 +206,7 @@ class _SyncPageState extends State<SyncPage>
                     widget.message!,
                     textAlign: TextAlign.center,
                     style: context.textTheme.bodyMedium?.copyWith(
-                      color: LogistixColors.white.withValues(alpha: 0.9),
+                      color: LogistixColors.textSecondary,
                       letterSpacing: 0.5,
                     ),
                   ),

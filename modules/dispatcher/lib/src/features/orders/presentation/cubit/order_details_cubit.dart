@@ -23,6 +23,11 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   late final markDeliveredRunner = AsyncRunner<AppError, void>(_markDelivered);
   late final cancelRunner = AsyncRunner<AppError, void>(_cancelOrder);
 
+  Order? get _currentOrder {
+    final s = state;
+    return s is OrderDetailsLoaded ? s.order : null;
+  }
+
   Future<void> _launchCaller(String? phone) async {
     if (phone == null || phone.isEmpty) return;
     await LogistixLauncher.callNumber(phone);
@@ -50,21 +55,9 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
       trackingCode: order.trackingCode,
     );
 
-    final trackingText =
-        '📦 Order #${order.trackingNumber}\n'
-        'Status: ${order.status.label}\n'
-        '${order.description != null ? 'Description: ${order.description}\n' : ''}'
-        'Drop-off: ${order.dropOffAddress}\n'
-        '${'Pickup: ${order.pickupAddress}\n'}'
-        '${order.dropOffPhone != null ? 'Contact: ${order.dropOffPhone}\n' : ''}'
-        '${order.rider != null ? 'Rider: ${order.rider!.fullName}\n' : ''}'
-        '${order.price != null ? 'Price: \$${order.price!.toStringAsFixed(2)}\n' : ''}'
-        '${order.isPriority ? '⚡ Priority Order\n' : ''}'
-        '\n🔗 Track: $trackingLink';
-
     await SharePlus.instance.share(
       ShareParams(
-        text: trackingText,
+        text: order.toShareText(trackingLink),
         sharePositionOrigin: const Rect.fromLTWH(0, 0, 1, 1),
       ),
     );
@@ -82,30 +75,27 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   late final unassignRunner = AsyncRunner<AppError, void>(_unassignRider);
 
   Future<void> _assignRider(Rider rider) async {
-    final currentState = state;
-    if (currentState is! OrderDetailsLoaded || isClosed) return;
+    final order = _currentOrder;
+    if (order == null || isClosed) return;
 
-    final orderId = currentState.order.id;
-    final result = await _orderRepository.assignRider(orderId, rider);
+    final result = await _orderRepository.assignRider(order.id, rider);
     result.throwOrReturn();
   }
 
   Future<void> _unassignRider() async {
-    final currentState = state;
-    if (currentState is! OrderDetailsLoaded || isClosed) return;
+    final order = _currentOrder;
+    if (order == null || isClosed) return;
 
-    final orderId = currentState.order.id;
-    final result = await _orderRepository.unassignRider(orderId);
+    final result = await _orderRepository.unassignRider(order.id);
     result.throwOrReturn();
   }
 
   Future<void> _markDelivered() async {
-    final currentState = state;
-    if (currentState is! OrderDetailsLoaded || isClosed) return;
+    final order = _currentOrder;
+    if (order == null || isClosed) return;
 
-    final orderId = currentState.order.id;
     final result = await _orderRepository.updateOrderStatus(
-      orderId,
+      order.id,
       OrderStatus.DELIVERED,
     );
     result.throwOrReturn();
@@ -114,20 +104,18 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   late final rejectRunner = AsyncRunner<AppError, void>(_rejectOrder);
 
   Future<void> _rejectOrder() async {
-    final currentState = state;
-    if (currentState is! OrderDetailsLoaded || isClosed) return;
+    final order = _currentOrder;
+    if (order == null || isClosed) return;
 
-    final orderId = currentState.order.id;
-    final result = await _orderRepository.rejectOrder(orderId);
+    final result = await _orderRepository.rejectOrder(order.id);
     result.throwOrReturn();
   }
 
   Future<void> _cancelOrder() async {
-    final currentState = state;
-    if (currentState is! OrderDetailsLoaded || isClosed) return;
+    final order = _currentOrder;
+    if (order == null || isClosed) return;
 
-    final orderId = currentState.order.id;
-    final result = await _orderRepository.cancelOrder(orderId);
+    final result = await _orderRepository.cancelOrder(order.id);
     result.throwOrReturn();
   }
 

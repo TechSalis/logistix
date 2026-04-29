@@ -76,17 +76,8 @@ class _OrderLoadedContent extends StatelessWidget {
 
                 // Premium details card
                 Container(
-                  decoration: BoxDecoration(
-                    color: LogistixColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: LogistixColors.black.withValues(alpha: 0.03)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: LogistixColors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                  decoration: LogistixDecorations.card(
+                    borderColor: LogistixColors.black.withValues(alpha: 0.03),
                   ),
                   padding: const EdgeInsets.all(BootstrapSpacing.md),
                   child: Column(
@@ -138,15 +129,15 @@ class _OrderLoadedContent extends StatelessWidget {
                   builder: (context) {
                     final user = context.read<UserStore>().user;
                     final tier = user?.companyProfile?.config?.tier ?? BillingTier.free;
-                    final isFreeTier = tier == BillingTier.free;
+                    final canShare = order.canShare(tier);
 
                     return Center(
                       child: BootstrapButton(
-                        onPressed: isFreeTier 
-                            ? null 
-                            : () => context.read<OrderDetailsCubit>().shareOrder(order),
-                        label: isFreeTier ? 'Upgrade to Share Link' : 'Share Tracking Link',
-                        icon: isFreeTier ? Icons.lock_rounded : Icons.share_rounded,
+                        onPressed: canShare 
+                            ? () => context.read<OrderDetailsCubit>().shareOrder(order)
+                            : null,
+                        label: canShare ? 'Share Tracking Link' : 'Upgrade to Share Link',
+                        icon: canShare ? Icons.share_rounded : Icons.lock_rounded,
                         type: BootstrapButtonType.outline,
                         width: 280,
                       ),
