@@ -200,6 +200,6 @@ Event → Bloc → UseCase → Repository → DataSource (Remote/Local)
 | `GRAPHQL_URL` | Backend GraphQL endpoint | `http://localhost:4000/graphql` |
 | `ENVIRONMENT` | `development` or `production` | `development` |
 | `SENTRY_DSN` | Sentry project DSN for error reporting | _(empty — Sentry disabled)_ |
-| `CONTACT_SUPPORT_URL` | URL opened by "Contact Support" button | `https://support.logistix.com` |
+| `CONTACT_SUPPORT_URL` | URL opened by "Contact Support" button | `https://support.logistix.team` |
 
 All variables are accessed via `EnvConfig` in `packages/shared/lib/src/core/config/env_config.dart`.
