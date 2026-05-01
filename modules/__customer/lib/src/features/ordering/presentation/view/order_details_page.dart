@@ -230,12 +230,12 @@ class _OrderLocationInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (order.pickupAddress?.isNotEmpty ?? false) ...[
+        if (order.pickupAddress.isNotEmpty ?? false) ...[
           BootstrapInfoTile(
             icon: Icons.trip_origin_rounded,
             iconColor: LogistixColors.primary,
             title: 'Pickup',
-            value: order.pickupAddress!,
+            value: order.pickupAddress,
             onTap: order.hasPickupPosition
                 ? () => LogistixLauncher.openMap(order.pickupLat!, order.pickupLng!)
                 : null,

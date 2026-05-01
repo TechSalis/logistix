@@ -8,9 +8,9 @@ import 'package:customer/src/features/ordering/presentation/cubit/order_form_cub
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
-import 'package:intl/intl.dart';
 
 class CustomerOrderFormPage extends StatefulWidget {
   const CustomerOrderFormPage({required this.orderType, super.key});

@@ -21,7 +21,7 @@ mixin SyncableDaoMixin on DatabaseAccessor<LogistixDatabase> {
     // 2. Check existing record
     final existing = await (select(table)..where((t) {
       // This is a bit tricky with generic tables, but we know our tables use 'id' as primary key
-      final idColumn = table.columnsByName['id'] as Column<String>;
+              final idColumn = table.columnsByName['id']! as Column<String>;
       return idColumn.equals(id);
     })).getSingleOrNull();
 

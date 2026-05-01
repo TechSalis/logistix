@@ -10,7 +10,6 @@ import 'package:logistix/startup/presentation/bloc/app_state.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared/shared.dart';
-import 'package:shared/src/core/config/project_config.dart';
 
 void main() async {
   FlutterNativeSplash.preserve(

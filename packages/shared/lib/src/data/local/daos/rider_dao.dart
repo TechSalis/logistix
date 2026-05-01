@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:shared/shared.dart';
-import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/daos/syncable_dao_mixin.dart';
+import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/domain/entities/rider.dart' as entities;
 
 part 'rider_dao.g.dart';

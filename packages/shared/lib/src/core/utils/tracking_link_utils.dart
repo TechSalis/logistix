@@ -1,8 +1,8 @@
-import 'package:shared/src/core/config/env_config.dart';
+import 'package:shared/src/core/config/project_config.dart';
 
 class LogistixTracking {
   static String generateLink(String trackingNumber, {String? trackingCode}) {
-    var base = EnvConfig.instance.trackingLink;
+    var base = ProjectConfig.trackingLink;
     if (base.endsWith('/')) {
       base = base.substring(0, base.length - 1);
     }

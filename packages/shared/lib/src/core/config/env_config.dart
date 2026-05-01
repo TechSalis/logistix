@@ -6,14 +6,10 @@ class EnvConfig {
   String get graphqlUrl => const String.fromEnvironment('GRAPHQL_URL');
   String get wsUrl => const String.fromEnvironment('WS_URL');
   String get sentryDsn => const String.fromEnvironment('SENTRY_DSN');
-  String get contactSupportUrl =>
-      const String.fromEnvironment('CONTACT_SUPPORT_URL');
   String get environment => const String.fromEnvironment('ENVIRONMENT');
-  String get trackingLink => const String.fromEnvironment('TRACKING_LINK');
   String get clientKey => const String.fromEnvironment('CLIENT_KEY');
   
-  bool get isSingleTenant =>
-      const String.fromEnvironment('SYSTEM_MODE') == 'SINGLE_TENANT';
+  bool get isDevelopment => environment == 'development';
 
   bool get isDevelopment => environment == 'development';
   bool get isProduction => environment == 'production';

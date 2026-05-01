@@ -34,7 +34,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
     if (_formKey.currentState?.validate() != true) return;
 
     // In multi-tenant mode, company selection is required
-    if (!EnvConfig.instance.isSingleTenant && _company == null) {
+    if (ProjectConfig.isMultiTenant && _company == null) {
       return;
     }
 
@@ -98,7 +98,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                       validator: FormBuilderValidators.required(),
                       textCapitalization: TextCapitalization.characters,
                     ),
-                    if (!EnvConfig.instance.isSingleTenant) ...[
+                    if (ProjectConfig.isMultiTenant) ...[
                       const SizedBox(height: BootstrapSpacing.lg),
                       DropdownSearch<Company>(
                         items: (String filter, _) async {

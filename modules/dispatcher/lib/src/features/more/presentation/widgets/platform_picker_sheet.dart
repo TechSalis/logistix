@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
-import 'package:shared/src/core/config/project_config.dart';
 
 class PlatformPickerSheet extends StatefulWidget {
   const PlatformPickerSheet({

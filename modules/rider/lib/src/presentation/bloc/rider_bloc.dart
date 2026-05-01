@@ -113,7 +113,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
   );
 
   Future<void> _launchSupportUrl() {
-    return LogistixLauncher.launchInBrowser(EnvConfig.instance.contactSupportUrl);
+    return LogistixLauncher.launchInBrowser(ProjectConfig.contactSupportUrl);
   }
 
   FutureOr<void> _onUpdateRider(

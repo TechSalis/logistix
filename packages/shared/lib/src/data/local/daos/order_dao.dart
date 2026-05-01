@@ -1,7 +1,7 @@
 // ignore_for_file: cascade_invocations
 import 'package:drift/drift.dart';
-import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/daos/syncable_dao_mixin.dart';
+import 'package:shared/src/data/local/database.dart';
 import 'package:shared/src/data/local/mappers/order_mapper.dart';
 import 'package:shared/src/data/local/mappers/rider_mapper.dart';
 import 'package:shared/src/domain/entities/order.dart' as entities;
