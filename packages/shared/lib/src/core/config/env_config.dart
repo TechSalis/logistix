@@ -10,8 +10,6 @@ class EnvConfig {
   String get clientKey => const String.fromEnvironment('CLIENT_KEY');
   
   bool get isDevelopment => environment == 'development';
-
-  bool get isDevelopment => environment == 'development';
   bool get isProduction => environment == 'production';
 
   /// Standard singleton instance for the current environment.
