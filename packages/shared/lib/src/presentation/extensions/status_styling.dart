@@ -18,7 +18,7 @@ extension RiderStatusStyling on RiderStatus {
 extension OrderStatusStyling on OrderStatus {
   Color get color {
     switch (this) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
         return LogistixColors.textTertiary;
       case OrderStatus.ASSIGNED:
         return LogistixColors.info;
@@ -33,7 +33,7 @@ extension OrderStatusStyling on OrderStatus {
 
   IconData get icon {
     switch (this) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
         return Icons.timer_outlined;
       case OrderStatus.ASSIGNED:
         return Icons.person_add_outlined;
@@ -48,7 +48,7 @@ extension OrderStatusStyling on OrderStatus {
 
   String get description {
     switch (this) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
         return 'Waiting for a rider to be assigned';
       case OrderStatus.ASSIGNED:
         return 'A rider has been assigned and will begin shortly';

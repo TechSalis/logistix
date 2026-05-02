@@ -223,7 +223,7 @@ class _StatusFilterList extends StatelessWidget {
     return BlocBuilder<RiderOrdersCubit, RiderOrdersState>(
       builder: (context, state) {
         final riderStatuses = [
-          OrderStatus.UNASSIGNED,
+          OrderStatus.PENDING,
           OrderStatus.ASSIGNED,
           OrderStatus.EN_ROUTE,
           OrderStatus.DELIVERED,

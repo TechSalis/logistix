@@ -127,7 +127,7 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
     if (curState is RiderOrderDetailsLoaded) {
       final result = await _riderRepository.updateOrderStatus(
         curState.order.id,
-        OrderStatus.UNASSIGNED,
+        OrderStatus.PENDING,
       );
 
       if (isClosed) return;

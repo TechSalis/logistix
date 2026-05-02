@@ -13,6 +13,7 @@ class CompanyDto {
     this.cac,
     this.address,
     this.placeId,
+    this.contactPhone,
     this.config,
     this.integrations,
     this.createdAt,
@@ -27,6 +28,7 @@ class CompanyDto {
         cac: company.cac,
         address: company.address,
         placeId: company.placeId,
+        contactPhone: company.contactPhone,
         config: company.config != null
             ? CompanyConfigDto.fromEntity(company.config!)
             : null,
@@ -46,6 +48,7 @@ class CompanyDto {
       cac: json['cac'] as String?,
       address: json['address'] as String?,
       placeId: json['placeId'] as String?,
+      contactPhone: json['contactPhone'] as String?,
       config: json['config'] != null
           ? CompanyConfigDto.fromJson(json['config'] as Map<String, dynamic>)
           : null,
@@ -68,6 +71,7 @@ class CompanyDto {
   final String? cac;
   final String? address;
   final String? placeId;
+  final String? contactPhone;
   final CompanyConfigDto? config;
   final List<CompanyIntegrationDto>? integrations;
   final DateTime? createdAt;
@@ -82,6 +86,7 @@ class CompanyDto {
       if (cac != null) 'cac': cac,
       if (address != null) 'address': address,
       if (placeId != null) 'placeId': placeId,
+      if (contactPhone != null) 'contactPhone': contactPhone,
       if (config != null) 'config': config!.toJson(),
       if (integrations != null)
         'integrations': integrations!.map((e) => e.toJson()).toList(),
@@ -98,6 +103,7 @@ class CompanyDto {
         cac: cac,
         address: address,
         placeId: placeId,
+        contactPhone: contactPhone,
         config: config?.toEntity(),
         integrations: integrations?.map((e) => e.toEntity()).toList(),
         createdAt: createdAt,

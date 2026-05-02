@@ -17,7 +17,7 @@ class OrderActionBar extends StatelessWidget {
     final isExternalLogistixApp = order.companyId == null;
 
     switch (order.status) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
         actionButton = isExternalLogistixApp ? _RejectButton() : _CancelButton();
       case OrderStatus.ASSIGNED:
       case OrderStatus.EN_ROUTE:

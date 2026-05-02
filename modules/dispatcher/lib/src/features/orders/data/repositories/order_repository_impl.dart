@@ -130,11 +130,11 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<Result<AppError, void>> unassignRider(String orderId) {
     return _optimisticUpdate(
       orderId: orderId,
-      applyLocal: (order) => order.copyWith(status: OrderStatus.UNASSIGNED),
+      applyLocal: (order) => order.copyWith(status: OrderStatus.PENDING),
       remoteCall: () => _remoteDataSource.updateOrderStatus(
         UpdateOrderStatusRequest(
           orderId: orderId,
-          status: OrderStatus.UNASSIGNED.name,
+          status: OrderStatus.PENDING.name,
         ),
       ),
     );
@@ -149,7 +149,7 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<Result<AppError, void>> rejectOrder(String orderId) {
     return _optimisticUpdate(
       orderId: orderId,
-      applyLocal: (order) => order.copyWith(status: OrderStatus.UNASSIGNED),
+      applyLocal: (order) => order.copyWith(status: OrderStatus.PENDING),
       remoteCall: () => _remoteDataSource.rejectOrder(orderId),
     );
   }

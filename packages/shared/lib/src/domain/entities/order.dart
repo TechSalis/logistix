@@ -118,7 +118,7 @@ class Order {
 }
 
 enum OrderStatus {
-  UNASSIGNED,
+  PENDING,
   ASSIGNED,
   EN_ROUTE,
   DELIVERED,
@@ -150,7 +150,7 @@ extension SubscriptionEventTypeX on SubscriptionEventType {
 extension OrderStatusX on OrderStatus {
   String get label {
     switch (this) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
         return 'Unassigned';
       case OrderStatus.ASSIGNED:
         return 'Assigned';
@@ -166,7 +166,7 @@ extension OrderStatusX on OrderStatus {
   static OrderStatus fromString(String status) {
     return OrderStatus.values.firstWhere(
       (e) => e.name == status.toUpperCase(),
-      orElse: () => OrderStatus.UNASSIGNED,
+      orElse: () => OrderStatus.PENDING,
     );
   }
 }

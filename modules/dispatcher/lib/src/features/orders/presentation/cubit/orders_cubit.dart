@@ -89,7 +89,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         switch (s) {
           case OrderStatus.EN_ROUTE: return 0;
           case OrderStatus.ASSIGNED: return 1;
-          case OrderStatus.UNASSIGNED: return 2;
+          case OrderStatus.PENDING: return 2;
           case OrderStatus.DELIVERED: return 3;
           case OrderStatus.CANCELLED: return 3;
         }

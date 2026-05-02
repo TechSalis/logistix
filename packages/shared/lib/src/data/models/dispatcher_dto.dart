@@ -8,7 +8,6 @@ class DispatcherDto {
     required this.email,
     required this.fullName,
     this.companyId,
-    this.phoneNumber,
   });
 
   factory DispatcherDto.fromJson(Map<String, dynamic> json) {
@@ -17,7 +16,6 @@ class DispatcherDto {
       email: json['email'] as String,
       fullName: json['fullName'] as String,
       companyId: json['companyId'] as String?,
-      phoneNumber: json['phoneNumber'] as String?,
     );
   }
 
@@ -25,7 +23,6 @@ class DispatcherDto {
   final String email;
   final String fullName;
   final String? companyId;
-  final String? phoneNumber;
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,7 +30,6 @@ class DispatcherDto {
       'email': email,
       'fullName': fullName,
       if (companyId != null) 'companyId': companyId,
-      if (phoneNumber != null) 'phoneNumber': phoneNumber,
     };
   }
 
@@ -44,7 +40,6 @@ class DispatcherDto {
         isOnboarded: true,
         role: UserRole.DISPATCHER,
         companyId: companyId,
-        phoneNumber: phoneNumber,
       );
 
   @override

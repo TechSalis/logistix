@@ -436,7 +436,7 @@ class _BottomActionCta extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? actionButton;
     switch (order.status) {
-      case OrderStatus.UNASSIGNED:
+      case OrderStatus.PENDING:
       case OrderStatus.ASSIGNED:
         actionButton = startDeliveryButton(context);
       case OrderStatus.EN_ROUTE:

@@ -10,6 +10,7 @@ class Company {
     this.cac,
     this.address,
     this.placeId,
+    this.contactPhone,
     this.config,
     this.integrations,
     this.createdAt,
@@ -23,6 +24,7 @@ class Company {
   final String? cac;
   final String? address;
   final String? placeId;
+  final String? contactPhone;
   final CompanyConfig? config;
   final List<CompanyIntegration>? integrations;
   final DateTime? createdAt;
@@ -36,6 +38,7 @@ class Company {
     String? cac,
     String? address,
     String? placeId,
+    String? contactPhone,
     CompanyConfig? config,
     List<CompanyIntegration>? integrations,
     DateTime? createdAt,
@@ -49,6 +52,7 @@ class Company {
       cac: cac ?? this.cac,
       address: address ?? this.address,
       placeId: placeId ?? this.placeId,
+      contactPhone: contactPhone ?? this.contactPhone,
       config: config ?? this.config,
       integrations: integrations ?? this.integrations,
       createdAt: createdAt ?? this.createdAt,
