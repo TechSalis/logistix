@@ -16,7 +16,7 @@ class OrderDto {
     this.dropOffLat,
     this.dropOffLng,
     this.riderId,
-    this.trackingCode,
+    this.trackingPin,
     this.rider,
     this.companyId,
     this.assignedCompanyId,
@@ -45,7 +45,7 @@ class OrderDto {
       dropOffLat: (json['dropOffLat'] as num?)?.toDouble(),
       dropOffLng: (json['dropOffLng'] as num?)?.toDouble(),
       riderId: json['riderId'] as String?,
-      trackingCode: json['trackingCode'] as String?,
+      trackingPin: json['trackingPin'] as String?,
       rider: json['rider'] != null
           ? RiderDto.fromJson(json['rider'] as Map<String, dynamic>)
           : null,
@@ -81,7 +81,7 @@ class OrderDto {
   final double? dropOffLat;
   final double? dropOffLng;
   final String? riderId;
-  final String? trackingCode;
+  final String? trackingPin;
   final RiderDto? rider;
   final String? companyId;
   final String? assignedCompanyId;
@@ -109,7 +109,7 @@ class OrderDto {
       if (dropOffLat != null) 'dropOffLat': dropOffLat,
       if (dropOffLng != null) 'dropOffLng': dropOffLng,
       if (riderId != null) 'riderId': riderId,
-      if (trackingCode != null) 'trackingCode': trackingCode,
+      if (trackingPin != null) 'trackingPin': trackingPin,
       if (rider != null) 'rider': rider!.toJson(),
       if (companyId != null) 'companyId': companyId,
       if (assignedCompanyId != null) 'assignedCompanyId': assignedCompanyId,
@@ -144,7 +144,7 @@ class OrderDto {
     pickupPhone: pickupPhone,
     dropOffPhone: dropOffPhone,
     trackingNumber: trackingNumber,
-    trackingCode: trackingCode,
+    trackingPin: trackingPin,
     status: OrderStatusX.fromString(status),
     deliveredAt: deliveredAt,
     scheduledAt: scheduledAt,

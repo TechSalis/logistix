@@ -16,7 +16,7 @@ class Order {
     this.pickupLat,
     this.pickupLng,
     this.riderId,
-    this.trackingCode,
+    this.trackingPin,
     this.rider,
     this.companyId,
     this.assignedCompanyId,
@@ -44,7 +44,7 @@ class Order {
   final double? pickupLat;
   final double? pickupLng;
   final String? riderId;
-  final String? trackingCode;
+  final String? trackingPin;
   final Rider? rider;
   final String? companyId;
   final String? assignedCompanyId;
@@ -72,7 +72,7 @@ class Order {
     double? pickupLat,
     double? pickupLng,
     String? riderId,
-    String? trackingCode,
+    String? trackingPin,
     Rider? rider,
     String? companyId,
     String? assignedCompanyId,
@@ -100,7 +100,7 @@ class Order {
       pickupLat: pickupLat ?? this.pickupLat,
       pickupLng: pickupLng ?? this.pickupLng,
       riderId: riderId ?? this.riderId,
-      trackingCode: trackingCode ?? this.trackingCode,
+      trackingPin: trackingPin ?? this.trackingPin,
       rider: rider ?? this.rider,
       companyId: companyId ?? this.companyId,
       assignedCompanyId: assignedCompanyId ?? this.assignedCompanyId,
