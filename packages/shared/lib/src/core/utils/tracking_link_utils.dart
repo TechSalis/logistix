@@ -9,7 +9,7 @@ class LogistixTracking {
 
     var link = '$base/$trackingNumber';
     if (trackingCode != null && trackingCode.isNotEmpty) {
-      link += '?code=$trackingCode';
+      link += '?pin=$trackingCode';
     }
 
     return link;
