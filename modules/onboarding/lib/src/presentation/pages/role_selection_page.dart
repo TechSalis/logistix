@@ -64,12 +64,8 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                       case UserRole.DISPATCHER:
                         if (!ProjectConfig.isMultiTenant) {
                           context.read<OnboardingBloc>()
-                            ..add(
-                              OnboardingEvent.saveDispatcherOnboarding(),
-                            )
-                            ..add(
-                              OnboardingEvent.submitOnboarding(),
-                            );
+                            ..add(OnboardingEvent.saveDispatcherOnboarding())
+                            ..add(OnboardingEvent.submitOnboarding());
                         } else {
                           context.push(OnboardingRoutes.dispatcherOnboarding);
                         }
