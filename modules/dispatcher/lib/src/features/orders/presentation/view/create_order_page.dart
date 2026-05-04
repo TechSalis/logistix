@@ -315,7 +315,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
           ),
           const SizedBox(height: BootstrapSpacing.md),
           DropdownButtonFormField<PaymentMethod>(
-            value: widget.input.paymentMethod ?? PaymentMethod.PAY_ON_DELIVERY,
+            initialValue:
+                widget.input.paymentMethod ?? PaymentMethod.PAY_ON_DELIVERY,
             decoration: const InputDecoration(
               label: Text('Payment Method'),
               icon: Icon(LucideIcons.wallet),
@@ -344,8 +345,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 children: [
                   Icon(
                     _isExpanded
-                        ? LucideIcons.minusCircle
-                        : LucideIcons.plusCircle,
+                        ? LucideIcons.circleMinus
+                        : LucideIcons.circlePlus,
                     size: 18,
                     color: LogistixColors.primary,
                   ),

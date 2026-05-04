@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/src/core/config/project_config.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -86,7 +87,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 BootstrapTextField(
                   label: 'Full Name',
                   controller: _nameController,
-                  icon: Icons.person_outline,
+                  icon: LucideIcons.user,
                   textCapitalization: TextCapitalization.words,
                   validator: FormBuilderValidators.required(),
                 ),
@@ -94,7 +95,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 BootstrapTextField(
                   label: 'Email',
                   controller: _emailController,
-                  icon: Icons.email_outlined,
+                  icon: LucideIcons.mail,
                   keyboardType: TextInputType.emailAddress,
                   validator: FormBuilderValidators.email(),
                 ),
@@ -102,7 +103,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 BootstrapTextField(
                   label: 'Password',
                   controller: _passwordController,
-                  icon: Icons.lock_outline,
+                  icon: LucideIcons.lock,
                   obscureText: _obscurePassword,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -114,8 +115,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
                     ),
                     onPressed: () {
                       setState(() => _obscurePassword = !_obscurePassword);
@@ -126,7 +127,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 BootstrapTextField(
                   label: 'Confirm Password',
                   controller: _confirmPasswordController,
-                  icon: Icons.lock_outline,
+                  icon: LucideIcons.lock,
                   obscureText: _obscureConfirmPassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -140,8 +141,8 @@ class _SignUpPageState extends State<SignUpPage> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirmPassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
                     ),
                     onPressed: () {
                       setState(() {

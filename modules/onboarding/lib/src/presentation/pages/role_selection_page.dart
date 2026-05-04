@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:shared/shared.dart';
 
@@ -20,14 +21,14 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
       role: UserRole.RIDER,
       title: 'Rider',
       description: 'Deliver packages and manage your routes.',
-      icon: Icons.motorcycle_rounded,
+      icon: LucideIcons.bike,
       color: LogistixColors.primary,
     ),
     RoleOption(
       role: UserRole.DISPATCHER,
       title: 'Dispatcher',
       description: 'Oversee operations and manage your fleet of riders.',
-      icon: Icons.dashboard_customize_rounded,
+      icon: LucideIcons.layoutDashboard,
       color: LogistixColors.info,
     ),
   ];
@@ -42,7 +43,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
           shape: BoxShape.circle,
         ),
         child: const Icon(
-          Icons.person_pin_rounded,
+          LucideIcons.userRound,
           size: 40,
           color: LogistixColors.primary,
         ),

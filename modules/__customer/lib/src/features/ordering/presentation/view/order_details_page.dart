@@ -230,7 +230,7 @@ class _OrderLocationInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (order.pickupAddress.isNotEmpty ?? false) ...[
+        if (order.pickupAddress.isNotEmpty) ...[
           BootstrapInfoTile(
             icon: Icons.trip_origin_rounded,
             iconColor: LogistixColors.primary,

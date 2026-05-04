@@ -1,5 +1,8 @@
 import 'package:bootstrap/services/equality_filter.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:bootstrap/interfaces/toast/toast_service.dart';
+import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
+import 'package:dispatcher/src/dispatcher_module.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -8,6 +11,8 @@ import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:phone_text_field/phone_text_field.dart';
 import 'package:shared/shared.dart';
+
+enum TimeType { start, close }
 
 class DispatcherOnboardingPage extends StatefulWidget {
   const DispatcherOnboardingPage({super.key});
@@ -26,14 +31,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
   PhoneNumber? _phoneNumber;
   AddressDto? _selectedAddress;
 
-  final Map<String, Map<String, String>> _workingHours = {
-    'Monday': {'start': '07:00', 'close': '19:00'},
-    'Tuesday': {'start': '07:00', 'close': '19:00'},
-    'Wednesday': {'start': '07:00', 'close': '19:00'},
-    'Thursday': {'start': '07:00', 'close': '19:00'},
-    'Friday': {'start': '07:00', 'close': '19:00'},
-    'Saturday': {'start': '07:00', 'close': '19:00'},
-  };
+  WorkingHours _workingHours = WorkingHours.defaultSchedule;
 
   @override
   void dispose() {
@@ -61,16 +59,35 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
     context.push(OnboardingRoutes.completeOnboarding);
   }
 
-  Future<void> _selectTime(String day, String type) async {
-    final current = _workingHours[day]![type]!.split(':');
+  Future<void> _selectTime(String day, TimeType type) async {
+    final currentConfig = _workingHours.getDayConfig(day) ?? const DayConfig(start: '07:00', close: '19:00');
+    final timeStr = type == TimeType.start ? currentConfig.start : currentConfig.close;
+    final current = timeStr.split(':');
+    
     final picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: int.parse(current[0]), minute: int.parse(current[1])),
     );
 
     if (picked != null) {
+      final formattedTime = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      
+      final newDayConfig = type == TimeType.start 
+          ? currentConfig.copyWith(start: formattedTime)
+          : currentConfig.copyWith(close: formattedTime);
+
+      // Validation: Start must be before close
+      if (newDayConfig.start.compareTo(newDayConfig.close) >= 0) {
+        if (!mounted) return;
+        context.toast.showToast(
+          'Start time must be before closing time.',
+          type: ToastType.error,
+        );
+        return;
+      }
+
       setState(() {
-        _workingHours[day]![type] = '${picked.hour.toString().padStart(2, '0')}:${picked.minute.toString().padStart(2, '0')}';
+        _workingHours = _workingHours.setDayConfig(day, newDayConfig);
       });
     }
   }
@@ -87,7 +104,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.admin_panel_settings_rounded,
+              LucideIcons.shieldCheck,
               size: 40,
               color: LogistixColors.primary,
             ),
@@ -113,14 +130,14 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       onChanged: (value) => _phoneNumber = value,
                       decoration: const InputDecoration(
                         labelText: 'Phone Number',
-                        prefixIcon: Icon(Icons.phone_outlined),
+                        prefixIcon: Icon(LucideIcons.phone),
                       ),
                     ),
                     const SizedBox(height: BootstrapSpacing.lg),
                     BootstrapTextField(
                       controller: _companyNameController,
                       label: 'Company Name',
-                      icon: Icons.business_rounded,
+                      icon: LucideIcons.building,
                       validator: FormBuilderValidators.required(),
                       textCapitalization: TextCapitalization.words,
                     ),
@@ -151,10 +168,10 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                         ),
                       ),
                       decoratorProps: const DropDownDecoratorProps(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Company Address',
                           hintText: 'Search address...',
-                          prefixIcon: Icon(Icons.location_on_outlined),
+                          prefixIcon: Icon(LucideIcons.mapPin),
                         ),
                       ),
                       popupProps: PopupProps.menu(
@@ -167,7 +184,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                           autocorrect: false,
                           decoration: InputDecoration(
                             hintText: 'Start typing address...',
-                            prefixIcon: Icon(Icons.search),
+                            prefixIcon: Icon(LucideIcons.search),
                           ),
                         ),
                       ),
@@ -181,7 +198,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                     BootstrapTextField(
                       controller: _cacController,
                       label: 'CAC Reg Number',
-                      icon: Icons.verified_rounded,
+                      icon: LucideIcons.badgeCheck,
                       hintText: 'RC123456 or BN123456',
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
@@ -206,7 +223,8 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                     ),
                     const SizedBox(height: BootstrapSpacing.md),
                     ...['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
-                      final isActive = _workingHours.containsKey(day);
+                      final config = _workingHours.getDayConfig(day);
+                      final isActive = config != null;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: BootstrapSpacing.sm),
                         child: Row(
@@ -220,9 +238,9 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                                     onChanged: (val) {
                                       setState(() {
                                         if (val == true) {
-                                          _workingHours[day] = {'start': '07:00', 'close': '19:00'};
+                                          _workingHours = _workingHours.setDayConfig(day, const DayConfig(start: '07:00', close: '19:00'));
                                         } else {
-                                          _workingHours.remove(day);
+                                          _workingHours = _workingHours.setDayConfig(day, null);
                                         }
                                       });
                                     },
@@ -241,14 +259,22 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                             ),
                             if (isActive) ...[
                               const Spacer(),
-                              TextButton(
-                                onPressed: () => _selectTime(day, 'start'),
-                                child: Text(_workingHours[day]!['start']!),
+                              BootstrapButton(
+                                type: BootstrapButtonType.text,
+                                onPressed: () => _selectTime(day, TimeType.start),
+                                child: Text(
+                                  config.start,
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
-                              const Text('–'),
-                              TextButton(
-                                onPressed: () => _selectTime(day, 'close'),
-                                child: Text(_workingHours[day]!['close']!),
+                              Text(' – ', style: Theme.of(context).textTheme.bodyLarge),
+                              BootstrapButton(
+                                type: BootstrapButtonType.text,
+                                onPressed: () => _selectTime(day, TimeType.close),
+                                child: Text(
+                                  config.close,
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ],
                           ],

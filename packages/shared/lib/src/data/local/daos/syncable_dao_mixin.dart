@@ -4,7 +4,7 @@ import 'package:shared/src/data/local/database.dart';
 /// A mixin for DAOs that need to handle synchronized upserts with timestamp-based conflict resolution.
 mixin SyncableDaoMixin on DatabaseAccessor<LogistixDatabase> {
   /// Safely performs an upsert by checking if the incoming [companion] is newer 
-  /// than the [existing] row.
+  /// than the existing row.
   Future<void> performSyncUpsert<T extends Table, D extends DataClass>({
     required TableInfo<T, D> table,
     required UpdateCompanion<D> companion,

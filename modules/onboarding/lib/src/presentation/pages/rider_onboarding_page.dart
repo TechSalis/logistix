@@ -8,6 +8,7 @@ import 'package:logistix_ux/logistix_ux.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:onboarding/src/domain/repositories/company_repository.dart';
 import 'package:phone_text_field/phone_text_field.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class RiderOnboardingPage extends StatefulWidget {
@@ -62,7 +63,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.motorcycle_rounded,
+              LucideIcons.bike,
               size: 40,
               color: LogistixColors.primary,
             ),
@@ -86,14 +87,14 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                       onChanged: (value) => _phoneNumber = value,
                       decoration: const InputDecoration(
                         labelText: 'Phone Number',
-                        prefixIcon: Icon(Icons.phone_outlined),
+                        prefixIcon: Icon(LucideIcons.phone),
                       ),
                     ),
                     const SizedBox(height: BootstrapSpacing.lg),
                     BootstrapTextField(
                       controller: _registrationNumberController,
                       label: 'Vehicle Reg Number',
-                      icon: Icons.pin_rounded,
+                      icon: LucideIcons.hash,
                       hintText: 'e.g., KJA-1234',
                       validator: FormBuilderValidators.required(),
                       textCapitalization: TextCapitalization.characters,
@@ -123,7 +124,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                           decoration: InputDecoration(
                             labelText: 'Associated Company',
                             hintText: 'Select company...',
-                            prefixIcon: Icon(Icons.business_outlined),
+                            prefixIcon: Icon(LucideIcons.building),
                           ),
                         ),
                         popupProps: PopupProps.menu(
@@ -135,7 +136,7 @@ class _RiderOnboardingPageState extends State<RiderOnboardingPage> {
                             autocorrect: false,
                             decoration: InputDecoration(
                               hintText: 'Search companies...',
-                              prefixIcon: Icon(Icons.search),
+                              prefixIcon: Icon(LucideIcons.search),
                             ),
                           ),
                         ),

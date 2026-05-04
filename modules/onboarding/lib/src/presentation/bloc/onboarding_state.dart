@@ -25,6 +25,7 @@ abstract class OnboardingState {
     String? phoneNumber,
     String? address,
     String? cac,
+    WorkingHours? workingHours,
     OnboardingStatus status = OnboardingStatus.initial,
     String? message,
   }) => DispatcherOnboardingState(
@@ -48,7 +49,7 @@ abstract class OnboardingState {
   T when<T>({
     required T Function() initial,
     required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider,
-    required T Function(String? companyName, String? phoneNumber, String? address, String? cac, Map<String, dynamic>? workingHours, OnboardingStatus status, String? message) dispatcher,
+    required T Function(String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus status, String? message) dispatcher,
     required T Function(OnboardingStatus status, String? message) customer,
   });
 
@@ -75,7 +76,7 @@ class OnboardingInitial extends OnboardingState {
   String? get message => null;
 
   @override
-  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => initial();
+  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => initial();
 
   @override
   T? mapOrNull<T>({T? Function(OnboardingInitial)? initial, T? Function(RiderOnboardingState)? rider, T? Function(DispatcherOnboardingState)? dispatcher, T? Function(CustomerOnboardingState)? customer}) => initial?.call(this);
@@ -96,7 +97,7 @@ class RiderOnboardingState extends OnboardingState {
   final String? message;
 
   @override
-  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => rider(phoneNumber, registrationNumber, company, status, message);
+  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => rider(phoneNumber, registrationNumber, company, status, message);
 
   @override
   T? mapOrNull<T>({T? Function(OnboardingInitial)? initial, T? Function(RiderOnboardingState)? rider, T? Function(DispatcherOnboardingState)? dispatcher, T? Function(CustomerOnboardingState)? customer}) => rider?.call(this);
@@ -122,14 +123,14 @@ class DispatcherOnboardingState extends OnboardingState {
   final String? phoneNumber;
   final String? address;
   final String? cac;
-  final Map<String, dynamic>? workingHours;
+  final WorkingHours? workingHours;
   @override
   final OnboardingStatus status;
   @override
   final String? message;
 
   @override
-  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, Map<String, dynamic>? workingHours, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => dispatcher(companyName, phoneNumber, address, cac, workingHours, status, message);
+  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => dispatcher(companyName, phoneNumber, address, cac, workingHours, status, message);
 
   @override
   T? mapOrNull<T>({T? Function(OnboardingInitial)? initial, T? Function(RiderOnboardingState)? rider, T? Function(DispatcherOnboardingState)? dispatcher, T? Function(CustomerOnboardingState)? customer}) => dispatcher?.call(this);
@@ -137,7 +138,7 @@ class DispatcherOnboardingState extends OnboardingState {
   @override
   T maybeMap<T>({required T Function() orElse, T Function(OnboardingInitial)? initial, T Function(RiderOnboardingState)? rider, T Function(DispatcherOnboardingState)? dispatcher, T Function(CustomerOnboardingState)? customer}) => dispatcher != null ? dispatcher(this) : orElse();
 
-  DispatcherOnboardingState copyWith({String? companyName, String? phoneNumber, String? address, String? cac, Map<String, dynamic>? workingHours, OnboardingStatus? status, String? message}) {
+  DispatcherOnboardingState copyWith({String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus? status, String? message}) {
     return DispatcherOnboardingState(
       companyName: companyName ?? this.companyName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -159,7 +160,7 @@ class CustomerOnboardingState extends OnboardingState {
   final String? message;
 
   @override
-  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => customer(status, message);
+  T when<T>({required T Function() initial, required T Function(String phoneNumber, String registrationNumber, Company? company, OnboardingStatus status, String? message) rider, required T Function(String? companyName, String? phoneNumber, String? address, String? cac, WorkingHours? workingHours, OnboardingStatus status, String? message) dispatcher, required T Function(OnboardingStatus status, String? message) customer}) => customer(status, message);
 
   @override
   T? mapOrNull<T>({T? Function(OnboardingInitial)? initial, T? Function(RiderOnboardingState)? rider, T? Function(DispatcherOnboardingState)? dispatcher, T? Function(CustomerOnboardingState)? customer}) => customer?.call(this);

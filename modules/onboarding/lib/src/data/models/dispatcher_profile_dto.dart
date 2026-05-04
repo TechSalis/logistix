@@ -1,3 +1,5 @@
+import 'package:shared/shared.dart';
+
 class DispatcherProfileDto {
   const DispatcherProfileDto({
     this.companyName,
@@ -15,7 +17,7 @@ class DispatcherProfileDto {
       address: json['address'] as String?,
       placeId: json['placeId'] as String?,
       cac: json['cac'] as String?,
-      workingHours: json['workingHours'] as Map<String, dynamic>?,
+      workingHours: json['workingHours'] != null ? WorkingHours.fromJson(json['workingHours'] as Map<String, dynamic>) : null,
     );
   }
 
@@ -24,7 +26,7 @@ class DispatcherProfileDto {
   final String? address;
   final String? placeId;
   final String? cac;
-  final Map<String, dynamic>? workingHours;
+  final WorkingHours? workingHours;
 
   Map<String, dynamic> toJson() {
     return {
@@ -33,7 +35,7 @@ class DispatcherProfileDto {
       if (address != null) 'address': address,
       if (placeId != null) 'placeId': placeId,
       if (cac != null) 'cac': cac,
-      if (workingHours != null) 'workingHours': workingHours,
+      if (workingHours != null) 'workingHours': workingHours!.toJson(),
     };
   }
 }

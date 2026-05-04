@@ -211,6 +211,15 @@ enum PaymentMethod {
   PREPAID,
   PAY_ON_DELIVERY;
 
+  String get label {
+    switch (this) {
+      case PaymentMethod.PREPAID:
+        return 'Prepaid';
+      case PaymentMethod.PAY_ON_DELIVERY:
+        return 'Pay on Delivery';
+    }
+  }
+
   static PaymentMethod fromString(String value) {
     return PaymentMethod.values.firstWhere(
       (e) => e.name == value.toUpperCase(),

@@ -45,6 +45,7 @@ export 'src/domain/entities/company_integration.dart';
 export 'src/domain/entities/order.dart';
 export 'src/domain/entities/rider.dart';
 export 'src/domain/entities/user.dart';
+export 'src/domain/entities/working_hours.dart';
 export 'src/domain/repositories/auth_repository.dart';
 export 'src/domain/repositories/auth_status_repository.dart';
 export 'src/domain/services/places_service.dart';

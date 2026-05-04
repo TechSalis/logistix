@@ -210,7 +210,7 @@ class _OrderLoadedContent extends StatelessWidget {
                         Icon(
                           order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
                               ? LucideIcons.banknote
-                              : LucideIcons.checkCircle2,
+                              : LucideIcons.circleCheck,
                           color: order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
                               ? LogistixColors.orange
                               : LogistixColors.success,
@@ -414,7 +414,7 @@ class _BottomActionCta extends StatelessWidget {
             foregroundColor: LogistixColors.error,
             backgroundColor: LogistixColors.error,
             isLoading: isLoading,
-            icon: LucideIcons.xCircle,
+            icon: LucideIcons.circleX,
             label: 'Unassign',
             type: BootstrapButtonType.outline,
           );
@@ -482,7 +482,7 @@ class _BottomActionCta extends StatelessWidget {
             onPressed: isLoading ? null : cubit.markDeliveredRunner.call,
             backgroundColor: LogistixColors.success,
             isLoading: isLoading,
-            icon: LucideIcons.checkCircle2,
+            icon: LucideIcons.circleCheck,
             label: 'Mark Delivered',
           );
         },
