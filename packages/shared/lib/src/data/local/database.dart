@@ -38,6 +38,7 @@ class Orders extends Table {
   DateTimeColumn get deliveredAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
+  TextColumn get paymentMethod => text().nullable()();
   BoolColumn get isPriority => boolean().withDefault(const Constant(false))();
 
   @override
@@ -145,7 +146,7 @@ class LogistixDatabase extends _$LogistixDatabase {
   LogistixDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -158,6 +159,9 @@ class LogistixDatabase extends _$LogistixDatabase {
           if (from < 3) {
             // Using raw SQL migration to bypass missing GeneratedColumn types in a manual environment
             await customStatement('ALTER TABLE orders ADD COLUMN is_priority INTEGER DEFAULT 0;');
+          }
+          if (from < 4) {
+            await customStatement('ALTER TABLE orders ADD COLUMN payment_method TEXT;');
           }
         },
         beforeOpen: (details) async {

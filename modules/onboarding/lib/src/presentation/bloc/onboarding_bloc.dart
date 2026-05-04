@@ -48,6 +48,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         phoneNumber: event.phoneNumber,
         address: event.address,
         cac: event.cac,
+        workingHours: event.workingHours,
       ),
     );
   }
@@ -84,6 +85,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
           phoneNumber: state.phoneNumber,
           address: state.address,
           cac: state.cac,
+          workingHours: state.workingHours,
         );
 
         final result = await _repository.submitDispatcherProfile(profile);

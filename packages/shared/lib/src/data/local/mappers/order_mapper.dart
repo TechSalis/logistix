@@ -30,6 +30,7 @@ extension OrderDtoToDrift on OrderDto {
       scheduledAt: Value(scheduledAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      paymentMethod: Value(paymentMethod),
     );
   }
 }
@@ -61,6 +62,7 @@ extension OrderDriftToEntity on OrderRow {
       scheduledAt: scheduledAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      paymentMethod: paymentMethod != null ? order_entities.PaymentMethod.fromString(paymentMethod!) : null,
     );
   }
 }
@@ -91,6 +93,7 @@ extension OrderEntityToDrift on order_entities.Order {
       scheduledAt: Value(scheduledAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      paymentMethod: Value(paymentMethod?.name),
     );
   }
 }

@@ -28,6 +28,7 @@ class OrderDto {
     this.deliveredAt,
     this.scheduledAt,
     this.updatedAt,
+    this.paymentMethod,
   });
 
   factory OrderDto.fromJson(Map<String, dynamic> json) {
@@ -65,6 +66,7 @@ class OrderDto {
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
+      paymentMethod: json['paymentMethod'] as String?,
     );
   }
 
@@ -93,6 +95,7 @@ class OrderDto {
   final DateTime? deliveredAt;
   final DateTime? scheduledAt;
   final DateTime? updatedAt;
+  final String? paymentMethod;
 
   Map<String, dynamic> toJson() {
     return {
@@ -121,6 +124,7 @@ class OrderDto {
       if (deliveredAt != null) 'deliveredAt': deliveredAt!.toIso8601String(),
       if (scheduledAt != null) 'scheduledAt': scheduledAt!.toIso8601String(),
       if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
+      if (paymentMethod != null) 'paymentMethod': paymentMethod,
     };
   }
 
@@ -150,5 +154,6 @@ class OrderDto {
     scheduledAt: scheduledAt,
     createdAt: createdAt,
     updatedAt: updatedAt,
+    paymentMethod: paymentMethod != null ? PaymentMethod.fromString(paymentMethod!) : null,
   );
 }

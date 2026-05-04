@@ -28,6 +28,7 @@ class Order {
     this.dropOffPhone,
     this.deliveredAt,
     this.updatedAt,
+    this.paymentMethod,
     this.isPriority = false,
   });
 
@@ -56,6 +57,7 @@ class Order {
   final String? dropOffPhone;
   final DateTime? deliveredAt;
   final DateTime? updatedAt;
+  final PaymentMethod? paymentMethod;
   final bool isPriority;
 
   Order copyWith({
@@ -84,6 +86,7 @@ class Order {
     String? dropOffPhone,
     DateTime? deliveredAt,
     DateTime? updatedAt,
+    PaymentMethod? paymentMethod,
     bool? isPriority,
   }) {
     return Order(
@@ -112,6 +115,7 @@ class Order {
       dropOffPhone: dropOffPhone ?? this.dropOffPhone,
       deliveredAt: deliveredAt ?? this.deliveredAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       isPriority: isPriority ?? this.isPriority,
     );
   }
@@ -194,10 +198,23 @@ extension OrderX on Order {
 
     if (dropOffPhone != null) buffer.writeln('Contact: $dropOffPhone');
     if (rider != null) buffer.writeln('Rider: ${rider!.fullName}');
-    if (price != null) buffer.writeln('Price: \$${price!.toStringAsFixed(2)}');
+    if (paymentMethod != null) buffer.writeln('Payment: ${paymentMethod!.name}');
+    if (price != null) buffer.writeln('Price: ₦${price!.toStringAsFixed(0)}');
     if (isPriority) buffer.writeln('⚡ Priority Order');
 
     buffer.writeln('\n🔗 Track: $trackingLink');
     return buffer.toString();
+  }
+}
+
+enum PaymentMethod {
+  PREPAID,
+  PAY_ON_DELIVERY;
+
+  static PaymentMethod fromString(String value) {
+    return PaymentMethod.values.firstWhere(
+      (e) => e.name == value.toUpperCase(),
+      orElse: () => PaymentMethod.PAY_ON_DELIVERY,
+    );
   }
 }

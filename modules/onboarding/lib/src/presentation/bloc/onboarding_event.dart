@@ -14,7 +14,8 @@ abstract class OnboardingEvent {
     String? phoneNumber,
     String? address,
     String? cac,
-  }) => SaveDispatcherOnboarding(companyName: companyName, phoneNumber: phoneNumber, address: address, cac: cac);
+    Map<String, dynamic>? workingHours,
+  }) => SaveDispatcherOnboarding(companyName: companyName, phoneNumber: phoneNumber, address: address, cac: cac, workingHours: workingHours);
 
   static OnboardingEvent saveCustomerOnboarding() => const SaveCustomerOnboarding();
   static OnboardingEvent submitOnboarding() => const SubmitOnboarding();
@@ -43,11 +44,12 @@ class SaveRiderOnboarding extends OnboardingEvent {
 }
 
 class SaveDispatcherOnboarding extends OnboardingEvent {
-  const SaveDispatcherOnboarding({this.companyName, this.phoneNumber, this.address, this.cac});
+  const SaveDispatcherOnboarding({this.companyName, this.phoneNumber, this.address, this.cac, this.workingHours});
   final String? companyName;
   final String? phoneNumber;
   final String? address;
   final String? cac;
+  final Map<String, dynamic>? workingHours;
   
   @override
   T map<T>({

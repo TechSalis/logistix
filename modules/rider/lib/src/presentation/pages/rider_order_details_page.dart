@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:rider/src/presentation/cubit/rider_order_details_cubit.dart';
 import 'package:shared/shared.dart';
@@ -120,7 +121,7 @@ class _OrderLoadedContent extends StatelessWidget {
                     children: [
                       if (order.pickupAddress.isNotEmpty) ...[
                         BootstrapInfoTile(
-                          icon: Icons.trip_origin_rounded,
+                          icon: LucideIcons.circleDot,
                           iconColor: LogistixColors.primary,
                           title: 'Pickup',
                           value: order.pickupAddress,
@@ -135,7 +136,7 @@ class _OrderLoadedContent extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 32, top: 4),
                             child: BootstrapInfoTile(
-                              icon: Icons.phone_rounded,
+                              icon: LucideIcons.phone,
                               iconColor: LogistixColors.primary,
                               title: 'Call Sender',
                               value: order.pickupPhone!,
@@ -155,7 +156,7 @@ class _OrderLoadedContent extends StatelessWidget {
                         ),
                       ],
                       BootstrapInfoTile(
-                        icon: Icons.flag_rounded,
+                        icon: LucideIcons.flag,
                         iconColor: LogistixColors.orange,
                         title: 'Drop-off',
                         value: order.dropOffAddress,
@@ -179,7 +180,7 @@ class _OrderLoadedContent extends StatelessWidget {
                           ),
                         ),
                         BootstrapInfoTile(
-                          icon: Icons.description_rounded,
+                          icon: LucideIcons.fileText,
                           iconColor: LogistixColors.textTertiary,
                           title: 'Description',
                           value: order.description!,
@@ -188,6 +189,63 @@ class _OrderLoadedContent extends StatelessWidget {
                     ],
                   ),
                 ),
+
+                if (order.price != null && order.price! > 0) ...[
+                  const SizedBox(height: BootstrapSpacing.md),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                          ? LogistixColors.orange.withValues(alpha: 0.1)
+                          : LogistixColors.success.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                            ? LogistixColors.orange.withValues(alpha: 0.2)
+                            : LogistixColors.success.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(BootstrapSpacing.md),
+                    child: Row(
+                      children: [
+                        Icon(
+                          order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                              ? LucideIcons.banknote
+                              : LucideIcons.checkCircle2,
+                          color: order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                              ? LogistixColors.orange
+                              : LogistixColors.success,
+                        ),
+                        const SizedBox(width: BootstrapSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                                    ? 'COLLECT CASH ON DELIVERY'
+                                    : 'ORDER PREPAID',
+                                style: context.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: order.paymentMethod == PaymentMethod.PAY_ON_DELIVERY
+                                      ? LogistixColors.orange
+                                      : LogistixColors.success,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              Text(
+                                'Amount: ₦${order.price!.toStringAsFixed(0)}',
+                                style: context.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: LogistixColors.text,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
 
                 if (order.scheduledAt != null) ...[
                   const SizedBox(height: BootstrapSpacing.md),
@@ -201,7 +259,7 @@ class _OrderLoadedContent extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(BootstrapSpacing.md),
                     child: BootstrapInfoTile(
-                      icon: Icons.calendar_today_rounded,
+                      icon: LucideIcons.calendar,
                       iconColor: LogistixColors.primary,
                       title: 'Scheduled Delivery',
                       value: order.scheduledAt!.toScheduleString(),
@@ -246,7 +304,7 @@ class _OrderHeader extends StatelessWidget {
               Row(
                 children: [
                   const Icon(
-                    Icons.access_time_rounded,
+                    LucideIcons.clock,
                     size: 14,
                     color: LogistixColors.textSecondary,
                   ),
@@ -356,7 +414,7 @@ class _BottomActionCta extends StatelessWidget {
             foregroundColor: LogistixColors.error,
             backgroundColor: LogistixColors.error,
             isLoading: isLoading,
-            icon: Icons.cancel_rounded,
+            icon: LucideIcons.xCircle,
             label: 'Unassign',
             type: BootstrapButtonType.outline,
           );
@@ -388,7 +446,7 @@ class _BottomActionCta extends StatelessWidget {
           return BootstrapButton(
             onPressed: isLoading ? null : cubit.startDeliveryRunner.call,
             label: isLoading ? 'Starting...' : 'Start Delivery',
-            icon: Icons.play_arrow_rounded,
+            icon: LucideIcons.play,
             isLoading: isLoading,
           );
         },
@@ -424,7 +482,7 @@ class _BottomActionCta extends StatelessWidget {
             onPressed: isLoading ? null : cubit.markDeliveredRunner.call,
             backgroundColor: LogistixColors.success,
             isLoading: isLoading,
-            icon: Icons.check_circle_rounded,
+            icon: LucideIcons.checkCircle2,
             label: 'Mark Delivered',
           );
         },

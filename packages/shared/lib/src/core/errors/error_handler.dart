@@ -65,7 +65,7 @@ class ErrorHandler {
     }
 
     return AppError(
-      message: 'Server error. Please try again later.',
+      message: 'Server error. Please try again soon.',
       error: error,
       stackTrace: stackTrace,
       code: GraphQLErrorCodes.unknown,

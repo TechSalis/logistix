@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class CreateOrderPage extends StatefulWidget {
@@ -79,7 +80,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                     ),
                     child: BootstrapButton(
                       onPressed: createOrderCubit.addOrder,
-                      icon: Icons.add_rounded,
+                      icon: LucideIcons.plus,
                       label: 'Add Another Order',
                       type: BootstrapButtonType.outline,
                       height: 52,
@@ -239,7 +240,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               IconButton(
                 onPressed: widget.onDuplicated,
                 color: LogistixColors.primary,
-                icon: const Icon(Icons.copy_rounded, size: 20),
+                icon: const Icon(LucideIcons.copy, size: 20),
                 tooltip: 'Duplicate order',
                 visualDensity: VisualDensity.compact,
               ),
@@ -247,7 +248,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 IconButton(
                   onPressed: widget.onRemoved,
                   color: LogistixColors.error,
-                  icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                  icon: const Icon(LucideIcons.trash2, size: 20),
                   visualDensity: VisualDensity.compact,
                 ),
             ],
@@ -258,7 +259,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             hintText: 'Search drop-off address...',
             address: widget.input.dropOffAddress,
             placeId: widget.input.dropOffPlaceId,
-            icon: Icons.flag_rounded,
+            icon: LucideIcons.flag,
             isRequired: true,
             validator: FormBuilderValidators.required(),
             onChanged: (address) {
@@ -279,7 +280,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   label: 'Drop-off Phone',
                   initialValue: widget.input.dropOffPhone ?? '',
                   hintText: 'Enter phone number',
-                  icon: Icons.phone_rounded,
+                  icon: LucideIcons.phone,
                   keyboardType: TextInputType.phone,
                   onChanged: (val) {
                     widget.onUpdated(widget.input.copyWith(dropOffPhone: val));
@@ -288,12 +289,12 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               ),
               const SizedBox(width: BootstrapSpacing.sm),
               Expanded(
-                flex: 3,
+                flex: 4,
                 child: BootstrapTextField(
                   label: 'Price',
                   initialValue: widget.input.price?.toString() ?? '',
                   hintText: '₦ 0.00',
-                  icon: Icons.payments_rounded,
+                   icon: LucideIcons.banknote,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
                     CurrencyTextInputFormatter.simpleCurrency(
@@ -305,14 +306,31 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   onChanged: (val) {
                     final stripped = val.replaceAll(RegExp('[^0-9]'), '');
                     widget.onUpdated(
-                      widget.input.copyWith(
-                        price: double.tryParse(stripped),
-                      ),
+                      widget.input.copyWith(price: double.tryParse(stripped)),
                     );
                   },
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: BootstrapSpacing.md),
+          DropdownButtonFormField<PaymentMethod>(
+            value: widget.input.paymentMethod ?? PaymentMethod.PAY_ON_DELIVERY,
+            decoration: const InputDecoration(
+              label: Text('Payment Method'),
+              icon: Icon(LucideIcons.wallet),
+            ),
+            items: PaymentMethod.values.map((m) {
+              return DropdownMenuItem(
+                value: m,
+                child: Text(
+                  m == PaymentMethod.PREPAID ? 'Prepaid' : 'Pay on Delivery',
+                ),
+              );
+            }).toList(),
+            onChanged: (val) {
+              widget.onUpdated(widget.input.copyWith(paymentMethod: val));
+            },
           ),
           const SizedBox(height: BootstrapSpacing.md),
           InkWell(
@@ -326,8 +344,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                 children: [
                   Icon(
                     _isExpanded
-                        ? Icons.remove_circle_outline_rounded
-                        : Icons.add_circle_outline_rounded,
+                        ? LucideIcons.minusCircle
+                        : LucideIcons.plusCircle,
                     size: 18,
                     color: LogistixColors.primary,
                   ),
@@ -341,8 +359,8 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                   const Spacer(),
                   Icon(
                     _isExpanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
+                        ? LucideIcons.chevronUp
+                        : LucideIcons.chevronDown,
                     size: 18,
                     color: LogistixColors.textTertiary,
                   ),
@@ -357,7 +375,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               hintText: 'Search pickup address...',
               address: widget.input.pickupAddress,
               placeId: widget.input.pickupPlaceId,
-              icon: Icons.location_on_rounded,
+              icon: LucideIcons.mapPin,
               onChanged: (address) {
                 widget.onUpdated(
                   widget.input.copyWith(
@@ -372,7 +390,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
               label: 'Pickup Phone',
               initialValue: widget.input.pickupPhone ?? '',
               hintText: 'Enter phone number',
-              icon: Icons.phone_callback_rounded,
+              icon: LucideIcons.phoneIncoming,
               keyboardType: TextInputType.phone,
               onChanged: (val) {
                 widget.onUpdated(widget.input.copyWith(pickupPhone: val));
@@ -391,12 +409,12 @@ class _OrderInputCardState extends State<_OrderInputCard> {
                           widget.input.copyWith(scheduledAt: null),
                         );
                       },
-                      child: const Icon(Icons.close, size: 18),
+                      child: const Icon(LucideIcons.x, size: 18),
                     )
                   : null,
               onTap: _pickDateTime,
               hintText: 'Select date & time',
-              icon: Icons.calendar_today_rounded,
+              icon: LucideIcons.calendar,
             ),
           ],
           const SizedBox(height: BootstrapSpacing.md),
@@ -404,7 +422,7 @@ class _OrderInputCardState extends State<_OrderInputCard> {
             label: 'Order Description',
             initialValue: widget.input.description ?? '',
             hintText: 'e.g. 2 x Large Pizza, fragile item...',
-            icon: Icons.description_rounded,
+            icon: LucideIcons.fileText,
             onChanged: (val) {
               widget.onUpdated(widget.input.copyWith(description: val));
             },
@@ -460,7 +478,7 @@ class _AIPromptBanner extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: const Icon(
-                Icons.auto_awesome_rounded,
+                LucideIcons.sparkles,
                 color: Colors.white,
                 size: 24,
               ),
@@ -485,7 +503,7 @@ class _AIPromptBanner extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Colors.white),
+            const Icon(LucideIcons.chevronRight, color: Colors.white),
           ],
         ),
       ),

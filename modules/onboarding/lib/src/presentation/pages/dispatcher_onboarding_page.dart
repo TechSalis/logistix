@@ -26,6 +26,15 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
   PhoneNumber? _phoneNumber;
   AddressDto? _selectedAddress;
 
+  final Map<String, Map<String, String>> _workingHours = {
+    'Monday': {'start': '07:00', 'close': '19:00'},
+    'Tuesday': {'start': '07:00', 'close': '19:00'},
+    'Wednesday': {'start': '07:00', 'close': '19:00'},
+    'Thursday': {'start': '07:00', 'close': '19:00'},
+    'Friday': {'start': '07:00', 'close': '19:00'},
+    'Saturday': {'start': '07:00', 'close': '19:00'},
+  };
+
   @override
   void dispose() {
     _companyNameController.dispose();
@@ -44,11 +53,26 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
         phoneNumber: _phoneNumber?.completeNumber ?? '',
         address: _selectedAddress!.address,
         cac: _cacController.text,
+        workingHours: _workingHours,
       ),
     );
 
     // Navigate to complete onboarding page
     context.push(OnboardingRoutes.completeOnboarding);
+  }
+
+  Future<void> _selectTime(String day, String type) async {
+    final current = _workingHours[day]![type]!.split(':');
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: int.parse(current[0]), minute: int.parse(current[1])),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _workingHours[day]![type] = '${picked.hour.toString().padStart(2, '0')}:${picked.minute.toString().padStart(2, '0')}';
+      });
+    }
   }
 
   @override
@@ -70,7 +94,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
           ),
           title: 'Company Profile',
           subtitle:
-              'Provide your company details to set up your dispatcher account.',
+              'Provide your company details and operating schedule.',
           onBack: () => context.pop(),
           footer: BootstrapButton(
             label: 'Complete Setup',
@@ -82,6 +106,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     PhoneTextField(
                       initialCountryCode: 'ng',
@@ -167,6 +192,69 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                       ]),
                       textCapitalization: TextCapitalization.characters,
                     ),
+                    const SizedBox(height: BootstrapSpacing.xl),
+                    Text(
+                      'Operating Schedule',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: BootstrapSpacing.sm),
+                    Text(
+                      'Set when your riders are available for dispatch.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: BootstrapSpacing.md),
+                    ...['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) {
+                      final isActive = _workingHours.containsKey(day);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: BootstrapSpacing.sm),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 100,
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: isActive,
+                                    onChanged: (val) {
+                                      setState(() {
+                                        if (val == true) {
+                                          _workingHours[day] = {'start': '07:00', 'close': '19:00'};
+                                        } else {
+                                          _workingHours.remove(day);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      day.substring(0, 3),
+                                      style: TextStyle(
+                                        color: isActive ? null : Colors.grey,
+                                        fontWeight: isActive ? FontWeight.w600 : null,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (isActive) ...[
+                              const Spacer(),
+                              TextButton(
+                                onPressed: () => _selectTime(day, 'start'),
+                                child: Text(_workingHours[day]!['start']!),
+                              ),
+                              const Text('–'),
+                              TextButton(
+                                onPressed: () => _selectTime(day, 'close'),
+                                child: Text(_workingHours[day]!['close']!),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 ),
               ),

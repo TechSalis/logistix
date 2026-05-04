@@ -198,9 +198,9 @@ class _CustomerOrderFormPageState extends State<CustomerOrderFormPage> {
                 const SizedBox(height: BootstrapSpacing.lg),
                 BootstrapTextField(
                   controller: _descriptionController,
-                  label: 'Extra Instructions',
+                  label: 'Order Notes',
                   icon: Icons.note_alt_rounded,
-                  hintText: 'Any specific delivery instructions...',
+                  hintText: 'Any additional notes or instructions...',
                   lineCount: 2,
                 ),
                 const SizedBox(height: BootstrapSpacing.lg),

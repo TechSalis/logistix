@@ -19,6 +19,7 @@ abstract class OrderCreateInput with _$OrderCreateInput {
     String? assignedCompanyId,
     String? riderId,
     DateTime? scheduledAt,
+    PaymentMethod? paymentMethod,
     @JsonKey(includeFromJson: false, includeToJson: false) Rider? rider,
   }) = _OrderCreateInput;
 
