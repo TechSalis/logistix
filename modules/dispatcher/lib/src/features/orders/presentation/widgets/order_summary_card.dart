@@ -3,6 +3,7 @@ import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OrderSummaryCard extends StatelessWidget {
   const OrderSummaryCard({this.onRetry, super.key});
@@ -41,19 +42,19 @@ class OrderSummaryCard extends StatelessWidget {
             BootstrapMetricItem(
               label: 'Total',
               value: metrics.activeOrders.toString(),
-              icon: Icons.shopping_bag_rounded,
+              icon: LucideIcons.shoppingBag,
               color: Colors.blueAccent,
             ),
             BootstrapMetricItem(
               label: 'Pending',
               value: metrics.unassignedOrders.toString(),
-              icon: Icons.hourglass_empty_rounded,
+              icon: LucideIcons.timer,
               color: Colors.orangeAccent,
             ),
             BootstrapMetricItem(
               label: 'Active',
               value: ((metrics.assignedOrders ?? 0) + (metrics.enRouteOrders ?? 0)).toString(),
-              icon: Icons.bolt_rounded,
+              icon: LucideIcons.zap,
               color: Colors.greenAccent,
             ),
           ],

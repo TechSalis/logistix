@@ -24,7 +24,7 @@ class DispatcherPage extends StatelessWidget {
       label: 'Riders',
     ),
     NavigationDestination(
-      icon: Icon(Icons.more_horiz),
+      icon: Icon(LucideIcons.ellipsis),
       label: 'More',
     ),
   ];

@@ -5,6 +5,7 @@ import 'package:dispatcher/src/features/orders/presentation/cubit/order_details_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class OrderActionBar extends StatelessWidget {
@@ -67,7 +68,7 @@ class _CancelButton extends StatelessWidget {
           isLoading: state.status.isRunning,
           label: 'Cancel',
           type: BootstrapButtonType.danger,
-          icon: Icons.cancel_rounded,
+          icon: LucideIcons.circleX,
         ),
       ),
     );
@@ -93,7 +94,7 @@ class _MarkDeliveredButton extends StatelessWidget {
           onPressed: cubit.markDeliveredRunner.call,
           isLoading: state.status.isRunning,
           label: 'Mark Delivered',
-          icon: Icons.check_circle_rounded,
+          icon: LucideIcons.circleCheck,
         ),
       ),
     );
@@ -118,7 +119,7 @@ class _RejectButton extends StatelessWidget {
           isLoading: state.status.isRunning,
           label: 'Reject Order',
           type: BootstrapButtonType.outline,
-          icon: Icons.close_rounded,
+          icon: LucideIcons.x,
         ),
       ),
     );

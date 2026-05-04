@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class OrderDetailsPage extends StatelessWidget {
@@ -91,7 +92,7 @@ class _OrderLoadedContent extends StatelessWidget {
                           child: Divider(height: 1, color: LogistixColors.background),
                         ),
                         BootstrapInfoTile(
-                          icon: Icons.description_rounded,
+                          icon: LucideIcons.fileText,
                           iconColor: LogistixColors.textTertiary,
                           title: 'Description',
                           value: order.description!,
@@ -112,7 +113,7 @@ class _OrderLoadedContent extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(BootstrapSpacing.md),
                     child: BootstrapInfoTile(
-                      icon: Icons.calendar_today_rounded,
+                      icon: LucideIcons.calendar,
                       iconColor: LogistixColors.primary,
                       title: 'Scheduled Delivery',
                       value: order.scheduledAt!.toScheduleString(),
@@ -137,7 +138,7 @@ class _OrderLoadedContent extends StatelessWidget {
                             ? () => context.read<OrderDetailsCubit>().shareOrder(order)
                             : null,
                         label: canShare ? 'Share Tracking Link' : 'Upgrade to Share Link',
-                        icon: canShare ? Icons.share_rounded : Icons.lock_rounded,
+                        icon: canShare ? LucideIcons.share2 : LucideIcons.lock,
                         type: BootstrapButtonType.outline,
                         width: 280,
                       ),
@@ -209,7 +210,7 @@ class _CreatedAtRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.access_time_rounded, size: 14, color: LogistixColors.textSecondary),
+        const Icon(LucideIcons.clock, size: 14, color: LogistixColors.textSecondary),
         const SizedBox(width: 6),
         Text(
           DateFormat('MMM dd, yyyy • hh:mm a').format(date.toLocal()),

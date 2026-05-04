@@ -2,12 +2,12 @@ import 'package:bootstrap/services/equality_filter.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
-import 'package:dispatcher/src/dispatcher_module.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:phone_text_field/phone_text_field.dart';
 import 'package:shared/shared.dart';
@@ -262,19 +262,15 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                               BootstrapButton(
                                 type: BootstrapButtonType.text,
                                 onPressed: () => _selectTime(day, TimeType.start),
-                                child: Text(
-                                  config.start,
-                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                                ),
+                                label: config.start,
+                                padding: EdgeInsets.zero,
                               ),
                               Text(' – ', style: Theme.of(context).textTheme.bodyLarge),
                               BootstrapButton(
                                 type: BootstrapButtonType.text,
                                 onPressed: () => _selectTime(day, TimeType.close),
-                                child: Text(
-                                  config.close,
-                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                                ),
+                                label: config.close,
+                                padding: EdgeInsets.zero,
                               ),
                             ],
                           ],

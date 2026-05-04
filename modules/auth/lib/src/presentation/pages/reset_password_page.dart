@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({required this.email, super.key});
@@ -60,7 +61,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
             shape: BoxShape.circle,
           ),
           child: const Icon(
-            Icons.vpn_key_rounded,
+            LucideIcons.key,
             size: 40,
             color: LogistixColors.primary,
           ),
@@ -98,14 +99,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 BootstrapTextField(
                   controller: _passwordController,
                   label: 'New Password',
-                  icon: Icons.lock_outline,
+                  icon: LucideIcons.lock,
                   obscureText: _obscurePassword,
                   validator: FormBuilderValidators.password(),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
                     ),
                     onPressed: () {
                       setState(() => _obscurePassword = !_obscurePassword);
@@ -116,7 +117,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 BootstrapTextField(
                   controller: _confirmPasswordController,
                   label: 'Confirm Password',
-                  icon: Icons.lock_outline,
+                  icon: LucideIcons.lock,
                   obscureText: _obscureConfirmPassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -130,8 +131,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureConfirmPassword
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
+                          ? LucideIcons.eye
+                          : LucideIcons.eyeOff,
                     ),
                     onPressed: () {
                       setState(() {

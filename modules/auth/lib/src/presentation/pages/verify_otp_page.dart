@@ -64,7 +64,7 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
             shape: BoxShape.circle,
           ),
           child: const Icon(
-            Icons.mark_email_read_rounded,
+            LucideIcons.mailCheck,
             size: 40,
             color: LogistixColors.primary,
           ),

@@ -4,6 +4,7 @@ import 'package:bootstrap/services/async_runner/async_runner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:shared/shared.dart';
@@ -40,17 +41,17 @@ class RiderAccountPage extends StatelessWidget {
                 title: 'PERSONAL DETAILS',
                 children: [
                   BootstrapSettingsTile(
-                    icon: Icons.person_outline_rounded,
+                    icon: LucideIcons.user,
                     title: 'Full Name',
                     subtitle: rider.fullName,
                   ),
                   BootstrapSettingsTile(
-                    icon: Icons.email_outlined,
+                    icon: LucideIcons.mail,
                     title: 'Email Address',
                     subtitle: rider.email,
                   ),
                   BootstrapSettingsTile(
-                    icon: Icons.phone_outlined,
+                    icon: LucideIcons.phone,
                     title: 'Phone Number',
                     subtitle: rider.phoneNumber ?? 'Not provided',
                   ),
@@ -61,7 +62,7 @@ class RiderAccountPage extends StatelessWidget {
                 title: 'ACCOUNT MANAGEMENT',
                 children: [
                   BootstrapSettingsTile(
-                    icon: Icons.pause_circle_outline_rounded,
+                    icon: LucideIcons.userX,
                     title: 'Deactivate Account',
                     titleColor: LogistixColors.error,
                     iconColor: LogistixColors.error,

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
@@ -141,12 +142,12 @@ class _SettingsSection extends StatelessWidget {
           title: 'SETTINGS',
           children: [
             BootstrapSettingsTile(
-              icon: Icons.person_outline_rounded,
+              icon: LucideIcons.user,
               title: 'Account Info',
               onTap: () => context.push(RiderRoutes.account, extra: rider),
             ),
             BootstrapSettingsTile(
-              icon: Icons.notifications_outlined,
+              icon: LucideIcons.bell,
               title: 'Notifications',
               onTap: () {},
             ),
@@ -162,7 +163,7 @@ class _SettingsSection extends StatelessWidget {
             return BootstrapSettingsCard(
               children: [
                 BootstrapSettingsTile(
-                  icon: Icons.info_outline_rounded,
+                  icon: LucideIcons.info,
                   title: 'App Version',
                   subtitle: appVersion,
                 ),
@@ -174,7 +175,7 @@ class _SettingsSection extends StatelessWidget {
         BootstrapSettingsCard(
           children: [
             BootstrapSettingsTile(
-              icon: Icons.logout_rounded,
+              icon: LucideIcons.logOut,
               title: 'Logout',
               titleColor: LogistixColors.error,
               iconColor: LogistixColors.error,

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class RiderDetailsPage extends StatelessWidget {
@@ -94,7 +95,7 @@ class RiderDetailsPage extends StatelessWidget {
                         }
                       : null,
                   label: hasLocation ? 'View on Map' : 'Location Unavailable',
-                  icon: Icons.map_rounded,
+                  icon: LucideIcons.map,
                 ),
                 const SizedBox(height: BootstrapSpacing.xl),
                 const _SectionTitle(title: 'Contact Information'),
@@ -178,8 +179,8 @@ class _RiderProfileHeader extends StatelessWidget {
                   children: [
                     Icon(
                       rider.batteryLevel! > 20
-                          ? Icons.battery_charging_full_rounded
-                          : Icons.battery_alert_rounded,
+                          ? LucideIcons.batteryFull
+                          : LucideIcons.batteryWarning,
                       size: 14,
                       color: rider.batteryLevel! > 20
                           ? LogistixColors.success
@@ -214,11 +215,11 @@ class _ProminentStatusBadge extends StatelessWidget {
     IconData icon;
     switch (status) {
       case RiderStatus.ONLINE:
-        icon = Icons.check_circle_rounded;
+        icon = LucideIcons.circleCheck;
       case RiderStatus.BUSY:
-        icon = Icons.time_to_leave_rounded;
+        icon = LucideIcons.clock;
       case RiderStatus.OFFLINE:
-        icon = Icons.power_settings_new_rounded;
+        icon = LucideIcons.power;
     }
 
     return Container(
@@ -260,7 +261,7 @@ class _QuickActionsRow extends StatelessWidget {
       children: [
         Expanded(
           child: _QuickActionButton(
-            icon: Icons.phone_rounded,
+            icon: LucideIcons.phone,
             label: 'Voice Call',
             color: LogistixColors.primary,
             onPressed: () {
@@ -271,7 +272,7 @@ class _QuickActionsRow extends StatelessWidget {
         const SizedBox(width: BootstrapSpacing.md),
         Expanded(
           child: _QuickActionButton(
-            icon: Icons.chat_bubble_rounded,
+            icon: LucideIcons.messageSquare,
             label: 'WhatsApp',
             color: const Color(0xFF25D366),
             onPressed: () {
@@ -339,12 +340,12 @@ class _ContactCard extends StatelessWidget {
     return BootstrapSettingsCard(
       children: [
         BootstrapSettingsTile(
-          icon: Icons.phone_rounded,
+          icon: LucideIcons.phone,
           title: 'Phone Number',
           subtitle: rider.phoneNumber ?? 'Not provided',
         ),
         BootstrapSettingsTile(
-          icon: Icons.email_rounded,
+          icon: LucideIcons.mail,
           title: 'Email Address',
           subtitle: rider.email,
         ),

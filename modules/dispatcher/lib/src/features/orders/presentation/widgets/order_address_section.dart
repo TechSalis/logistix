@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class OrderAddressSection extends StatelessWidget {
@@ -15,7 +16,7 @@ class OrderAddressSection extends StatelessWidget {
         const SizedBox(height: BootstrapSpacing.md),
         if (order.pickupAddress.isNotEmpty) ...[
           BootstrapInfoTile(
-            icon: Icons.trip_origin_rounded,
+            icon: LucideIcons.mapPin,
             iconColor: LogistixColors.primary,
             title: 'Pickup',
             value: order.pickupAddress,
@@ -30,7 +31,7 @@ class OrderAddressSection extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: BootstrapSpacing.xl),
               child: BootstrapInfoTile(
-                icon: Icons.phone_rounded,
+                icon: LucideIcons.phone,
                 iconColor: LogistixColors.primary,
                 title: 'Call Sender',
                 value: order.pickupPhone!,
@@ -40,7 +41,7 @@ class OrderAddressSection extends StatelessWidget {
           const SizedBox(height: BootstrapSpacing.sm),
         ],
         BootstrapInfoTile(
-          icon: Icons.flag_rounded,
+          icon: LucideIcons.flag,
           iconColor: LogistixColors.orange,
           title: 'Drop-off',
           value: order.dropOffAddress,
@@ -55,7 +56,7 @@ class OrderAddressSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: BootstrapSpacing.xl),
             child: BootstrapInfoTile(
-              icon: Icons.phone_forwarded_rounded,
+              icon: LucideIcons.phoneForwarded,
               iconColor: LogistixColors.orange,
               title: 'Call Receiver',
               value: order.dropOffPhone!,
@@ -64,7 +65,7 @@ class OrderAddressSection extends StatelessWidget {
           ),
         const SizedBox(height: BootstrapSpacing.md),
         BootstrapInfoTile(
-          icon: Icons.payments_rounded,
+          icon: LucideIcons.banknote,
           iconColor: LogistixColors.green,
           title: 'COD',
           value: order.price != null && order.price! > 0

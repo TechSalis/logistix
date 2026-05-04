@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class OrderMapHeader extends StatelessWidget {
@@ -97,8 +98,8 @@ class _OrderPlaceholderHeader extends StatelessWidget {
           const SizedBox(height: BootstrapSpacing.xxl),
           _AnimatedHeaderIcon(
             icon: isRiderAssigned && isEnRoute
-                ? Icons.location_searching_rounded
-                : isRiderAssigned ? Icons.timer_outlined : Icons.person_add_outlined,
+                ? LucideIcons.locateFixed
+                : isRiderAssigned ? LucideIcons.timer : LucideIcons.userPlus,
           ),
           const SizedBox(height: BootstrapSpacing.md),
           Text(
