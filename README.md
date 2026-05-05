@@ -183,6 +183,17 @@ Event → Bloc → UseCase → Repository → DataSource (Remote/Local)
 
 ---
 
+## 🎨 UI/UX Standards
+To ensure a premium and consistent experience across all modules, we follow these strict UI standards:
+- **Iconography:** Use `LucideIcons` (from `lucide_icons_flutter`) exclusively. Avoid standard Material icons to maintain a modern look.
+- **Feedback:** Use `context.toast` (via `ToastService`) for all user notifications. Direct `ScaffoldMessenger` usage is forbidden.
+- **Design System:** All components must inherit tokens from `packages/logistix_ux`.
+
+## 🛡️ Governance
+The UI automatically gates premium operations (like sharing tracking links) based on the user's `BillingTier` fetched during authentication.
+
+---
+
 ## Adding a New Module
 
 1. Create a new package under `modules/my_module/`

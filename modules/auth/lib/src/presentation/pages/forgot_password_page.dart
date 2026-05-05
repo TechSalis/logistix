@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -49,7 +50,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             shape: BoxShape.circle,
           ),
           child: const Icon(
-            Icons.lock_reset_rounded,
+            LucideIcons.lockKeyhole,
             size: 40,
             color: LogistixColors.primary,
           ),
@@ -84,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             child: BootstrapTextField(
               controller: _emailController,
               label: 'Email Address',
-              icon: Icons.email_outlined,
+              icon: LucideIcons.mail,
               keyboardType: TextInputType.emailAddress,
               autofocus: true,
               validator: FormBuilderValidators.email(),

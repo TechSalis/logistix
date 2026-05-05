@@ -123,6 +123,8 @@ class _OrderLoadedContent extends StatelessWidget {
                 ],
                 
                 const SizedBox(height: BootstrapSpacing.xl),
+                _PaymentSection(order: order),
+                const SizedBox(height: BootstrapSpacing.xl),
                 _RiderSection(order: order),
                 const SizedBox(height: BootstrapSpacing.xl),
                 
@@ -262,6 +264,62 @@ class _RiderSection extends StatelessWidget {
           onUnassign: () => context.read<OrderDetailsCubit>().unassignRunner(),
           isCompleted: order.status.isCompleted,
         ),
+      ],
+    );
+  }
+}
+
+class _PaymentSection extends StatelessWidget {
+  const _PaymentSection({required this.order});
+  final Order order;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasPrice = order.price != null && order.price! > 0;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Payment Details',
+          style: context.textTheme.labelMedium?.bold.copyWith(color: LogistixColors.textTertiary, letterSpacing: 1),
+        ),
+        const SizedBox(height: BootstrapSpacing.md),
+        Container(
+          decoration: LogistixDecorations.card(
+            borderColor: LogistixColors.black.withValues(alpha: 0.03),
+          ),
+          padding: const EdgeInsets.all(BootstrapSpacing.md),
+          child: Row(
+            children: [
+              Expanded(
+                child: BootstrapInfoTile(
+                  icon: order.paymentMethod == PaymentMethod.PREPAID ? LucideIcons.creditCard : LucideIcons.banknote,
+                  title: 'Method',
+                  value: order.paymentMethod?.label ?? 'Not specified',
+                ),
+              ),
+              if (hasPrice) ...[
+                Container(
+                  width: 1,
+                  height: 30,
+                  color: LogistixColors.background,
+                  margin: const EdgeInsets.symmetric(horizontal: BootstrapSpacing.md),
+                ),
+                Expanded(
+                  child: BootstrapInfoTile(
+                    icon: LucideIcons.coins,
+                    iconColor: LogistixColors.primary,
+                    title: 'Amount',
+                    value: '₦${order.price!.toStringAsFixed(0)}',
+                    isBold: true,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+       
       ],
     );
   }
