@@ -1,4 +1,4 @@
-import 'package:shared/src/domain/entities/billing_tier.dart';
+import 'package:shared/src/domain/entities/subscription_tier.dart';
 
 class CompanyConfig {
   const CompanyConfig({
@@ -9,12 +9,12 @@ class CompanyConfig {
 
   final String id;
   final String companyId;
-  final BillingTier tier;
+  final SubscriptionTier tier;
 
   CompanyConfig copyWith({
     String? id,
     String? companyId,
-    BillingTier? tier,
+    SubscriptionTier? tier,
   }) {
     return CompanyConfig(
       id: id ?? this.id,

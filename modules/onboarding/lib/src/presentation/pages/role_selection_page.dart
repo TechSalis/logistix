@@ -63,13 +63,7 @@ class _RoleSelectionPageState extends State<RoleSelectionPage> {
                       case UserRole.RIDER:
                         context.push(OnboardingRoutes.riderOnboarding);
                       case UserRole.DISPATCHER:
-                        if (!ProjectConfig.isMultiTenant) {
-                          context.read<OnboardingBloc>()
-                            ..add(OnboardingEvent.saveDispatcherOnboarding())
-                            ..add(OnboardingEvent.submitOnboarding());
-                        } else {
-                          context.push(OnboardingRoutes.dispatcherOnboarding);
-                        }
+                        context.push(OnboardingRoutes.dispatcherOnboarding);
                       case UserRole.CUSTOMER:
                         break; // Not supported in onboarding
                     }

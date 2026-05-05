@@ -38,7 +38,7 @@ export 'src/data/models/company_integration_dto.dart';
 export 'src/data/models/order_dto.dart';
 export 'src/data/models/rider_dto.dart';
 export 'src/data/models/user_dto.dart';
-export 'src/domain/entities/billing_tier.dart';
+export 'src/domain/entities/subscription_tier.dart';
 export 'src/domain/entities/company.dart';
 export 'src/domain/entities/company_config.dart';
 export 'src/domain/entities/company_integration.dart';

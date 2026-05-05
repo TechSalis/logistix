@@ -13,6 +13,7 @@ class GqlFragments {
     dropOffLat
     dropOffLng
     price
+    paymentMethod
     pickupPhone
     dropOffPhone
     description

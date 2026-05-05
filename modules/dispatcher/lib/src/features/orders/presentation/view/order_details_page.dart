@@ -131,7 +131,7 @@ class _OrderLoadedContent extends StatelessWidget {
                 Builder(
                   builder: (context) {
                     final user = context.read<UserStore>().user;
-                    final tier = user?.companyProfile?.config?.tier ?? BillingTier.free;
+                    final tier = user?.companyProfile?.config?.tier ?? SubscriptionTier.free;
                     final canShare = order.canShare(tier);
 
                     return Center(

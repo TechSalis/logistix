@@ -181,7 +181,7 @@ extension OrderX on Order {
   bool get hasLocation => hasPickupPosition || hasDropOffPosition;
 
   /// Returns whether the user is authorized to share this order based on their billing tier.
-  bool canShare(BillingTier tier) => tier != BillingTier.free;
+  bool canShare(SubscriptionTier tier) => tier != SubscriptionTier.free;
 
   /// Generates a standardized share text for this order.
   String toShareText(String trackingLink) {

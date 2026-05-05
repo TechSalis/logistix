@@ -195,8 +195,8 @@ class OrderRepositoryImpl implements OrderRepository {
 
       // 2. Telemetry Fallback - Capture text and parse on backend if local parser struggles
       // Gated to STARTER and PROFESSIONAL tiers
-      final tier = _userStore.user?.companyProfile?.config?.tier ?? BillingTier.free;
-      final hasAiAccess = tier == BillingTier.starter || tier == BillingTier.professional;
+      final tier = _userStore.user?.companyProfile?.config?.tier ?? SubscriptionTier.free;
+      final hasAiAccess = tier == SubscriptionTier.starter || tier == SubscriptionTier.professional;
 
       if (hasAiAccess && (results == null || localResult.needsRemoteFallback)) {
         try {

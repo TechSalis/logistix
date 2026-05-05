@@ -2,7 +2,7 @@ abstract class BootstrapSpacing {
   // Base unit: 4px
   static const double unit = 4;
 
-  // Spacing scale
+  // Spacing professional
   static const double xxs = unit; // 4
   static const double xs = unit * 2; // 8
   static const double sm = unit * 3; // 12
