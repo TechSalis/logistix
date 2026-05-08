@@ -19,8 +19,8 @@ class ChatSessionManager extends SessionComponent {
   final SyncChatDataUseCase _syncUseCase;
   final LogistixDatabase _database;
 
-  final _typingController = StreamController<TypingStatus?>.broadcast();
-  Stream<TypingStatus?> get typingStream => _typingController.stream;
+  // Typing is disabled system-wide to save CPU and reduce network chatter.
+  Stream<TypingStatus?> get typingStream => const Stream.empty();
 
   @override
   String get id => 'chat_feature';
@@ -33,22 +33,6 @@ class ChatSessionManager extends SessionComponent {
                 payload.type == ChatUpdateType.STATUS) &&
             payload.message != null) {
           _localDataSource.cacheMessage(payload.message!);
-        } else if (payload.type == ChatUpdateType.TYPING &&
-            payload.typing != null) {
-          _typingController.add(
-            TypingStatus(
-              conversationId: payload.typing!.conversationId,
-              isTyping: payload.typing!.isTyping,
-              senderId: payload.typing!.senderId,
-              senderType: payload.typing!.senderType != null
-                  ? SenderType.values.firstWhere(
-                      (e) =>
-                          e.name == payload.typing!.senderType!.toUpperCase(),
-                      orElse: () => SenderType.SYSTEM,
-                    )
-                  : null,
-            ),
-          );
         }
       },
       onSync: sync,
@@ -65,6 +49,6 @@ class ChatSessionManager extends SessionComponent {
 
   @override
   Future<void> stop() async {
-    await _typingController.close();
+    // [DISCONNECTED] _typingController closed and removed to save CPU.
   }
 }

@@ -143,7 +143,8 @@ class ChatCubit extends Cubit<ChatState> {
     _subscribeToActiveChat(conversationId);
   }
 
-  void onTyping() => sendTypingIndicatorRunner();
+  // void onTyping() => sendTypingIndicatorRunner();
+  void onTyping() {}
 
   Future<void> deleteMessage(String messageId) async {
     await _repo.deleteMessage(messageId);
@@ -185,16 +186,7 @@ class ChatCubit extends Cubit<ChatState> {
         .watchMessages(id, limit: _messagesLimit)
         .listen((msgs) => emit(state.copyWith(messages: msgs)));
 
-    await _typingSub?.cancel();
-    _typingSub = _repo.watchTyping(id).listen((typing) {
-      if (typing?.conversationId == state.activeConversation?.id) {
-        emit(state.copyWith(typingStatus: typing));
-        _typingTimer?.cancel();
-        if (typing != null && typing.isTyping) {
-          _typingTimer = Timer(const Duration(seconds: 10), () => emit(state.copyWith()));
-        }
-      }
-    });
+    // [DISCONNECTED] Typing indicator subscription removed to save CPU.
   }
 
   @override

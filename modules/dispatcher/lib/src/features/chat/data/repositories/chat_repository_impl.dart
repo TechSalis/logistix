@@ -94,9 +94,8 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   Stream<TypingStatus?> watchTyping(String conversationId) {
-    return sessionManager.typingStream.where(
-      (t) => t == null || t.conversationId == conversationId,
-    );
+    // [DISCONNECTED] Typing indicators are disabled to reduce CPU and UI overhead.
+    return const Stream.empty();
   }
 
   // ── Sync Logic (Internal) ────────────────────────────────────────
@@ -208,13 +207,7 @@ class ChatRepositoryImpl implements ChatRepository {
   Future<Result<AppError, bool>> sendTypingIndicator(
     String conversationId,
   ) async {
-    try {
-      final success = await remoteDataSource.sendTypingIndicator(
-        conversationId,
-      );
-      return Result.data(success);
-    } catch (e) {
-      return Result.error(AppError(message: e.toString()));
-    }
+    // [DISCONNECTED] Outbound typing signals disabled to save network resources.
+    return const Result.data(true);
   }
 }
