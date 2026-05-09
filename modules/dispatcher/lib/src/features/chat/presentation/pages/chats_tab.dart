@@ -349,7 +349,7 @@ class _ChatsTabState extends State<ChatsTab>
               BootstrapButton(
                 label: 'Setup AI Integration',
                 onPressed: () {
-                  context.push(DispatcherRoutes.requestIntegration);
+                  context.push(DispatcherRoutes.requestIntegration, extra: true);
                 },
                 icon: Icons.add_link_rounded,
                 width: 240,

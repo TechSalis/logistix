@@ -70,6 +70,18 @@ class MoreTab extends StatelessWidget {
                           _buildProfileHeader(state),
                           const SizedBox(height: 32),
                           BootstrapSettingsCard(
+                            title: 'BILLING & PAYOUTS',
+                            children: [
+                              BootstrapSettingsTile(
+                                icon: Icons.account_balance_wallet_outlined,
+                                title: 'Wallet & Settlements',
+                                subtitle: 'Manage your balance and payout accounts',
+                                onTap: () => context.push(DispatcherRoutes.wallet),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                          BootstrapSettingsCard(
                             title: 'ACCOUNT & TERMINAL',
                             children: [
                               BootstrapSettingsTile(

@@ -35,6 +35,7 @@ dependencies:
   form_builder_validators: any
   phone_text_field: any
   flutter_animate: any
+  lucide_icons_flutter: ^3.1.13
 dev_dependencies:
   flutter_test:
     sdk: flutter

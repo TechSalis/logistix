@@ -12,6 +12,7 @@ abstract class _RiderPaths {
   static const String map = 'map';
   static const String orders = 'orders';
   static const String profile = 'profile';
+  static const String account = 'account';
 }
 
 /// Public rider module route paths (with /rider prefix)
@@ -71,7 +72,7 @@ List<RouteBase> get riderRoutes => [
             builder: (context, state) => const RiderProfileTab(),
             routes: [
                GoRoute(
-                 path: 'account',
+                 path: _RiderPaths.account,
                  builder: (context, state) {
                   final rider = state.extra! as Rider;
                     return RiderAccountPage(rider: rider);

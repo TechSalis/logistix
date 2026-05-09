@@ -4,6 +4,7 @@ import 'package:dispatcher/src/features/chat/presentation/pages/chats_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/account_page.dart';
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/request_integration_page.dart';
+import 'package:dispatcher/src/features/more/presentation/view/wallet_page.dart';
 import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/create_order_page.dart';
 import 'package:dispatcher/src/features/orders/presentation/view/order_details_page.dart';
@@ -25,6 +26,9 @@ abstract class _DispatcherPaths {
   static const String parseText = 'parse';
   static const String list = 'list';
   static const String map = 'map';
+  static const String account = 'account';
+  static const String request = 'request';
+  static const String wallet = 'wallet';
 }
 
 /// Public dispatcher module route paths (with /dispatcher prefix)
@@ -48,6 +52,7 @@ abstract class DispatcherRoutes {
   static const String more = '$rootPath/${_DispatcherPaths.more}';
   static const String account = '$more/account';
   static const String requestIntegration = '$more/request';
+  static const String wallet = '$more/wallet';
 }
 
 /// Dispatcher module route configuration using StatefulShellRoute
@@ -165,20 +170,17 @@ List<RouteBase> get dispatcherRoutes => [
             builder: (context, state) => const MoreTab(),
             routes: [
               GoRoute(
-                path: 'account',
+                path: _DispatcherPaths.account,
                 builder: (context, state) {
                   final user = state.extra! as User;
                   return AccountPage(user: user);
                 },
               ),
               GoRoute(
-                path: 'request',
+                path: _DispatcherPaths.request,
                 pageBuilder: (context, state) {
                   return CustomTransitionPage(
                     key: state.pageKey,
-                    opaque: false,
-                    barrierDismissible: true,
-                    barrierColor: Colors.black54,
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                           return SlideTransition(
@@ -191,9 +193,15 @@ List<RouteBase> get dispatcherRoutes => [
                             child: child,
                           );
                         },
-                    child: const RequestIntegrationPage(),
+                    child: RequestIntegrationPage(
+                      autoOpenPicker: (state.extra as bool?) ?? false,
+                    ),
                   );
                 },
+              ),
+              GoRoute(
+                path: _DispatcherPaths.wallet,
+                builder: (context, state) => const WalletPage(),
               ),
             ],
           ),
