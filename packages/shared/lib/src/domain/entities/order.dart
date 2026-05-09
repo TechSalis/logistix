@@ -193,8 +193,9 @@ extension OrderX on Order {
       buffer.writeln('Description: $description');
     }
 
-    buffer.writeln('Drop-off: $dropOffAddress');
-    buffer.writeln('Pickup: $pickupAddress');
+    buffer
+      ..writeln('Drop-off: $dropOffAddress')
+      ..writeln('Pickup: $pickupAddress');
 
     if (dropOffPhone != null) buffer.writeln('Contact: $dropOffPhone');
     if (rider != null) buffer.writeln('Rider: ${rider!.fullName}');

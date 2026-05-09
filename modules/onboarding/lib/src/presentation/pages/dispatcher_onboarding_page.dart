@@ -1,7 +1,7 @@
-import 'package:bootstrap/services/equality_filter.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
+import 'package:bootstrap/services/equality_filter.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -168,7 +168,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                         ),
                       ),
                       decoratorProps: const DropDownDecoratorProps(
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Company Address',
                           hintText: 'Search address...',
                           prefixIcon: Icon(LucideIcons.mapPin),
@@ -237,7 +237,7 @@ class _DispatcherOnboardingPageState extends State<DispatcherOnboardingPage> {
                                     value: isActive,
                                     onChanged: (val) {
                                       setState(() {
-                                        if (val == true) {
+                                        if (val ?? false) {
                                           _workingHours = _workingHours.setDayConfig(day, const DayConfig(start: '07:00', close: '19:00'));
                                         } else {
                                           _workingHours = _workingHours.setDayConfig(day, null);

@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logistix_ux/logistix_ux.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:onboarding/onboarding.dart';
 import 'package:onboarding/src/domain/repositories/company_repository.dart';
 import 'package:phone_text_field/phone_text_field.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shared/shared.dart';
 
 class RiderOnboardingPage extends StatefulWidget {

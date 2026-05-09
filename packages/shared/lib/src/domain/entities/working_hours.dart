@@ -4,15 +4,15 @@ class DayConfig {
     required this.close,
   });
 
-  final String start;
-  final String close;
-
   factory DayConfig.fromJson(Map<String, dynamic> json) {
     return DayConfig(
       start: json['start'] as String,
       close: json['close'] as String,
     );
   }
+
+  final String start;
+  final String close;
 
   Map<String, dynamic> toJson() {
     return {
@@ -42,6 +42,32 @@ class WorkingHours {
     this.saturday,
     this.sunday,
   });
+
+  factory WorkingHours.fromJson(Map<String, dynamic> json) {
+    return WorkingHours(
+      monday: json['Monday'] != null
+          ? DayConfig.fromJson(json['Monday'] as Map<String, dynamic>)
+          : null,
+      tuesday: json['Tuesday'] != null
+          ? DayConfig.fromJson(json['Tuesday'] as Map<String, dynamic>)
+          : null,
+      wednesday: json['Wednesday'] != null
+          ? DayConfig.fromJson(json['Wednesday'] as Map<String, dynamic>)
+          : null,
+      thursday: json['Thursday'] != null
+          ? DayConfig.fromJson(json['Thursday'] as Map<String, dynamic>)
+          : null,
+      friday: json['Friday'] != null
+          ? DayConfig.fromJson(json['Friday'] as Map<String, dynamic>)
+          : null,
+      saturday: json['Saturday'] != null
+          ? DayConfig.fromJson(json['Saturday'] as Map<String, dynamic>)
+          : null,
+      sunday: json['Sunday'] != null
+          ? DayConfig.fromJson(json['Sunday'] as Map<String, dynamic>)
+          : null,
+    );
+  }
 
   final DayConfig? monday;
   final DayConfig? tuesday;
@@ -77,18 +103,6 @@ class WorkingHours {
     }
   }
 
-  factory WorkingHours.fromJson(Map<String, dynamic> json) {
-    return WorkingHours(
-      monday: json['Monday'] != null ? DayConfig.fromJson(json['Monday'] as Map<String, dynamic>) : null,
-      tuesday: json['Tuesday'] != null ? DayConfig.fromJson(json['Tuesday'] as Map<String, dynamic>) : null,
-      wednesday: json['Wednesday'] != null ? DayConfig.fromJson(json['Wednesday'] as Map<String, dynamic>) : null,
-      thursday: json['Thursday'] != null ? DayConfig.fromJson(json['Thursday'] as Map<String, dynamic>) : null,
-      friday: json['Friday'] != null ? DayConfig.fromJson(json['Friday'] as Map<String, dynamic>) : null,
-      saturday: json['Saturday'] != null ? DayConfig.fromJson(json['Saturday'] as Map<String, dynamic>) : null,
-      sunday: json['Sunday'] != null ? DayConfig.fromJson(json['Sunday'] as Map<String, dynamic>) : null,
-    );
-  }
-
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (monday != null) map['Monday'] = monday!.toJson();
@@ -121,12 +135,12 @@ class WorkingHours {
     );
   }
 
-  static WorkingHours get defaultSchedule => WorkingHours(
-        monday: const DayConfig(start: '07:00', close: '19:00'),
-        tuesday: const DayConfig(start: '07:00', close: '19:00'),
-        wednesday: const DayConfig(start: '07:00', close: '19:00'),
-        thursday: const DayConfig(start: '07:00', close: '19:00'),
-        friday: const DayConfig(start: '07:00', close: '19:00'),
-        saturday: const DayConfig(start: '07:00', close: '19:00'),
+  static const WorkingHours defaultSchedule = WorkingHours(
+    monday: DayConfig(start: '07:00', close: '19:00'),
+    tuesday: DayConfig(start: '07:00', close: '19:00'),
+    wednesday: DayConfig(start: '07:00', close: '19:00'),
+    thursday: DayConfig(start: '07:00', close: '19:00'),
+    friday: DayConfig(start: '07:00', close: '19:00'),
+    saturday: DayConfig(start: '07:00', close: '19:00'),
       );
 }

@@ -129,7 +129,7 @@ class _PlatformActivationFormState extends State<PlatformActivationForm> {
                 value: _useDedicatedNumber,
                 onChanged: (val) => setState(() => _useDedicatedNumber = val),
                 contentPadding: EdgeInsets.zero,
-                activeColor: LogistixColors.primary,
+                activeThumbColor: LogistixColors.primary,
               ),
               const SizedBox(height: BootstrapSpacing.xxl),
               if (runnerState.status.isFailure) ...[
