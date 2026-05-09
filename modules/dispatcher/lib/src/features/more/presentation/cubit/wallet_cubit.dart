@@ -4,54 +4,67 @@ import 'package:dispatcher/src/features/more/presentation/cubit/wallet_state.dar
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WalletCubit extends Cubit<WalletState> {
-  final WalletRepository _repository;
-
   WalletCubit(this._repository) : super(const WalletState.initial());
+  final WalletRepository _repository;
 
   Future<void> fetchWalletBalance() async {
     emit(const WalletState.loading());
     final result = await _repository.getWalletBalance();
-    
-    result.fold(
-      (failure) => emit(WalletState.error(failure.message)),
-      (balance) => emit(WalletState.loaded(balance)),
+    final banksResult = await _repository.getSupportedBanks();
+
+    final banks = banksResult.map((_) => <Bank>[], (banks) => banks);
+
+    result.map(
+      (failure) => emit(WalletState.error(failure.message ?? 'Unknown error')),
+      (balance) => emit(WalletState.loaded(balance, banks)),
     );
   }
 
   Future<void> saveBankDetails(String code, String number, String name) async {
-    // Preserve current balance if available
-    final currentState = state;
-    WalletBalance? currentBalance;
-    if (currentState is _Loaded) {
-      currentBalance = currentState.balance;
-    } else if (currentState is _SettlementSuccess) {
-      currentBalance = currentState.newBalance;
-    }
+    final banks = state.maybeWhen(
+      loaded: (_, banks) => banks,
+      settlementSuccess: (_, __, banks) => banks,
+      orElse: () => <Bank>[],
+    );
 
     emit(const WalletState.loading());
     final result = await _repository.saveBankDetails(code, number, name);
-    
-    result.fold(
-      (failure) => emit(WalletState.error(failure.message)),
-      (balance) => emit(WalletState.loaded(balance)),
+
+    result.map(
+      (failure) => emit(WalletState.error(failure.message ?? 'Unknown error')),
+      (balance) => emit(WalletState.loaded(balance, banks)),
     );
   }
 
   Future<void> requestSettlement(double amount, String? narration) async {
+    final banks = state.maybeWhen(
+      loaded: (_, banks) => banks,
+      settlementSuccess: (_, __, banks) => banks,
+      orElse: () => <Bank>[],
+    );
+
     emit(const WalletState.loading());
     final result = await _repository.requestSettlement(amount, narration);
-    
-    result.fold(
-      (failure) => emit(WalletState.error(failure.message)),
+
+    result.map(
+      (failure) => emit(WalletState.error(failure.message ?? 'Unknown error')),
       (response) {
         if (response.success) {
-          // Re-fetch or manually update the local balance entity. Let's just create a new one:
           final newBalance = WalletBalance(
             ledgerBalance: response.remainingBalance,
-            bankDetails: null, // Since we don't have the bank details in the response, we might need to fetch immediately.
+            bankDetails: state.maybeWhen(
+              loaded: (balance, _) => balance.bankDetails,
+              settlementSuccess: (balance, _, __) => balance.bankDetails,
+              orElse: () => null,
+            ),
           );
-          emit(WalletState.settlementSuccess(newBalance, response.reference));
-          // Refresh the balance completely to get full BankDetails back
+          emit(
+            WalletState.settlementSuccess(
+              newBalance,
+              response.reference,
+              banks,
+            ),
+          );
           fetchWalletBalance();
         } else {
           emit(WalletState.error(response.message));

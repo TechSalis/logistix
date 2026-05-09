@@ -10,8 +10,9 @@ import 'package:logistix_ux/logistix_ux.dart';
 import 'package:shared/shared.dart';
 
 class RequestIntegrationPage extends StatefulWidget {
-  final bool autoOpenPicker;
   const RequestIntegrationPage({super.key, this.autoOpenPicker = false});
+
+  final bool autoOpenPicker;
 
   @override
   State<RequestIntegrationPage> createState() => _RequestIntegrationPageState();

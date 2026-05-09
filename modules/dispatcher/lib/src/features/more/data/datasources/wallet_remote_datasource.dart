@@ -5,10 +5,30 @@ abstract class WalletRemoteDataSource {
   Future<WalletBalanceDto> getWalletBalance();
   Future<WalletBalanceDto> saveBankDetails(String bankCode, String accountNumber, String accountName);
   Future<SettlementResponseDto> requestSettlement(double amount, String? narration);
+  Future<List<BankDto>> getSupportedBanks();
 }
 
 class WalletRemoteDataSourceImpl extends BaseRemoteDataSource implements WalletRemoteDataSource {
   WalletRemoteDataSourceImpl(super.gqlService);
+
+  @override
+  Future<List<BankDto>> getSupportedBanks() async {
+    const queryDoc = '''
+      query GetSupportedBanks {
+        supportedBanks {
+          bankCode
+          bankName
+        }
+      }
+    ''';
+
+    final result = await query<List<dynamic>>(
+      queryDoc,
+      key: 'supportedBanks',
+    );
+
+    return result.map((e) => BankDto.fromJson(e as Map<String, dynamic>)).toList();
+  }
 
   @override
   Future<WalletBalanceDto> getWalletBalance() async {

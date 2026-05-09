@@ -1,6 +1,13 @@
+import 'package:bootstrap/interfaces/toast/toast_service.dart';
+import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
+import 'package:collection/collection.dart';
+import 'package:dispatcher/src/features/more/domain/entities/wallet.dart';
+import 'package:dispatcher/src/features/more/presentation/cubit/wallet_cubit.dart';
+import 'package:dispatcher/src/features/more/presentation/cubit/wallet_state.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
-import 'package:shared/shared.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -10,12 +17,17 @@ class WalletPage extends StatefulWidget {
 }
 
 class _WalletPageState extends State<WalletPage> {
-  final _bankCodeController = TextEditingController();
   final _accountNumberController = TextEditingController();
+  Bank? _selectedBank;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<WalletCubit>().fetchWalletBalance();
+  }
 
   @override
   void dispose() {
-    _bankCodeController.dispose();
     _accountNumberController.dispose();
     super.dispose();
   }
@@ -24,40 +36,87 @@ class _WalletPageState extends State<WalletPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: LogistixColors.background,
-      appBar: AppBar(title: const Text('Wallet & Settlements')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(BootstrapSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildBalanceCard(context),
-            const SizedBox(height: BootstrapSpacing.xl),
-            Text(
-              'SETTLEMENT ACCOUNT',
-              style: context.textTheme.labelMedium?.bold.copyWith(
-                color: LogistixColors.textSecondary,
-                letterSpacing: 1.2,
-              ),
+      appBar: AppBar(
+        title: const Text('Wallet & Settlements'),
+        backgroundColor: LogistixColors.background,
+        elevation: 0,
+      ),
+      body: BlocConsumer<WalletCubit, WalletState>(
+        listener: (context, state) {
+          state.whenOrNull(
+            error: (message) => context.toast.showToast(
+              message,
+              type: ToastType.error,
             ),
-            const SizedBox(height: BootstrapSpacing.sm),
-            _buildSettlementForm(context),
-            const SizedBox(height: BootstrapSpacing.xl),
-            Text(
-              'RECENT PAYOUTS',
-              style: context.textTheme.labelMedium?.bold.copyWith(
-                color: LogistixColors.textSecondary,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: BootstrapSpacing.sm),
-            _buildEmptyState(context),
-          ],
-        ),
+            settlementSuccess: (_, reference, __) {
+              context.toast.showToast(
+                'Withdrawal successful! Reference: $reference',
+                type: ToastType.success,
+              );
+            },
+            loaded: (balance, banks) {
+              if (balance.bankDetails != null) {
+                _accountNumberController.text = balance.bankDetails!.number;
+                _selectedBank = banks.firstWhereOrNull(
+                  (b) => b.bankCode == balance.bankDetails!.code,
+                );
+              }
+            },
+          );
+        },
+        builder: (context, state) {
+          return state.maybeWhen(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            orElse: () {
+              final balance = state.maybeWhen(
+                loaded: (b, _) => b,
+                settlementSuccess: (b, _, __) => b,
+                orElse: () => null,
+              );
+
+              final banks = state.maybeWhen(
+                loaded: (_, banks) => banks,
+                settlementSuccess: (_, __, banks) => banks,
+                orElse: () => <Bank>[],
+              );
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(BootstrapSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildBalanceCard(context, balance?.ledgerBalance ?? 0),
+                    const SizedBox(height: BootstrapSpacing.xl),
+                    Text(
+                      'SETTLEMENT ACCOUNT',
+                      style: context.textTheme.labelMedium?.bold.copyWith(
+                        color: LogistixColors.textSecondary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: BootstrapSpacing.sm),
+                    _buildSettlementForm(context, banks, state.maybeWhen(loading: () => true, orElse: () => false)),
+                    const SizedBox(height: BootstrapSpacing.xl),
+                    Text(
+                      'RECENT PAYOUTS',
+                      style: context.textTheme.labelMedium?.bold.copyWith(
+                        color: LogistixColors.textSecondary,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: BootstrapSpacing.sm),
+                    _buildEmptyState(context),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildBalanceCard(BuildContext context) {
+  Widget _buildBalanceCard(BuildContext context, double balance) {
     return Container(
       padding: const EdgeInsets.all(BootstrapSpacing.xl),
       decoration: BoxDecoration(
@@ -88,7 +147,7 @@ class _WalletPageState extends State<WalletPage> {
           ),
           const SizedBox(height: BootstrapSpacing.xs),
           Text(
-            '₦ 0.00',
+            '₦ ${balance.toStringAsFixed(2)}',
             style: context.textTheme.displaySmall?.bold.copyWith(
               color: Colors.white,
             ),
@@ -97,9 +156,11 @@ class _WalletPageState extends State<WalletPage> {
           BootstrapButton(
             label: 'Withdraw Funds',
             icon: Icons.download_rounded,
-            onPressed: () {
-              // TODO: Implement withdrawal modal
-            },
+            onPressed: balance > 0
+                ? () {
+                    context.read<WalletCubit>().requestSettlement(balance, 'Wallet withdrawal');
+                  }
+                : null,
             type: BootstrapButtonType.secondary,
           ),
         ],
@@ -107,24 +168,45 @@ class _WalletPageState extends State<WalletPage> {
     );
   }
 
-  Widget _buildSettlementForm(BuildContext context) {
+  Widget _buildSettlementForm(BuildContext context, List<Bank> banks, bool isLoading) {
     return BootstrapCard(
-      padding: const EdgeInsets.all(BootstrapSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Enter the bank details where you want your virtual account funds to be settled.',
+            'Select the bank where you want your virtual account funds to be settled.',
             style: context.textTheme.bodyMedium?.copyWith(
               color: LogistixColors.textSecondary,
             ),
           ),
           const SizedBox(height: BootstrapSpacing.lg),
-          BootstrapTextField(
-            label: 'Bank Name / Code',
-            hintText: 'e.g. Providus Bank',
-            controller: _bankCodeController,
-            icon: Icons.account_balance_outlined,
+          DropdownSearch<Bank>(
+            items: (filter, __) => banks
+                .where((b) => b.bankName.toLowerCase().contains(filter.toLowerCase()))
+                .toList(),
+            itemAsString: (bank) => bank.bankName,
+            selectedItem: _selectedBank,
+            onChanged: (bank) => setState(() => _selectedBank = bank),
+            compareFn: (b1, b2) => b1.bankCode == b2.bankCode,
+            decoratorProps: DropDownDecoratorProps(
+              decoration: InputDecoration(
+                labelText: 'Select Bank',
+                hintText: 'Search for your bank...',
+                prefixIcon: const Icon(Icons.account_balance_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(BootstrapRadii.lg),
+                ),
+              ),
+            ),
+            popupProps: const PopupProps.menu(
+              showSearchBox: true,
+              searchFieldProps: TextFieldProps(
+                decoration: InputDecoration(
+                  hintText: 'Type bank name...',
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: BootstrapSpacing.md),
           BootstrapTextField(
@@ -137,8 +219,15 @@ class _WalletPageState extends State<WalletPage> {
           const SizedBox(height: BootstrapSpacing.lg),
           BootstrapButton(
             label: 'Save Account Details',
+            isLoading: isLoading,
             onPressed: () {
-              // TODO: Implement save settlement details
+              if (_selectedBank != null && _accountNumberController.text.isNotEmpty) {
+                context.read<WalletCubit>().saveBankDetails(
+                      _selectedBank!.bankCode,
+                      _accountNumberController.text,
+                      _selectedBank!.bankName,
+                    );
+              }
             },
           ),
         ],
@@ -152,7 +241,7 @@ class _WalletPageState extends State<WalletPage> {
       child: Center(
         child: Column(
           children: [
-            Icon(
+            const Icon(
               Icons.receipt_long_outlined,
               size: 48,
               color: LogistixColors.textTertiary,

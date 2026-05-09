@@ -20,14 +20,18 @@ import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usec
 import 'package:dispatcher/src/features/chat/presentation/cubit/chat_cubit.dart';
 import 'package:dispatcher/src/features/more/data/datasources/analytics_remote_datasource.dart';
 import 'package:dispatcher/src/features/more/data/datasources/contact_remote_datasource.dart';
+import 'package:dispatcher/src/features/more/data/datasources/wallet_remote_datasource.dart';
 import 'package:dispatcher/src/features/more/data/repositories/analytics_repository_impl.dart';
 import 'package:dispatcher/src/features/more/data/repositories/contact_repository_impl.dart';
+import 'package:dispatcher/src/features/more/data/repositories/wallet_repository_impl.dart';
 import 'package:dispatcher/src/features/more/domain/repositories/analytics_repository.dart';
 import 'package:dispatcher/src/features/more/domain/repositories/contact_repository.dart';
+import 'package:dispatcher/src/features/more/domain/repositories/wallet_repository.dart';
 import 'package:dispatcher/src/features/more/domain/usecases/export_analytics_usecase.dart';
 import 'package:dispatcher/src/features/more/domain/usecases/get_integrations_usecase.dart';
 import 'package:dispatcher/src/features/more/domain/usecases/request_integration_usecase.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
+import 'package:dispatcher/src/features/more/presentation/cubit/wallet_cubit.dart';
 import 'package:dispatcher/src/features/orders/data/datasources/order_remote_datasource.dart';
 import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:dispatcher/src/features/orders/data/repositories/metrics_repository_impl.dart';
@@ -114,6 +118,11 @@ class DispatcherModule extends Module<RouteBase> {
               ContactRemoteDataSourceImpl(injector.get<GraphQLService>()),
             ),
           ),
+          RepositoryProvider<WalletRepository>(
+            create: (context) => WalletRepositoryImpl(
+              WalletRemoteDataSourceImpl(injector.get<GraphQLService>()),
+            ),
+          ),
           RepositoryProvider<ChatRemoteDataSource>(
             create: (context) => ChatRemoteDataSourceImpl(
               injector.get<GraphQLService>(),
@@ -196,6 +205,9 @@ class DispatcherModule extends Module<RouteBase> {
             ),
             BlocProvider<ChatCubit>(
               create: (context) => ChatCubit(context.read<ChatRepository>()),
+            ),
+            BlocProvider<WalletCubit>(
+              create: (context) => WalletCubit(context.read<WalletRepository>()),
             ),
             BlocProvider<MapCubit>(create: (context) => MapCubit()),
             BlocProvider<MoreCubit>(

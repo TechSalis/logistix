@@ -96,7 +96,7 @@ class RiderHeartbeatComponent extends SessionComponent {
   @override
   Future<void> stop() async {
     _heartbeatTimer?.cancel();
-    _positionSubscription?.cancel();
+    await _positionSubscription?.cancel();
     _heartbeatTimer = null;
     _positionSubscription = null;
   }

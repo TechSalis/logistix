@@ -1,10 +1,12 @@
+import 'package:bootstrap/definitions/app_error.dart';
+import 'package:bootstrap/definitions/result.dart';
 import 'package:dispatcher/src/features/more/domain/entities/wallet.dart';
-import 'package:shared/shared.dart';
 
 abstract class WalletRepository {
-  Future<Either<Failure, WalletBalance>> getWalletBalance();
-  Future<Either<Failure, WalletBalance>> saveBankDetails(
+  Future<Result<AppError, WalletBalance>> getWalletBalance();
+  Future<Result<AppError, WalletBalance>> saveBankDetails(
       String bankCode, String accountNumber, String accountName);
-  Future<Either<Failure, SettlementResponse>> requestSettlement(
+  Future<Result<AppError, SettlementResponse>> requestSettlement(
       double amount, String? narration);
+  Future<Result<AppError, List<Bank>>> getSupportedBanks();
 }
