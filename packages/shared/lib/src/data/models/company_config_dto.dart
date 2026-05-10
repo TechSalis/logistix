@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:shared/src/domain/entities/subscription_tier.dart';
 import 'package:shared/src/domain/entities/company_config.dart';
+import 'package:shared/src/domain/entities/subscription_tier.dart';
 
 @immutable
 class CompanyConfigDto {

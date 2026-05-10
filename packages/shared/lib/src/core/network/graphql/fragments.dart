@@ -2,7 +2,6 @@ class GqlFragments {
   static const String orderFields = '''
     id
     companyId
-    assignedCompanyId
     riderId
     pickupAddress
     pickupPlaceId

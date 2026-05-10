@@ -21,20 +21,19 @@ dependencies:
       url: https://github.com/Enri-code/flutter-bootstrap
       ref: v0.5.5
       
-  logistix_ux:
-    path: ../../packages/logistix_ux
-  shared:
-    path: ../../packages/shared
-
+  dio: ^5.9.2
   flutter_bloc: ^8.1.3
+  form_builder_validators: any
   freezed_annotation: ^3.1.0
   go_router: ^17.0.1
   json_annotation: ^4.9.0
-  pinput: ^5.0.0
-  dio: ^5.9.2
-
-  form_builder_validators: any
+  logistix_ux:
+    path: ../../packages/logistix_ux
   lucide_icons_flutter: ^3.1.12
+  pinput: ^5.0.0
+  shared:
+    path: ../../packages/shared
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -172,23 +172,29 @@ const _kDropoffOwnerPhrases  = ['give your rider', 'will give rider', 'recipient
 const _kPickupOwnerPhrases   = ['give driver', 'you collect', 'collect from', 'pick up pays', 'pickup pays'];
 const _kStaffPhrases         = ['send airtime', 'send credit', 'recharge', 'airtime to', 'send me'];
 
-// Nigerian cities & area names for address recognition
+// Nigerian cities & area names for address recognition (Nationwide)
 const _kNigerianPlaces = [
-  // Rivers State (expanded)
+  // Rivers State (Port Harcourt)
   'port harcourt', 'ph', 'rumuokoro', 'rumuola', 'rumuigbo', 'rumuepirikom',
   'rumuobiokani', 'rumuji', 'rumuekini', 'aluu', 'iwofe', 'oyigbo', 'ada george',
   'gra', 'mgbuodohia', 'elelenwo', 'eliozu', 'woji', 'nkpolu', 'diobu',
   'mile one', 'mile 3', 'mile 4', 'choba', 'ozuoba', 'igbo etche', 'bonny',
   'omoukiri', 'transamadi', 'aggrey', 'aba road', 'east west road',
-  // Lagos
+  // Lagos State
   'lagos', 'ikeja', 'lekki', 'ajah', 'surulere', 'yaba', 'apapa', 'mushin',
   'oshodi', 'ikorodu', 'badagry', 'victoria island', 'ilupeju', 'ojota', 'ogba',
-  'agege', 'festac', 'satellite', 'isolo', 'ejigbo',
-  // Abuja
+  'agege', 'festac', 'satellite', 'isolo', 'ejigbo', 'ikoyi', 'ebute metta',
+  // Abuja (FCT)
   'abuja', 'wuse', 'garki', 'asokoro', 'maitama', 'gwarinpa', 'kubwa', 'lokogoma',
+  'lugbe', 'nyanya', 'karu', 'jahi', 'apo', 'guzape', 'life camp',
+  // Oyo State (Ibadan)
+  'ibadan', 'bodija', 'iyangana', 'dugbe', 'ojoo', 'iwo road', 'challenge', 'moniya',
+  // Kano State
+  'kano', 'fagge', 'dalla', 'gwale', 'tarauni', 'nassarawa',
   // Other major cities
-  'kano', 'ibadan', 'onitsha', 'enugu', 'kaduna', 'warri', 'benin city', 'aba',
-  'owerri', 'uyo', 'calabar', 'akure', 'ilorin', 'maiduguri',
+  'onitsha', 'enugu', 'kaduna', 'warri', 'benin city', 'aba', 'owerri', 'uyo', 
+  'calabar', 'akure', 'ilorin', 'maiduguri', 'jos', 'minna', 'sokoto', 'asaba',
+  'yenagoa', 'lokoja', 'bauchi', 'makurdi', 'jalingo', 'abakaliki',
 ];
 
 // Generic street/area type keywords
