@@ -1,3 +1,5 @@
+import 'package:shared/src/domain/entities/weekday.dart';
+
 class DayConfig {
   const DayConfig({
     required this.start,
@@ -45,26 +47,26 @@ class WorkingHours {
 
   factory WorkingHours.fromJson(Map<String, dynamic> json) {
     return WorkingHours(
-      monday: json['Monday'] != null
-          ? DayConfig.fromJson(json['Monday'] as Map<String, dynamic>)
+      monday: json[Weekday.monday] != null
+          ? DayConfig.fromJson(json[Weekday.monday] as Map<String, dynamic>)
           : null,
-      tuesday: json['Tuesday'] != null
-          ? DayConfig.fromJson(json['Tuesday'] as Map<String, dynamic>)
+      tuesday: json[Weekday.tuesday] != null
+          ? DayConfig.fromJson(json[Weekday.tuesday] as Map<String, dynamic>)
           : null,
-      wednesday: json['Wednesday'] != null
-          ? DayConfig.fromJson(json['Wednesday'] as Map<String, dynamic>)
+      wednesday: json[Weekday.wednesday] != null
+          ? DayConfig.fromJson(json[Weekday.wednesday] as Map<String, dynamic>)
           : null,
-      thursday: json['Thursday'] != null
-          ? DayConfig.fromJson(json['Thursday'] as Map<String, dynamic>)
+      thursday: json[Weekday.thursday] != null
+          ? DayConfig.fromJson(json[Weekday.thursday] as Map<String, dynamic>)
           : null,
-      friday: json['Friday'] != null
-          ? DayConfig.fromJson(json['Friday'] as Map<String, dynamic>)
+      friday: json[Weekday.friday] != null
+          ? DayConfig.fromJson(json[Weekday.friday] as Map<String, dynamic>)
           : null,
-      saturday: json['Saturday'] != null
-          ? DayConfig.fromJson(json['Saturday'] as Map<String, dynamic>)
+      saturday: json[Weekday.saturday] != null
+          ? DayConfig.fromJson(json[Weekday.saturday] as Map<String, dynamic>)
           : null,
-      sunday: json['Sunday'] != null
-          ? DayConfig.fromJson(json['Sunday'] as Map<String, dynamic>)
+      sunday: json[Weekday.sunday] != null
+          ? DayConfig.fromJson(json[Weekday.sunday] as Map<String, dynamic>)
           : null,
     );
   }
@@ -78,40 +80,36 @@ class WorkingHours {
   final DayConfig? sunday;
 
   DayConfig? getDayConfig(String day) {
-    switch (day) {
-      case 'Monday': return monday;
-      case 'Tuesday': return tuesday;
-      case 'Wednesday': return wednesday;
-      case 'Thursday': return thursday;
-      case 'Friday': return friday;
-      case 'Saturday': return saturday;
-      case 'Sunday': return sunday;
-      default: return null;
-    }
+    if (day == Weekday.monday) return monday;
+    if (day == Weekday.tuesday) return tuesday;
+    if (day == Weekday.wednesday) return wednesday;
+    if (day == Weekday.thursday) return thursday;
+    if (day == Weekday.friday) return friday;
+    if (day == Weekday.saturday) return saturday;
+    if (day == Weekday.sunday) return sunday;
+    return null;
   }
 
   WorkingHours setDayConfig(String day, DayConfig? config) {
-    switch (day) {
-      case 'Monday': return copyWith(monday: config);
-      case 'Tuesday': return copyWith(tuesday: config);
-      case 'Wednesday': return copyWith(wednesday: config);
-      case 'Thursday': return copyWith(thursday: config);
-      case 'Friday': return copyWith(friday: config);
-      case 'Saturday': return copyWith(saturday: config);
-      case 'Sunday': return copyWith(sunday: config);
-      default: return this;
-    }
+    if (day == Weekday.monday) return copyWith(monday: config);
+    if (day == Weekday.tuesday) return copyWith(tuesday: config);
+    if (day == Weekday.wednesday) return copyWith(wednesday: config);
+    if (day == Weekday.thursday) return copyWith(thursday: config);
+    if (day == Weekday.friday) return copyWith(friday: config);
+    if (day == Weekday.saturday) return copyWith(saturday: config);
+    if (day == Weekday.sunday) return copyWith(sunday: config);
+    return this;
   }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    if (monday != null) map['Monday'] = monday!.toJson();
-    if (tuesday != null) map['Tuesday'] = tuesday!.toJson();
-    if (wednesday != null) map['Wednesday'] = wednesday!.toJson();
-    if (thursday != null) map['Thursday'] = thursday!.toJson();
-    if (friday != null) map['Friday'] = friday!.toJson();
-    if (saturday != null) map['Saturday'] = saturday!.toJson();
-    if (sunday != null) map['Sunday'] = sunday!.toJson();
+    if (monday != null) map[Weekday.monday] = monday!.toJson();
+    if (tuesday != null) map[Weekday.tuesday] = tuesday!.toJson();
+    if (wednesday != null) map[Weekday.wednesday] = wednesday!.toJson();
+    if (thursday != null) map[Weekday.thursday] = thursday!.toJson();
+    if (friday != null) map[Weekday.friday] = friday!.toJson();
+    if (saturday != null) map[Weekday.saturday] = saturday!.toJson();
+    if (sunday != null) map[Weekday.sunday] = sunday!.toJson();
     return map;
   }
 
