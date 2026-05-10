@@ -52,10 +52,9 @@ class WalletCubit extends Cubit<WalletState> {
         if (response.success) {
           final newBalance = WalletBalance(
             ledgerBalance: response.remainingBalance,
-            bankDetails: state.maybeWhen(
+            bankDetails: state.whenOrNull(
               loaded: (balance, _) => balance.bankDetails,
               settlementSuccess: (balance, _, __) => balance.bankDetails,
-              orElse: () => null,
             ),
           );
           emit(
