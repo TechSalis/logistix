@@ -28,8 +28,8 @@ abstract class AuthRemoteDataSource {
   /// Update FCM token
   Future<void> updateFcmToken(String token);
 
-  /// Deactivate account
-  Future<void> deactivateAccount();
+  /// Delete account permanently
+  Future<void> deleteAccount();
 }
 
 class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
@@ -178,10 +178,10 @@ class AuthRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<void> deactivateAccount() async {
+  Future<void> deleteAccount() async {
     const mutation = '''
-        mutation DeactivateAccount {
-          deactivateAccount
+        mutation DeleteAccount {
+          deleteAccount
         }
       ''';
 

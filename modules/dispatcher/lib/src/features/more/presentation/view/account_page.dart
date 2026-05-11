@@ -20,11 +20,11 @@ class AccountPage extends StatelessWidget {
       backgroundColor: LogistixColors.background,
       appBar: AppBar(title: const Text('Account & Company'), centerTitle: true),
       body: AsyncRunnerListener(
-        runner: cubit.deactivateAccountRunner,
+        runner: cubit.deleteAccountRunner,
         listener: (context, state) {
           if (state.status.isFailure) {
             context.toast.showToast(
-              state.result?.error.message ?? 'Deactivation failed',
+              state.result?.error.message ?? 'Account deletion failed',
               type: ToastType.error,
             );
           }
@@ -81,16 +81,16 @@ class AccountPage extends StatelessWidget {
                 title: 'ACCOUNT MANAGEMENT',
                 children: [
                   BootstrapSettingsTile(
-                    icon: Icons.pause_circle_outline_rounded,
-                    title: 'Deactivate My Account',
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Delete My Account',
                     titleColor: LogistixColors.error,
                     iconColor: LogistixColors.error,
                     onTap: () => showDialog<void>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Deactivate Account?'),
+                        title: const Text('Delete Account?'),
                         content: const Text(
-                          'Your administrative access will be suspended and scheduled for permanent deletion in 30 days. Log in again to cancel.',
+                          'This will permanently delete your account and all associated data. This action cannot be undone.',
                         ),
                         actions: [
                           TextButton(
@@ -100,10 +100,10 @@ class AccountPage extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              cubit.deactivateAccountRunner.call();
+                              cubit.deleteAccountRunner.call();
                             },
                             child: const Text(
-                              'Deactivate Now',
+                              'Delete Now',
                               style: TextStyle(color: LogistixColors.error),
                             ),
                           ),

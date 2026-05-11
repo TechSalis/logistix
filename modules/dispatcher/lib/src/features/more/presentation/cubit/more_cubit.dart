@@ -80,7 +80,7 @@ class MoreCubit extends Cubit<MoreState> {
     this._requestIntegrationUseCase,
     this._getIntegrationsUseCase,
     this._logoutUseCase,
-    this._deactivateAccountUseCase,
+    this._deleteAccountUseCase,
   ) : super(const MoreState.initial());
 
   final UserStore _userStore;
@@ -88,7 +88,7 @@ class MoreCubit extends Cubit<MoreState> {
   final RequestIntegrationUseCase _requestIntegrationUseCase;
   final GetIntegrationsUseCase _getIntegrationsUseCase;
   final LogoutUseCase _logoutUseCase;
-  final DeactivateAccountUseCase _deactivateAccountUseCase;
+  final DeleteAccountUseCase _deleteAccountUseCase;
 
   Future<void> loadAppInfo() async {
     emit(const MoreState.loading());
@@ -107,8 +107,8 @@ class MoreCubit extends Cubit<MoreState> {
     return result.throwOrReturn();
   });
 
-  late final deactivateAccountRunner = AsyncRunner<AppError, void>(() async {
-    final result = await _deactivateAccountUseCase();
+  late final deleteAccountRunner = AsyncRunner<AppError, void>(() async {
+    final result = await _deleteAccountUseCase();
     return result.throwOrReturn();
   });
 

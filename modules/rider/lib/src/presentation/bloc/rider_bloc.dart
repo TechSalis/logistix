@@ -12,7 +12,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
   RiderBloc(
     this._repository, 
     this._logoutUseCase, 
-    this._deactivateAccountUseCase,
+    this._deleteAccountUseCase,
     this._userStore
   ) : super(RiderState.initial) {
     on<RiderEvent>((event, emit) async {
@@ -22,7 +22,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
          locationUpdated: (e) => _onLocationUpdated(e, emit),
          statusChanged: (e) => _onStatusChanged(e, emit),
          updateRider: (e) => _onUpdateRider(e, emit),
-         deactivateAccount: (e) => deactivateAccountRunner.call(),
+         deleteAccount: (e) => deleteAccountRunner.call(),
        );
     });
   }
@@ -30,7 +30,7 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
   final UserStore _userStore;
   final RiderRepository _repository;
   final LogoutUseCase _logoutUseCase;
-  final DeactivateAccountUseCase _deactivateAccountUseCase;
+  final DeleteAccountUseCase _deleteAccountUseCase;
 
   StreamSubscription<Rider?>? _profileSubscription;
 
@@ -103,8 +103,8 @@ class RiderBloc extends Bloc<RiderEvent, RiderState> {
     return result.throwOrReturn();
   });
 
-  late final deactivateAccountRunner = AsyncRunner<AppError, void>(() async {
-    final result = await _deactivateAccountUseCase();
+  late final deleteAccountRunner = AsyncRunner<AppError, void>(() async {
+    final result = await _deleteAccountUseCase();
     return result.throwOrReturn();
   });
 

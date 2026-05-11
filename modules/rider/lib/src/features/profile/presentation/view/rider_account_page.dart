@@ -24,11 +24,11 @@ class RiderAccountPage extends StatelessWidget {
         centerTitle: true,
       ),
       body: AsyncRunnerListener(
-        runner: riderBloc.deactivateAccountRunner,
+        runner: riderBloc.deleteAccountRunner,
         listener: (context, state) {
           if (state.status.isFailure) {
             context.toast.showToast(
-              state.result?.error.message ?? 'Deactivation failed',
+              state.result?.error.message ?? 'Account deletion failed',
               type: ToastType.error,
             );
           }
@@ -63,15 +63,15 @@ class RiderAccountPage extends StatelessWidget {
                 children: [
                   BootstrapSettingsTile(
                     icon: LucideIcons.userX,
-                    title: 'Deactivate Account',
+                    title: 'Delete Account',
                     titleColor: LogistixColors.error,
                     iconColor: LogistixColors.error,
                     onTap: () => showDialog<void>(
                       context: context,
                       builder: (context) => AlertDialog(
-                        title: const Text('Deactivate Account?'),
+                        title: const Text('Delete Account?'),
                         content: const Text(
-                          'Your account will be hidden and scheduled for deletion in 30 days. Logging back in before then will cancel this request.',
+                          'This will permanently delete your account and all associated data. This action cannot be undone.',
                         ),
                         actions: [
                           TextButton(
@@ -81,10 +81,10 @@ class RiderAccountPage extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
-                              riderBloc.add(RiderEvent.deactivateAccount());
+                              riderBloc.add(RiderEvent.deleteAccount());
                             },
                             child: const Text(
-                              'Deactivate Now',
+                              'Delete Now',
                               style: TextStyle(color: LogistixColors.error),
                             ),
                           ),

@@ -90,9 +90,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<AppError, void>> deactivateAccount() async {
+  Future<Result<AppError, void>> deleteAccount() async {
     return Result.tryCatch<AppError, void>(() async {
-      await _dataSource.deactivateAccount();
+      await _dataSource.deleteAccount();
     });
   }
 }
