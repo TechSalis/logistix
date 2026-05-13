@@ -76,8 +76,10 @@ class RiderRepositoryImpl implements RiderRepository {
   @override
   Future<Result<AppError, Order>> updateOrderStatus(
     String orderId,
-    OrderStatus status,
-  ) async {
+    OrderStatus status, {
+    String? pin,
+    String? proofImageUrl,
+  }) async {
     final original = await _orderDao.getOrder(orderId);
 
     // Optimistic local update
@@ -92,6 +94,8 @@ class RiderRepositoryImpl implements RiderRepository {
         final request = UpdateOrderStatusRequest(
           orderId: orderId,
           status: status.name,
+          pin: pin,
+          proofImageUrl: proofImageUrl,
         );
         final dto = await _remoteDataSource.updateOrderStatus(request);
 

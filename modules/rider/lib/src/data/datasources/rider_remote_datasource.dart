@@ -56,8 +56,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request) async {
     final result = await gqlService.mutate<Map<String, dynamic>>(
       '''
-      mutation UpdateOrderStatus(\$orderId: ID!, \$status: String!, \$sessionId: String) {
-        updateOrderStatus(orderId: \$orderId, status: \$status, sessionId: \$sessionId) {
+      mutation UpdateOrderStatus($orderId: ID!, $status: String!, $sessionId: String, $pin: String, $proofImageUrl: String) {
+        updateOrderStatus(orderId: $orderId, status: $status, sessionId: $sessionId, verificationPin: $pin, proofImageUrl: $proofImageUrl) {
           ${GqlFragments.orderFields}
         }
       }

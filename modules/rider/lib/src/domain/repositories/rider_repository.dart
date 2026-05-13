@@ -22,8 +22,10 @@ abstract class RiderRepository {
   // Write operations - go to server
   Future<Result<AppError, Order>> updateOrderStatus(
     String orderId,
-    OrderStatus status,
-  );
+    OrderStatus status, {
+    String? pin,
+    String? proofImageUrl,
+  });
 
   Future<Result<AppError, Rider>> fetchProfile();
 

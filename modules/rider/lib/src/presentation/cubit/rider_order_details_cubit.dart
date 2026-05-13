@@ -102,12 +102,14 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
     return super.close();
   }
 
-  Future<void> updateStatus(OrderStatus status) async {
+  Future<void> updateStatus(OrderStatus status, {String? pin, String? proofImageUrl}) async {
     final curState = state;
     if (curState is RiderOrderDetailsLoaded) {
       final result = await _riderRepository.updateOrderStatus(
         curState.order.id,
         status,
+        pin: pin,
+        proofImageUrl: proofImageUrl,
       );
 
       if (isClosed) return;

@@ -17,7 +17,7 @@ class GqlFragments {
     dropOffPhone
     description
     trackingNumber
-    trackingPin
+    pin
     status
     deliveredAt
     scheduledAt
