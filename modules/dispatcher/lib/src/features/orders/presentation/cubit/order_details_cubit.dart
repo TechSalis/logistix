@@ -52,7 +52,7 @@ class OrderDetailsCubit extends Cubit<OrderDetailsState> {
   Future<void> shareOrder(Order order) async {
     final trackingLink = LogistixTracking.generateLink(
       order.trackingNumber,
-      trackingPin: order.trackingPin,
+      trackingPin: order.pin,
     );
 
     await SharePlus.instance.share(

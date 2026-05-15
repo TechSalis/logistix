@@ -37,7 +37,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
 
   @override
   Future<String> generatePresignedUploadUrl(String orderId) async {
-    const mutation = '''
+    const mutation = r'''
       mutation GeneratePresignedUploadUrl($orderId: ID!) {
         generatePresignedUploadUrl(orderId: $orderId)
       }
@@ -75,8 +75,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request) async {
     final result = await gqlService.mutate<Map<String, dynamic>>(
       '''
-      mutation UpdateOrderStatus($orderId: ID!, $status: String!, $sessionId: String, $pin: String, $proofImageUrl: String) {
-        updateOrderStatus(orderId: $orderId, status: $status, sessionId: $sessionId, verificationPin: $pin, proofImageUrl: $proofImageUrl) {
+      mutation UpdateOrderStatus(\$orderId: ID!, \$status: String!, \$sessionId: String, \$pin: String, \$proofImageUrl: String) {
+        updateOrderStatus(orderId: \$orderId, status: \$status, sessionId: \$sessionId, verificationPin: \$pin, proofImageUrl: \$proofImageUrl) {
           ${GqlFragments.orderFields}
         }
       }

@@ -166,7 +166,7 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
         );
 
         uploadResult.when(
-          success: (url) => proofImageUrl = url,
+          data: (url) => proofImageUrl = url,
           error: (error) {
             throw UserError(
               message: error.message ?? 'Failed to upload proof of delivery image',
