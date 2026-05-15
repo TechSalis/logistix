@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
@@ -44,6 +45,15 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
   late final unassignRunner = AsyncRunner<AppError, void>(_unassignOrder);
   late final markDeliveredRunner = AsyncRunner<AppError, void>(_markDelivered);
   late final startDeliveryRunner = AsyncRunner<AppError, void>(_startDelivery);
+
+  // New runner for delivery with proof
+  File? _pendingProofImage;
+
+  Future<void> deliverWithProof(File image) async {
+    _pendingProofImage = image;
+    await markDeliveredRunner.call();
+    _pendingProofImage = null;
+  }
 
   Future<void> _startDelivery() async {
     final curState = state;
@@ -147,9 +157,28 @@ class RiderOrderDetailsCubit extends Cubit<RiderOrderDetailsState> {
   Future<void> _markDelivered() async {
     final curState = state;
     if (curState is RiderOrderDetailsLoaded) {
+      String? proofImageUrl;
+
+      if (_pendingProofImage != null) {
+        final uploadResult = await _riderRepository.uploadProofOfDelivery(
+          curState.order.id,
+          _pendingProofImage!,
+        );
+
+        uploadResult.when(
+          success: (url) => proofImageUrl = url,
+          error: (error) {
+            throw UserError(
+              message: error.message ?? 'Failed to upload proof of delivery image',
+            );
+          },
+        );
+      }
+
       final result = await _riderRepository.updateOrderStatus(
         curState.order.id,
         OrderStatus.DELIVERED,
+        proofImageUrl: proofImageUrl,
       );
 
       if (isClosed) return;

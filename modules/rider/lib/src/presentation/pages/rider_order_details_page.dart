@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bootstrap/interfaces/toast/toast_service.dart';
 import 'package:bootstrap/interfaces/toast/toast_service_provider.dart';
 import 'package:bootstrap/services/async_runner/async_runner.dart';
@@ -8,6 +10,7 @@ import 'package:logistix_ux/logistix_ux.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:rider/src/presentation/cubit/rider_order_details_cubit.dart';
+import 'package:rider/src/presentation/widgets/proof_of_delivery_dialog.dart';
 import 'package:shared/shared.dart';
 
 class RiderOrderDetailsPage extends StatelessWidget {
@@ -479,7 +482,15 @@ class _BottomActionCta extends StatelessWidget {
           final isLoading = state.status.isRunning;
 
           return BootstrapButton(
-            onPressed: isLoading ? null : cubit.markDeliveredRunner.call,
+            onPressed: isLoading
+                ? null
+                : () async {
+                    final image =
+                        await ProofOfDeliveryDialog.show(context, order.id);
+                    if (image != null) {
+                      await cubit.deliverWithProof(File(image.path));
+                    }
+                  },
             backgroundColor: LogistixColors.success,
             isLoading: isLoading,
             icon: LucideIcons.circleCheck,

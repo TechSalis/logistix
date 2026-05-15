@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
@@ -110,6 +112,42 @@ class RiderRepositoryImpl implements RiderRepository {
         }
         rethrow;
       }
+    });
+  }
+
+  @override
+  Future<Result<AppError, String>> uploadProofOfDelivery(
+    String orderId,
+    File file,
+  ) async {
+    return Result.tryCatch(() async {
+      // 1. Get presigned URL
+      final presignedUrl =
+          await _remoteDataSource.generatePresignedUploadUrl(orderId);
+
+      // 2. Upload file via PUT
+      final dio = Dio();
+      final bytes = await file.readAsBytes();
+      
+      final response = await dio.put<dynamic>(
+        presignedUrl,
+        data: Stream.fromIterable([bytes]),
+        options: Options(
+          headers: {
+            HttpHeaders.contentTypeHeader: 'image/jpeg',
+            HttpHeaders.contentLengthHeader: bytes.length,
+          },
+        ),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw Exception('Failed to upload image to storage');
+      }
+
+      // The presigned URL (without query params) is usually the final URL, 
+      // but the backend might return a different one or we just use the base.
+      // For this system, we'll strip the query params to get the storage URL.
+      return presignedUrl.split('?').first;
     });
   }
 

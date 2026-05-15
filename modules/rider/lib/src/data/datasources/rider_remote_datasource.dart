@@ -24,6 +24,8 @@ abstract class RiderRemoteDataSource {
     required Future<void> Function() onSync,
   });
 
+  Future<String> generatePresignedUploadUrl(String orderId);
+
   Future<RiderDto> fetchProfile();
 }
 
@@ -32,6 +34,23 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   RiderRemoteDataSourceImpl(super.gqlService, this.syncManager);
 
   final SyncManager syncManager;
+
+  @override
+  Future<String> generatePresignedUploadUrl(String orderId) async {
+    const mutation = '''
+      mutation GeneratePresignedUploadUrl($orderId: ID!) {
+        generatePresignedUploadUrl(orderId: $orderId)
+      }
+    ''';
+
+    final data = await mutate<String>(
+      mutation,
+      key: 'generatePresignedUploadUrl',
+      variables: {'orderId': orderId},
+    );
+
+    return data;
+  }
 
   @override
   Future<RiderDto> fetchProfile() async {

@@ -27,6 +27,11 @@ abstract class RiderRepository {
     String? proofImageUrl,
   });
 
+  Future<Result<AppError, String>> uploadProofOfDelivery(
+    String orderId,
+    File file,
+  );
+
   Future<Result<AppError, Rider>> fetchProfile();
 
   Future<Result<AppError, Rider>> sendHeartbeat({

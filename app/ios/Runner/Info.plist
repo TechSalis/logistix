@@ -49,6 +49,8 @@
 	<string>Show nearby deliveries and optimize routes for efficient delivery planning.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To upload photos, please allow permission to access your photo library.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow access to the camera to take proof of delivery photos.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
