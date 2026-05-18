@@ -2,17 +2,17 @@ import 'package:shared/shared.dart';
 
 class CustomerSubscriptionHandler extends BaseSubscriptionHandler {
   CustomerSubscriptionHandler({
-    required super.orderDao,
+    required super.deliveryDao,
     required super.riderDao,
     super.logger,
   });
 
   @override
-  Future<void> handleOrderUpdate(
+  Future<void> handleDeliveryUpdate(
     String eventType,
-    OrderDto? orderDto, {
+    DeliveryDto? deliveryDto, {
     RiderDto? riderDto,
   }) async {
-    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
+    await super.handleDeliveryUpdate(eventType, deliveryDto, riderDto: riderDto);
   }
 }

@@ -3,13 +3,13 @@ import 'package:shared/shared.dart';
 
 abstract class BaseSubscriptionHandler {
   BaseSubscriptionHandler({
-    required this.orderDao,
+    required this.deliveryDao,
     required this.riderDao,
     this.logger,
   });
 
   @protected
-  final OrderDao orderDao;
+  final DeliveryDao deliveryDao;
   @protected
   final RiderDao riderDao;
 
@@ -17,14 +17,14 @@ abstract class BaseSubscriptionHandler {
   final Logger? logger;
 
   @mustCallSuper
-  Future<void> handleOrderUpdate(
+  Future<void> handleDeliveryUpdate(
     String eventType,
-    OrderDto? orderDto, {
+    DeliveryDto? deliveryDto, {
     RiderDto? riderDto,
   }) async {
     final event = SubscriptionEventTypeX.fromString(eventType);
     logger?.debug(
-      'SubscriptionHandler: Order ${orderDto?.id ?? "none"} - $event',
+      'SubscriptionHandler: Delivery ${deliveryDto?.id ?? "none"} - $event',
     );
 
     switch (event) {
@@ -32,15 +32,15 @@ abstract class BaseSubscriptionHandler {
       case SubscriptionEventType.UPDATED:
       case SubscriptionEventType.ASSIGNED:
       case SubscriptionEventType.STATUS_CHANGED:
-        if (orderDto != null) {
-          await orderDao.upsertOrder(orderDto.toDriftCompanion());
+        if (deliveryDto != null) {
+          await deliveryDao.upsertDelivery(deliveryDto.toDriftCompanion());
         }
         if (riderDto != null) {
           await riderDao.upsertRider(riderDto.toDriftCompanion());
         }
       case SubscriptionEventType.DELETED:
-        if (orderDto != null) {
-          await orderDao.deleteOrder(orderDto.id);
+        if (deliveryDto != null) {
+          await deliveryDao.deleteDelivery(deliveryDto.id);
         }
       case SubscriptionEventType.LOCATION_UPDATED:
         if (riderDto != null) {

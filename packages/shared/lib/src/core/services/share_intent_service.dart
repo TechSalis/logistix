@@ -37,7 +37,7 @@ class ShareIntentService {
     if (value.isEmpty) return;
 
     final media = value.first;
-    // We only care about text for now (for Order Parsing)
+    // We only care about text for now (for Delivery Parsing)
     if (media.type != SharedMediaType.TEXT) return;
 
     final text = media.value ?? '';

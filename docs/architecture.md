@@ -43,7 +43,7 @@ The workspace is organized into **Modules** and **Packages**:
 ---
 
 ## 4. Session & Sync Lifecycle
-Real-time features (Orders, Chat, Riders) are managed by the **SessionCoordinator**:
+Real-time features (Deliveries, Chat, Riders) are managed by the **SessionCoordinator**:
 
 - **SessionComponent**: A pluggable unit of long-running logic (e.g., a GraphQL Subscription or a background Timer).
 - **SessionCoordinator**: Orchestrates the starting/stopping of these components based on the user's authentication and role status.

@@ -65,8 +65,8 @@ class AppModule extends Module<RouteBase> {
       )
       // Drift Database - Local storage
       ..registerSingleton<LogistixDatabase>(LogistixDatabase())
-      ..registerLazySingleton<OrderDao>(
-        () => OrderDao(injector.get<LogistixDatabase>()),
+      ..registerLazySingleton<DeliveryDao>(
+        () => DeliveryDao(injector.get<LogistixDatabase>()),
       )
       ..registerLazySingleton<RiderDao>(
         () => RiderDao(injector.get<LogistixDatabase>()),

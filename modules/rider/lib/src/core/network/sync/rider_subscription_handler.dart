@@ -1,10 +1,10 @@
 import 'package:bootstrap/interfaces/store/store.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 class RiderSubscriptionHandler extends BaseSubscriptionHandler {
   RiderSubscriptionHandler({
-    required super.orderDao,
+    required super.deliveryDao,
     required super.riderDao,
     required ObjectStore<RiderMetricsDto> metricsStore,
     super.logger,
@@ -13,13 +13,13 @@ class RiderSubscriptionHandler extends BaseSubscriptionHandler {
   final ObjectStore<RiderMetricsDto> _metricsStore;
 
   @override
-  Future<void> handleOrderUpdate(
+  Future<void> handleDeliveryUpdate(
     String eventType,
-    OrderDto? orderDto, {
+    DeliveryDto? deliveryDto, {
     RiderDto? riderDto,
     RiderMetricsDto? riderMetrics,
   }) async {
-    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
+    await super.handleDeliveryUpdate(eventType, deliveryDto, riderDto: riderDto);
 
     if (riderMetrics != null) {
       await _metricsStore.set(riderMetrics);

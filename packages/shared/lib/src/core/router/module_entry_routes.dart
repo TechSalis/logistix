@@ -17,5 +17,5 @@ abstract class ModuleRoutePaths {
 
   // Dispatcher module routes
   static const String dispatcher = '/dispatcher';
-  static const String dispatcherParseText = '$dispatcher/orders/create/parse';
+  static const String dispatcherParseText = '$dispatcher/deliveries/create/parse';
 }

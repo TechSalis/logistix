@@ -2,14 +2,14 @@ import 'package:adapters/adapters.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:dispatcher/src/domain/usecases/sync_dispatcher_data_usecase.dart';
 import 'package:dispatcher/src/features/chat/domain/usecases/sync_chat_data_usecase.dart';
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 /// Performs the initial data synchronization for the Dispatcher module.
 ///
 /// This encompasses:
-/// 1. Performing a catch-up sync for orders, riders, and metrics via [DispatcherSessionRemoteDataSource].
-/// 2. Populating the local database ([OrderDao], [RiderDao]).
+/// 1. Performing a catch-up sync for deliveries, riders, and metrics via [DispatcherSessionRemoteDataSource].
+/// 2. Populating the local database ([DeliveryDao], [RiderDao]).
 /// 3. Updating the [DispatcherMetricsDto] store.
 class DispatcherInitialSyncProvider implements InitialSyncProvider {
   DispatcherInitialSyncProvider({

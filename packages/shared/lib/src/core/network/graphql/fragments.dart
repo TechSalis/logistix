@@ -1,5 +1,5 @@
 class GqlFragments {
-  static const String orderFields = '''
+  static const String deliveryFields = '''
     id
     companyId
     riderId
@@ -42,18 +42,18 @@ class GqlFragments {
   ''';
 
   static const String dispatcherMetricsFields = '''
-    activeOrders
-    unassignedOrders
-    assignedOrders
-    enRouteOrders
+    activeDeliveries
+    unassignedDeliveries
+    assignedDeliveries
+    enRouteDeliveries
     onlineRidersCount
     busyRidersCount
   ''';
 
   static const String riderMetricsFields = '''
-    totalOrders
-    pendingOrders
-    deliveredOrders
+    totalDeliveries
+    pendingDeliveries
+    deliveredDeliveries
   ''';
 
   static const String companyFields = '''

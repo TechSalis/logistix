@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:customer/src/core/network/sync/customer_subscription_handler.dart';
-import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/data/datasources/delivery_remote_datasource.dart';
 import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
 import 'package:shared/shared.dart';
 
@@ -14,20 +14,20 @@ class CustomerSessionManager {
     this._syncCustomerDataUseCase,
   );
 
-  final CustomerOrderRemoteDataSource _dataSource;
+  final CustomerDeliveryRemoteDataSource _dataSource;
   final CustomerSubscriptionHandler _subscriptionHandler;
   final LogistixDatabase _database;
   final SyncCustomerDataUseCase _syncCustomerDataUseCase;
 
-  SyncManager? _orderSyncManager;
+  SyncManager? _deliverySyncManager;
   Timer? _syncTimer;
   bool _isSyncing = false;
 
   Future<void> start() async {
-    // 1. Subscribe to order updates (performs sync on connection and reconnection)
-    _orderSyncManager = await _dataSource.subscribeToUpdates(
-      onData: (orderDto, SubscriptionEventType eventType) async {
-        await _subscriptionHandler.handleOrderUpdate(eventType.name, orderDto);
+    // 1. Subscribe to delivery updates (performs sync on connection and reconnection)
+    _deliverySyncManager = await _dataSource.subscribeToUpdates(
+      onData: (deliveryDto, SubscriptionEventType eventType) async {
+        await _subscriptionHandler.handleDeliveryUpdate(eventType.name, deliveryDto);
       },
       onSync: _performSync,
     );
@@ -60,8 +60,8 @@ class CustomerSessionManager {
   }
 
   void stop() {
-    _orderSyncManager?.stop();
-    _orderSyncManager = null;
+    _deliverySyncManager?.stop();
+    _deliverySyncManager = null;
     _syncTimer?.cancel();
     _syncTimer = null;
   }

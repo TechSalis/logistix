@@ -1,34 +1,34 @@
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 class RiderSync {
   const RiderSync({
-    required this.orders,
+    required this.deliveries,
     required this.rider,
     required this.lastUpdated,
     this.metrics,
-    this.deletedOrderIds = const [],
+    this.deletedDeliveryIds = const [],
   });
 
-  final List<Order> orders;
+  final List<Delivery> deliveries;
   final Rider rider;
   final DateTime lastUpdated;
   final RiderMetricsDto? metrics;
-  final List<String> deletedOrderIds;
+  final List<String> deletedDeliveryIds;
 
   RiderSync copyWith({
-    List<Order>? orders,
+    List<Delivery>? deliveries,
     Rider? rider,
     DateTime? lastUpdated,
     RiderMetricsDto? metrics,
-    List<String>? deletedOrderIds,
+    List<String>? deletedDeliveryIds,
   }) {
     return RiderSync(
-      orders: orders ?? this.orders,
+      deliveries: deliveries ?? this.deliveries,
       rider: rider ?? this.rider,
       lastUpdated: lastUpdated ?? this.lastUpdated,
       metrics: metrics ?? this.metrics,
-      deletedOrderIds: deletedOrderIds ?? this.deletedOrderIds,
+      deletedDeliveryIds: deletedDeliveryIds ?? this.deletedDeliveryIds,
     );
   }
 }

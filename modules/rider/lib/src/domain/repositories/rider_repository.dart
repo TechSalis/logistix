@@ -2,17 +2,17 @@ import 'dart:io';
 
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRepository {
   // Read operations - stream from local DB
   Stream<Rider?> watchRiderProfile(String riderId);
 
-  Stream<Order?> watchOrder(String orderId);
+  Stream<Delivery?> watchDelivery(String deliveryId);
 
-  Stream<List<Order>> watchRiderOrders({
-    List<OrderStatus>? status,
+  Stream<List<Delivery>> watchRiderDeliveries({
+    List<DeliveryStatus>? status,
     String? searchQuery,
     int limit = 20,
     int offset = 0,
@@ -22,15 +22,15 @@ abstract class RiderRepository {
   Stream<RiderMetricsDto?> watchRiderMetrics();
 
   // Write operations - go to server
-  Future<Result<AppError, Order>> updateOrderStatus(
-    String orderId,
-    OrderStatus status, {
+  Future<Result<AppError, Delivery>> updateDeliveryStatus(
+    String deliveryId,
+    DeliveryStatus status, {
     String? pin,
     String? proofImageUrl,
   });
 
   Future<Result<AppError, String>> uploadProofOfDelivery(
-    String orderId,
+    String deliveryId,
     File file,
   );
 

@@ -67,7 +67,7 @@ class _RequestIntegrationPageState extends State<RequestIntegrationPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Link your social media and messaging platforms. Our intelligent AI dispatcher will answer customer inquiries, accept orders, and manage dispatching seamlessly—24/7.',
+                  'Link your social media and messaging platforms. Our intelligent AI dispatcher will answer customer inquiries, accept deliveries, and manage dispatching seamlessly—24/7.',
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: LogistixColors.textSecondary,
                   ),
@@ -76,7 +76,7 @@ class _RequestIntegrationPageState extends State<RequestIntegrationPage> {
                 const SizedBox(height: 32),
                 _buildFeatureRow(context, Icons.speed, 'Instant responses to clients'),
                 const SizedBox(height: 16),
-                _buildFeatureRow(context, Icons.support_agent, 'Automated order booking'),
+                _buildFeatureRow(context, Icons.support_agent, 'Automated delivery booking'),
                 const SizedBox(height: 16),
                 _buildFeatureRow(context, Icons.insights, 'Unified customer database'),
                 const Spacer(),

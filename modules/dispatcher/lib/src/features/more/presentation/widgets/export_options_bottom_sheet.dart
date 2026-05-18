@@ -10,7 +10,7 @@ import 'package:shared/shared.dart';
 class ExportOptionsSheet extends StatefulWidget {
   const ExportOptionsSheet({
     super.key,
-    this.title = 'Export Orders',
+    this.title = 'Export Deliveries',
     this.showRiderFilter = true,
   });
 
@@ -19,7 +19,7 @@ class ExportOptionsSheet extends StatefulWidget {
 
   static Future<ExportParams?> show(
     BuildContext context, {
-    String title = 'Export Orders',
+    String title = 'Export Deliveries',
     bool showRiderFilter = true,
   }) {
     return showModalBottomSheet<ExportParams>(
@@ -48,7 +48,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
   DateTime? _startDate;
   DateTime? _endDate;
   Rider? _selectedRider;
-  List<OrderStatus> _selectedStatuses = [];
+  List<DeliveryStatus> _selectedStatuses = [];
 
   Future<void> _selectDateRange() async {
     final picked = await showDateRangePicker(
@@ -79,7 +79,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
     }
   }
 
-  void _toggleStatus(OrderStatus status) {
+  void _toggleStatus(DeliveryStatus status) {
     setState(() {
       if (_selectedStatuses.contains(status)) {
         _selectedStatuses.remove(status);
@@ -127,7 +127,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
           ),
           const SizedBox(height: BootstrapSpacing.md),
           Text(
-            'Configure your export settings to generate a detailed report of your logistics data across orders and riders.',
+            'Configure your export settings to generate a detailed report of your logistics data across deliveries and riders.',
             style: context.textTheme.bodyMedium?.copyWith(
               color: LogistixColors.textSecondary,
             ),
@@ -136,7 +136,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
 
           // ─── Status Filter ──────────────────────────────────────────────────────────
           Text(
-            'Order Status'.toUpperCase(),
+            'Delivery Status'.toUpperCase(),
             style: context.textTheme.labelSmall?.semiBold.copyWith(
               color: LogistixColors.textSecondary,
               letterSpacing: 1.2,
@@ -152,7 +152,7 @@ class _ExportOptionsSheetState extends State<ExportOptionsSheet> {
                 isSelected: _selectedStatuses.isEmpty,
                 onTap: () => setState(() => _selectedStatuses = []),
               ),
-              ...OrderStatus.values.map(
+              ...DeliveryStatus.values.map(
                 (status) => BootstrapChoiceChip(
                   label: status.label,
                   isSelected: _selectedStatuses.contains(status),

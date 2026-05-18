@@ -82,7 +82,7 @@ class ChatLocalDataSource {
       await chatDao.upsertMessage(companion);
 
       // CRITICAL: Update the conversation's lastMessage fields to ensure
-      // the list reorders and shows the latest snippet reactively.
+      // the list redeliveries and shows the latest snippet reactively.
       await chatDao.updateConversationLastMessage(
         conversationId: dto.conversationId,
         messageId: dto.id,

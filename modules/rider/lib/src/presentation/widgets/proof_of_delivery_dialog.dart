@@ -6,17 +6,17 @@ import 'package:logistix_ux/logistix_ux.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ProofOfDeliveryDialog extends StatefulWidget {
-  const ProofOfDeliveryDialog({required this.orderId, super.key});
+  const ProofOfDeliveryDialog({required this.deliveryId, super.key});
 
-  final String orderId;
+  final String deliveryId;
 
-  static Future<XFile?> show(BuildContext context, String orderId) {
+  static Future<XFile?> show(BuildContext context, String deliveryId) {
     return BootstrapDialog.show<XFile>(
       context: context,
       title: 'Proof of Delivery',
-      content: 'Please take a photo of the package at the delivery location to complete the order.',
+      content: 'Please take a photo of the package at the delivery location to complete the delivery.',
       actionsBuilder: (dialogContext) => [
-        ProofOfDeliveryDialog(orderId: orderId),
+        ProofOfDeliveryDialog(deliveryId: deliveryId),
       ],
     );
   }

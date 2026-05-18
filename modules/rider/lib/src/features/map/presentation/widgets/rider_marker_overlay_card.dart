@@ -5,12 +5,12 @@ import 'package:shared/shared.dart';
 class RiderMarkerOverlayCard extends StatelessWidget {
   const RiderMarkerOverlayCard({
     required this.isLocationSelected,
-    required this.selectedOrder,
+    required this.selectedDelivery,
     super.key,
   });
 
   final bool isLocationSelected;
-  final Order? selectedOrder;
+  final Delivery? selectedDelivery;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
       );
     }
 
-    if (selectedOrder == null) return const SizedBox.shrink();
+    if (selectedDelivery == null) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -79,17 +79,17 @@ class RiderMarkerOverlayCard extends StatelessWidget {
             padding: const EdgeInsets.all(BootstrapSpacing.xs),
             decoration: BoxDecoration(
               color:
-                  (selectedOrder!.status == OrderStatus.EN_ROUTE
+                  (selectedDelivery!.status == DeliveryStatus.EN_ROUTE
                       ? LogistixColors.success
                       : LogistixColors.warning)
                   .withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              selectedOrder!.status == OrderStatus.EN_ROUTE
+              selectedDelivery!.status == DeliveryStatus.EN_ROUTE
                   ? Icons.local_shipping_rounded
                   : Icons.location_on_rounded,
-              color: selectedOrder!.status == OrderStatus.EN_ROUTE
+              color: selectedDelivery!.status == DeliveryStatus.EN_ROUTE
                   ? LogistixColors.success
                   : LogistixColors.warning,
               size: 14,
@@ -101,7 +101,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Order #${selectedOrder!.trackingNumber}',
+                'Delivery #${selectedDelivery!.trackingNumber}',
                 style: context.textTheme.labelSmall?.bold.copyWith(
                   letterSpacing: 0.5,
                   fontSize: 10,
@@ -110,7 +110,7 @@ class RiderMarkerOverlayCard extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                selectedOrder!.status == OrderStatus.EN_ROUTE
+                selectedDelivery!.status == DeliveryStatus.EN_ROUTE
                     ? 'Delivery in Progress'
                     : 'Pickup Point',
                 style: context.textTheme.labelMedium?.bold.copyWith(

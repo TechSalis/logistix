@@ -8,7 +8,7 @@ import 'package:shared/shared.dart';
 /// Concrete session coordinator for the Dispatcher module.
 /// 
 /// Instead of monolithic logic, it configures a list of [SessionComponent]s
-/// to handle orders, riders, chat, notifications, and periodic sync.
+/// to handle deliveries, riders, chat, notifications, and periodic sync.
 class DispatcherSessionManager extends SessionCoordinator {
   DispatcherSessionManager({
     required DispatcherSessionRemoteDataSource dataSource,
@@ -20,13 +20,13 @@ class DispatcherSessionManager extends SessionCoordinator {
     // 1. Core Data Synchronization
     addComponent(DispatcherSyncComponent(syncUseCase, database));
     
-    // 2. Orders Real-time Stream
+    // 2. Deliveries Real-time Stream
     addComponent(
       RealtimeSubscriptionComponent(
-        name: 'orders',
-        subscribe: (onSync) => dataSource.subscribeToOrderUpdates(
-          onData: (order, event, metrics) => subscriptionHandler
-              .handleOrderUpdate(event, order,
+        name: 'deliveries',
+        subscribe: (onSync) => dataSource.subscribeToDeliveryUpdates(
+          onData: (delivery, event, metrics) => subscriptionHandler
+              .handleDeliveryUpdate(event, delivery,
           dispatcherMetrics: metrics,
         ),
           onSync: onSync,

@@ -1,7 +1,7 @@
 import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
 import 'package:rider/src/data/dtos/rider_sync_request.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 /// Performs a full catch-up sync for the Rider module.
@@ -11,18 +11,18 @@ import 'package:shared/shared.dart';
 class SyncRiderDataUseCase {
   SyncRiderDataUseCase({
     required RiderRemoteDataSource remoteDataSource,
-    required OrderDao orderDao,
+    required DeliveryDao deliveryDao,
     required RiderDao riderDao,
     required StreamableObjectStore<RiderMetricsDto> metricsStore,
     required LogistixDatabase database,
   })  : _remoteDataSource = remoteDataSource,
-        _orderDao = orderDao,
+        _deliveryDao = deliveryDao,
         _riderDao = riderDao,
         _metricsStore = metricsStore,
         _database = database;
 
   final RiderRemoteDataSource _remoteDataSource;
-  final OrderDao _orderDao;
+  final DeliveryDao _deliveryDao;
   final RiderDao _riderDao;
   final StreamableObjectStore<RiderMetricsDto> _metricsStore;
   final LogistixDatabase _database;
@@ -46,22 +46,22 @@ class SyncRiderDataUseCase {
 
       completionTime = DateTime.fromMillisecondsSinceEpoch(syncDto.lastUpdated);
 
-      // Batch upsert orders and update profile
+      // Batch upsert deliveries and update profile
       await Future.wait([
-        if (syncDto.orders.isNotEmpty)
-          _orderDao.upsertOrders(
-            syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
+        if (syncDto.deliveries.isNotEmpty)
+          _deliveryDao.upsertDeliveries(
+            syncDto.deliveries.map((e) => e.toDriftCompanion()).toList(),
           ),
         if (offset == 0) _riderDao.upsertRider(syncDto.rider.toDriftCompanion()),
         if (syncDto.metrics != null) _metricsStore.set(syncDto.metrics!),
       ]);
 
       // Handle deletions
-      if (syncDto.deletedOrderIds.isNotEmpty) {
-        await _orderDao.deleteOrders(syncDto.deletedOrderIds);
+      if (syncDto.deletedDeliveryIds.isNotEmpty) {
+        await _deliveryDao.deleteDeliveries(syncDto.deletedDeliveryIds);
       }
 
-      if (syncDto.orders.length < limit) {
+      if (syncDto.deliveries.length < limit) {
         hasMore = false;
       } else {
         offset += limit;

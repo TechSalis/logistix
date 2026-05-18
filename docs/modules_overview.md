@@ -17,7 +17,7 @@ Common infrastructure used by all modules.
 - **Database**: Definitive schema for Drift (SQLite).
 - **Network**: GraphQL Service, Auth interceptors, and Sync logic.
 - **Config**: Type-safe `EnvConfig` for `.env` access.
-- **Common Entities**: Shared models like `User`, `Order`, `Rider`.
+- **Common Entities**: Shared models like `User`, `Delivery`, `Rider`.
 
 ---
 
@@ -38,7 +38,7 @@ Handles the user session.
 
 ## 5. Dispatcher Module (`modules/dispatcher/`)
 The dashboard for company administrators.
-- **Orders**: Creation, assignment, and real-time tracking of orders.
+- **Deliveries**: Creation, assignment, and real-time tracking of deliveries.
 - **Chats**: Omnichannel messaging platform (WhatsApp, AI-enabled).
 - **Riders**: Monitoring active riders and their performance.
 
@@ -46,7 +46,7 @@ The dashboard for company administrators.
 
 ## 6. Rider Module (`modules/rider/`)
 The app for delivery drivers.
-- **Active Orders**: Steps for pickup, transit, and delivery.
+- **Active Deliveries**: Steps for pickup, transit, and delivery.
 - **Map View**: Advanced Google Maps integration for routing.
 - **Stale State Management**: Handling "Locked" states for inactive or rejected accounts.
 

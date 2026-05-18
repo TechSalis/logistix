@@ -8,6 +8,6 @@ import 'package:shared/src/presentation/pages/sync_page.dart' show SyncPage;
 /// This is used by the centralized [SyncPage] to perform the catch-up sync
 /// before routing the user to their dashboard.
 abstract class InitialSyncProvider {
-  /// Entry point for performing initial sync (e.g., fetching profile, catching up orders/metrics).
+  /// Entry point for performing initial sync (e.g., fetching profile, catching up deliveries/metrics).
   Future<void> performInitialSync();
 }

@@ -23,5 +23,5 @@ abstract class RiderRepository {
 
   Future<Result<AppError, void>> acceptRider(String riderId);
   Future<Result<AppError, void>> rejectRider(String riderId);
-  Future<Result<AppError, List<Order>>> getRiderOrders(String riderId, {int limit = 10, int offset = 0});
+  Future<Result<AppError, List<Delivery>>> getRiderDeliveries(String riderId, {int limit = 10, int offset = 0});
 }

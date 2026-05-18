@@ -106,7 +106,7 @@ class RiderDetailsPage extends StatelessWidget {
                   _ApprovalActions(rider: rider),
                 ],
                 const SizedBox(height: BootstrapSpacing.xl),
-                _ActiveOrdersSection(riderId: rider.id),
+                _ActiveDeliveriesSection(riderId: rider.id),
                 const SizedBox(height: BootstrapSpacing.xxxl),
               ],
             ),
@@ -400,27 +400,27 @@ class _ApprovalActions extends StatelessWidget {
   }
 }
 
-class _ActiveOrdersSection extends StatelessWidget {
-  const _ActiveOrdersSection({required this.riderId});
+class _ActiveDeliveriesSection extends StatelessWidget {
+  const _ActiveDeliveriesSection({required this.riderId});
   final String riderId;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Order>>(
-      stream: context.read<OrderDao>().watchOrders(
+    return StreamBuilder<List<Delivery>>(
+      stream: context.read<DeliveryDao>().watchDeliveries(
         riderId: riderId,
-        statuses: [OrderStatus.ASSIGNED, OrderStatus.EN_ROUTE],
+        statuses: [DeliveryStatus.ASSIGNED, DeliveryStatus.EN_ROUTE],
         limit: 3,
       ),
       builder: (context, snapshot) {
-        final orders = snapshot.data ?? [];
+        final deliveries = snapshot.data ?? [];
 
         if (snapshot.connectionState == ConnectionState.waiting &&
-            orders.isEmpty) {
+            deliveries.isEmpty) {
           return const Center(child: BootstrapInlineLoader());
         }
 
-        if (orders.isEmpty) {
+        if (deliveries.isEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -430,24 +430,24 @@ class _ActiveOrdersSection extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const _SectionTitle(title: 'Active Orders'),
+                const _SectionTitle(title: 'Active Deliveries'),
                 BootstrapButton(
                   type: BootstrapButtonType.text,
                   onPressed: () {
-                    context.go(DispatcherRoutes.orders);
+                    context.go(DispatcherRoutes.deliveries);
                   },
                   label: 'View All',
                 ),
               ],
             ),
             const SizedBox(height: BootstrapSpacing.sm),
-            ...orders.map(
-              (order) => Padding(
+            ...deliveries.map(
+              (delivery) => Padding(
                 padding: const EdgeInsets.only(bottom: BootstrapSpacing.md),
-                child: OrderPreviewCard(
-                  order: order,
+                child: DeliveryPreviewCard(
+                  delivery: delivery,
                   onTap: () =>
-                      context.push(DispatcherRoutes.orderDetails(order.id)),
+                      context.push(DispatcherRoutes.deliveryDetails(delivery.id)),
                 ),
               ),
             ),

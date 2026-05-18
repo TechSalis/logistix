@@ -25,10 +25,10 @@ class RiderSessionManager extends SessionCoordinator {
       RealtimeSubscriptionComponent(
         name: 'assignments',
         subscribe: (onSync) => dataSource.subscribeToAssignmentUpdates(
-          onData: (event, order, rider, metrics) =>
-              subscriptionHandler.handleOrderUpdate(
+          onData: (event, delivery, rider, metrics) =>
+              subscriptionHandler.handleDeliveryUpdate(
                 event,
-                order,
+                delivery,
                 riderDto: rider,
                 riderMetrics: metrics,
               ),

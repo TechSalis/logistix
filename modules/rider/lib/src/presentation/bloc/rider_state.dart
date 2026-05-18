@@ -7,8 +7,8 @@ abstract class RiderState {
 
   static const initial = RiderInitialState();
   static RiderState loading([Rider? rider]) => RiderLoadingState(rider);
-  static RiderState loaded(Rider rider, {List<Order> orders = const [], bool isOrdersLoading = false, Position? location}) 
-      => RiderLoadedState(rider, orders: orders, isOrdersLoading: isOrdersLoading, location: location);
+  static RiderState loaded(Rider rider, {List<Delivery> deliveries = const [], bool isDeliveriesLoading = false, Position? location}) 
+      => RiderLoadedState(rider, deliveries: deliveries, isDeliveriesLoading: isDeliveriesLoading, location: location);
   static RiderState error(String message) => RiderErrorState(message);
 
   T when<T>({
@@ -16,8 +16,8 @@ abstract class RiderState {
     required T Function(Rider? rider) loading,
     required T Function(
       Rider rider,
-      List<Order> orders,
-      bool isOrdersLoading,
+      List<Delivery> deliveries,
+      bool isDeliveriesLoading,
       Position? location,
     ) loaded,
     required T Function(String message) error,
@@ -26,7 +26,7 @@ abstract class RiderState {
   T? whenOrNull<T>({
     T? Function()? initial,
     T? Function(Rider? rider)? loading,
-    T? Function(Rider rider, List<Order> orders, bool isOrdersLoading, Position? location)? loaded,
+    T? Function(Rider rider, List<Delivery> deliveries, bool isDeliveriesLoading, Position? location)? loaded,
     T? Function(String message)? error,
   }) => when(
     initial: initial ?? () => null,
@@ -56,7 +56,7 @@ class RiderInitialState extends RiderState {
   T when<T>({
     required T Function() initial,
     required T Function(Rider? rider) loading,
-    required T Function(Rider rider, List<Order> orders, bool isOrdersLoading, Position? location) loaded,
+    required T Function(Rider rider, List<Delivery> deliveries, bool isDeliveriesLoading, Position? location) loaded,
     required T Function(String message) error,
   }) => initial();
 
@@ -74,7 +74,7 @@ class RiderLoadingState extends RiderState {
   T when<T>({
     required T Function() initial,
     required T Function(Rider? rider) loading,
-    required T Function(Rider rider, List<Order> orders, bool isOrdersLoading, Position? location) loaded,
+    required T Function(Rider rider, List<Delivery> deliveries, bool isDeliveriesLoading, Position? location) loaded,
     required T Function(String message) error,
   }) => loading(rider);
 
@@ -87,19 +87,19 @@ class RiderLoadingState extends RiderState {
 
 class RiderLoadedState extends RiderState {
 
-  const RiderLoadedState(this.rider, {this.orders = const [], this.isOrdersLoading = false, this.location});
+  const RiderLoadedState(this.rider, {this.deliveries = const [], this.isDeliveriesLoading = false, this.location});
   final Rider rider;
-  final List<Order> orders;
-  final bool isOrdersLoading;
+  final List<Delivery> deliveries;
+  final bool isDeliveriesLoading;
   final Position? location;
 
   @override
   T when<T>({
     required T Function() initial,
     required T Function(Rider? rider) loading,
-    required T Function(Rider rider, List<Order> orders, bool isOrdersLoading, Position? location) loaded,
+    required T Function(Rider rider, List<Delivery> deliveries, bool isDeliveriesLoading, Position? location) loaded,
     required T Function(String message) error,
-  }) => loaded(rider, orders, isOrdersLoading, location);
+  }) => loaded(rider, deliveries, isDeliveriesLoading, location);
 
   @override
   T? mapOrNull<T>({T? Function(RiderInitialState)? initial, T? Function(RiderLoadingState)? loading, T? Function(RiderLoadedState)? loaded, T? Function(RiderErrorState)? error}) => loaded?.call(this);
@@ -107,11 +107,11 @@ class RiderLoadedState extends RiderState {
   @override
   T maybeMap<T>({required T Function() orElse, T Function(RiderInitialState)? initial, T Function(RiderLoadingState)? loading, T Function(RiderLoadedState)? loaded, T Function(RiderErrorState)? error}) => loaded != null ? loaded(this) : orElse();
   
-  RiderLoadedState copyWith({Rider? rider, List<Order>? orders, bool? isOrdersLoading, Position? location}) {
+  RiderLoadedState copyWith({Rider? rider, List<Delivery>? deliveries, bool? isDeliveriesLoading, Position? location}) {
     return RiderLoadedState(
       rider ?? this.rider,
-      orders: orders ?? this.orders,
-      isOrdersLoading: isOrdersLoading ?? this.isOrdersLoading,
+      deliveries: deliveries ?? this.deliveries,
+      isDeliveriesLoading: isDeliveriesLoading ?? this.isDeliveriesLoading,
       location: location ?? this.location,
     );
   }
@@ -124,7 +124,7 @@ class RiderErrorState extends RiderState {
   T when<T>({
     required T Function() initial,
     required T Function(Rider? rider) loading,
-    required T Function(Rider rider, List<Order> orders, bool isOrdersLoading, Position? location) loaded,
+    required T Function(Rider rider, List<Delivery> deliveries, bool isDeliveriesLoading, Position? location) loaded,
     required T Function(String message) error,
   }) => error(message);
 

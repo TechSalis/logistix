@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:dispatcher/src/data/dtos/dispatcher_sync_dto.dart';
 import 'package:dispatcher/src/data/dtos/dispatcher_sync_request.dart';
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 abstract class DispatcherSessionRemoteDataSource {
   Future<DispatcherSyncDto> syncData(DispatcherSyncRequest request);
 
-  Future<SyncManager> subscribeToOrderUpdates({
+  Future<SyncManager> subscribeToDeliveryUpdates({
     required void Function(
-      OrderDto order,
+      DeliveryDto delivery,
       String eventType,
       DispatcherMetricsDto? metrics,
     )
@@ -44,8 +44,8 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
         '''
       query DispatcherSync(\$since: Float, \$limit: Int, \$offset: Int) {
         dispatcherSync(since: \$since, limit: \$limit, offset: \$offset) {
-          orders {
-            ${GqlFragments.orderFields}
+          deliveries {
+            ${GqlFragments.deliveryFields}
           }
           riders {
             ${GqlFragments.riderFields}
@@ -53,7 +53,7 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
           metrics {
             ${GqlFragments.dispatcherMetricsFields}
           }
-          deletedOrderIds
+          deletedDeliveryIds
           deletedRiderIds
           lastUpdated
         }
@@ -70,9 +70,9 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<SyncManager> subscribeToOrderUpdates({
+  Future<SyncManager> subscribeToDeliveryUpdates({
     required void Function(
-      OrderDto order,
+      DeliveryDto delivery,
       String eventType,
       DispatcherMetricsDto? metrics,
     )
@@ -81,20 +81,20 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
   }) async {
     // Uses the injected syncManager
     await syncManager.startSubscription(
-      subscriptionDocument: _orderSubscription,
+      subscriptionDocument: _deliverySubscription,
       variables: {
         'sessionId': await gqlService.sessionId,
       },
       onData: (data) async {
-        final updateData = data['orderUpdated'] as Map<String, dynamic>;
-        final orderData = updateData['order'] as Map<String, dynamic>;
-        final orderDto = OrderDto.fromJson(orderData);
+        final updateData = data['deliveryUpdated'] as Map<String, dynamic>;
+        final deliveryData = updateData['delivery'] as Map<String, dynamic>;
+        final deliveryDto = DeliveryDto.fromJson(deliveryData);
         final eventType = updateData['eventType'] as String;
         final metricsData = updateData['metrics'] as Map<String, dynamic>?;
         final metrics = metricsData != null
             ? DispatcherMetricsDto.fromJson(metricsData)
             : null;
-        onData(orderDto, eventType, metrics);
+        onData(deliveryDto, eventType, metrics);
       },
       onSync: onSync,
     );
@@ -135,12 +135,12 @@ class DispatcherSessionRemoteDataSourceImpl extends BaseRemoteDataSource
     return syncManager;
   }
 
-  static const String _orderSubscription =
+  static const String _deliverySubscription =
       '''
-    subscription OrderUpdated(\$sessionId: String) {
-      orderUpdated(sessionId: \$sessionId) {
-        order {
-          ${GqlFragments.orderFields}
+    subscription DeliveryUpdated(\$sessionId: String) {
+      deliveryUpdated(sessionId: \$sessionId) {
+        delivery {
+          ${GqlFragments.deliveryFields}
         }
         eventType
         metrics {

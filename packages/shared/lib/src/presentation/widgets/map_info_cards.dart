@@ -99,15 +99,15 @@ class RiderMapInfoCard extends StatelessWidget {
   }
 }
 
-class OrderMapInfoCard extends StatelessWidget {
-  const OrderMapInfoCard({
-    required this.order,
+class DeliveryMapInfoCard extends StatelessWidget {
+  const DeliveryMapInfoCard({
+    required this.delivery,
     required this.onClose,
     required this.onTap,
     super.key,
   });
 
-  final Order order;
+  final Delivery delivery;
   final VoidCallback onClose;
   final VoidCallback onTap;
 
@@ -138,7 +138,7 @@ class OrderMapInfoCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '#${order.trackingNumber}',
+                    '#${delivery.trackingNumber}',
                     style: context.textTheme.titleMedium?.bold,
                   ),
                   const SizedBox(height: 2),
@@ -148,13 +148,13 @@ class OrderMapInfoCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: order.status.color.withValues(alpha: 0.1),
+                      color: delivery.status.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      order.status.label,
+                      delivery.status.label,
                       style: context.textTheme.labelSmall?.copyWith(
-                        color: order.status.color,
+                        color: delivery.status.color,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
                       ),

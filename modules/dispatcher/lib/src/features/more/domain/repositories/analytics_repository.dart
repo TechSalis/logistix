@@ -8,6 +8,6 @@ abstract class AnalyticsRepository {
     DateTime? startDate,
     DateTime? endDate,
     String? riderId,
-    List<OrderStatus>? statuses,
+    List<DeliveryStatus>? statuses,
   });
 }

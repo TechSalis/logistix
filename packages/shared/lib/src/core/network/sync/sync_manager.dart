@@ -11,7 +11,7 @@ enum SyncConnectionState { DISCONNECTED, CONNECTING, SUBSCRIBED, RECONNECTING }
 /// A wrapper around robust GraphQL subscriptions with automatic catch-up on reconnection.
 ///
 /// Refactored to support multiple concurrent subscriptions on a single manager instance.
-/// This allows data sources to manage multiple real-time streams (e.g., Orders and Riders)
+/// This allows data sources to manage multiple real-time streams (e.g., Deliveries and Riders)
 /// while sharing the same connectivity lifecycle and reconnection logic.
 class SyncManager {
   SyncManager(this._graphqlService, this._connectivity, {this.logger}) {

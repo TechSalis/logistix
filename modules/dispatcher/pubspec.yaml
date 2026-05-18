@@ -1,5 +1,5 @@
 name: dispatcher
-description: Dispatcher UI module with Orders, Riders, and More tabs.
+description: Dispatcher UI module with Deliveries, Riders, and More tabs.
 publish_to: none
 resolution: workspace
 

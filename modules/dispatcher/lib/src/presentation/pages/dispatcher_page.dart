@@ -17,7 +17,7 @@ class DispatcherPage extends StatelessWidget {
     ),
     NavigationDestination(
       icon: Icon(LucideIcons.package),
-      label: 'Orders',
+      label: 'Deliveries',
     ),
     NavigationDestination(
       icon: Icon(LucideIcons.users),

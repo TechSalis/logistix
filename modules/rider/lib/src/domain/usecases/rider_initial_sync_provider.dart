@@ -6,8 +6,8 @@ import 'package:shared/shared.dart';
 ///
 /// This encompasses:
 /// 1. Fetching the latest [Rider] profile (`meRider`).
-/// 2. Performing a catch-up sync for orders and metrics via [RiderRemoteDataSource].
-/// 3. Populating the local database ([OrderDao], [RiderDao]).
+/// 2. Performing a catch-up sync for deliveries and metrics via [RiderRemoteDataSource].
+/// 3. Populating the local database ([DeliveryDao], [RiderDao]).
 class RiderInitialSyncProvider implements InitialSyncProvider {
   RiderInitialSyncProvider({
     required RiderDao riderDao,
@@ -36,7 +36,7 @@ class RiderInitialSyncProvider implements InitialSyncProvider {
       );
     }
 
-    // 2. Perform Catch-up Sync (Orders & Metrics)
+    // 2. Perform Catch-up Sync (Deliveries & Metrics)
     final lastSyncTime = await _database.getLastSyncTime(SyncKeys.riderLastSync);
     final since = lastSyncTime?.millisecondsSinceEpoch.toDouble();
 

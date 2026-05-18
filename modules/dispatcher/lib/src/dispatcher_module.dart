@@ -32,15 +32,15 @@ import 'package:dispatcher/src/features/more/domain/usecases/get_integrations_us
 import 'package:dispatcher/src/features/more/domain/usecases/request_integration_usecase.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/more_cubit.dart';
 import 'package:dispatcher/src/features/more/presentation/cubit/wallet_cubit.dart';
-import 'package:dispatcher/src/features/orders/data/datasources/order_remote_datasource.dart';
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
-import 'package:dispatcher/src/features/orders/data/repositories/metrics_repository_impl.dart';
-import 'package:dispatcher/src/features/orders/data/repositories/order_repository_impl.dart';
-import 'package:dispatcher/src/features/orders/domain/repositories/metrics_repository.dart';
-import 'package:dispatcher/src/features/orders/domain/repositories/order_repository.dart';
-import 'package:dispatcher/src/features/orders/presentation/cubit/create_order_cubit.dart';
-import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart';
-import 'package:dispatcher/src/features/orders/presentation/cubit/orders_cubit.dart';
+import 'package:dispatcher/src/features/deliveries/data/datasources/delivery_remote_datasource.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/data/repositories/metrics_repository_impl.dart';
+import 'package:dispatcher/src/features/deliveries/data/repositories/delivery_repository_impl.dart';
+import 'package:dispatcher/src/features/deliveries/domain/repositories/metrics_repository.dart';
+import 'package:dispatcher/src/features/deliveries/domain/repositories/delivery_repository.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/cubit/create_delivery_cubit.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/cubit/metrics_cubit.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/cubit/deliveries_cubit.dart';
 import 'package:dispatcher/src/features/riders/presentation/cubit/riders_cubit.dart';
 import 'package:dispatcher/src/presentation/router/dispatcher_routes.dart';
 import 'package:dispatcher/src/presentation/widgets/dispatcher_session_provider.dart';
@@ -77,12 +77,12 @@ class DispatcherModule extends Module<RouteBase> {
               injector.get<SyncManager>(),
             ),
           ),
-          RepositoryProvider<OrderRepository>(
-            create: (context) => OrderRepositoryImpl(
-              remoteDataSource: OrderRemoteDataSourceImpl(
+          RepositoryProvider<DeliveryRepository>(
+            create: (context) => DeliveryRepositoryImpl(
+              remoteDataSource: DeliveryRemoteDataSourceImpl(
                 injector.get<GraphQLService>(),
               ),
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               placesService: injector.get<PlacesService>(),
               userStore: injector.get<UserStore>(),
@@ -96,7 +96,7 @@ class DispatcherModule extends Module<RouteBase> {
           ),
           RepositoryProvider<DispatcherSubscriptionHandler>(
             create: (context) => DispatcherSubscriptionHandler(
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<DispatcherMetricsDto>>(),
@@ -173,7 +173,7 @@ class DispatcherModule extends Module<RouteBase> {
             create: (context) => SyncDispatcherDataUseCase(
               remoteDataSource: context
                   .read<DispatcherSessionRemoteDataSource>(),
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<DispatcherMetricsDto>>(),
@@ -184,13 +184,13 @@ class DispatcherModule extends Module<RouteBase> {
         child: MultiBlocProvider(
           providers: [
             BlocProvider(
-              create: (context) => CreateOrderCubit(
-                context.read<OrderRepository>(),
+              create: (context) => CreateDeliveryCubit(
+                context.read<DeliveryRepository>(),
                 context.read<SearchRidersUseCase>(),
               ),
             ),
-            BlocProvider<OrdersCubit>(
-              create: (context) => OrdersCubit(context.read<OrderRepository>()),
+            BlocProvider<DeliveriesCubit>(
+              create: (context) => DeliveriesCubit(context.read<DeliveryRepository>()),
             ),
             BlocProvider<RidersCubit>(
               create: (context) => RidersCubit(context.read<RiderRepository>()),
@@ -249,7 +249,7 @@ class DispatcherModule extends Module<RouteBase> {
                   .read<SyncDispatcherDataUseCase>(),
               syncChatDataUseCase: context.read<SyncChatDataUseCase>(),
             ).performInitialSync(),
-            onSuccess: () => context.go(DispatcherRoutes.orders),
+            onSuccess: () => context.go(DispatcherRoutes.deliveries),
             onError: (context, e, retry) {
               SyncPage.showErrorDialog(
                 context,

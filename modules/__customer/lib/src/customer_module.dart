@@ -1,13 +1,13 @@
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:customer/src/core/network/sync/customer_subscription_handler.dart';
-import 'package:customer/src/data/datasources/order_remote_datasource.dart';
-import 'package:customer/src/data/repositories/order_repository_impl.dart';
-import 'package:customer/src/domain/repositories/customer_order_repository.dart';
+import 'package:customer/src/data/datasources/delivery_remote_datasource.dart';
+import 'package:customer/src/data/repositories/delivery_repository_impl.dart';
+import 'package:customer/src/domain/repositories/customer_delivery_repository.dart';
 import 'package:customer/src/domain/usecases/manage_customer_session_usecase.dart';
 import 'package:customer/src/domain/usecases/sync_customer_data_usecase.dart';
-import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
+import 'package:customer/src/features/dashboard/presentation/cubit/delivery_history_cubit.dart';
 import 'package:customer/src/features/ordering/presentation/cubit/customer_address_cubit.dart';
-import 'package:customer/src/features/ordering/presentation/cubit/order_form_cubit.dart';
+import 'package:customer/src/features/ordering/presentation/cubit/delivery_form_cubit.dart';
 import 'package:customer/src/presentation/router/customer_routes.dart';
 import 'package:customer/src/presentation/widgets/customer_session_provider.dart';
 import 'package:flutter/material.dart';
@@ -23,45 +23,45 @@ class CustomerModule extends Module<RouteBase> {
         ShellRoute(
           builder: (context, state, child) => MultiRepositoryProvider(
             providers: [
-              RepositoryProvider<CustomerOrderRemoteDataSource>(
-                create: (_) => CustomerOrderRemoteDataSourceImpl(
+              RepositoryProvider<CustomerDeliveryRemoteDataSource>(
+                create: (_) => CustomerDeliveryRemoteDataSourceImpl(
                   injector.get<GraphQLService>(),
                   injector.get<SyncManager>(),
                 ),
               ),
-              RepositoryProvider<CustomerOrderRepository>(
-                create: (context) => CustomerOrderRepositoryImpl(
+              RepositoryProvider<CustomerDeliveryRepository>(
+                create: (context) => CustomerDeliveryRepositoryImpl(
                   remoteDataSource:
-                      context.read<CustomerOrderRemoteDataSource>(),
-                  orderDao: injector.get<OrderDao>(),
+                      context.read<CustomerDeliveryRemoteDataSource>(),
+                  deliveryDao: injector.get<DeliveryDao>(),
                   userStore: injector.get<UserStore>(),
                 ),
               ),
               RepositoryProvider<CustomerSubscriptionHandler>(
                 create: (context) => CustomerSubscriptionHandler(
-                  orderDao: injector.get<OrderDao>(),
+                  deliveryDao: injector.get<DeliveryDao>(),
                   riderDao: injector.get<RiderDao>(),
                   logger: injector.get<Logger>(),
                 ),
               ),
               RepositoryProvider<SyncCustomerDataUseCase>(
                 create: (context) => SyncCustomerDataUseCase(
-                  remoteDataSource: context.read<CustomerOrderRemoteDataSource>(),
-                  orderDao: injector.get<OrderDao>(),
+                  remoteDataSource: context.read<CustomerDeliveryRemoteDataSource>(),
+                  deliveryDao: injector.get<DeliveryDao>(),
                   database: injector.get<LogistixDatabase>(),
                 ),
               ),
             ],
             child: MultiBlocProvider(
               providers: [
-                BlocProvider<OrderHistoryCubit>(
-                  create: (context) => OrderHistoryCubit(
-                    context.read<CustomerOrderRepository>(),
+                BlocProvider<DeliveryHistoryCubit>(
+                  create: (context) => DeliveryHistoryCubit(
+                    context.read<CustomerDeliveryRepository>(),
                   ),
                 ),
-                BlocProvider<OrderFormCubit>(
-                  create: (context) => OrderFormCubit(
-                    context.read<CustomerOrderRepository>(),
+                BlocProvider<DeliveryFormCubit>(
+                  create: (context) => DeliveryFormCubit(
+                    context.read<CustomerDeliveryRepository>(),
                   ),
                 ),
                 BlocProvider<CustomerAddressCubit>(
@@ -74,7 +74,7 @@ class CustomerModule extends Module<RouteBase> {
                 builder: (context) {
                   return CustomerSessionProvider(
                     sessionManager: CustomerSessionManager(
-                      context.read<CustomerOrderRemoteDataSource>(),
+                      context.read<CustomerDeliveryRemoteDataSource>(),
                       context.read<CustomerSubscriptionHandler>(),
                       injector.get<LogistixDatabase>(),
                       context.read<SyncCustomerDataUseCase>(),

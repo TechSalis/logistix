@@ -11,10 +11,10 @@ part 'database.g.dart';
 
 // ── Tables ─────────────────────────────────────────────────────────
 
-@TableIndex(name: 'idx_orders_status_date', columns: {#status, #createdAt})
-@TableIndex(name: 'idx_orders_priority_date', columns: {#isPriority, #createdAt})
-@DataClassName('OrderRow')
-class Orders extends Table {
+@TableIndex(name: 'idx_deliveries_status_date', columns: {#status, #createdAt})
+@TableIndex(name: 'idx_deliveries_priority_date', columns: {#isPriority, #createdAt})
+@DataClassName('DeliveryRow')
+class Deliveries extends Table {
   TextColumn get id => text()();
   TextColumn get pickupAddress => text()();
   RealColumn get pickupLat => real().nullable()();
@@ -139,8 +139,8 @@ class ChatMessages extends Table {
 // ── Database Implementation ────────────────────────────────────────
 
 @DriftDatabase(
-  tables: [Orders, Riders, Dispatchers, SyncMetadata, Conversations, ChatMessages],
-  daos: [OrderDao, RiderDao, ChatDao],
+  tables: [Deliveries, Riders, Dispatchers, SyncMetadata, Conversations, ChatMessages],
+  daos: [DeliveryDao, RiderDao, ChatDao],
 )
 class LogistixDatabase extends _$LogistixDatabase {
   LogistixDatabase() : super(_openConnection());
@@ -158,10 +158,10 @@ class LogistixDatabase extends _$LogistixDatabase {
           }
           if (from < 3) {
             // Using raw SQL migration to bypass missing GeneratedColumn types in a manual environment
-            await customStatement('ALTER TABLE orders ADD COLUMN is_priority INTEGER DEFAULT 0;');
+            await customStatement('ALTER TABLE deliveries ADD COLUMN is_priority INTEGER DEFAULT 0;');
           }
           if (from < 4) {
-            await customStatement('ALTER TABLE orders ADD COLUMN payment_method TEXT;');
+            await customStatement('ALTER TABLE deliveries ADD COLUMN payment_method TEXT;');
           }
         },
         beforeOpen: (details) async {
@@ -192,7 +192,7 @@ class LogistixDatabase extends _$LogistixDatabase {
     await transaction(() async {
       await batch((batch) {
         batch
-          ..deleteWhere(orders, (_) => const Constant(true))
+          ..deleteWhere(deliveries, (_) => const Constant(true))
           ..deleteWhere(riders, (_) => const Constant(true))
           ..deleteWhere(dispatchers, (_) => const Constant(true))
           ..deleteWhere(syncMetadata, (_) => const Constant(true))

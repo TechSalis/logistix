@@ -1,0 +1,28 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:shared/shared.dart';
+
+part 'delivery_create_input.freezed.dart';
+part 'delivery_create_input.g.dart';
+
+@freezed
+abstract class DeliveryCreateInput with _$DeliveryCreateInput {
+  const factory DeliveryCreateInput({
+    required String dropOffAddress,
+    String? dropOffPlaceId,
+    String? pickupAddress,
+    String? pickupPlaceId,
+    String? description,
+    double? price,
+    String? pickupPhone,
+    String? dropOffPhone,
+    @JsonKey(includeFromJson: false, includeToJson: false) String? companyId,
+    String? assignedCompanyId,
+    String? riderId,
+    DateTime? scheduledAt,
+    PaymentMethod? paymentMethod,
+    @JsonKey(includeFromJson: false, includeToJson: false) Rider? rider,
+  }) = _DeliveryCreateInput;
+
+  factory DeliveryCreateInput.fromJson(Map<String, dynamic> json) =>
+      _$DeliveryCreateInputFromJson(json);
+}

@@ -2,34 +2,34 @@ import 'package:shared/shared.dart';
 
 class CustomerSyncDto {
   const CustomerSyncDto({
-    required this.orders,
+    required this.deliveries,
     required this.lastUpdated,
-    this.deletedOrderIds = const [],
+    this.deletedDeliveryIds = const [],
   });
 
   factory CustomerSyncDto.fromJson(Map<String, dynamic> json) {
     return CustomerSyncDto(
-      orders: (json['orders'] as List<dynamic>?)
-              ?.map((e) => OrderDto.fromJson(e as Map<String, dynamic>))
+      deliveries: (json['deliveries'] as List<dynamic>?)
+              ?.map((e) => DeliveryDto.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
       lastUpdated: json['lastUpdated'] as int? ?? 0,
-      deletedOrderIds: (json['deletedOrderIds'] as List<dynamic>?)
+      deletedDeliveryIds: (json['deletedDeliveryIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
     );
   }
 
-  final List<OrderDto> orders;
+  final List<DeliveryDto> deliveries;
   final int lastUpdated;
-  final List<String> deletedOrderIds;
+  final List<String> deletedDeliveryIds;
 
   Map<String, dynamic> toJson() {
     return {
-      'orders': orders.map((e) => e.toJson()).toList(),
+      'deliveries': deliveries.map((e) => e.toJson()).toList(),
       'lastUpdated': lastUpdated,
-      'deletedOrderIds': deletedOrderIds,
+      'deletedDeliveryIds': deletedDeliveryIds,
     };
   }
 }

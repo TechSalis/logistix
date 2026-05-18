@@ -11,10 +11,10 @@ import 'package:rider/src/domain/repositories/rider_repository.dart';
 import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
 import 'package:rider/src/domain/usecases/rider_initial_sync_provider.dart';
 import 'package:rider/src/domain/usecases/sync_rider_data_usecase.dart';
-import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
-import 'package:rider/src/features/orders/presentation/cubit/rider_metrics_cubit.dart';
-import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
+import 'package:rider/src/features/map/presentation/cubit/rider_map_deliveries_cubit.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/presentation/cubit/rider_metrics_cubit.dart';
+import 'package:rider/src/features/deliveries/presentation/cubit/rider_deliveries_cubit.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/router/rider_routes.dart';
 import 'package:shared/shared.dart';
@@ -47,7 +47,7 @@ class RiderModule extends Module<RouteBase> {
           ),
           RepositoryProvider<RiderSubscriptionHandler>(
             create: (context) => RiderSubscriptionHandler(
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<RiderMetricsDto>>(),
@@ -57,7 +57,7 @@ class RiderModule extends Module<RouteBase> {
           RepositoryProvider<RiderRepository>(
             create: (context) => RiderRepositoryImpl(
               remoteDataSource: context.read<RiderRemoteDataSource>(),
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<RiderMetricsDto>>(),
@@ -67,7 +67,7 @@ class RiderModule extends Module<RouteBase> {
           RepositoryProvider<SyncRiderDataUseCase>(
             create: (context) => SyncRiderDataUseCase(
               remoteDataSource: context.read<RiderRemoteDataSource>(),
-              orderDao: injector.get<OrderDao>(),
+              deliveryDao: injector.get<DeliveryDao>(),
               riderDao: injector.get<RiderDao>(),
               metricsStore:
                   injector.get<StreamableObjectStore<RiderMetricsDto>>(),
@@ -85,18 +85,18 @@ class RiderModule extends Module<RouteBase> {
                 injector.get<UserStore>(),
               ),
             ),
-            BlocProvider<RiderOrdersCubit>(
+            BlocProvider<RiderDeliveriesCubit>(
               create: (context) =>
-                  RiderOrdersCubit(context.read<RiderRepository>()),
+                  RiderDeliveriesCubit(context.read<RiderRepository>()),
             ),
             BlocProvider<RiderMetricsCubit>(
               create: (context) =>
                   RiderMetricsCubit(context.read<RiderRepository>()),
             ),
             BlocProvider<MapCubit>(create: (context) => MapCubit()),
-            BlocProvider<RiderMapOrdersCubit>(
+            BlocProvider<RiderMapDeliveriesCubit>(
               create: (context) =>
-                  RiderMapOrdersCubit(context.read<RiderRepository>()),
+                  RiderMapDeliveriesCubit(context.read<RiderRepository>()),
             ),
           ],
           child: RepositoryProvider<RiderSessionManager>(

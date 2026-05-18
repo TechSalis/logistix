@@ -264,10 +264,10 @@ class _PlatformPickerSheetState extends State<PlatformPickerSheet> {
 
     if (integration == null) {
       return switch (platform) {
-        ChatPlatform.WHATSAPP => 'Automate orders from WhatsApp+',
-        ChatPlatform.INSTAGRAM => 'Automate orders from Instagram',
-        ChatPlatform.FACEBOOK => 'Automate orders on Messenger',
-        ChatPlatform.TIKTOK => 'Automate orders on TikTok',
+        ChatPlatform.WHATSAPP => 'Automate deliveries from WhatsApp+',
+        ChatPlatform.INSTAGRAM => 'Automate deliveries from Instagram',
+        ChatPlatform.FACEBOOK => 'Automate deliveries on Messenger',
+        ChatPlatform.TIKTOK => 'Automate deliveries on TikTok',
       };
     }
 

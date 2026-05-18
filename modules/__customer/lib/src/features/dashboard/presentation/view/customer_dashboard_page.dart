@@ -1,5 +1,5 @@
-import 'package:customer/src/domain/entities/customer_order_type.dart';
-import 'package:customer/src/features/dashboard/presentation/cubit/order_history_cubit.dart';
+import 'package:customer/src/domain/entities/customer_delivery_type.dart';
+import 'package:customer/src/features/dashboard/presentation/cubit/delivery_history_cubit.dart';
 import 'package:customer/src/presentation/router/customer_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +19,7 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
   void initState() {
     super.initState();
     // Refresh history to ensure DB is up to date
-    context.read<OrderHistoryCubit>().refresh();
+    context.read<DeliveryHistoryCubit>().refresh();
   }
 
   @override
@@ -40,14 +40,14 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<OrderHistoryCubit>().refresh(),
+        onRefresh: () => context.read<DeliveryHistoryCubit>().refresh(),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(BootstrapSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Select a category for your order',
+                'Select a category for your delivery',
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: LogistixColors.textSecondary,
                 ),
@@ -55,7 +55,7 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
               const SizedBox(height: BootstrapSpacing.xl),
               _CategoryGrid(),
               const SizedBox(height: BootstrapSpacing.xxl),
-              _ActiveOrdersSection(),
+              _ActiveDeliveriesSection(),
               const SizedBox(height: BootstrapSpacing.xxl),
             ],
           ),
@@ -65,7 +65,7 @@ class _CustomerDashboardPageState extends State<CustomerDashboardPage> {
   }
 }
 
-class _ActiveOrdersSection extends StatelessWidget {
+class _ActiveDeliveriesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -74,7 +74,7 @@ class _ActiveOrdersSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Active Orders', style: context.textTheme.titleMedium?.bold),
+            Text('Active Deliveries', style: context.textTheme.titleMedium?.bold),
             BootstrapButton(
               onPressed: () => context.push(CustomerRoutes.history),
               label: 'See All',
@@ -83,17 +83,17 @@ class _ActiveOrdersSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: BootstrapSpacing.md),
-        BlocBuilder<OrderHistoryCubit, OrderHistoryState>(
+        BlocBuilder<DeliveryHistoryCubit, DeliveryHistoryState>(
           builder: (context, state) {
-            final activeOrders = state.orders
+            final activeDeliveries = state.deliveries
                 .where((o) => !o.status.isCompleted)
                 .toList();
 
-            if (state.isLoading && activeOrders.isEmpty) {
+            if (state.isLoading && activeDeliveries.isEmpty) {
               return const Center(child: BootstrapLoadingIndicator());
             }
 
-            if (activeOrders.isEmpty) {
+            if (activeDeliveries.isEmpty) {
               return Container(
                 padding: const EdgeInsets.all(BootstrapSpacing.xxl),
                 decoration: BoxDecoration(
@@ -103,7 +103,7 @@ class _ActiveOrdersSection extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    'No active orders. Select a category above to start!',
+                    'No active deliveries. Select a category above to start!',
                     style: context.textTheme.bodySmall?.copyWith(
                       color: LogistixColors.textTertiary,
                     ),
@@ -116,13 +116,13 @@ class _ActiveOrdersSection extends StatelessWidget {
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: activeOrders.length,
+              itemCount: activeDeliveries.length,
               itemBuilder: (context, index) {
-                final order = activeOrders[index];
-                return OrderPreviewCard(
-                  order: order,
+                final delivery = activeDeliveries[index];
+                return DeliveryPreviewCard(
+                  delivery: delivery,
                   onTap: () => context.push(
-                    CustomerRoutes.orderDetails(order.id),
+                    CustomerRoutes.deliveryDetails(delivery.id),
                   ),
                 );
               },
@@ -138,11 +138,11 @@ class _CategoryGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categories = [
-      _Category(CustomerOrderType.foodDelivery, Icons.restaurant_rounded, Colors.orange),
-      _Category(CustomerOrderType.pharmacy, Icons.local_pharmacy_rounded, Colors.redAccent),
-      _Category(CustomerOrderType.documents, Icons.description_rounded, Colors.blue),
-      _Category(CustomerOrderType.groceries, Icons.shopping_cart_rounded, Colors.green),
-      _Category(CustomerOrderType.generalErrands, Icons.directions_run_rounded, LogistixColors.primary),
+      _Category(CustomerDeliveryType.foodDelivery, Icons.restaurant_rounded, Colors.orange),
+      _Category(CustomerDeliveryType.pharmacy, Icons.local_pharmacy_rounded, Colors.redAccent),
+      _Category(CustomerDeliveryType.documents, Icons.description_rounded, Colors.blue),
+      _Category(CustomerDeliveryType.groceries, Icons.shopping_cart_rounded, Colors.green),
+      _Category(CustomerDeliveryType.generalErrands, Icons.directions_run_rounded, LogistixColors.primary),
     ];
 
     return GridView.builder(
@@ -159,7 +159,7 @@ class _CategoryGrid extends StatelessWidget {
         final category = categories[index];
         return AnimatedScaleTap(
           onTap: () {
-            context.push(CustomerRoutes.makeOrder, extra: category.type);
+            context.push(CustomerRoutes.makeDelivery, extra: category.type);
           },
           child: Container(
             decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class _CategoryGrid extends StatelessWidget {
 class _Category {
   _Category(this.type, this.icon, this.color);
 
-  final CustomerOrderType type;
+  final CustomerDeliveryType type;
   final IconData icon;
   final Color color;
 }

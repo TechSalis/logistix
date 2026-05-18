@@ -1,11 +1,11 @@
 import 'package:bootstrap/interfaces/store/store.dart';
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared/shared.dart';
 
 class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
   DispatcherSubscriptionHandler({
-    required super.orderDao,
+    required super.deliveryDao,
     required super.riderDao,
     required StreamableObjectStore<DispatcherMetricsDto> metricsStore,
     super.logger,
@@ -15,13 +15,13 @@ class DispatcherSubscriptionHandler extends BaseSubscriptionHandler {
 
   @override
   @mustCallSuper
-  Future<void> handleOrderUpdate(
+  Future<void> handleDeliveryUpdate(
     String eventType,
-    OrderDto? orderDto, {
+    DeliveryDto? deliveryDto, {
     RiderDto? riderDto,
     DispatcherMetricsDto? dispatcherMetrics,
   }) async {
-    await super.handleOrderUpdate(eventType, orderDto, riderDto: riderDto);
+    await super.handleDeliveryUpdate(eventType, deliveryDto, riderDto: riderDto);
 
     if (dispatcherMetrics != null) {
       final current = await _metricsStore.get() ?? const DispatcherMetricsDto();

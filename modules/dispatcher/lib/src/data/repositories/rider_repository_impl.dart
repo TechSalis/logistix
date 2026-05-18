@@ -77,9 +77,9 @@ class RiderRepositoryImpl implements RiderRepository {
   }
 
   @override
-  Future<Result<AppError, List<Order>>> getRiderOrders(String riderId, {int limit = 10, int offset = 0}) async {
+  Future<Result<AppError, List<Delivery>>> getRiderDeliveries(String riderId, {int limit = 10, int offset = 0}) async {
     try {
-      final dtos = await _dataSource.getRiderOrders(riderId, limit: limit, offset: offset);
+      final dtos = await _dataSource.getRiderDeliveries(riderId, limit: limit, offset: offset);
       return Result.data(dtos.map((e) => e.toEntity()).toList());
     } catch (e) {
       return Result.error(AppError(message: e.toString()));

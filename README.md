@@ -33,7 +33,7 @@ logistix/
 ├── modules/
 │   ├── auth/               # Login, registration, session management
 │   ├── onboarding/         # Rider & dispatcher onboarding flows
-│   ├── rider/              # Rider dashboard, orders, locked state
+│   ├── rider/              # Rider dashboard, deliveries, locked state
 │   └── dispatcher/         # Dispatcher (company) dashboard
 └── packages/
     ├── shared/             # Domain entities, use cases, services, EnvConfig
@@ -152,7 +152,7 @@ packages/shared
  ├── EnvConfig               # Compile-time env variable accessors
  ├── ClearAppDataUseCase     # Clears tokens, user store, GraphQL cache
  ├── GraphQLService          # Apollo-style GraphQL client wrapper
- └── Entities & DTOs         # Rider, Order, Company, User, …
+ └── Entities & DTOs         # Rider, Delivery, Company, User, …
 
 packages/logistix_ux
  ├── LogistixColors          # Brand colour palette

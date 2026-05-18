@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:rider/src/domain/usecases/manage_rider_session_usecase.dart';
-import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
-import 'package:rider/src/features/orders/presentation/cubit/rider_orders_cubit.dart';
+import 'package:rider/src/features/map/presentation/cubit/rider_map_deliveries_cubit.dart';
+import 'package:rider/src/features/deliveries/presentation/cubit/rider_deliveries_cubit.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
 import 'package:rider/src/presentation/bloc/rider_event.dart';
 import 'package:rider/src/presentation/bloc/rider_state.dart';
@@ -30,7 +30,7 @@ class _RiderPageState extends State<RiderPage> {
     NavigationDestination(
       icon: Icon(LucideIcons.package),
       selectedIcon: Icon(LucideIcons.package),
-      label: 'Orders',
+      label: 'Deliveries',
     ),
     NavigationDestination(
       icon: Icon(LucideIcons.user),
@@ -50,8 +50,8 @@ class _RiderPageState extends State<RiderPage> {
 
   late final _startSessionIfNeeded = RunOnce.withArg((String riderId) {
     // Initialize cubits
-    context.read<RiderOrdersCubit>().initialize();
-    context.read<RiderMapOrdersCubit>().initialize();
+    context.read<RiderDeliveriesCubit>().initialize();
+    context.read<RiderMapDeliveriesCubit>().initialize();
     riderBloc.add(RiderEvent.observeProfile(riderId));
 
     // Start session
@@ -76,7 +76,7 @@ class _RiderPageState extends State<RiderPage> {
                 _startSessionIfNeeded(rider.id);
               }
             },
-            loaded: (rider, orders, isLoading, loc) {
+            loaded: (rider, deliveries, isLoading, loc) {
               if (rider.permitStatus == PermitStatus.APPROVED) {
                 _startSessionIfNeeded(rider.id);
               }
@@ -118,7 +118,7 @@ class _RiderPageState extends State<RiderPage> {
 
                 return const Center(child: BootstrapInlineLoader());
               },
-              loaded: (rider, orders, isLoading, loc) {
+              loaded: (rider, deliveries, isLoading, loc) {
                 if (rider.permitStatus != PermitStatus.APPROVED) {
                   return RiderLockedPage(
                     onRefresh: () {

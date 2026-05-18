@@ -44,7 +44,7 @@ class RiderProfileTab extends StatelessWidget {
                         RiderEvent.fetchProfile(),
                       ),
                 ),
-                loaded: (rider, orders, isOrdersLoading, location) {
+                loaded: (rider, deliveries, isDeliveriesLoading, location) {
                   return SafeArea(child: _buildProfileContent(context, rider));
                 },
               );

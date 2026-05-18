@@ -2,7 +2,7 @@ import 'package:bootstrap/interfaces/store/store.dart';
 import 'package:dispatcher/src/data/datasources/dispatcher_session_remote_datasource.dart';
 import 'package:dispatcher/src/data/dtos/dispatcher_sync_request.dart';
 
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
 import 'package:shared/shared.dart';
 
 /// Performs a full catch-up sync for the Dispatcher module.
@@ -12,18 +12,18 @@ import 'package:shared/shared.dart';
 class SyncDispatcherDataUseCase {
   SyncDispatcherDataUseCase({
     required DispatcherSessionRemoteDataSource remoteDataSource,
-    required OrderDao orderDao,
+    required DeliveryDao deliveryDao,
     required RiderDao riderDao,
     required StreamableObjectStore<DispatcherMetricsDto> metricsStore,
     required LogistixDatabase database,
   }) : _remoteDataSource = remoteDataSource,
-       _orderDao = orderDao,
+       _deliveryDao = deliveryDao,
        _riderDao = riderDao,
        _metricsStore = metricsStore,
        _database = database;
 
   final DispatcherSessionRemoteDataSource _remoteDataSource;
-  final OrderDao _orderDao;
+  final DeliveryDao _deliveryDao;
   final RiderDao _riderDao;
   final StreamableObjectStore<DispatcherMetricsDto> _metricsStore;
   final LogistixDatabase _database;
@@ -45,17 +45,17 @@ class SyncDispatcherDataUseCase {
       // Parallelize local DB updates for efficiency within a single transaction
       await _database.transaction(() async {
         await Future.wait([
-          if (syncDto.orders.isNotEmpty)
-            _orderDao.upsertOrders(
-              syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
+          if (syncDto.deliveries.isNotEmpty)
+            _deliveryDao.upsertDeliveries(
+              syncDto.deliveries.map((e) => e.toDriftCompanion()).toList(),
             ),
           if (syncDto.riders.isNotEmpty)
             _riderDao.upsertRiders(
               syncDto.riders.map((e) => e.toDriftCompanion()).toList(),
             ),
 
-          if (syncDto.deletedOrderIds.isNotEmpty)
-            _orderDao.deleteOrders(syncDto.deletedOrderIds),
+          if (syncDto.deletedDeliveryIds.isNotEmpty)
+            _deliveryDao.deleteDeliveries(syncDto.deletedDeliveryIds),
           if (syncDto.deletedRiderIds.isNotEmpty)
             _riderDao.deleteRiders(syncDto.deletedRiderIds),
 
@@ -63,7 +63,7 @@ class SyncDispatcherDataUseCase {
         ]);
       });
 
-      if (syncDto.orders.length < limit &&
+      if (syncDto.deliveries.length < limit &&
           syncDto.riders.length < limit) {
         hasMore = false;
       } else {

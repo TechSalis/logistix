@@ -1,16 +1,16 @@
 import 'package:go_router/go_router.dart';
 import 'package:rider/src/features/map/presentation/view/rider_map_tab.dart';
-import 'package:rider/src/features/orders/presentation/view/rider_orders_tab.dart';
+import 'package:rider/src/features/deliveries/presentation/view/rider_deliveries_tab.dart';
 import 'package:rider/src/features/profile/presentation/view/rider_account_page.dart';
 import 'package:rider/src/features/profile/presentation/view/rider_profile_tab.dart';
-import 'package:rider/src/presentation/pages/rider_order_details_page.dart';
+import 'package:rider/src/presentation/pages/rider_delivery_details_page.dart';
 import 'package:rider/src/presentation/pages/rider_page.dart';
 import 'package:shared/shared.dart';
 
 /// Private relative route paths (without parent prefix)
 abstract class _RiderPaths {
   static const String map = 'map';
-  static const String orders = 'orders';
+  static const String deliveries = 'deliveries';
   static const String profile = 'profile';
   static const String account = 'account';
 }
@@ -21,9 +21,9 @@ abstract class RiderRoutes {
 
   static const String map = '$rootPath/${_RiderPaths.map}';
 
-  static const String orders = '$rootPath/${_RiderPaths.orders}';
+  static const String deliveries = '$rootPath/${_RiderPaths.deliveries}';
 
-  static String orderDetails(String id) => '$orders/$id';
+  static String deliveryDetails(String id) => '$deliveries/$id';
 
   static const String profile = '$rootPath/${_RiderPaths.profile}';
   static const String account = '$profile/account';
@@ -47,17 +47,17 @@ List<RouteBase> get riderRoutes => [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: RiderRoutes.orders,
-            builder: (context, state) => const RiderOrdersTab(),
+            path: RiderRoutes.deliveries,
+            builder: (context, state) => const RiderDeliveriesTab(),
             routes: [
               GoRoute(
                 path: ':id',
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
-                  final initialOrder = state.extra as Order?;
-                  return RiderOrderDetailsPage(
-                    orderId: id,
-                    initialOrder: initialOrder,
+                  final initialDelivery = state.extra as Delivery?;
+                  return RiderDeliveryDetailsPage(
+                    deliveryId: id,
+                    initialDelivery: initialDelivery,
                   );
                 },
               ),

@@ -5,10 +5,10 @@ import 'package:dispatcher/src/features/more/presentation/view/account_page.dart
 import 'package:dispatcher/src/features/more/presentation/view/more_tab.dart';
 import 'package:dispatcher/src/features/more/presentation/view/request_integration_page.dart';
 import 'package:dispatcher/src/features/more/presentation/view/wallet_page.dart';
-import 'package:dispatcher/src/features/orders/presentation/modals/ai_order_parser.dart';
-import 'package:dispatcher/src/features/orders/presentation/view/create_order_page.dart';
-import 'package:dispatcher/src/features/orders/presentation/view/order_details_page.dart';
-import 'package:dispatcher/src/features/orders/presentation/view/orders_tab.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/modals/ai_delivery_parser.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/view/create_delivery_page.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/view/delivery_details_page.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/view/deliveries_tab.dart';
 import 'package:dispatcher/src/features/riders/presentation/view/rider_details_page.dart';
 import 'package:dispatcher/src/features/riders/presentation/view/riders_tab.dart';
 import 'package:dispatcher/src/presentation/pages/dispatcher_page.dart';
@@ -18,11 +18,11 @@ import 'package:shared/shared.dart';
 
 /// Private relative route paths (without parent prefix)
 abstract class _DispatcherPaths {
-  static const String orders = 'orders';
+  static const String deliveries = 'deliveries';
   static const String chats = 'chats';
   static const String riders = 'riders';
   static const String more = 'more';
-  static const String createOrder = 'create';
+  static const String createDelivery = 'create';
   static const String parseText = 'parse';
   static const String list = 'list';
   static const String map = 'map';
@@ -35,10 +35,10 @@ abstract class _DispatcherPaths {
 abstract class DispatcherRoutes {
   static const String rootPath = ModuleRoutePaths.dispatcher;
 
-  static const String orders = '$rootPath/${_DispatcherPaths.orders}';
-  static String orderDetails(String id) => '$orders/$id';
+  static const String deliveries = '$rootPath/${_DispatcherPaths.deliveries}';
+  static String deliveryDetails(String id) => '$deliveries/$id';
 
-  static const String createOrder = '$orders/${_DispatcherPaths.createOrder}';
+  static const String createDelivery = '$deliveries/${_DispatcherPaths.createDelivery}';
   static const String parseText = ModuleRoutePaths.dispatcherParseText;
 
   static const String chats = '$rootPath/${_DispatcherPaths.chats}';
@@ -59,7 +59,7 @@ abstract class DispatcherRoutes {
 List<RouteBase> get dispatcherRoutes => [
   StatefulShellRoute.indexedStack(
     redirect: (context, state) => const RedirectGuard(
-      DispatcherRoutes.orders,
+      DispatcherRoutes.deliveries,
       from: DispatcherRoutes.rootPath,
     ).redirect(context, state.fullPath),
     builder: (_, _, navigationShell) {
@@ -86,12 +86,12 @@ List<RouteBase> get dispatcherRoutes => [
       StatefulShellBranch(
         routes: [
           GoRoute(
-            path: DispatcherRoutes.orders,
-            builder: (context, state) => const OrdersTab(),
+            path: DispatcherRoutes.deliveries,
+            builder: (context, state) => const DeliveriesTab(),
             routes: [
               GoRoute(
-                path: _DispatcherPaths.createOrder,
-                builder: (context, state) => const CreateOrderPage(),
+                path: _DispatcherPaths.createDelivery,
+                builder: (context, state) => const CreateDeliveryPage(),
                 routes: [
                   GoRoute(
                     path: _DispatcherPaths.parseText,
@@ -116,7 +116,7 @@ List<RouteBase> get dispatcherRoutes => [
                             ),
                           );
                         },
-                        child: AIOrderParserDialog(initialValue: initialValue),
+                        child: AIDeliveryParserDialog(initialValue: initialValue),
                       );
                     },
                   ),
@@ -126,7 +126,7 @@ List<RouteBase> get dispatcherRoutes => [
                 path: ':id',
                 builder: (context, state) {
                   final id = state.pathParameters['id']!;
-                  return OrderDetailsPage(orderId: id);
+                  return DeliveryDetailsPage(deliveryId: id);
                 },
               ),
             ],

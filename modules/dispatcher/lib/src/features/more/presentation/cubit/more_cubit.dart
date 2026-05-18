@@ -195,5 +195,5 @@ class ExportParams {
   final DateTime? startDate;
   final DateTime? endDate;
   final String? riderId;
-  final List<OrderStatus>? statuses;
+  final List<DeliveryStatus>? statuses;
 }

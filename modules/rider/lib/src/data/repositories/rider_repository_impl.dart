@@ -8,25 +8,25 @@ import 'package:drift/drift.dart' hide Column;
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
 import 'package:rider/src/data/dtos/rider_heartbeat_request.dart';
 import 'package:rider/src/domain/repositories/rider_repository.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
-import 'package:rider/src/features/orders/data/dtos/update_order_status_request.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/update_delivery_status_request.dart';
 import 'package:shared/shared.dart';
 
 class RiderRepositoryImpl implements RiderRepository {
   RiderRepositoryImpl({
     required RiderRemoteDataSource remoteDataSource,
-    required OrderDao orderDao,
+    required DeliveryDao deliveryDao,
     required RiderDao riderDao,
     required StreamableObjectStore<RiderMetricsDto> metricsStore,
     required Dio dio,
   }) : _remoteDataSource = remoteDataSource,
-       _orderDao = orderDao,
+       _deliveryDao = deliveryDao,
        _riderDao = riderDao,
        _metricsStore = metricsStore,
        _dio = dio;
 
   final RiderRemoteDataSource _remoteDataSource;
-  final OrderDao _orderDao;
+  final DeliveryDao _deliveryDao;
   final RiderDao _riderDao;
   final StreamableObjectStore<RiderMetricsDto> _metricsStore;
   final Dio _dio;
@@ -38,13 +38,13 @@ class RiderRepositoryImpl implements RiderRepository {
   }
 
   @override
-  Stream<Order?> watchOrder(String orderId) {
-    return _orderDao.watchOrder(orderId);
+  Stream<Delivery?> watchDelivery(String deliveryId) {
+    return _deliveryDao.watchDelivery(deliveryId);
   }
 
   @override
-  Stream<List<Order>> watchRiderOrders({
-    List<OrderStatus>? status,
+  Stream<List<Delivery>> watchRiderDeliveries({
+    List<DeliveryStatus>? status,
     String? searchQuery,
     int limit = 20,
     int offset = 0,
@@ -52,7 +52,7 @@ class RiderRepositoryImpl implements RiderRepository {
   }) {
     final isAll = status == null || status.isEmpty;
 
-    return _orderDao.watchOrders(
+    return _deliveryDao.watchDeliveries(
       statuses: status,
       searchQuery: searchQuery,
       includeUnassigned: isAll,
@@ -80,39 +80,39 @@ class RiderRepositoryImpl implements RiderRepository {
   }
 
   @override
-  Future<Result<AppError, Order>> updateOrderStatus(
-    String orderId,
-    OrderStatus status, {
+  Future<Result<AppError, Delivery>> updateDeliveryStatus(
+    String deliveryId,
+    DeliveryStatus status, {
     String? pin,
     String? proofImageUrl,
   }) async {
-    final original = await _orderDao.getOrder(orderId);
+    final original = await _deliveryDao.getDelivery(deliveryId);
 
     // Optimistic local update
     if (original != null) {
-      await _orderDao.upsertOrder(
+      await _deliveryDao.upsertDelivery(
         original.toDriftCompanion().copyWith(status: Value(status.name)),
       );
     }
 
     return Result.tryCatch(() async {
       try {
-        final request = UpdateOrderStatusRequest(
-          orderId: orderId,
+        final request = UpdateDeliveryStatusRequest(
+          deliveryId: deliveryId,
           status: status.name,
           pin: pin,
           proofImageUrl: proofImageUrl,
         );
-        final dto = await _remoteDataSource.updateOrderStatus(request);
+        final dto = await _remoteDataSource.updateDeliveryStatus(request);
 
         // Final update with server response
-        await _orderDao.upsertOrder(dto.toDriftCompanion());
+        await _deliveryDao.upsertDelivery(dto.toDriftCompanion());
 
         return dto.toEntity();
       } catch (e) {
         // Rollback on failure to maintain data integrity
         if (original != null) {
-          await _orderDao.upsertOrder(original.toDriftCompanion());
+          await _deliveryDao.upsertDelivery(original.toDriftCompanion());
         }
         rethrow;
       }
@@ -121,13 +121,13 @@ class RiderRepositoryImpl implements RiderRepository {
 
   @override
   Future<Result<AppError, String>> uploadProofOfDelivery(
-    String orderId,
+    String deliveryId,
     File file,
   ) async {
     return Result.tryCatch(() async {
       // 1. Get presigned URL
       final presignedUrl =
-          await _remoteDataSource.generatePresignedUploadUrl(orderId);
+          await _remoteDataSource.generatePresignedUploadUrl(deliveryId);
 
       // 2. Upload file via PUT
       final dio = _dio;

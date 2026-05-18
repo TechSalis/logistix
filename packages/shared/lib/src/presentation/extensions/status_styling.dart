@@ -15,49 +15,49 @@ extension RiderStatusStyling on RiderStatus {
   }
 }
 
-extension OrderStatusStyling on OrderStatus {
+extension DeliveryStatusStyling on DeliveryStatus {
   Color get color {
     switch (this) {
-      case OrderStatus.PENDING:
+      case DeliveryStatus.PENDING:
         return LogistixColors.textTertiary;
-      case OrderStatus.ASSIGNED:
+      case DeliveryStatus.ASSIGNED:
         return LogistixColors.info;
-      case OrderStatus.EN_ROUTE:
+      case DeliveryStatus.EN_ROUTE:
         return LogistixColors.warning;
-      case OrderStatus.DELIVERED:
+      case DeliveryStatus.DELIVERED:
         return LogistixColors.success;
-      case OrderStatus.CANCELLED:
+      case DeliveryStatus.CANCELLED:
         return LogistixColors.error;
     }
   }
 
   IconData get icon {
     switch (this) {
-      case OrderStatus.PENDING:
+      case DeliveryStatus.PENDING:
         return Icons.timer_outlined;
-      case OrderStatus.ASSIGNED:
+      case DeliveryStatus.ASSIGNED:
         return Icons.person_add_outlined;
-      case OrderStatus.EN_ROUTE:
+      case DeliveryStatus.EN_ROUTE:
         return Icons.local_shipping_outlined;
-      case OrderStatus.DELIVERED:
+      case DeliveryStatus.DELIVERED:
         return Icons.check_circle_outline_rounded;
-      case OrderStatus.CANCELLED:
+      case DeliveryStatus.CANCELLED:
         return Icons.cancel_outlined;
     }
   }
 
   String get description {
     switch (this) {
-      case OrderStatus.PENDING:
+      case DeliveryStatus.PENDING:
         return 'Waiting for a rider to be assigned';
-      case OrderStatus.ASSIGNED:
+      case DeliveryStatus.ASSIGNED:
         return 'A rider has been assigned and will begin shortly';
-      case OrderStatus.EN_ROUTE:
+      case DeliveryStatus.EN_ROUTE:
         return 'Rider is on the way to the delivery location';
-      case OrderStatus.DELIVERED:
-        return 'Order has been successfully delivered';
-      case OrderStatus.CANCELLED:
-        return 'This order has been cancelled';
+      case DeliveryStatus.DELIVERED:
+        return 'Delivery has been successfully delivered';
+      case DeliveryStatus.CANCELLED:
+        return 'This delivery has been cancelled';
     }
   }
 }

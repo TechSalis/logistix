@@ -59,7 +59,7 @@ class RiderLockedPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Your account is currently waiting for company approval. Once approved, you will be able to access your dashboard and start receiving orders.',
+                      'Your account is currently waiting for company approval. Once approved, you will be able to access your dashboard and start receiving deliveries.',
                       style: context.textTheme.bodyLarge?.copyWith(
                         color: LogistixColors.textSecondary,
                       ),

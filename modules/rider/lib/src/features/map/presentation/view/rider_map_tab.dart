@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:logistix_ux/logistix_ux.dart';
-import 'package:rider/src/features/map/presentation/cubit/rider_map_orders_cubit.dart';
-import 'package:rider/src/features/map/presentation/widgets/rider_active_orders_sheet.dart';
+import 'package:rider/src/features/map/presentation/cubit/rider_map_deliveries_cubit.dart';
+import 'package:rider/src/features/map/presentation/widgets/rider_active_deliveries_sheet.dart';
 import 'package:rider/src/features/map/presentation/widgets/rider_map_status_overlay.dart';
 import 'package:rider/src/features/map/presentation/widgets/rider_marker_overlay_card.dart';
 import 'package:rider/src/presentation/bloc/rider_bloc.dart';
@@ -28,7 +28,7 @@ class _RiderMapTabState extends State<RiderMapTab>
   GoogleMapController? _mapController;
   
   // ValueNotifiers for granular UI updates without full page rebuilds
-  late final ValueNotifier<Order?> _selectedOrderOverlay;
+  late final ValueNotifier<Delivery?> _selectedDeliveryOverlay;
   late final ValueNotifier<bool> _isLocationSelected;
   late final ValueNotifier<LatLng?> _liveRiderLocation;
 
@@ -45,7 +45,7 @@ class _RiderMapTabState extends State<RiderMapTab>
   void initState() {
     super.initState();
 
-    _selectedOrderOverlay = ValueNotifier(null);
+    _selectedDeliveryOverlay = ValueNotifier(null);
     _isLocationSelected = ValueNotifier(false);
     _liveRiderLocation = ValueNotifier(null);
 
@@ -68,7 +68,7 @@ class _RiderMapTabState extends State<RiderMapTab>
   void dispose() {
     _sheetAnimationController.dispose();
     _liveLocationSubscription?.cancel();
-    _selectedOrderOverlay.dispose();
+    _selectedDeliveryOverlay.dispose();
     _isLocationSelected.dispose();
     _liveRiderLocation.dispose();
     super.dispose();
@@ -116,26 +116,26 @@ class _RiderMapTabState extends State<RiderMapTab>
       builder: (context, riderState) {
         final rider = riderState.mapOrNull(loaded: (state) => state.rider);
 
-        return BlocBuilder<RiderMapOrdersCubit, RiderMapOrdersState>(
-          builder: (context, ordersState) {
-            if (ordersState.isLoading && ordersState.orders.isEmpty) {
+        return BlocBuilder<RiderMapDeliveriesCubit, RiderMapDeliveriesState>(
+          builder: (context, deliveriesState) {
+            if (deliveriesState.isLoading && deliveriesState.deliveries.isEmpty) {
               return const Center(child: BootstrapInlineLoader());
             }
 
-            if (ordersState.error != null && ordersState.orders.isEmpty) {
-              return _ErrorView(message: ordersState.error!);
+            if (deliveriesState.error != null && deliveriesState.deliveries.isEmpty) {
+              return _ErrorView(message: deliveriesState.error!);
             }
 
-            final activeOrders = ordersState.orders;
+            final activeDeliveries = deliveriesState.deliveries;
 
             return ListenableBuilder(
-              listenable: Listenable.merge([_liveRiderLocation, _selectedOrderOverlay, _isLocationSelected]),
+              listenable: Listenable.merge([_liveRiderLocation, _selectedDeliveryOverlay, _isLocationSelected]),
               builder: (context, _) {
                 final currentPos =
                     _liveRiderLocation.value ??
                     LatLng(initialPosition.latitude, initialPosition.longitude);
 
-                final markers = _buildMarkers(currentPos, activeOrders);
+                final markers = _buildMarkers(currentPos, activeDeliveries);
 
                 return Stack(
                   children: [
@@ -157,7 +157,7 @@ class _RiderMapTabState extends State<RiderMapTab>
                       ),
                     ),
 
-                    if (_selectedOrderOverlay.value != null || _isLocationSelected.value)
+                    if (_selectedDeliveryOverlay.value != null || _isLocationSelected.value)
                       Positioned(
                         top: MediaQuery.viewPaddingOf(context).top + 110,
                         left: BootstrapSpacing.lg,
@@ -165,13 +165,13 @@ class _RiderMapTabState extends State<RiderMapTab>
                         child: Center(
                           child: RiderMarkerOverlayCard(
                             isLocationSelected: _isLocationSelected.value,
-                            selectedOrder: _selectedOrderOverlay.value,
+                            selectedDelivery: _selectedDeliveryOverlay.value,
                           ),
                         ),
                       ),
 
-                    RiderActiveOrdersSheet(
-                      activeOrders: activeOrders,
+                    RiderActiveDeliveriesSheet(
+                      activeDeliveries: activeDeliveries,
                       sheetAnimationController: _sheetAnimationController,
                       handleScaleAnimation: _handleScaleAnimation,
                       onAnimateToLocation: _animateToLocation,
@@ -185,7 +185,7 @@ class _RiderMapTabState extends State<RiderMapTab>
                       right: BootstrapSpacing.lg,
                       child: SafeArea(
                         child: RiderMapStatusOverlay(
-                          isLoading: ordersState.isLoading,
+                          isLoading: deliveriesState.isLoading,
                           rider: rider,
                           liveRiderLocation: _liveRiderLocation.value,
                           onAnimateToLocation: _animateToLocation,
@@ -202,31 +202,31 @@ class _RiderMapTabState extends State<RiderMapTab>
     );
   }
 
-  Set<Marker> _buildMarkers(LatLng currentPos, List<Order> orders) {
+  Set<Marker> _buildMarkers(LatLng currentPos, List<Delivery> deliveries) {
     final markers = <Marker>{
       Marker(
         markerId: const MarkerId('rider_live_location'),
         position: currentPos,
         zIndexInt: 2,
         onTap: () {
-          _selectedOrderOverlay.value = null;
+          _selectedDeliveryOverlay.value = null;
           _isLocationSelected.value = true;
         },
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
       ),
     };
 
-    for (final order in orders) {
-      final isEnRoute = order.status == OrderStatus.EN_ROUTE;
+    for (final delivery in deliveries) {
+      final isEnRoute = delivery.status == DeliveryStatus.EN_ROUTE;
 
-      if (order.pickupLat != null && order.pickupLng != null) {
+      if (delivery.pickupLat != null && delivery.pickupLng != null) {
         markers.add(
           Marker(
-            markerId: MarkerId('${order.id}_pickup'),
-            position: LatLng(order.pickupLat!, order.pickupLng!),
+            markerId: MarkerId('${delivery.id}_pickup'),
+            position: LatLng(delivery.pickupLat!, delivery.pickupLng!),
             alpha: isEnRoute ? 1.0 : 0.6,
             onTap: () {
-              _selectedOrderOverlay.value = order;
+              _selectedDeliveryOverlay.value = delivery;
               _isLocationSelected.value = false;
             },
             icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -236,13 +236,13 @@ class _RiderMapTabState extends State<RiderMapTab>
         );
       }
 
-      if (isEnRoute && order.dropOffLat != null && order.dropOffLng != null) {
+      if (isEnRoute && delivery.dropOffLat != null && delivery.dropOffLng != null) {
         markers.add(
           Marker(
-            markerId: MarkerId('${order.id}_dropoff'),
-            position: LatLng(order.dropOffLat!, order.dropOffLng!),
+            markerId: MarkerId('${delivery.id}_dropoff'),
+            position: LatLng(delivery.dropOffLat!, delivery.dropOffLng!),
             onTap: () {
-              _selectedOrderOverlay.value = order;
+              _selectedDeliveryOverlay.value = delivery;
               _isLocationSelected.value = false;
             },
             icon: BitmapDescriptor.defaultMarkerWithHue(
@@ -281,7 +281,7 @@ class _ErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Failed to Load Orders',
+              'Failed to Load Deliveries',
               style: context.textTheme.headlineSmall?.bold,
               textAlign: TextAlign.center,
             ),

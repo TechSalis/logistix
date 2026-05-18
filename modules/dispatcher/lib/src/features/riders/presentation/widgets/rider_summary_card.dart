@@ -1,5 +1,5 @@
-import 'package:dispatcher/src/features/orders/data/dtos/dispatcher_metrics_dto.dart';
-import 'package:dispatcher/src/features/orders/presentation/cubit/metrics_cubit.dart';
+import 'package:dispatcher/src/features/deliveries/data/dtos/dispatcher_metrics_dto.dart';
+import 'package:dispatcher/src/features/deliveries/presentation/cubit/metrics_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logistix_ux/logistix_ux.dart';
@@ -28,10 +28,10 @@ class RiderSummaryCard extends StatelessWidget {
         final metrics =
             state.metrics ??
             const DispatcherMetricsDto(
-              activeOrders: 0,
-              unassignedOrders: 0,
-              assignedOrders: 0,
-              enRouteOrders: 0,
+              activeDeliveries: 0,
+              unassignedDeliveries: 0,
+              assignedDeliveries: 0,
+              enRouteDeliveries: 0,
               onlineRidersCount: 0,
               busyRidersCount: 0,
             );

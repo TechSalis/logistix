@@ -118,11 +118,11 @@ class MoreTab extends StatelessWidget {
                               ExportTile(
                                 runner: cubit.exportAnalyticsRunner,
                                 icon: Icons.analytics_outlined,
-                                title: 'Orders Export',
-                                subtitle: 'Export orders and metrics',
+                                title: 'Deliveries Export',
+                                subtitle: 'Export deliveries and metrics',
                                 onTap: () => _showExportOptions(
                                   context,
-                                  title: 'Export Your Orders',
+                                  title: 'Export Your Deliveries',
                                   showRiderFilter: true,
                                   onParamsSelected: cubit.exportAnalyticsRunner,
                                 ),
@@ -261,7 +261,7 @@ class MoreTab extends StatelessWidget {
       SharePlus.instance.share(
         ShareParams(
           files: [XFile(state.result!.data)],
-          subject: 'Orders Export',
+          subject: 'Deliveries Export',
         ),
       );
     } else if (state.status.isFailure) {

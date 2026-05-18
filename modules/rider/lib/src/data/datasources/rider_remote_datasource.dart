@@ -1,13 +1,13 @@
 import 'package:rider/src/data/dtos/rider_heartbeat_request.dart';
 import 'package:rider/src/data/dtos/rider_sync_dto.dart';
 import 'package:rider/src/data/dtos/rider_sync_request.dart';
-import 'package:rider/src/features/orders/data/dtos/rider_metrics_dto.dart';
-import 'package:rider/src/features/orders/data/dtos/update_order_status_request.dart';
+import 'package:rider/src/features/deliveries/data/dtos/rider_metrics_dto.dart';
+import 'package:rider/src/features/deliveries/data/dtos/update_delivery_status_request.dart';
 import 'package:shared/shared.dart';
 
 abstract class RiderRemoteDataSource {
 
-  Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request);
+  Future<DeliveryDto> updateDeliveryStatus(UpdateDeliveryStatusRequest request);
 
   Future<RiderDto> sendHeartbeat(RiderHeartbeatRequest request);
 
@@ -16,7 +16,7 @@ abstract class RiderRemoteDataSource {
   Future<SyncManager> subscribeToAssignmentUpdates({
     required void Function(
       String eventType,
-      OrderDto? order,
+      DeliveryDto? delivery,
       RiderDto? rider,
       RiderMetricsDto? metrics,
     )
@@ -24,7 +24,7 @@ abstract class RiderRemoteDataSource {
     required Future<void> Function() onSync,
   });
 
-  Future<String> generatePresignedUploadUrl(String orderId);
+  Future<String> generatePresignedUploadUrl(String deliveryId);
 
   Future<RiderDto> fetchProfile();
 }
@@ -36,17 +36,17 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   final SyncManager syncManager;
 
   @override
-  Future<String> generatePresignedUploadUrl(String orderId) async {
+  Future<String> generatePresignedUploadUrl(String deliveryId) async {
     const mutation = r'''
-      mutation GeneratePresignedUploadUrl($orderId: ID!) {
-        generatePresignedUploadUrl(orderId: $orderId)
+      mutation GeneratePresignedUploadUrl($deliveryId: ID!) {
+        generatePresignedUploadUrl(deliveryId: $deliveryId)
       }
     ''';
 
     final data = await mutate<String>(
       mutation,
       key: 'generatePresignedUploadUrl',
-      variables: {'orderId': orderId},
+      variables: {'deliveryId': deliveryId},
     );
 
     return data;
@@ -72,12 +72,12 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   }
 
   @override
-  Future<OrderDto> updateOrderStatus(UpdateOrderStatusRequest request) async {
+  Future<DeliveryDto> updateDeliveryStatus(UpdateDeliveryStatusRequest request) async {
     final result = await gqlService.mutate<Map<String, dynamic>>(
       '''
-      mutation UpdateOrderStatus(\$orderId: ID!, \$status: String!, \$sessionId: String, \$pin: String, \$proofImageUrl: String) {
-        updateOrderStatus(orderId: \$orderId, status: \$status, sessionId: \$sessionId, verificationPin: \$pin, proofImageUrl: \$proofImageUrl) {
-          ${GqlFragments.orderFields}
+      mutation UpdateDeliveryStatus(\$deliveryId: ID!, \$status: String!, \$sessionId: String, \$pin: String, \$proofImageUrl: String) {
+        updateDeliveryStatus(deliveryId: \$deliveryId, status: \$status, sessionId: \$sessionId, verificationPin: \$pin, proofImageUrl: \$proofImageUrl) {
+          ${GqlFragments.deliveryFields}
         }
       }
     ''',
@@ -89,8 +89,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     );
 
     result.throwIfException();
-    return OrderDto.fromJson(
-      result.data!['updateOrderStatus'] as Map<String, dynamic>,
+    return DeliveryDto.fromJson(
+      result.data!['updateDeliveryStatus'] as Map<String, dynamic>,
     );
   }
 
@@ -119,8 +119,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
     const queryDocument = '''
       query RiderSync(\$since: Float, \$limit: Int, \$offset: Int) {
         riderSync(since: \$since, limit: \$limit, offset: \$offset) {
-          orders {
-            ${GqlFragments.orderFields}
+          deliveries {
+            ${GqlFragments.deliveryFields}
           }
           rider {
             ${GqlFragments.riderFields}
@@ -128,7 +128,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
           metrics {
             ${GqlFragments.riderMetricsFields}
           }
-          deletedOrderIds
+          deletedDeliveryIds
           lastUpdated
         }
       }
@@ -147,7 +147,7 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
   Future<SyncManager> subscribeToAssignmentUpdates({
     required void Function(
       String eventType,
-      OrderDto? order,
+      DeliveryDto? delivery,
       RiderDto? rider,
       RiderMetricsDto? metrics,
     )
@@ -160,14 +160,14 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
       onData: (data) async {
         final updateData =
             data['riderAssignmentUpdated'] as Map<String, dynamic>;
-        final orderData = updateData['order'] as Map<String, dynamic>?;
+        final deliveryData = updateData['delivery'] as Map<String, dynamic>?;
         final riderData = updateData['rider'] as Map<String, dynamic>?;
         final eventType = updateData['eventType'] as String;
         final metricsData = updateData['metrics'] as Map<String, dynamic>?;
 
         onData(
           eventType,
-          orderData != null ? OrderDto.fromJson(orderData) : null,
+          deliveryData != null ? DeliveryDto.fromJson(deliveryData) : null,
           riderData != null ? RiderDto.fromJson(riderData) : null,
           metricsData != null ? RiderMetricsDto.fromJson(metricsData) : null,
         );
@@ -181,8 +181,8 @@ class RiderRemoteDataSourceImpl extends BaseRemoteDataSource
       '''
     subscription RiderAssignmentUpdated(\$sessionId: String) {
       riderAssignmentUpdated(sessionId: \$sessionId) {
-        order {
-          ${GqlFragments.orderFields}
+        delivery {
+          ${GqlFragments.deliveryFields}
         }
         rider {
           ${GqlFragments.riderFields}

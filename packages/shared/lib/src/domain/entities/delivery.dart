@@ -1,0 +1,230 @@
+// ignore_for_file: constant_identifier_names
+import 'package:shared/shared.dart';
+
+class Delivery {
+  const Delivery({
+    required this.id,
+    required this.dropOffAddress,
+    required this.pickupAddress,
+    required this.trackingNumber,
+    required this.status,
+    required this.createdAt,
+    this.dropOffPlaceId,
+    this.dropOffLat,
+    this.dropOffLng,
+    this.pickupPlaceId,
+    this.pickupLat,
+    this.pickupLng,
+    this.riderId,
+    this.pin,
+    this.rider,
+    this.companyId,
+    this.assignedCompanyId,
+    this.price,
+    this.description,
+    this.scheduledAt,
+    this.createdBy,
+    this.pickupPhone,
+    this.dropOffPhone,
+    this.deliveredAt,
+    this.updatedAt,
+    this.paymentMethod,
+    this.isPriority = false,
+  });
+
+  final String id;
+  final String dropOffAddress;
+  final String pickupAddress;
+  final String trackingNumber;
+  final DeliveryStatus status;
+  final DateTime createdAt;
+  final String? dropOffPlaceId;
+  final double? dropOffLat;
+  final double? dropOffLng;
+  final String? pickupPlaceId;
+  final double? pickupLat;
+  final double? pickupLng;
+  final String? riderId;
+  final String? pin;
+  final Rider? rider;
+  final String? companyId;
+  final String? assignedCompanyId;
+  final double? price;
+  final String? description;
+  final DateTime? scheduledAt;
+  final String? createdBy;
+  final String? pickupPhone;
+  final String? dropOffPhone;
+  final DateTime? deliveredAt;
+  final DateTime? updatedAt;
+  final PaymentMethod? paymentMethod;
+  final bool isPriority;
+
+  Delivery copyWith({
+    String? id,
+    String? dropOffAddress,
+    String? pickupAddress,
+    String? trackingNumber,
+    DeliveryStatus? status,
+    DateTime? createdAt,
+    String? dropOffPlaceId,
+    double? dropOffLat,
+    double? dropOffLng,
+    String? pickupPlaceId,
+    double? pickupLat,
+    double? pickupLng,
+    String? riderId,
+    String? pin,
+    Rider? rider,
+    String? companyId,
+    String? assignedCompanyId,
+    double? price,
+    String? description,
+    DateTime? scheduledAt,
+    String? createdBy,
+    String? pickupPhone,
+    String? dropOffPhone,
+    DateTime? deliveredAt,
+    DateTime? updatedAt,
+    PaymentMethod? paymentMethod,
+    bool? isPriority,
+  }) {
+    return Delivery(
+      id: id ?? this.id,
+      dropOffAddress: dropOffAddress ?? this.dropOffAddress,
+      pickupAddress: pickupAddress ?? this.pickupAddress,
+      trackingNumber: trackingNumber ?? this.trackingNumber,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      dropOffPlaceId: dropOffPlaceId ?? this.dropOffPlaceId,
+      dropOffLat: dropOffLat ?? this.dropOffLat,
+      dropOffLng: dropOffLng ?? this.dropOffLng,
+      pickupPlaceId: pickupPlaceId ?? this.pickupPlaceId,
+      pickupLat: pickupLat ?? this.pickupLat,
+      pickupLng: pickupLng ?? this.pickupLng,
+      riderId: riderId ?? this.riderId,
+      pin: pin ?? this.pin,
+      rider: rider ?? this.rider,
+      companyId: companyId ?? this.companyId,
+      assignedCompanyId: assignedCompanyId ?? this.assignedCompanyId,
+      price: price ?? this.price,
+      description: description ?? this.description,
+      scheduledAt: scheduledAt ?? this.scheduledAt,
+      createdBy: createdBy ?? this.createdBy,
+      pickupPhone: pickupPhone ?? this.pickupPhone,
+      dropOffPhone: dropOffPhone ?? this.dropOffPhone,
+      deliveredAt: deliveredAt ?? this.deliveredAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      isPriority: isPriority ?? this.isPriority,
+    );
+  }
+}
+
+enum DeliveryStatus {
+  PENDING,
+  ASSIGNED,
+  EN_ROUTE,
+  DELIVERED,
+  CANCELLED;
+
+  bool get isCompleted {
+    return this == DeliveryStatus.DELIVERED || this == DeliveryStatus.CANCELLED;
+  }
+}
+
+enum SubscriptionEventType {
+  CREATED,
+  UPDATED,
+  DELETED,
+  ASSIGNED,
+  STATUS_CHANGED,
+  LOCATION_UPDATED,
+}
+
+extension SubscriptionEventTypeX on SubscriptionEventType {
+  static SubscriptionEventType fromString(String value) {
+    return SubscriptionEventType.values.firstWhere(
+      (e) => e.name == value.toUpperCase(),
+      orElse: () => SubscriptionEventType.UPDATED,
+    );
+  }
+}
+
+extension DeliveryStatusX on DeliveryStatus {
+  String get label {
+    switch (this) {
+      case DeliveryStatus.PENDING:
+        return 'Unassigned';
+      case DeliveryStatus.ASSIGNED:
+        return 'Assigned';
+      case DeliveryStatus.EN_ROUTE:
+        return 'En Route';
+      case DeliveryStatus.DELIVERED:
+        return 'Delivered';
+      case DeliveryStatus.CANCELLED:
+        return 'Cancelled';
+    }
+  }
+
+  static DeliveryStatus fromString(String status) {
+    return DeliveryStatus.values.firstWhere(
+      (e) => e.name == status.toUpperCase(),
+      orElse: () => DeliveryStatus.PENDING,
+    );
+  }
+}
+
+extension DeliveryX on Delivery {
+  bool get hasPickupPosition => pickupLat != null && pickupLng != null;
+  bool get hasDropOffPosition => dropOffLat != null && dropOffLng != null;
+  bool get hasLocation => hasPickupPosition || hasDropOffPosition;
+
+  /// Returns whether the user is authorized to share this delivery based on their billing tier.
+  bool canShare(SubscriptionTier tier) => tier != SubscriptionTier.free;
+
+  /// Generates a standardized share text for this delivery.
+  String toShareText(String trackingLink) {
+    final buffer = StringBuffer()
+      ..writeln('📦 Delivery #$trackingNumber')
+      ..writeln('Status: ${status.label}');
+
+    if (description?.isNotEmpty ?? false) {
+      buffer.writeln('Description: $description');
+    }
+
+    buffer
+      ..writeln('Drop-off: $dropOffAddress')
+      ..writeln('Pickup: $pickupAddress');
+
+    if (dropOffPhone != null) buffer.writeln('Contact: $dropOffPhone');
+    if (rider != null) buffer.writeln('Rider: ${rider!.fullName}');
+    if (paymentMethod != null) buffer.writeln('Payment: ${paymentMethod!.name}');
+    if (price != null) buffer.writeln('Price: ₦${price!.toStringAsFixed(0)}');
+    if (isPriority) buffer.writeln('⚡ Priority Delivery');
+
+    buffer.writeln('\n🔗 Track: $trackingLink');
+    return buffer.toString();
+  }
+}
+
+enum PaymentMethod {
+  PREPAID,
+  PAY_ON_DELIVERY;
+
+  String get label {
+    switch (this) {
+      case PaymentMethod.PREPAID:
+        return 'Prepaid';
+      case PaymentMethod.PAY_ON_DELIVERY:
+        return 'Pay on Delivery';
+    }
+  }
+
+  static PaymentMethod fromString(String value) {
+    return PaymentMethod.values.firstWhere(
+      (e) => e.name == value.toUpperCase(),
+      orElse: () => PaymentMethod.PAY_ON_DELIVERY,
+    );
+  }
+}

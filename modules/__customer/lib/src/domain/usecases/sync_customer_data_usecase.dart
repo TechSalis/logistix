@@ -1,4 +1,4 @@
-import 'package:customer/src/data/datasources/order_remote_datasource.dart';
+import 'package:customer/src/data/datasources/delivery_remote_datasource.dart';
 import 'package:shared/shared.dart';
 
 /// Performs a full catch-up sync for the Customer module.
@@ -7,15 +7,15 @@ import 'package:shared/shared.dart';
 /// and the CustomerSessionManager (during live background polling).
 class SyncCustomerDataUseCase {
   SyncCustomerDataUseCase({
-    required CustomerOrderRemoteDataSource remoteDataSource,
-    required OrderDao orderDao,
+    required CustomerDeliveryRemoteDataSource remoteDataSource,
+    required DeliveryDao deliveryDao,
     required LogistixDatabase database,
   }) : _remoteDataSource = remoteDataSource,
-       _orderDao = orderDao,
+       _deliveryDao = deliveryDao,
        _database = database;
 
-  final CustomerOrderRemoteDataSource _remoteDataSource;
-  final OrderDao _orderDao;
+  final CustomerDeliveryRemoteDataSource _remoteDataSource;
+  final DeliveryDao _deliveryDao;
   final LogistixDatabase _database;
 
   Future<void> call({double? since, int limit = 50}) async {
@@ -32,19 +32,19 @@ class SyncCustomerDataUseCase {
 
       lastUpdated = syncDto.lastUpdated;
 
-      // Upsert orders in batch
-      if (syncDto.orders.isNotEmpty) {
-        await _orderDao.upsertOrders(
-          syncDto.orders.map((e) => e.toDriftCompanion()).toList(),
+      // Upsert deliveries in batch
+      if (syncDto.deliveries.isNotEmpty) {
+        await _deliveryDao.upsertDeliveries(
+          syncDto.deliveries.map((e) => e.toDriftCompanion()).toList(),
         );
       }
 
-      // Handle deleted orders
-      if (syncDto.deletedOrderIds.isNotEmpty) {
-        await _orderDao.deleteOrders(syncDto.deletedOrderIds);
+      // Handle deleted deliveries
+      if (syncDto.deletedDeliveryIds.isNotEmpty) {
+        await _deliveryDao.deleteDeliveries(syncDto.deletedDeliveryIds);
       }
 
-      if (syncDto.orders.length < limit) {
+      if (syncDto.deliveries.length < limit) {
         hasMore = false;
       } else {
         offset += limit;

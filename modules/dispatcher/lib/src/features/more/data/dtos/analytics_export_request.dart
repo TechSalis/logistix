@@ -18,7 +18,7 @@ class AnalyticsExportRequest {
           : null,
       riderId: json['riderId'] as String?,
       statuses: (json['statuses'] as List<dynamic>?)
-          ?.map((e) => OrderStatusX.fromString(e as String))
+          ?.map((e) => DeliveryStatusX.fromString(e as String))
           .toList(),
     );
   }
@@ -26,7 +26,7 @@ class AnalyticsExportRequest {
   final DateTime? startDate;
   final DateTime? endDate;
   final String? riderId;
-  final List<OrderStatus>? statuses;
+  final List<DeliveryStatus>? statuses;
 
   Map<String, dynamic> toJson() {
     return {
