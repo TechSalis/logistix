@@ -1,8 +1,9 @@
 import 'dart:io';
-import 'package:dio/dio.dart';
+
 import 'package:bootstrap/definitions/app_error.dart';
 import 'package:bootstrap/definitions/result.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:rider/src/data/datasources/rider_remote_datasource.dart';
 import 'package:rider/src/data/dtos/rider_heartbeat_request.dart';
@@ -17,15 +18,18 @@ class RiderRepositoryImpl implements RiderRepository {
     required OrderDao orderDao,
     required RiderDao riderDao,
     required StreamableObjectStore<RiderMetricsDto> metricsStore,
+    required Dio dio,
   }) : _remoteDataSource = remoteDataSource,
        _orderDao = orderDao,
        _riderDao = riderDao,
-       _metricsStore = metricsStore;
+       _metricsStore = metricsStore,
+       _dio = dio;
 
   final RiderRemoteDataSource _remoteDataSource;
   final OrderDao _orderDao;
   final RiderDao _riderDao;
   final StreamableObjectStore<RiderMetricsDto> _metricsStore;
+  final Dio _dio;
 
   // READ operations - stream from local DB
   @override
@@ -126,7 +130,7 @@ class RiderRepositoryImpl implements RiderRepository {
           await _remoteDataSource.generatePresignedUploadUrl(orderId);
 
       // 2. Upload file via PUT
-      final dio = Dio();
+      final dio = _dio;
       final bytes = await file.readAsBytes();
       
       final response = await dio.put<dynamic>(

@@ -1,6 +1,7 @@
 import 'package:adapters/adapters.dart';
 import 'package:bootstrap/interfaces/modules/modules.dart';
 import 'package:bootstrap/interfaces/store/store.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rider/src/core/network/sync/rider_subscription_handler.dart';
@@ -60,6 +61,7 @@ class RiderModule extends Module<RouteBase> {
               riderDao: injector.get<RiderDao>(),
               metricsStore: injector
                   .get<StreamableObjectStore<RiderMetricsDto>>(),
+              dio: injector.get<Dio>(),
             ),
           ),
           RepositoryProvider<SyncRiderDataUseCase>(
